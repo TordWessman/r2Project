@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{D7921788-D9E8-44C5-8BC7-A1B0D4FD68E3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Input</RootNamespace>
+    <AssemblyName>Input</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="RaspberryPiDotNet">
+      <HintPath>..\..\3rdParty\RaspberryPiDotNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="TestGPIO.cs" />
+    <Compile Include="Input\InputMeterBase.cs" />
+    <Compile Include="Input\Sharp2Y0A02.cs" />
+    <Compile Include="GPIOTypes.cs" />
+    <Compile Include="IGPIOFactory.cs" />
+    <Compile Include="GPIOFactory.cs" />
+    <Compile Include="Input\InputPort.cs" />
+    <Compile Include="Output\OutputPort.cs" />
+    <Compile Include="Input\Sharp2D120.cs" />
+    <Compile Include="Output\IServoController.cs" />
+    <Compile Include="Output\PCA9685ServoController.cs" />
+    <Compile Include="Output\CheapBlueServo.cs" />
+    <Compile Include="Output\ILocalServo.cs" />
+    <Compile Include="Output\HS322Servo.cs" />
+    <Compile Include="Output\ServoBase.cs" />
+    <Compile Include="Input\RT69.cs" />
+    <Compile Include="Input\LightSensor10k.cs" />
+    <Compile Include="Input\SonarMaxBot.cs" />
+    <Compile Include="Input\PIRMotionSensor.cs" />
+    <Compile Include="GPIOConfigurationTemplate.cs">
+      <DependentUpon>GPIOConfigurationTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Input\InputMeter.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Input\" />
+    <Folder Include="Output\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GPIOConfigurationTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GPIOConfigurationTemplate.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

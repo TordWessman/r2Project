@@ -1,0 +1,81 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.exe
+*.o
+*.so
+*.mdb
+*.a
+*.so.*
+*.apk
+*.dex
+*.ap_
+*.bin
+#*.dll
+*.Po
+*.Po
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+*.db
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+*~
+
+#Other files
+*.userprefs
+*.tmp
+*.cache
+tmp	#temp-folder
+tmp/*.jpg
+tmp/
+*FilesWrittenAbsolute.txt
+*.FilesWrittenAbsolute.txt
+*.0
+*.*.FilesWrittenAbsolute.txt
+**/Debug/*.txt
+**/Debug/*.jpg
+obj/
+obj/*.txt
+**/Debug/*.dll*
+**/Release/*.dll*
+**/Debug/*.exe
+**/Release/*.exe
+*ConfigurationTemplate.cs
+Makefile
+config.status
+
+# binary directories
+Src/Core/bin/Debug/*
+Implementations/Node/Node/bin/Debug/*
+Implementations/MainFramePi/MainFramePi/bin/Debug/*
+Src/GPIO/bin/Debug/*
+Src/Video/bin/Debug/*
+Implementations/MainFrame/MainFrame/bin/Debug/*
+Src/Audio/bin/Debug/*

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{B9224242-E789-4497-B80C-CF3C94D0094A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Video</RootNamespace>
+    <AssemblyName>Video</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <additionalargs>/unsafe</additionalargs>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Vision.cs" />
+    <Compile Include="ImageStorage.cs" />
+    <Compile Include="Haar\HaarCascade.cs" />
+    <Compile Include="Haar\CaptureObject.cs" />
+    <Compile Include="Haar\HaarOperations.cs" />
+    <Compile Include="Dump.cs" />
+    <Compile Include="ImageTypes.cs" />
+    <Compile Include="IImagePointerManager.cs" />
+    <Compile Include="IImageStorage.cs" />
+    <Compile Include="FaceRecognition\IFaceRecognizer.cs" />
+    <Compile Include="FaceRecognition\FaceRecognizer.cs" />
+    <Compile Include="FaceRecognition\FaceRecognitionMemoryTypes.cs" />
+    <Compile Include="VideoFactory.cs" />
+    <Compile Include="Experiment.cs" />
+    <Compile Include="Haar\CaptureObjectsContainer.cs" />
+    <Compile Include="Tracking\PointsTracker.cs" />
+    <Compile Include="Tracking\IPointsTracker.cs" />
+    <Compile Include="Tracking\PtTracker.cs" />
+    <Compile Include="Tracking\TrackerFactory.cs" />
+    <Compile Include="Tracking\ITrackerFactory.cs" />
+    <Compile Include="Camera\VideoRouter.cs" />
+    <Compile Include="Camera\IFrameSource.cs" />
+    <Compile Include="IplImage.cs" />
+    <Compile Include="Camera\WebCam.cs" />
+    <Compile Include="VideoConfigurationTemplate.cs">
+      <DependentUpon>VideoConfigurationTemplate.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Haar\" />
+    <Folder Include="FaceRecognition\" />
+    <Folder Include="Tracking\" />
+    <Folder Include="Camera\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="VideoConfigurationTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>VideoConfigurationTemplate.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

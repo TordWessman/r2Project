@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Core</RootNamespace>
+    <AssemblyName>Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="System.Data" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="IronRuby">
+      <HintPath>..\..\3rdParty\IronRuby\IronRuby.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby.Libraries">
+      <HintPath>..\..\3rdParty\IronRuby\IronRuby.Libraries.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby.Libraries.Yaml">
+      <HintPath>..\..\3rdParty\IronRuby\IronRuby.Libraries.Yaml.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\..\3rdParty\IronRuby\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\..\3rdParty\IronRuby\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Metadata">
+      <HintPath>..\..\3rdParty\IronRuby\Microsoft.Scripting.Metadata.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Log\IMessageLogger.cs" />
+    <Compile Include="Log\ConsoleLogger.cs" />
+    <Compile Include="Log\Log.cs" />
+    <Compile Include="Network\Data\IDataPackage.cs" />
+    <Compile Include="Network\Data\DataPackage.cs" />
+    <Compile Include="Network\Server.cs" />
+    <Compile Include="Network\ClientConnection.cs" />
+    <Compile Include="Network\NetworkConnection.cs" />
+    <Compile Include="Network\IDataReceived.cs" />
+    <Compile Include="Network\RawPackageFactory.cs" />
+    <Compile Include="Network\Data\IDataPackageHeader.cs" />
+    <Compile Include="Network\Data\DataPackageHeader.cs" />
+    <Compile Include="Network\Data\IDataPackageFactory.cs" />
+    <Compile Include="Network\Data\DataPackageFactory.cs" />
+    <Compile Include="Network\NetworkUtils.cs" />
+    <Compile Include="Network\RPCManager.cs" />
+    <Compile Include="Network\HostManager.cs" />
+    <Compile Include="Network\IHostManager.cs" />
+    <Compile Include="Network\IBasicServer.cs" />
+    <Compile Include="Network\IClientConnection.cs" />
+    <Compile Include="Tests\PackageTest.cs" />
+    <Compile Include="ITaskMonitor.cs" />
+    <Compile Include="ITaskMonitored.cs" />
+    <Compile Include="Device\DeviceManager.cs" />
+    <Compile Include="Device\IDeviceManager.cs" />
+    <Compile Include="Device\DeviceException.cs" />
+    <Compile Include="Network\IHostManagerObserver.cs" />
+    <Compile Include="Memory\MemorySource.cs" />
+    <Compile Include="Memory\IMemoryDBAdapter.cs" />
+    <Compile Include="Memory\MemoryFactory.cs" />
+    <Compile Include="Memory\IMemoryReference.cs" />
+    <Compile Include="Memory\MemoryReference.cs" />
+    <Compile Include="Memory\MemoryBus.cs" />
+    <Compile Include="Memory\IMemoryBus.cs" />
+    <Compile Include="Memory\IAssociationsDBAdapter.cs" />
+    <Compile Include="Network\NetworkPackageFactory.cs" />
+    <Compile Include="Memory\MemoryPackageFactory.cs" />
+    <Compile Include="Memory\Memory.cs" />
+    <Compile Include="Memory\IMemory.cs" />
+    <Compile Include="Memory\MemoryDBAdapter.cs" />
+    <Compile Include="DB\IDBAdapter.cs" />
+    <Compile Include="Memory\AssociationsDBAdapter.cs" />
+    <Compile Include="Device\RemoteDeviceFactory.cs" />
+    <Compile Include="Device\IRemotlyAccessable.cs" />
+    <Compile Include="Scripting\IScript.cs" />
+    <Compile Include="Scripting\IScriptFactory.cs" />
+    <Compile Include="Scripting\Ruby\RubyProcess.cs" />
+    <Compile Include="Device\RemotlyAccessableDeviceBase.cs" />
+    <Compile Include="Scripting\ICommandScript.cs" />
+    <Compile Include="Scripting\Ruby\RubyScript.cs" />
+    <Compile Include="Scripting\IScriptProcess.cs" />
+    <Compile Include="Scripting\Ruby\RubyCommandScript.cs" />
+    <Compile Include="IStartable.cs" />
+    <Compile Include="IStopable.cs" />
+    <Compile Include="Network\IRPCManager.cs" />
+    <Compile Include="Device\Interfaces\IDummy.cs" />
+    <Compile Include="Device\Interfaces\ITTS.cs" />
+    <Compile Include="Device\Interfaces\ICameraController.cs" />
+    <Compile Include="Device\Interfaces\IInputMeter.cs" />
+    <Compile Include="Device\Interfaces\IInputPort.cs" />
+    <Compile Include="Device\Interfaces\IOutputPort.cs" />
+    <Compile Include="Device\DeviceBase.cs" />
+    <Compile Include="Device\IDevice.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteDummy.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteEspeak.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteDeviceBase.cs" />
+    <Compile Include="Device\RemoteDevices\IRemoteDevice.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteCameraController.cs" />
+    <Compile Include="Device\RemoteDevices\StandardRemoteDeviceMethods.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteInputMeter.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteInputPort.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteOutputPort.cs" />
+    <Compile Include="Scripting\ScriptExecutor.cs" />
+    <Compile Include="Scripting\IScriptExecutor.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteScriptExecutor.cs" />
+    <Compile Include="Scripting\IScriptExecutorFactory.cs" />
+    <Compile Include="Scripting\ScriptExecutorFactory.cs" />
+    <Compile Include="Scripting\Ruby\RubyScriptFactory.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteScriptExecutorFactory.cs" />
+    <Compile Include="Scripting\IScriptObserver.cs" />
+    <Compile Include="Device\Interfaces\IASRController.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteASRController.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteMemoryBus.cs" />
+    <Compile Include="Device\Interfaces\IServo.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteServo.cs" />
+    <Compile Include="Device\RemoteDevices.cs" />
+    <Compile Include="Network\IClientMessageObserver.cs" />
+    <Compile Include="Device\Interfaces\ICommandExecutor.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteCommandExecutor.cs" />
+    <Compile Include="Shared\CvRect.cs" />
+    <Compile Include="SimpleTaskMonitor.cs" />
+    <Compile Include="Serializer.cs" />
+    <Compile Include="Shared\CvPoint.cs" />
+    <Compile Include="Shared\CvSize.cs" />
+    <Compile Include="IClientSerialize.cs" />
+    <Compile Include="Network\Http\IHttpServerInterpreter.cs" />
+    <Compile Include="Network\Http\JsonInterpreter.cs" />
+    <Compile Include="Network\Http\IHttpServer.cs" />
+    <Compile Include="DeviceFactory.cs" />
+    <Compile Include="Network\Http\Messages\JsonDeviceMessage.cs" />
+    <Compile Include="Network\Http\Messages\JsonRegisterMessage.cs" />
+    <Compile Include="Network\Http\JsonClient.cs" />
+    <Compile Include="Network\Http\Messages\JsonMessageFactory.cs" />
+    <Compile Include="Network\Http\IJsonClient.cs" />
+    <Compile Include="Network\Http\Messages\JsonBaseMessage.cs" />
+    <Compile Include="Network\Http\Messages\JsonAddRecordMessage.cs" />
+    <Compile Include="Device\Interfaces\IAudioPlayer.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteAudioPlayer.cs" />
+    <Compile Include="Settings\Shared.cs">
+      <DependentUpon>Shared.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Settings\CoreConfigurationTemplate.cs">
+      <DependentUpon>CoreConfigurationTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="DB\IDatabase.cs" />
+    <Compile Include="DB\SqliteDatabase.cs" />
+    <Compile Include="Network\Http\HttpServer.cs" />
+    <Compile Include="Network\Http\ImageInterpreter.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="RecurringTimer.cs" />
+    <Compile Include="BaseContainer.cs" />
+    <Compile Include="Network\Http\DeviceFactoryHttp.cs" />
+    <Compile Include="Gstream.cs" />
+    <Compile Include="Device\IJSONAccessible.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteGstream.cs" />
+    <Compile Include="IGstream.cs" />
+    <Compile Include="Device\IDeviceManagerObserver.cs" />
+    <Compile Include="Device\Interfaces\IMemorySource.cs" />
+    <Compile Include="Device\RemoteDevices\RemoteMemorySource.cs" />
+    <Compile Include="Memory\SharedMemorySource.cs" />
+    <Compile Include="Device\RemoteDeviceReference.cs" />
+    <Compile Include="Network\INetworkSecurity.cs" />
+    <Compile Include="Network\SimpleNetworkSecurity.cs" />
+    <Compile Include="Network\INetworkPackageFactory.cs" />
+    <Compile Include="Log\SimpleConsoleLogger.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Log\" />
+    <Folder Include="Network\" />
+    <Folder Include="Network\Data\" />
+    <Folder Include="Tests\" />
+    <Folder Include="Device\" />
+    <Folder Include="Memory\" />
+    <Folder Include="DB\" />
+    <Folder Include="Scripting\" />
+    <Folder Include="Scripting\Ruby\" />
+    <Folder Include="Shared\" />
+    <Folder Include="Network\Http\" />
+    <Folder Include="Network\Http\Messages\" />
+    <Folder Include="Settings\" />
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Settings\Shared.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Shared.cs</LastGenOutput>
+    </None>
+    <None Include="Settings\CoreConfigurationTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CoreConfigurationTemplate.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+</Project>

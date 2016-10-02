@@ -1,0 +1,85 @@
+// This file is part of r2Poject.
+//
+// Copyright 2016 Tord Wessman
+// 
+// r2Project is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// r2Project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with r2Project. If not, see <http://www.gnu.org/licenses/>.
+// 
+
+using System;
+using Core.Network;
+using System.Net;
+
+
+namespace Core.Device
+{
+	/// <summary>
+	/// A devcie manager is respnsible for keepin track of all available IDevices
+	/// </summary>
+	public interface IDeviceManager : IHostManagerObserver, IDataReceived<byte[],IPEndPoint>
+	{
+		void Add(IDevice device);
+
+		/// <summary>
+		/// Returns a device of type T with the specified identifier if found or null. Will throw exception if unable to cast. 
+		/// </summary>
+		/// <param name="identifier">Identifier.</param>
+		/// <typeparam name="T">The 1st type parameter.</typeparam>
+		T Get<T>(string identifier);
+
+		/// <summary>
+		/// Returns a device with the specified identifier or null.
+		/// </summary>
+		/// <param name="identifier">Identifier.</param>
+		IDevice Get (string identifier);
+
+		/// <summary>
+		/// Returns a device with the specified Guid.
+		/// </summary>
+		/// <returns>The by GUID.</returns>
+		/// <param name="guid">GUID.</param>
+		/// <typeparam name="T">The 1st type parameter.</typeparam>
+		T GetByGuid<T> (Guid guid);
+
+		/// <summary>
+		/// Returns true if a device with the specified identifier exists
+		/// </summary>
+		/// <returns><c>true</c> if this instance has identifier; otherwise, <c>false</c>.</returns>
+		/// <param name="identifier">Identifier.</param>
+		bool Has (string identifier);
+
+		/// <summary>
+		/// Removes an IDevice with the specified identifier and notifies other hosts about the removal.
+		/// </summary>
+		/// <param name="identifier">Identifier.</param>
+		void Remove (string identifier);
+
+		/// <summary>
+		/// Adds an IDeviceManagerObserver which will be notified if a device is added or removed.
+		/// </summary>
+		/// <param name="observer">Observer.</param>
+		void AddObserver (IDeviceManagerObserver observer);
+
+		/// <summary>
+		/// Print out all devices to debug
+		/// </summary>
+		void PrintDevices();
+
+		/// <summary>
+		/// Sends stop signal to all local devices. Use optional ignoreDevice in order to exclude devices from being stopped
+		/// </summary>
+		void Stop(IDevice[] ignoreDevices);
+
+	}
+}
+

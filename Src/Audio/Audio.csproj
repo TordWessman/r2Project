@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3FC18E0E-01D6-4816-89A6-0AE2A300B1C8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>TTS</RootNamespace>
+    <AssemblyName>TTS</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Libraries\Newtonsoft.Json.dll</HintPath>
+      <Package>monodevelop</Package>
+    </Reference>
+    <Reference Include="AIMLbot">
+      <HintPath>..\..\3rdParty\AIMLbot.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="EspeakTTS.cs" />
+    <Compile Include="ITTSObserver.cs" />
+    <Compile Include="AudioFactory.cs" />
+    <Compile Include="Mp3Player.cs" />
+    <Compile Include="AudioConfigurationTemplate.cs">
+      <DependentUpon>AudioConfigurationTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ASR\ASRController.cs" />
+    <Compile Include="ASR\ASRInterpreter.cs" />
+    <Compile Include="ASR\AimlToSphinxConverter.cs" />
+    <Compile Include="ASR\CommandInterpreter.cs" />
+    <Compile Include="ASR\ConversationLock.cs" />
+    <Compile Include="ASR\FlacConverter.cs" />
+    <Compile Include="ASR\GoogleASR.cs" />
+    <Compile Include="ASR\GoogleSpeechFacade.cs" />
+    <Compile Include="ASR\IASR.cs" />
+    <Compile Include="ASR\IASRInterpreter.cs" />
+    <Compile Include="ASR\IASRObserver.cs" />
+    <Compile Include="ASR\IConversationLock.cs" />
+    <Compile Include="ASR\ILanguageUpdated.cs" />
+    <Compile Include="ASR\ILanguageUpdater.cs" />
+    <Compile Include="ASR\IModelCreator.cs" />
+    <Compile Include="ASR\ISpeechInterpreter.cs" />
+    <Compile Include="ASR\ScriptConversationLock.cs" />
+    <Compile Include="ASR\SphinxASRServer.cs" />
+    <Compile Include="ASR\SphinxModelCreator.cs" />
+    <Compile Include="ASR\StaticAnswerMachine.cs" />
+    <Compile Include="ASR\UglyLanguageUpdater.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <None Include="AudioConfigurationTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AudioConfigurationTemplate.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ASR\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj">
+      <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
+      <Name>Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

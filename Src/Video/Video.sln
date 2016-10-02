@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Video", "Video.csproj", "{B9224242-E789-4497-B80C-CF3C94D0094A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "..\Core\Core.csproj", "{20F7565B-91DE-40F9-80BE-C83D1B93C537}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20F7565B-91DE-40F9-80BE-C83D1B93C537}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20F7565B-91DE-40F9-80BE-C83D1B93C537}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20F7565B-91DE-40F9-80BE-C83D1B93C537}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20F7565B-91DE-40F9-80BE-C83D1B93C537}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9224242-E789-4497-B80C-CF3C94D0094A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9224242-E789-4497-B80C-CF3C94D0094A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9224242-E789-4497-B80C-CF3C94D0094A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9224242-E789-4497-B80C-CF3C94D0094A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Video.csproj
+	EndGlobalSection
+EndGlobal

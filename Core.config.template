@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- THIS IS AN EXAMPLE IMPLEMENTATION FOR THE PROJECT. IT MUST BE LOCATED AT THE PROJECT ROOT FOLDER (probably the parent folder) AND BE NAMED "Core.config" -->
+<Configuration>
+	<Paths>
+		<r2ProjectDirectory relative="r2Project" comment="r2 Project main directory.">
+			<Lib comment="Contails compiled dynamic libraries."/>
+		</r2ProjectDirectory>
+
+		<Common relative="r2Project/Common" comment="Shared project resources path."/>
+
+		<Resources comment="Resource base path." relative="./Resources">
+			<Scripts comment="contains various types of runtime scripts">
+				<Ruby comment="Here be all Ruby script files.">
+					<Setup comment="Here be ruby setup files."/>
+				</Ruby>
+				<Shell/>
+				<Sphinx ignore="true">
+					<lib/>
+					<MakeDict/>
+				</Sphinx>
+			</Scripts>
+			<Databases comment="contains all database files for the clients"/>
+			<Audio/>
+			<Cert comment="contains ceritificates used for push notifications."/>
+			<Language include="false">
+				<hub4wsj_sc_8k include="haha"/>
+				<chomskyAIML/>
+				<chatbot/>
+				<aimlConfig/>
+			</Language>
+			<Vision include="false">
+				<face/>
+				<haar/>
+				<model/>
+			</Vision>
+		</Resources>
+	</Paths>
+	<Identifiers>
+		<Core>core</Core>
+		<HostManager comment="Host manager. Keep tracks of/receive hello packages from remote hosts and broadcasts existance.">hostmgr</HostManager>
+		<Server>server</Server>
+		<ScriptFactory comment="Responsible for creating new (iron) scripts">script_factory</ScriptFactory>
+		<Memory comment="Interface for retrieving memories">memory</Memory>
+		<MemoryBus comment="communicates memories">membus</MemoryBus>
+		<Serializer>serializer</Serializer>
+		<DeviceFactory comment="default factory instance for general devices">device_factory</DeviceFactory>
+		<RunLoopScriptId comment="the id of the script running the show">main</RunLoopScriptId>
+		<TaskMonitor comment="keeps track of all running processes">task_monitor</TaskMonitor>
+		<Logger>log</Logger>
+		<ConsoleLogger>console_logger</ConsoleLogger>
+		<Database>sqlite_database</Database>
+	</Identifiers>
+	<Consts>
+		<DefaultRpcPort type="int" comment="default server port">1234</DefaultRpcPort>
+		<BroadcastMgrPort type="int" comment="the port used by the host manager to broadcast">9050</BroadcastMgrPort>
+		<BroadcastMgrTcpPort type="int" comment="tcp listener port for broadcast manager">9051</BroadcastMgrTcpPort>
+		<RunLoopScript comment="Name of the run loop script!">keyboard.rb</RunLoopScript>
+	</Consts>
+</Configuration>
