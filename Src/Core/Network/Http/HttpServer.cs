@@ -52,6 +52,7 @@ namespace Core.Network.Http
  				HttpListenerContext context = m_listener.GetContext();
 
 				if (m_listener.IsListening) {
+
 					HttpListenerRequest request = context.Request;
 
 					// Obtain a response object.
@@ -75,7 +76,9 @@ namespace Core.Network.Http
 									responseBuffer = interpreter.Interpret (inputString, request.Url.AbsolutePath, request.HttpMethod);
 
 									foreach (string headerKey in interpreter.ExtraHeaders.Keys) {
+
 										response.Headers.Add (headerKey, interpreter.ExtraHeaders [headerKey]);
+									
 									}
 
 									response.ContentType = interpreter.HttpContentType;
@@ -86,13 +89,18 @@ namespace Core.Network.Http
 
 							}
 
-
 						} catch (Exception ex) {
+
 							Log.x (ex);
 
+							#if DEBUG
 							responseBuffer = ex.Message.ToByteArray (m_encoding);
+							#else
+							responseBuffer = "ERROR".ToByteArray(m_encoding);
+							#endif
 
 							response.StatusCode = 500;
+						
 						}
 
 						if (!didFindResponder && response.StatusCode != 500) {

@@ -26,7 +26,7 @@ using System.Linq;
 namespace Core
 {
 	/// <summary>
-	/// Device factory for the creation of uncategorized shared devices
+	/// Device factory for the creation of uncategorized shared devices. Most of the factory methods should be moved to a more domain specific factory.
 	/// </summary>
 	public class DeviceFactory : DeviceBase
 	{
@@ -98,7 +98,7 @@ namespace Core
 
 					} else if (DeviceManager.Has(message.Device)) {
 
-						if (method== "post") {
+						if (method == "post") {
 
 							IDevice device = DeviceManager.Get(message.Device);
 							if (device is IJSONAccessible) {

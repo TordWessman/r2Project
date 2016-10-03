@@ -97,15 +97,13 @@ namespace Core
 		
 		public BaseContainer (string dbFile, int tcpPort = -1) : base (Settings.Identifiers.Core())
 		{
+
 			m_shouldRun = true;
 
+			//Set up logging
 			SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger (Settings.Identifiers.ConsoleLogger ());
-
-			// REmoved console logger due to issues in OSX
-				//new ConsoleLogger (Settings.Identifiers.ConsoleLogger());
-			//consoleLogger.Start ();
+			consoleLogger.Start ();
 			Log logger = new Log (Settings.Identifiers.Logger ());
-
 			logger.AddLogger (consoleLogger);
 
 			//Check if the file is in an absoulute path. If not create/open the database in the database-base folder.
@@ -117,7 +115,8 @@ namespace Core
 
 			m_serializer = new Serializer (Settings.Identifiers.Serializer());
 		
-			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity ("test");
+			// Set up a very simple network security handler
+			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity (Settings.Consts.DefaultPassword());
 
 			m_networkPackageFactory = new NetworkPackageFactory (simpleSecurity);
 
@@ -128,11 +127,13 @@ namespace Core
 				Settings.Consts.BroadcastMgrPort(), 
 				Settings.Consts.BroadcastMgrTcpPort());
 
+			// handles remote device requests
 			m_rpcManager = new RPCManager (m_hostManager, m_networkPackageFactory, m_taskMonitor);
+
+			// contains and manages all devices
 			m_devices = new DeviceManager (m_hostManager, m_rpcManager, m_networkPackageFactory);
 
 			m_devices.Add (m_taskMonitor);
-
 			m_devices.Add (Settings.Instance);
 			m_devices.Add (consoleLogger);
 			m_devices.Add (logger);
@@ -149,13 +150,15 @@ namespace Core
 				Settings.Identifiers.RunLoopScriptId(),
 				Settings.Paths.Common(Settings.Consts.RunLoopScript()));
 
+			// Set up database and memory
 			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbPath);
 			m_memory = new SharedMemorySource (Settings.Identifiers.Memory(), m_devices, m_db);
 
+			// Creating a device factory used for the creation of yet uncategorized devices...
 			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices, m_memory);
 
+			// Add devices to device manager 
 			m_devices.Add (m_serializer);
-
 			m_devices.Add (m_memory);
 			m_devices.Add (m_db);
 			m_devices.Add (m_server);

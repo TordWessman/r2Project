@@ -71,14 +71,17 @@ namespace Core.Network.Http
 			K outputObject = m_interpretationFunc (inputObject, httpMethod.ToLower());
 
 			return m_serializer.Serialize (outputObject).ToByteArray (m_encoding);
+
 		}
 
 		public bool Accepts(string uri) {
 
 			return m_responsePath == uri;
+
 		}
 
 		public string HttpContentType {
+
 			get {
 
 				return m_contentType;
@@ -92,9 +95,11 @@ namespace Core.Network.Http
 
 				return m_extraHeaders;
 			}
+
 		}
 
 		#endregion
+
 	}
 
 }
