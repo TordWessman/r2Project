@@ -2,11 +2,11 @@
 <!-- THIS IS AN EXAMPLE IMPLEMENTATION FOR THE PROJECT. IT MUST BE LOCATED AT THE PROJECT ROOT FOLDER (probably the parent folder) AND BE NAMED "Core.config" -->
 <Configuration>
 	<Paths>
-		<r2ProjectDirectory relative="r2Project" comment="r2 Project main directory.">
+		<r2ProjectDirectory relative="./r2Project" comment="r2 Project main directory.">
 			<Lib comment="Contails compiled dynamic libraries."/>
 		</r2ProjectDirectory>
 
-		<Common relative="r2Project/Common" comment="Shared project resources path."/>
+		<Common relative="./r2Project/Common" comment="Shared project resources path."/>
 
 		<Resources comment="Resource base path." relative="./Resources">
 			<Scripts comment="contains various types of runtime scripts">
@@ -55,5 +55,6 @@
 		<BroadcastMgrPort type="int" comment="the port used by the host manager to broadcast">9050</BroadcastMgrPort>
 		<BroadcastMgrTcpPort type="int" comment="tcp listener port for broadcast manager">9051</BroadcastMgrTcpPort>
 		<RunLoopScript comment="Name of the run loop script!">keyboard.rb</RunLoopScript>
+		<DefaultPassword comment="Default password for RPC operations.">Din mamma!</DefaultPassword>
 	</Consts>
 </Configuration>
