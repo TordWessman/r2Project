@@ -35,19 +35,19 @@ namespace Core.Network.Http
 		byte[] Interpret(string inputData, string uri = null, string httpMethod = null);
 
 		/// <summary>
-		/// The uri path on which this interprener is listening 
+		/// The uri path on which this interprener is listening.
 		/// </summary>
 		/// <value>The response path.</value>
 		bool Accepts (string uri);
 
 		/// <summary>
-		/// Thee response content type
+		/// Thee response content type.
 		/// </summary>
 		/// <value>The type of the http content.</value>
 		string HttpContentType {get; }
 
 		/// <summary>
-		/// Gets the extra headers.used for the response
+		/// Extra response headers.
 		/// </summary>
 		/// <value>The extra headers.</value>
 		IDictionary<string,string> ExtraHeaders {get;}

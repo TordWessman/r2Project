@@ -23,8 +23,34 @@ using System.Linq;
 
 namespace Core.Network.Http
 {
-	public static class DeviceFactoryHttp
+	/// <summary>
+	/// Creates various http components
+	/// </summary>
+	public class HttpFactory : DeviceBase
 	{
+
+		public HttpFactory (string id) : base (id) {
+		
+		}
+
+		public IHttpServer CreateHttpServer (string id, int port) {
+
+			return new HttpServer (id, port);
+
+		}
+
+		public IJsonClient CreateJsonClient(string id, string serverUrl) {
+
+			return new JsonClient (id, serverUrl);
+
+		}
+
+		public JsonMessageFactory CreateJsonMessageFactory(string id) {
+
+			return new JsonMessageFactory (id);
+
+		}
+
 		/** 
 		 * TODO: Not really sure how to make IronRuby accept extension methods..
 		public static IHttpServerInterpreter CreateImageInterpreter (this DeviceFactory self, string imagePath, string imageUri) {
