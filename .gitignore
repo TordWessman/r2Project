@@ -70,6 +70,7 @@ obj/*.txt
 *ConfigurationTemplate.cs
 Makefile
 config.status
+Shared.cs
 
 # binary directories
 Src/Core/bin/Debug/*
