@@ -58,6 +58,7 @@
 
 			if (File.Exists (configFullPath)) {
 	
+				#><#="\n// --- Using configuration file: " + configFullPath + " ---\n" #><#+
 				break;
 	
 			} else {
@@ -65,10 +66,7 @@
 				if ( Directory.GetParent (baseDir) != null) {
 	
 					baseDir =  Directory.GetParent (baseDir).FullName;
-					#>
-						<#= "\n// Core.config found at: " + baseDir + "\n" #>
-					<#+
-	
+
 				} else {
 	
 					return new string []{};

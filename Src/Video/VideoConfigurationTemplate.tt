@@ -1,8 +1,8 @@
-﻿<#@ template language="C#" hostspecific="true"  debug="True"  #>
-<#@ assembly name="System.Core" #>
+<#@ template language="C#" hostspecific="true"  debug="True"  #>
+<#@ output extension=".cs" #>
+<#@ import namespace="System" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
-<#@ output extension=".cs" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ include file="../../Src/Core/Settings/Shared.tt" #>
 <#
@@ -19,10 +19,12 @@ XmlDocument doc = GetConfigXml(config[CFILE]); #>
 using System;
 using Core;
 
-namespace MainFrame {
+namespace Video {
 
 <#= GetPathsForDoc(configFileName, doc, baseDir, true) #>
+
 <#= GetIdentifiersForDoc(configFileName, doc, true) #>
+
 <#= GetConstsForDoc(configFileName, StripBasePath(baseDir, config[CFILE]), doc, true) #>
 
 }
