@@ -1,4 +1,4 @@
-<#@ template language="C#" hostspecific="true"  debug="True"  #>
+﻿<#@ template language="C#" hostspecific="true"  debug="True"  #>
 <#@ output extension=".cs" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.Linq" #>
@@ -35,3 +35,4 @@ namespace Video {
 	// UNABLE TO LOCATE CONFIG!
 	<# } #>
 
+ 	

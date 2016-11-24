@@ -21,15 +21,18 @@ using System.Runtime.Serialization.Json;
 using System.IO;
 using System.Web.Script.Serialization;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Core.Network.Http
 {
-
-	public class JsonInterpreter<T,K> : IHttpServerInterpreter
+	/// <summary>
+	/// A JsonEndpoint is intended to represent a HttpServer endpoint mapped to a specified URI path.
+	/// </summary>
+	public class JsonEndpoint : IHttpServerInterpreter
 	{
 
-		private Func<T, string, K> m_interpretationFunc;
-		private JavaScriptSerializer m_serializer;
+		private Func<dynamic, string, dynamic> m_interpretationFunc;
 		private string m_responsePath;
 		private string m_contentType;
 		private IDictionary<string,string> m_extraHeaders;
@@ -37,17 +40,16 @@ namespace Core.Network.Http
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Core.Network.Http.JsonInterpreter`2"/> class.
-		/// response path is the path of which this interpeter listens to
+		/// responseURIPath is the URI path of which this interpeter listens to (i.e. '/devices')
 		/// </summary>
 		/// <param name="responsePath">Response path.</param>
 
-		public JsonInterpreter (string responsePath, Func<T,string, K> interpretationFunc, System.Text.Encoding encoding = null)
+		public JsonEndpoint (string responseURIPath, Func<dynamic,string, dynamic> interpretationFunc, System.Text.Encoding encoding = null)
 		{
 			m_interpretationFunc = interpretationFunc;
-			m_serializer = new JavaScriptSerializer ();
 			m_encoding = encoding ?? System.Text.Encoding.UTF8;
 
-			m_responsePath = responsePath;
+			m_responsePath = responseURIPath;
 			m_contentType = @"application/json";
 
 			m_extraHeaders = new Dictionary<string,string> ();
@@ -63,14 +65,13 @@ namespace Core.Network.Http
 
 		public byte[] Interpret (string inputJson, string uri = null, string httpMethod = null)
 		{
-
 			//Log.t ("got input json:" + inputJson + " and method: " + httpMethod);
 
-			T inputObject = m_serializer.Deserialize<T> (inputJson);
+			dynamic inputObject = String.IsNullOrEmpty(inputJson) ? null : JObject.Parse (inputJson);
 
-			K outputObject = m_interpretationFunc (inputObject, httpMethod.ToLower());
-
-			return m_serializer.Serialize (outputObject).ToByteArray (m_encoding);
+			dynamic outputObject = m_interpretationFunc (inputObject, httpMethod.ToLower());
+			String outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject));
+			return outputObject != null ? outputString.ToByteArray() : new byte[0];
 
 		}
 

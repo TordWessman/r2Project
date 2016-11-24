@@ -10,7 +10,7 @@
 cwd=$(pwd)
 
 # The directory where implementations are locaded
-implementation_path="$cwd/../Src"
+implementation_path="$cwd/../Implementations"
 
 T4_compiler_path="/usr/lib/monodevelop/AddIns/MonoDevelop.TextTemplating/TextTransform.exe"
 core_configuration_path="Src/Core/Settings"

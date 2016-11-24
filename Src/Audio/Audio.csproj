@@ -7,7 +7,9 @@
     <OutputType>Library</OutputType>
     <RootNamespace>TTS</RootNamespace>
     <AssemblyName>TTS</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -71,12 +73,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="AudioConfigurationTemplate.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>AudioConfigurationTemplate.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="ASR\" />
   </ItemGroup>
   <ItemGroup>
@@ -84,5 +80,11 @@
       <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
       <Name>Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="AudioConfigurationTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>AudioConfigurationTemplate.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>

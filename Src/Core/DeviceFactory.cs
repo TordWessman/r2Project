@@ -22,6 +22,7 @@ using Core.Network.Http;
 using Core.Memory;
 using MemoryType = System.String;
 using System.Linq;
+using System.Dynamic;
 
 namespace Core
 {
@@ -63,7 +64,7 @@ namespace Core
 
 		public IHttpServerInterpreter CreateJsonInterpreter(string deviceListenerPath) {
 
-			return new JsonInterpreter<JsonDeviceMessage,JsonDeviceMessage>(deviceListenerPath,
+			return new JsonEndpoint(deviceListenerPath,
 				(message, method) => {
 
 					IMemory requestToken = Memory.Get("client_token");
@@ -118,7 +119,10 @@ namespace Core
 
 					string error = "JsonRequest: Device not found: " + message.Device; 
 					Log.e(error);
-					return new JsonDeviceMessage() {Status = (int)JsonDeviceMessage.Statuses.GeneralError, Data = error} ;
+					dynamic response = new ExpandoObject();
+					response.Status = (int)JsonDeviceMessage.Statuses.GeneralError;
+					response.Data = error;
+					return response;
 
 				});
 

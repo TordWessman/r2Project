@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Video</RootNamespace>
     <AssemblyName>Video</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
@@ -64,10 +64,6 @@
     <Compile Include="VideoConfigurationTemplate.cs">
       <DependentUpon>VideoConfigurationTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="VideoConfigurationTemplate.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>VideoConfigurationTemplate.cs</LastGenOutput>
-    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -81,5 +77,11 @@
       <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
       <Name>Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="VideoConfigurationTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>VideoConfigurationTemplate.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>
