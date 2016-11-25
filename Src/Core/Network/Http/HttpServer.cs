@@ -31,14 +31,14 @@ namespace Core.Network.Http
 		private HttpListener m_listener;
 		private bool m_shouldrun;
 		private int m_port;
-		private IList<IHttpServerInterpreter> m_interpreters;
+		private IList<IHttpEndpoint> m_interpreters;
 		private Task m_task;
 		private System.Text.Encoding m_encoding;
 
 		public HttpServer (string id, int port, System.Text.Encoding encoding = null) :  base (id)
 		{
 			m_port = port;
-			m_interpreters = new List<IHttpServerInterpreter> ();
+			m_interpreters = new List<IHttpEndpoint> ();
 			m_encoding = encoding ?? System.Text.Encoding.UTF8;
 
 		}
@@ -66,7 +66,7 @@ namespace Core.Network.Http
 
 						try {
 
-							foreach (IHttpServerInterpreter interpreter in m_interpreters) {
+							foreach (IHttpEndpoint interpreter in m_interpreters) {
 
 								if (interpreter.Accepts(request.Url.AbsolutePath)) {
 
@@ -146,7 +146,7 @@ namespace Core.Network.Http
 			m_listener.Stop ();
 		}
 
-		public void AddInterpreter(IHttpServerInterpreter interpreter) {
+		public void AddInterpreter(IHttpEndpoint interpreter) {
 		
 			m_interpreters.Add (interpreter);
 

@@ -56,15 +56,15 @@ namespace Core
 		}
 
 
-		public IHttpServerInterpreter CreateImageInterpreter (string imagePath, string imageUri) {
+		public IHttpEndpoint CreateImageInterpreter (string imagePath, string imageUri) {
 
-			return new ImageInterpreter (imagePath, imageUri);
+			return new HttpFileEndpoint (imagePath, imageUri);
 
 		}
 
-		public IHttpServerInterpreter CreateJsonInterpreter(string deviceListenerPath) {
+		public IHttpEndpoint CreateJsonInterpreter(string deviceListenerPath) {
 
-			return new JsonEndpoint(deviceListenerPath,
+			return new HttpJsonEndpoint(deviceListenerPath,
 				(message, method) => {
 
 					IMemory requestToken = Memory.Get("client_token");

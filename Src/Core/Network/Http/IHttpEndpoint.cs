@@ -25,7 +25,7 @@ namespace Core.Network.Http
 	/// Interprets data input and returns a decoded response.
 	/// sent back to the client
 	/// </summary>
-	public interface IHttpServerInterpreter
+	public interface IHttpEndpoint
 	{
 		/// <summary>
 		/// Interprets inputData and returns byte array of response data.

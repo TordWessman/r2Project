@@ -1,3 +1,6 @@
 [submodule "3rdParty/Newtonsoft.Json"]
 	path = 3rdParty/Newtonsoft.Json
 	url = https://github.com/JamesNK/Newtonsoft.Json
+[submodule "3rdParty/websocket-sharp"]
+	path = 3rdParty/websocket-sharp
+	url = https://github.com/sta/websocket-sharp

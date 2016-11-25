@@ -26,48 +26,54 @@ namespace Core.Network.Http
 	/// <summary>
 	/// Uses as an image server within a IHttpServer.
 	/// </summary>
-	public class ImageInterpreter : IHttpServerInterpreter
+	public class HttpFileEndpoint : IHttpEndpoint
 	{
-		private string m_imagePath;
+		private string m_basePath;
 		private string m_responsePath;
-		private string m_lastRequestedImageType;
+		private string m_lastRequestedFileExtension;
+		private string m_contentType;
+
+		private const string FileMatchRegexp = @"[A-Za-z0-9\.\-\_]+$";
+		private const string ExtensionMatchRegexp = @"[A-Za-z]+$";
+		private const string DefaultFileType = "text";
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Core.Network.Http.ImageInterpreter"/> class.
-		/// image path is the local directory where the served images resides
-		/// resourcePath is the response resource uri part (ie "/images")
+		/// Initializes a new instance of the <see cref="Core.Network.Http.HttpFileEndpoint"/> class.
+		/// image path is the local directory where the served files resides
+		/// responsePath is the response resource uri part (ie "/images")
 		/// </summary>
-		/// <param name="imagePath">Image path.</param>
+		/// <param name="basePath">Path containing file resources.</param>
 		/// <param name="responsePath">Response path.</param>
-		public ImageInterpreter (string imagePath, string responsePath)
+		public HttpFileEndpoint (string basePath, string responsePath, string contentType = "image")
 		{
-			m_imagePath = imagePath;
+			m_basePath = basePath;
 			m_responsePath = responsePath;
-			m_lastRequestedImageType = "jpeg";
+			m_contentType = contentType;
+			m_lastRequestedFileExtension = "*";
 		}
 
 		#region IHttpServerInterpreter implementation
 
 		public byte[] Interpret (string inputData, string uri = null, string httpMethod = null)
 		{
-			Match fileNameMatch = new Regex (@"[A-Za-z0-9\.]+$").Match (uri);
-			string imageName = fileNameMatch != null ? fileNameMatch.Value : null;
+			Match fileNameMatch = new Regex (FileMatchRegexp).Match (uri);
+			string imageName = fileNameMatch?.Value;
 
 			if (string.IsNullOrEmpty(imageName)) {
 
-				throw new InvalidDataException ("Unable to retrieve image name.");
+				throw new InvalidDataException ("Unable to retrieve file name. Using regexp: " + FileMatchRegexp + " to match uri: " + uri);
 
 			}
 
-			string fileName = m_imagePath + Path.DirectorySeparatorChar + imageName;
+			string fileName = m_basePath + Path.DirectorySeparatorChar + imageName;
 
 			if (!File.Exists (fileName)) {
 			
-				throw new IOException ("Image file: " + imageName + " not found.");
+				throw new IOException ("File: " + fileName + " not found.");
 
 			}
 
-			m_lastRequestedImageType = new Regex (@"[A-Za-z]+$").Match (imageName).Value;
+			m_lastRequestedFileExtension = new Regex (ExtensionMatchRegexp).Match (imageName)?.Value ?? DefaultFileType;
 
 			return File.ReadAllBytes (fileName);
 
@@ -84,7 +90,7 @@ namespace Core.Network.Http
 
 			get {
 
-				return "image/" + m_lastRequestedImageType;
+				return m_contentType + "/" + m_lastRequestedFileExtension;
 
 			}
 

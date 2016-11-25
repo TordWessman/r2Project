@@ -27,7 +27,7 @@ namespace Core.Network.Http
 		/// Adds a new IHttpServerInterpreter to the interpreters list in order for the server to allow other, different requests.
 		/// </summary>
 		/// <param name="interpreter">Interpreter.</param>
-		void AddInterpreter(IHttpServerInterpreter interpreter);
+		void AddInterpreter(IHttpEndpoint interpreter);
 
 	}
 }

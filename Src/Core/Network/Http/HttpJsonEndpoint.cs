@@ -29,7 +29,7 @@ namespace Core.Network.Http
 	/// <summary>
 	/// A JsonEndpoint is intended to represent a HttpServer endpoint mapped to a specified URI path.
 	/// </summary>
-	public class JsonEndpoint : IHttpServerInterpreter
+	public class HttpJsonEndpoint : IHttpEndpoint
 	{
 
 		private Func<dynamic, string, dynamic> m_interpretationFunc;
@@ -44,7 +44,7 @@ namespace Core.Network.Http
 		/// </summary>
 		/// <param name="responsePath">Response path.</param>
 
-		public JsonEndpoint (string responseURIPath, Func<dynamic,string, dynamic> interpretationFunc, System.Text.Encoding encoding = null)
+		public HttpJsonEndpoint (string responseURIPath, Func<dynamic,string, dynamic> interpretationFunc, System.Text.Encoding encoding = null)
 		{
 			m_interpretationFunc = interpretationFunc;
 			m_encoding = encoding ?? System.Text.Encoding.UTF8;
