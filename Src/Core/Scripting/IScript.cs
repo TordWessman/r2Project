@@ -42,7 +42,14 @@ namespace Core.Scripting
 		object Get (string handle);
 
 		void AddObserver (IScriptObserver observer);
-		Func<T,K> CreateCallback<T,K> (string methodHandle);
+
+		/// <summary>
+		/// Returns a variable or method typed as T. (A method, f(Y) -> X, would be specified as Func<X,Y> 
+		/// </summary>
+		/// <returns>The typed.</returns>
+		/// <param name="methodHandle">Method handle.</param>
+		/// <typeparam name="T">The 1st type parameter.</typeparam>
+		T GetTyped<T> (string methodHandle);
 	}
 }
 

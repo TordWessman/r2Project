@@ -63,7 +63,7 @@ namespace Core
 		}
 
 		public IHttpEndpoint CreateJsonInterpreter(string deviceListenerPath) {
-
+			/*
 			return new HttpJsonEndpoint(deviceListenerPath,
 				(message, method) => {
 
@@ -124,7 +124,9 @@ namespace Core
 					response.Data = error;
 					return response;
 
-				});
+				});*/
+
+			throw new NotImplementedException ();
 
 		}
 

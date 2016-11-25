@@ -173,10 +173,11 @@ namespace Core.Scripting
 		}
 		#endregion
 		
-		public Func<T,K> CreateCallback<T,K> (string methodHandle)
+		public T GetTyped<T> (string methodHandle)
 		{	
 
-			return m_scope.GetVariable<Func<T,K>> (methodHandle);
+			return m_scope.GetVariable<T> (methodHandle);
+
 		
 		}
 	}

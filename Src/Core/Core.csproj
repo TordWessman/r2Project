@@ -202,6 +202,7 @@
     <Compile Include="Network\Http\HttpJsonEndpoint.cs" />
     <Compile Include="Network\Http\IHttpEndpoint.cs" />
     <Compile Include="Network\Http\HttpFileEndpoint.cs" />
+    <Compile Include="Network\Http\IHttpObjectReceiver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

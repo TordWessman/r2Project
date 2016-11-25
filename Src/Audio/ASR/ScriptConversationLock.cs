@@ -29,7 +29,7 @@ namespace ASR
 
 		public ScriptConversationLock (IScript script, string methodHandle)
 		{
-			m_lockFunction = script.CreateCallback<string,bool> (methodHandle);
+			m_lockFunction = script.GetTyped<Func<string,bool>> (methodHandle);
 		}
 
 		#region IConversationLock implementation
