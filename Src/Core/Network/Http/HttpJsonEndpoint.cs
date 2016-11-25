@@ -23,6 +23,7 @@ using System.Web.Script.Serialization;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using System.Collections.Specialized;
 
 namespace Core.Network.Http
 {
@@ -32,27 +33,27 @@ namespace Core.Network.Http
 	public class HttpJsonEndpoint : IHttpEndpoint
 	{
 
-		private Func<dynamic, string, dynamic> m_interpretationFunc;
+		private IHttpObjectReceiver m_receiver;
 		private string m_responsePath;
 		private string m_contentType;
-		private IDictionary<string,string> m_extraHeaders;
-		private System.Text.Encoding m_encoding;
+		private NameValueCollection m_extraHeaders;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Core.Network.Http.JsonInterpreter`2"/> class.
-		/// responseURIPath is the URI path of which this interpeter listens to (i.e. '/devices')
+		/// Initializes a new instance of the <see cref="Core.Network.Http.HttpJsonEndpoint`"/>.<br/>
+		/// responseURIPath is the URI path of which this interpeter listens to (i.e. '/devices')<br/>
+		/// receiver is the interface responsible of handle incoming input json.
 		/// </summary>
 		/// <param name="responsePath">Response path.</param>
+		/// <param name="responsePath">receiver</param>
 
-		public HttpJsonEndpoint (string responseURIPath, Func<dynamic,string, dynamic> interpretationFunc, System.Text.Encoding encoding = null)
+		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver receiver)
 		{
-			m_interpretationFunc = interpretationFunc;
-			m_encoding = encoding ?? System.Text.Encoding.UTF8;
+			m_receiver = receiver;
 
 			m_responsePath = responseURIPath;
 			m_contentType = @"application/json";
 
-			m_extraHeaders = new Dictionary<string,string> ();
+			m_extraHeaders = new NameValueCollection ();
 
 			// Allow cross domain access from browsers. 
 			m_extraHeaders.Add ("Access-Control-Allow-Origin", "*");
@@ -63,15 +64,14 @@ namespace Core.Network.Http
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (string inputJson, string uri = null, string httpMethod = null)
+		public byte[] Interpret (string inputJson, string uri, string httpMethod = null, NameValueCollection headers = null)
 		{
 			//Log.t ("got input json:" + inputJson + " and method: " + httpMethod);
 
-			dynamic inputObject = String.IsNullOrEmpty(inputJson) ? null : JObject.Parse (inputJson);
-
-			dynamic outputObject = m_interpretationFunc (inputObject, httpMethod.ToLower());
+			dynamic inputObject = JObject.Parse (inputJson);
+			dynamic outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToLower(), headers);
 			String outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject));
-			return outputObject != null ? outputString.ToByteArray() : new byte[0];
+			return outputString?.ToByteArray() ?? new byte[0];
 
 		}
 
@@ -90,7 +90,7 @@ namespace Core.Network.Http
 			}
 		}
 
-		public IDictionary<string,string> ExtraHeaders {
+		public NameValueCollection ExtraHeaders {
 		
 			get {
 

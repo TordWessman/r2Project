@@ -18,6 +18,7 @@
 
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace Core.Network.Http
 {
@@ -31,8 +32,10 @@ namespace Core.Network.Http
 		/// Interprets inputData and returns byte array of response data.
 		/// </summary>
 		/// <param name="inputData">Input data.</param>
+		/// <param name="inputData">uri.</param>
 		/// <param name="httpMethod">Http method.</param>
-		byte[] Interpret(string inputData, string uri = null, string httpMethod = null);
+		/// <param name="inputData">headers</param>
+		byte[] Interpret(string inputData, string uri, string httpMethod = null, NameValueCollection headers = null);
 
 		/// <summary>
 		/// The uri path on which this interprener is listening.
@@ -50,7 +53,7 @@ namespace Core.Network.Http
 		/// Extra response headers.
 		/// </summary>
 		/// <value>The extra headers.</value>
-		IDictionary<string,string> ExtraHeaders {get;}
+		NameValueCollection ExtraHeaders {get;}
 
 	}
 }

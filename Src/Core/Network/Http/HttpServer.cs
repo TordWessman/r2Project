@@ -60,11 +60,12 @@ namespace Core.Network.Http
 
 					using (StreamReader reader = new StreamReader(request.InputStream, m_encoding))
 					{
-						string inputString = reader.ReadToEnd();
-						byte[] responseBuffer = {};
 						bool didFindResponder = false;
+						byte[] responseBuffer = {};
 
 						try {
+
+							string inputString = reader.ReadToEnd();
 
 							foreach (IHttpEndpoint interpreter in m_interpreters) {
 
@@ -73,7 +74,7 @@ namespace Core.Network.Http
 									// The interpreter can handle the specified URI and will continue to process it.
 
 									didFindResponder = true;
-									responseBuffer = interpreter.Interpret (inputString, request.Url.AbsolutePath, request.HttpMethod);
+									responseBuffer = interpreter.Interpret (inputString, request.Url.AbsolutePath, request.HttpMethod, request.Headers);
 
 									foreach (string headerKey in interpreter.ExtraHeaders.Keys) {
 

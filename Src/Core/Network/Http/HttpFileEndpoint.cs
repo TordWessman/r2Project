@@ -20,6 +20,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Collections.Specialized;
 
 namespace Core.Network.Http
 {
@@ -54,7 +55,7 @@ namespace Core.Network.Http
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (string inputData, string uri = null, string httpMethod = null)
+		public byte[] Interpret (string inputData, string uri = null, string httpMethod = null, NameValueCollection headers = null)
 		{
 			Match fileNameMatch = new Regex (FileMatchRegexp).Match (uri);
 			string imageName = fileNameMatch?.Value;
@@ -96,11 +97,11 @@ namespace Core.Network.Http
 
 		}
 
-		public IDictionary<string, string> ExtraHeaders {
+		public NameValueCollection ExtraHeaders {
 
 			get {
 
-				return new Dictionary<string,string> ();
+				return new NameValueCollection ();
 
 			}
 
