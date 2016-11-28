@@ -40,7 +40,7 @@ namespace Core.Scripting
 		
 		private bool m_hasStarted;
 		private bool m_hasEnded;
-		
+		private ICollection<IScriptObserver> m_observers;
 		
 		private Task m_processTask;
 
@@ -53,20 +53,28 @@ namespace Core.Scripting
 		                    deviceManager)
 		{
 
+			m_observers = new List<IScriptObserver> ();
 			m_processTask = GetProcessTask ();
 
 		}
 		
-		public override bool Ready { get {return IsRunning && m_mainClass != null;} }
+		public override bool Ready { get {return IsRunning && MainClass != null;} }
 		public Task Task { get { return m_processTask;}}
+
+		new public void Reload() {
 		
+			//TODO: ...
+			throw new NotImplementedException ();
+
+		}
+
 		private Task GetProcessTask ()
 		{
 			return new Task (() => {
 
-				while (false != m_mainClass.@should_run()) {
+				while (false != MainClass.@should_run()) {
 
-					m_mainClass.@loop ();
+					MainClass.@loop ();
 
 				}
 
@@ -118,7 +126,7 @@ namespace Core.Scripting
 			m_hasStarted = true;
 			try {
 			
-				m_mainClass.@setup ();
+				MainClass.@setup ();
 				m_processTask.Start ();
 
 			} catch (Exception ex) {
@@ -132,9 +140,9 @@ namespace Core.Scripting
 		public override void Stop ()
 		{
 			
-			if (m_mainClass != null) {
+			if (MainClass != null) {
 
-				m_mainClass.@stop();
+				MainClass.@stop();
 
 			}
 
@@ -145,12 +153,12 @@ namespace Core.Scripting
 
 			get {
 
-				if (m_mainClass == null) {
+				if (MainClass == null) {
 
 					return false;
 				}
 
-				return  m_mainClass.@should_run() == true && m_hasStarted;
+				return  MainClass.@should_run() == true && m_hasStarted;
 
 			}
 
@@ -162,6 +170,13 @@ namespace Core.Scripting
 			//Console.WriteLine ("RUBY PROCESS: " + m_id  + " status: " + m_processTask.Status.ToString() + " fault: " + m_processTask.IsFaulted.ToString() + " completed: " + m_processTask.IsCompleted );
 
 			return new Dictionary<string, Task>() {{"RUBY PROCESS: " + m_id, m_processTask} };
+		}
+
+		public void AddObserver (IScriptObserver observer)
+		{
+
+			m_observers.Add (observer);
+
 		}
 
 

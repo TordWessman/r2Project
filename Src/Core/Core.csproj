@@ -64,6 +64,7 @@
     <Reference Include="websocket-sharp">
       <HintPath>..\..\3rdParty\websocket-sharp.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -88,8 +89,6 @@
     <Compile Include="Network\IBasicServer.cs" />
     <Compile Include="Network\IClientConnection.cs" />
     <Compile Include="Tests\PackageTest.cs" />
-    <Compile Include="ITaskMonitor.cs" />
-    <Compile Include="ITaskMonitored.cs" />
     <Compile Include="Device\DeviceManager.cs" />
     <Compile Include="Device\IDeviceManager.cs" />
     <Compile Include="Device\DeviceException.cs" />
@@ -119,8 +118,6 @@
     <Compile Include="Scripting\Ruby\RubyScript.cs" />
     <Compile Include="Scripting\IScriptProcess.cs" />
     <Compile Include="Scripting\Ruby\RubyCommandScript.cs" />
-    <Compile Include="IStartable.cs" />
-    <Compile Include="IStopable.cs" />
     <Compile Include="Network\IRPCManager.cs" />
     <Compile Include="Device\Interfaces\IDummy.cs" />
     <Compile Include="Device\Interfaces\ITTS.cs" />
@@ -157,13 +154,9 @@
     <Compile Include="Device\Interfaces\ICommandExecutor.cs" />
     <Compile Include="Device\RemoteDevices\RemoteCommandExecutor.cs" />
     <Compile Include="Shared\CvRect.cs" />
-    <Compile Include="SimpleTaskMonitor.cs" />
-    <Compile Include="Serializer.cs" />
     <Compile Include="Shared\CvPoint.cs" />
     <Compile Include="Shared\CvSize.cs" />
-    <Compile Include="IClientSerialize.cs" />
     <Compile Include="Network\Http\IHttpServer.cs" />
-    <Compile Include="DeviceFactory.cs" />
     <Compile Include="Network\Http\Messages\JsonDeviceMessage.cs" />
     <Compile Include="Network\Http\Messages\JsonRegisterMessage.cs" />
     <Compile Include="Network\Http\JsonClient.cs" />
@@ -183,13 +176,9 @@
     <Compile Include="DB\SqliteDatabase.cs" />
     <Compile Include="Network\Http\HttpServer.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="RecurringTimer.cs" />
-    <Compile Include="BaseContainer.cs" />
     <Compile Include="Network\Http\DeviceFactoryHttp.cs" />
-    <Compile Include="Gstream.cs" />
     <Compile Include="Device\IJSONAccessible.cs" />
     <Compile Include="Device\RemoteDevices\RemoteGstream.cs" />
-    <Compile Include="IGstream.cs" />
     <Compile Include="Device\IDeviceManagerObserver.cs" />
     <Compile Include="Device\Interfaces\IMemorySource.cs" />
     <Compile Include="Device\RemoteDevices\RemoteMemorySource.cs" />
@@ -203,6 +192,21 @@
     <Compile Include="Network\Http\IHttpEndpoint.cs" />
     <Compile Include="Network\Http\HttpFileEndpoint.cs" />
     <Compile Include="Network\Http\IHttpObjectReceiver.cs" />
+    <Compile Include="Shared\DeviceFactory.cs" />
+    <Compile Include="Shared\Gstream.cs" />
+    <Compile Include="Shared\BaseContainer.cs" />
+    <Compile Include="Shared\IClientSerialize.cs" />
+    <Compile Include="Shared\IGstream.cs" />
+    <Compile Include="Shared\IStartable.cs" />
+    <Compile Include="Shared\IStopable.cs" />
+    <Compile Include="Shared\ITaskMonitor.cs" />
+    <Compile Include="Shared\ITaskMonitored.cs" />
+    <Compile Include="Shared\RecurringTimer.cs" />
+    <Compile Include="Shared\Serializer.cs" />
+    <Compile Include="Shared\SimpleTaskMonitor.cs" />
+    <Compile Include="Shared\ScriptObjectReceiver.cs" />
+    <Compile Include="Network\Http\IHttpIntermediate.cs" />
+    <Compile Include="Network\Http\HttpIntermediateObject.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

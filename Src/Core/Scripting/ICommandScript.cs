@@ -22,9 +22,11 @@ using Core.Scripting;
 
 namespace Core.Scripting
 {
-	public interface ICommandScript : IScript
+	public interface ICommandScript
 	{
 		object Execute (string text);
+		object Get (string handle);
+		void AddObserver (IScriptObserver observer);
 	}
 }
 

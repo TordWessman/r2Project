@@ -29,7 +29,7 @@ namespace Core.Scripting
 	/// <summary>
 	/// Represents a runnable ruby script file following the specified template (scripts not conforming to the template will render error).
 	/// </summary>
-	public abstract class RubyScript : DeviceBase, IScript
+	public class RubyScript : DeviceBase, IScript
 	{
 		public const string HANDLE_MAIN_CLASS = "main_class";
 		public const string HANDLE_SETUP = "main_class.setup";	
@@ -41,11 +41,12 @@ namespace Core.Scripting
 		protected ScriptScope m_scope;
 		protected ScriptSource m_source;
 		protected IDeviceManager m_deviceManager;
-		protected dynamic m_mainClass;
-		protected bool m_hasSyntaxErrors;
-		
-		protected ICollection<IScriptObserver> m_observers;
-		
+
+		private dynamic m_mainClass;
+		private bool m_hasSyntaxErrors;
+
+		public dynamic MainClass { get { return m_mainClass; } }
+
 		public RubyScript (string id, 
 		                    string fileName, 
 		                    ICollection<string> searchPaths, 
@@ -57,15 +58,12 @@ namespace Core.Scripting
 			m_scope = m_engine.CreateScope ();
 			m_engine.SetSearchPaths (searchPaths);
 			m_deviceManager = deviceManager;
-			m_observers = new List<IScriptObserver> ();
 
-			Log.t (fileName);
-
-			Init ();
+			Reload ();
 
 		}
-		
-		protected void Init ()
+
+		public void Reload ()
 		{
 			m_hasSyntaxErrors = false;
 			
@@ -150,6 +148,7 @@ namespace Core.Scripting
 			}
 			
 			return tmp.Unwrap();
+
 		}
 		
 		private void HandleSyntaxException (Exception ex)
@@ -161,26 +160,13 @@ namespace Core.Scripting
 			Log.x (ex);
 
 		}
-	
-		#region IScript implementation
-		
 
-		public void AddObserver (IScriptObserver observer)
-		{
-
-			m_observers.Add (observer);
-
-		}
-		#endregion
-		
 		public T GetTyped<T> (string methodHandle)
 		{	
-
 			return m_scope.GetVariable<T> (methodHandle);
 
-		
 		}
+
 	}
 
 }
-

@@ -60,7 +60,7 @@ namespace Core.Scripting
 		{
 
 			IScriptProcess script = m_scriptFactory.CreateProcess (m_scriptId + "_" + m_random.Next (int.MaxValue),
-			                                                       m_scriptFactory.GetSourceFileName (m_scriptId));
+				m_scriptFactory.GetSourceFilePath (m_scriptId));
 
 			m_scripts.Add (script.Identifier, script);
 			m_currentScriptId = script.Identifier;

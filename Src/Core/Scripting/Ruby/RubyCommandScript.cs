@@ -24,30 +24,26 @@ using Microsoft.CSharp.RuntimeBinder;
 
 namespace Core.Scripting
 {
-	public class RubyCommandScript : RubyScript, ICommandScript
+	public class RubyCommandScript : DeviceBase, ICommandScript
 	{
 		
 		public static readonly string RESULT_HANDLE = "result";
 
-		public RubyCommandScript (string id, 
-		                    string fileName, 
-		                    ICollection<string> searchPaths, 
-		                    IDeviceManager deviceManager) : base (id, 
-		                    fileName, 
-		                    searchPaths, 
-		                    deviceManager)
+		private IScript m_script;
+		private ICollection<IScriptObserver> m_observers;
+
+		public RubyCommandScript (string id, IScript script) : base (id)
 		{
 			
-			
-			Init ();
-			
+			m_script = script;
+			m_observers = new List<IScriptObserver> ();
+
 		}
 		
 		public object Execute (string text)
 		{
-			m_mainClass.@execute (text);
-			m_hasSyntaxErrors = false;
-			
+			m_script.MainClass.@execute (text);
+
 			foreach (IScriptObserver observer in m_observers) {
 				if (observer != null) {
 					observer.Finished (m_id);
@@ -57,21 +53,17 @@ namespace Core.Scripting
 			return Get (RESULT_HANDLE);
 			
 		}
-		
-		
-		public new object Get (string handle)
+
+		public void AddObserver (IScriptObserver observer)
 		{
-			if (m_mainClass == null) {
-				throw new InvalidOperationException ("Unable to get variable for script: " + m_fileName + " with id: " + m_id + " since it has not been executed.");
-			}
-			
-			System.Runtime.Remoting.ObjectHandle tmp;
-			
-			if (!m_scope.TryGetVariableHandle (handle, out tmp)) {
-				return false;
-			}
-			
-			return tmp.Unwrap();
+
+			m_observers.Add (observer);
+
+		}
+
+		public object Get (string handle)
+		{
+			return m_script.Get (handle);
 		}
 	}
 }

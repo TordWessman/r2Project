@@ -25,6 +25,9 @@ namespace Core.Scripting
 {
 	public interface IScriptFactory : IDevice
 	{
+
+		IScript CreateScript (string id, string sourceFile = null);
+
 		/// <summary>
 		/// Creates a looping process conforming to structural requirements (i.e. naming, composition) of the implemented language. The surceFile is the file containing the source code. It may be a relative or an absolute path.
 		/// </summary>
@@ -51,7 +54,7 @@ namespace Core.Scripting
 		/// <param name='id'>
 		/// Identifier. The id of the script to evaluate the name of
 		/// </param>
-		string GetSourceFileName (string id);
+		string GetSourceFilePath (string id, string sourceFile = null);
 	}
 }
 

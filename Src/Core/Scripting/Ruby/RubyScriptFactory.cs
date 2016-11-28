@@ -33,6 +33,7 @@ namespace Core.Scripting
 		private IDeviceManager m_deviceManager;
 		private ICollection<string> m_paths;
 		private const string RUBY_FILE_EXTENSION = ".rb";
+		private const string RUBY_COMMAND_SCRIPT_ID_POSTFIX = "_in_command_script";
 		private ITaskMonitor m_taskMonitor;
 		
 		public RubyScriptFactory (string id, string scriptSourcePath, 
@@ -57,50 +58,18 @@ namespace Core.Scripting
 		public ICommandScript CreateCommand (string id, string sourceFile = null)
 		{
 			
-			if (sourceFile == null) {
+			IScript script = CreateScript (id + RUBY_COMMAND_SCRIPT_ID_POSTFIX, sourceFile);
 			
-				sourceFile = GetSourceFileName (id);
-
-			}
-
-			//Check if the file is in the script base folder. If not, use the provided path as an absolute path.
-			string sourceFilePath = File.Exists (m_scriptSourcePath + Path.DirectorySeparatorChar + sourceFile) ? 
-				m_scriptSourcePath + Path.DirectorySeparatorChar + sourceFile : sourceFile;
-			
-			if (!File.Exists (sourceFilePath)) {
-
-				throw new ArgumentException ("Ruby file with path '" + sourceFilePath + "' does not exist.");
-			
-			}
-			
-			return new RubyCommandScript (id, 
-			                       sourceFilePath,
-			                       m_paths,
-			                       m_deviceManager);
+			return new RubyCommandScript (id, script);
 		}
 
 		public IScriptProcess CreateProcess (string id, string sourceFile = null,
 		                      object[] args = null)
 		{
-
-			if (sourceFile == null) {
-
-				sourceFile = GetSourceFileName (id);
-
-			}
-
-			//Check if the file is in the script base folder. If not, use the provided path as an absolute path.
-			string sourceFilePath = File.Exists (m_scriptSourcePath + Path.DirectorySeparatorChar + sourceFile) ? 
-				m_scriptSourcePath + Path.DirectorySeparatorChar + sourceFile : sourceFile;
 			
-			if (!File.Exists (sourceFilePath)) {
-
-				throw new ArgumentException ("Ruby file with path '" + sourceFilePath + "' does not exist.");
-			
-			}
 			
 			IScriptProcess script = new RubyProcess (id, 
-			                       sourceFilePath,
+				GetSourceFilePath(id,sourceFile),
 			                       m_paths,
 			                       m_deviceManager);
 			
@@ -120,11 +89,35 @@ namespace Core.Scripting
 			return script;
 		
 		}
+
+		public IScript CreateScript (string id, string sourceFile = null) {
 		
-		public string GetSourceFileName (string id)
+			return new RubyScript (id,
+				GetSourceFilePath(id,sourceFile),
+				m_paths,
+				m_deviceManager);
+		}
+		
+		public string GetSourceFilePath (string id, string sourceFile = null)
 		{
 
-				return id + RUBY_FILE_EXTENSION;
+			if (sourceFile == null) {
+
+				sourceFile = id + RUBY_FILE_EXTENSION;
+
+			}
+
+			//Check if the file is in the script base folder. If not, use the provided path as an absolute path.
+			string sourceFilePath = File.Exists (m_scriptSourcePath + Path.DirectorySeparatorChar + sourceFile) ? 
+				m_scriptSourcePath + Path.DirectorySeparatorChar + sourceFile : sourceFile;
+
+			if (!File.Exists (sourceFilePath)) {
+
+				throw new ArgumentException ("Ruby file with path '" + sourceFilePath + "' does not exist.");
+
+			}
+
+			return sourceFilePath;
 		
 		}
 

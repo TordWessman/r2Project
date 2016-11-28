@@ -26,6 +26,10 @@ using System.Collections.Generic;
 
 namespace Core.Network.Http
 {
+
+	/// <summary>
+	/// Primitive HTTP server.
+	/// </summary>
 	public class HttpServer : DeviceBase, IHttpServer
 	{
 		private HttpListener m_listener;
@@ -69,12 +73,12 @@ namespace Core.Network.Http
 
 							foreach (IHttpEndpoint interpreter in m_interpreters) {
 
-								if (interpreter.Accepts(request.Url.AbsolutePath)) {
+								if (interpreter.Accepts(request.Url)) {
 
 									// The interpreter can handle the specified URI and will continue to process it.
 
 									didFindResponder = true;
-									responseBuffer = interpreter.Interpret (inputString, request.Url.AbsolutePath, request.HttpMethod, request.Headers);
+									responseBuffer = interpreter.Interpret (inputString, request.Url, request.HttpMethod, request.Headers);
 
 									foreach (string headerKey in interpreter.ExtraHeaders.Keys) {
 

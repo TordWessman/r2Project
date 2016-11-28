@@ -25,7 +25,7 @@ using System.Collections.Specialized;
 namespace Core.Network.Http
 {
 	/// <summary>
-	/// Uses as an image server within a IHttpServer.
+	/// Uses as a very primitive file server within an IHttpServer.
 	/// </summary>
 	public class HttpFileEndpoint : IHttpEndpoint
 	{
@@ -55,14 +55,19 @@ namespace Core.Network.Http
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (string inputData, string uri = null, string httpMethod = null, NameValueCollection headers = null)
+		public byte[] Interpret (string inputData, Uri uri = null, string httpMethod = null, NameValueCollection headers = null)
 		{
-			Match fileNameMatch = new Regex (FileMatchRegexp).Match (uri);
+			if (uri == null) {
+			
+				throw new InvalidDataException ("Unable to process request. Uri was null");
+			}
+
+			Match fileNameMatch = new Regex (FileMatchRegexp).Match (uri.AbsolutePath);
 			string imageName = fileNameMatch?.Value;
 
 			if (string.IsNullOrEmpty(imageName)) {
 
-				throw new InvalidDataException ("Unable to retrieve file name. Using regexp: " + FileMatchRegexp + " to match uri: " + uri);
+				throw new InvalidDataException ("Unable to retrieve file name. Using regexp: " + FileMatchRegexp + " to match uri: " + uri.AbsolutePath);
 
 			}
 
@@ -80,9 +85,9 @@ namespace Core.Network.Http
 
 		}
 
-		public bool Accepts(string uri) {
+		public bool Accepts(Uri uri) {
 
-			return uri.StartsWith(m_responsePath);
+			return uri.AbsolutePath.StartsWith(m_responsePath);
 
 		}
 

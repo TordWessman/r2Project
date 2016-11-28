@@ -19,11 +19,13 @@
 ﻿using System;
 using System.Runtime.Serialization.Json;
 using System.IO;
-using System.Web.Script.Serialization;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Collections.Specialized;
+using System.Dynamic;
+using Newtonsoft.Json.Converters;
+using System.Web;
 
 namespace Core.Network.Http
 {
@@ -32,11 +34,11 @@ namespace Core.Network.Http
 	/// </summary>
 	public class HttpJsonEndpoint : IHttpEndpoint
 	{
-
 		private IHttpObjectReceiver m_receiver;
 		private string m_responsePath;
 		private string m_contentType;
 		private NameValueCollection m_extraHeaders;
+		private ExpandoObjectConverter m_converter;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Core.Network.Http.HttpJsonEndpoint`"/>.<br/>
@@ -48,10 +50,12 @@ namespace Core.Network.Http
 
 		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver receiver)
 		{
+
 			m_receiver = receiver;
 
 			m_responsePath = responseURIPath;
 			m_contentType = @"application/json";
+			m_converter = new ExpandoObjectConverter();  
 
 			m_extraHeaders = new NameValueCollection ();
 
@@ -64,20 +68,45 @@ namespace Core.Network.Http
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (string inputJson, string uri, string httpMethod = null, NameValueCollection headers = null)
-		{
-			//Log.t ("got input json:" + inputJson + " and method: " + httpMethod);
+		public byte[] Interpret (string inputJson, Uri uri, string httpMethod = null, NameValueCollection headers = null) {
+			
+			dynamic inputObject = null;
 
-			dynamic inputObject = JObject.Parse (inputJson);
-			dynamic outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToLower(), headers);
-			String outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject));
+			if (httpMethod.ToLower () == "get") {
+			
+				// Create a dynamic object using query string parameters
+
+				var dynamicInputObject = new ExpandoObject() as IDictionary<string, Object>;
+				NameValueCollection queryKeys = HttpUtility.ParseQueryString (uri.Query);
+
+				foreach (string key in  queryKeys.AllKeys) {
+				
+					dynamicInputObject.Add (key, queryKeys [key]);
+				
+				}
+
+				inputObject = dynamicInputObject;
+
+			} else {
+			
+				// Parse Json
+
+				inputObject = JsonConvert.DeserializeObject<ExpandoObject>(inputJson, m_converter);
+
+			}
+
+			IHttpIntermediate outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToLower(), headers);
+
+			m_extraHeaders.Add (outputObject.Headers);
+
+			string outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject.Data));
 			return outputString?.ToByteArray() ?? new byte[0];
 
 		}
 
-		public bool Accepts(string uri) {
+		public bool Accepts(Uri uri) {
 
-			return m_responsePath == uri;
+			return m_responsePath == uri?.AbsolutePath;
 
 		}
 

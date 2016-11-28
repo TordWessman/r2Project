@@ -292,10 +292,6 @@ namespace Core
 			m_devices.Stop (new IDevice[]{this});
 
 			m_shouldRun = false;
-
-			// Just you wait...
-			Rest (4000);
-			
 		
 		}
 		

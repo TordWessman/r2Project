@@ -30,6 +30,7 @@ namespace Core.Scripting
 		bool HasStarted { get;}
 		bool HasEnded { get;}
 		Task Task {get;}
+		void AddObserver (IScriptObserver observer);
 	}
 }
 
