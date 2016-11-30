@@ -24,10 +24,10 @@ namespace Core.Network.Http
 	public interface IHttpServer: IDevice
 	{
 		/// <summary>
-		/// Adds a new IHttpServerInterpreter to the interpreters list in order for the server to allow other, different requests.
+		/// Adds a new IHttpEndpoint to the interpreters list in order for the server to allow other, different requests.
 		/// </summary>
 		/// <param name="interpreter">Interpreter.</param>
-		void AddInterpreter(IHttpEndpoint interpreter);
+		void AddEndpoint(IHttpEndpoint interpreter);
 
 	}
 }

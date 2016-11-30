@@ -28,24 +28,24 @@ using System.Dynamic;
 namespace Core.Network.Http
 {
 	/// <summary>
-	/// Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(dynamic inputObject, string httpMethod, NameValueCollection headers, IHttpIntermediate outputObject).
+	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(ExpandoObject inputObject, string httpMethod, NameValueCollection headers, IHttpIntermediate outputObject).</para>
+	/// <para>The type T must be an IHttpIntermediate implementation used to transcibe data from script to sub system.</para>
 	/// The outputObject is required for the script implementation to know how to return a data type compatible with a serializer.
 	/// </summary>
-	public class ScriptObjectReceiver: IHttpObjectReceiver
+	public class ScriptObjectReceiver<T>: IHttpObjectReceiver where T: IHttpIntermediate, new()
 	{
 
 		IScript m_script;
 
-		public ScriptObjectReceiver (IScript script)
-		{
+		public ScriptObjectReceiver (IScript script) {
 
 			m_script = script;
 		
 		}
 
-		public IHttpIntermediate onReceive (dynamic input, string httpMethod, NameValueCollection headers = null) {
+		public IHttpIntermediate onReceive (ExpandoObject input, string httpMethod, NameValueCollection headers = null) {
 
-			return m_script.MainClass.@on_receive (input, httpMethod, headers, new HttpIntermediateObject());
+			return m_script.MainClass.@on_receive (input, httpMethod, headers, new T());
 
 		}
 

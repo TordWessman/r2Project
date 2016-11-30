@@ -27,12 +27,12 @@ namespace Core.Network.Http
 	/// <summary>
 	/// Default IHttpIntermediate implementation used for transporting http object data and headers.
 	/// </summary>
-	public class HttpIntermediateObject: IHttpIntermediate
+	public class HttpRubyIntermediate: IHttpIntermediate
 	{
 		private IDictionary<string, dynamic> m_data;
 		private NameValueCollection m_headers;
 
-		public HttpIntermediateObject ()
+		public HttpRubyIntermediate ()
 		{
 			m_data = new Dictionary<string, dynamic> ();
 			m_headers = new NameValueCollection ();
@@ -49,7 +49,7 @@ namespace Core.Network.Http
 
 		}
 
-		public IHttpIntermediate New { get { return new HttpIntermediateObject(); } }
+		public IHttpIntermediate New { get { return new HttpRubyIntermediate(); } }
 
 		public dynamic Data { get { return m_data; } }
 
@@ -61,8 +61,6 @@ namespace Core.Network.Http
 		/// <returns>The value.</returns>
 		/// <param name="value">Value.</param>
 		private dynamic ParseValue(dynamic value) {
-
-			//TODO: Add support for IronPython (and other?) types
 
 			if (value is IHttpIntermediate) {
 

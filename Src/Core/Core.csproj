@@ -176,7 +176,6 @@
     <Compile Include="DB\SqliteDatabase.cs" />
     <Compile Include="Network\Http\HttpServer.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Network\Http\DeviceFactoryHttp.cs" />
     <Compile Include="Device\IJSONAccessible.cs" />
     <Compile Include="Device\RemoteDevices\RemoteGstream.cs" />
     <Compile Include="Device\IDeviceManagerObserver.cs" />
@@ -204,9 +203,10 @@
     <Compile Include="Shared\RecurringTimer.cs" />
     <Compile Include="Shared\Serializer.cs" />
     <Compile Include="Shared\SimpleTaskMonitor.cs" />
-    <Compile Include="Shared\ScriptObjectReceiver.cs" />
     <Compile Include="Network\Http\IHttpIntermediate.cs" />
-    <Compile Include="Network\Http\HttpIntermediateObject.cs" />
+    <Compile Include="Network\Http\Scripting\HttpRubyIntermediate.cs" />
+    <Compile Include="Network\Http\Scripting\ScriptObjectReceiver.cs" />
+    <Compile Include="Network\Http\HttpFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -224,6 +224,7 @@
     <Folder Include="Network\Http\Messages\" />
     <Folder Include="Settings\" />
     <Folder Include="Extensions\" />
+    <Folder Include="Network\Http\Scripting\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

@@ -72,7 +72,7 @@ namespace Core.Network.Http
 			
 			dynamic inputObject = null;
 
-			if (httpMethod.ToLower () == "get") {
+			if (httpMethod.ToUpper () == "GET") {
 			
 				// Create a dynamic object using query string parameters
 
@@ -95,7 +95,7 @@ namespace Core.Network.Http
 
 			}
 
-			IHttpIntermediate outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToLower(), headers);
+			IHttpIntermediate outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToUpper(), headers);
 
 			m_extraHeaders.Add (outputObject.Headers);
 

@@ -151,7 +151,7 @@ namespace Core.Network.Http
 			m_listener.Stop ();
 		}
 
-		public void AddInterpreter(IHttpEndpoint interpreter) {
+		public void AddEndpoint(IHttpEndpoint interpreter) {
 		
 			m_interpreters.Add (interpreter);
 

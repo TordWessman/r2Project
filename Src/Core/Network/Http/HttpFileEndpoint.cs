@@ -45,7 +45,7 @@ namespace Core.Network.Http
 		/// </summary>
 		/// <param name="basePath">Path containing file resources.</param>
 		/// <param name="responsePath">Response path.</param>
-		public HttpFileEndpoint (string basePath, string responsePath, string contentType = "image")
+		public HttpFileEndpoint (string basePath, string responsePath, string contentType)
 		{
 			m_basePath = basePath;
 			m_responsePath = responsePath;

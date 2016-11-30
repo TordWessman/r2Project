@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Specialized;
+using System.Dynamic;
 
 namespace Core.Network.Http
 {
@@ -32,7 +33,7 @@ namespace Core.Network.Http
 		/// <param name="input">Input.</param>
 		/// <param name="httpMethod">Http method.</param>
 		/// <param name="headers">Headers.</param>
-		IHttpIntermediate onReceive (dynamic input, string httpMethod, NameValueCollection headers = null);
+		IHttpIntermediate onReceive (ExpandoObject input, string httpMethod, NameValueCollection headers = null);
 
 	}
 }

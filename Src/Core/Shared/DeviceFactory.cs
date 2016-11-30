@@ -55,15 +55,15 @@ namespace Core
 		
 		}
 
-
-		public IHttpEndpoint CreateImageInterpreter (string imagePath, string imageUri) {
-
-			return new HttpFileEndpoint (imagePath, imageUri);
+		public HttpFactory CreateHttpFactory(string id) {
+		
+			return new HttpFactory (id);
 
 		}
 
+		/*
 		public IHttpEndpoint CreateJsonInterpreter(string deviceListenerPath) {
-			/*
+			
 			return new HttpJsonEndpoint(deviceListenerPath,
 				(message, method) => {
 
@@ -124,29 +124,11 @@ namespace Core
 					response.Data = error;
 					return response;
 
-				});*/
+				});
 
 			throw new NotImplementedException ();
 
-		}
-
-		public IHttpServer CreateHttpServer (string id, int port) {
-
-			return new HttpServer (id, port);
-
-		}
-
-		public IJsonClient CreateJsonClient(string id, string serverUrl) {
-
-			return new JsonClient (id, serverUrl);
-
-		}
-
-		public JsonMessageFactory CreateJsonMessageFactory(string id) {
-
-			return new JsonMessageFactory (id);
-
-		}
+		}*/
 
 	}
 
