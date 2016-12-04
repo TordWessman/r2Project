@@ -24,6 +24,7 @@ using System.Runtime.Remoting;
 
 namespace Core.Network.Http
 {
+
 	/// <summary>
 	/// Default IHttpIntermediate implementation used for transporting http object data and headers.
 	/// </summary>

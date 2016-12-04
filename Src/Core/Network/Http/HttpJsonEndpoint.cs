@@ -29,12 +29,13 @@ using System.Web;
 
 namespace Core.Network.Http
 {
+
 	/// <summary>
 	/// A JsonEndpoint is intended to represent a HttpServer endpoint mapped to a specified URI path.
 	/// </summary>
 	public class HttpJsonEndpoint : IHttpEndpoint
 	{
-		private IHttpObjectReceiver m_receiver;
+		private IHttpObjectReceiver<ExpandoObject> m_receiver;
 		private string m_responsePath;
 		private string m_contentType;
 		private NameValueCollection m_extraHeaders;
@@ -48,7 +49,7 @@ namespace Core.Network.Http
 		/// <param name="responsePath">Response path.</param>
 		/// <param name="responsePath">receiver</param>
 
-		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver receiver)
+		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver<ExpandoObject> receiver)
 		{
 
 			m_receiver = receiver;
@@ -72,30 +73,41 @@ namespace Core.Network.Http
 			
 			dynamic inputObject = null;
 
-			if (httpMethod.ToUpper () == "GET") {
+			if (httpMethod.ToUpper () != "GET") {
 			
-				// Create a dynamic object using query string parameters
-
-				var dynamicInputObject = new ExpandoObject() as IDictionary<string, Object>;
-				NameValueCollection queryKeys = HttpUtility.ParseQueryString (uri.Query);
-
-				foreach (string key in  queryKeys.AllKeys) {
-				
-					dynamicInputObject.Add (key, queryKeys [key]);
-				
-				}
-
-				inputObject = dynamicInputObject;
-
-			} else {
-			
-				// Parse Json
+				// Parse body
 
 				inputObject = JsonConvert.DeserializeObject<ExpandoObject>(inputJson, m_converter);
 
+			} 
+
+			if (inputObject == null) {
+			
+				// HTTP-GET or no body
+				inputObject = new ExpandoObject ();
+
 			}
 
-			IHttpIntermediate outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToUpper(), headers);
+			// Add query string parameters. Will replace json-properties for now...
+
+			NameValueCollection queryKeys = HttpUtility.ParseQueryString (uri.Query);
+			foreach (string key in  queryKeys.AllKeys) {
+
+				try {
+
+					(inputObject as IDictionary<string, Object>).Add (key, queryKeys [key]);
+
+				} catch (System.ArgumentException ex) {
+				
+					//More user friendly error message upon duplicates.
+
+					throw new System.ArgumentException ("Unable to add header parameter: '" + key + "' from request. Does it exist a duplicate in the Json-body?");
+				}
+
+
+			}
+
+			IHttpIntermediate outputObject = m_receiver.onReceive (new JsonExportObject<ExpandoObject>(inputObject), httpMethod?.ToUpper(), headers);
 
 			m_extraHeaders.Add (outputObject.Headers);
 

@@ -24,15 +24,16 @@ using IronRuby.Builtins;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Dynamic;
+using System.Collections.Generic;
 
 namespace Core.Network.Http
 {
 	/// <summary>
-	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(ExpandoObject inputObject, string httpMethod, NameValueCollection headers, IHttpIntermediate outputObject).</para>
+	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(JsonExportObject inputObject, string httpMethod, NameValueCollection headers, IHttpIntermediate outputObject).</para>
 	/// <para>The type T must be an IHttpIntermediate implementation used to transcibe data from script to sub system.</para>
 	/// The outputObject is required for the script implementation to know how to return a data type compatible with a serializer.
 	/// </summary>
-	public class ScriptObjectReceiver<T>: IHttpObjectReceiver where T: IHttpIntermediate, new()
+	public class ScriptObjectReceiver<T,K>: IHttpObjectReceiver<K> where T: IHttpIntermediate, new() where K: IDictionary<string, Object>
 	{
 
 		IScript m_script;
@@ -43,7 +44,7 @@ namespace Core.Network.Http
 		
 		}
 
-		public IHttpIntermediate onReceive (ExpandoObject input, string httpMethod, NameValueCollection headers = null) {
+		public IHttpIntermediate onReceive (JsonExportObject<K> input, string httpMethod, NameValueCollection headers = null) {
 
 			return m_script.MainClass.@on_receive (input, httpMethod, headers, new T());
 
