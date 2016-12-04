@@ -51,9 +51,9 @@ namespace Core.Network.Http
 		/// Creates an instance of IHttpObjectReceiver capable of handling input through an IScript.
 		/// </summary>
 		/// <returns>The script object receiver.</returns>
-		public IHttpObjectReceiver<ExpandoObject> CreateRubyScriptObjectReceiver(IScript script) {
+		public IHttpObjectReceiver CreateRubyScriptObjectReceiver(IScript script) {
 		
-			return new ScriptObjectReceiver<HttpRubyIntermediate,ExpandoObject> (script);
+			return new ScriptObjectReceiver<HttpRubyIntermediate> (script);
 
 		}
 
@@ -76,7 +76,7 @@ namespace Core.Network.Http
 		/// <returns>The json endpoint.</returns>
 		/// <param name="deviceListenerPath">Device listener path.</param>
 		/// <param name="receiver">Receiver.</param>
-		public IHttpEndpoint CreateJsonEndpoint(string uriPath, IHttpObjectReceiver<ExpandoObject> receiver) {
+		public IHttpEndpoint CreateJsonEndpoint(string uriPath, IHttpObjectReceiver receiver) {
 
 			return new HttpJsonEndpoint (uriPath, receiver);
 

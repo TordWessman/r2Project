@@ -26,7 +26,7 @@ namespace Core.Network.Http
 	/// <summary>
 	/// Represents an implementation capable of handdling objects through HTTP requests
 	/// </summary>
-	public interface IHttpObjectReceiver<T> where T: IDictionary<string,Object>
+	public interface IHttpObjectReceiver
 	{
 		/// <summary>
 		/// Handles the receival of the input object using httpMethod and including the optional header fields. Returns an IHttpIntermediate intermediation object capable of storing data and headers.
@@ -34,7 +34,7 @@ namespace Core.Network.Http
 		/// <param name="input">Input.</param>
 		/// <param name="httpMethod">Http method.</param>
 		/// <param name="headers">Headers.</param>
-		IHttpIntermediate onReceive (JsonExportObject<T> input, string httpMethod, NameValueCollection headers = null);
+		IHttpIntermediate onReceive (dynamic input, string httpMethod, NameValueCollection headers = null);
 
 	}
 }

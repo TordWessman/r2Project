@@ -35,7 +35,7 @@ namespace Core.Network.Http
 	/// </summary>
 	public class HttpJsonEndpoint : IHttpEndpoint
 	{
-		private IHttpObjectReceiver<ExpandoObject> m_receiver;
+		private IHttpObjectReceiver m_receiver;
 		private string m_responsePath;
 		private string m_contentType;
 		private NameValueCollection m_extraHeaders;
@@ -49,7 +49,7 @@ namespace Core.Network.Http
 		/// <param name="responsePath">Response path.</param>
 		/// <param name="responsePath">receiver</param>
 
-		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver<ExpandoObject> receiver)
+		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver receiver)
 		{
 
 			m_receiver = receiver;
@@ -99,7 +99,8 @@ namespace Core.Network.Http
 
 				} catch (System.ArgumentException ex) {
 				
-					//More user friendly error message upon duplicates.
+					//More user friendly error message upon posible duplicates.
+					Log.x(ex);
 
 					throw new System.ArgumentException ("Unable to add header parameter: '" + key + "' from request. Does it exist a duplicate in the Json-body?");
 				}
@@ -107,7 +108,7 @@ namespace Core.Network.Http
 
 			}
 
-			IHttpIntermediate outputObject = m_receiver.onReceive (new JsonExportObject<ExpandoObject>(inputObject), httpMethod?.ToUpper(), headers);
+			IHttpIntermediate outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToUpper(), headers);
 
 			m_extraHeaders.Add (outputObject.Headers);
 
