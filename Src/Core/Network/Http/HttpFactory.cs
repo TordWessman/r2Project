@@ -41,6 +41,12 @@ namespace Core.Network.Http
 
 		}
 
+		public IHttpServer CreateWebSocketServer(string id, int port) {
+		
+			return new WebSocketServer (id, port);
+
+		}
+
 		public IJsonClient CreateJsonClient(string id, string serverUrl) {
 
 			return new JsonClient (id, serverUrl);
@@ -81,6 +87,7 @@ namespace Core.Network.Http
 			return new HttpJsonEndpoint (uriPath, receiver);
 
 		}
+
 
 	}
 

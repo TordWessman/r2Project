@@ -207,7 +207,8 @@
     <Compile Include="Network\Http\Scripting\HttpRubyIntermediate.cs" />
     <Compile Include="Network\Http\Scripting\ScriptObjectReceiver.cs" />
     <Compile Include="Network\Http\HttpFactory.cs" />
-    <Compile Include="Network\Http\Scripting\JsonExportObject.cs" />
+    <Compile Include="Network\Http\JsonExportObject.cs" />
+    <Compile Include="Network\Http\WebSocketServer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

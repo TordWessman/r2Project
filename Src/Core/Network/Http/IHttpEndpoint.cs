@@ -35,19 +35,13 @@ namespace Core.Network.Http
 		/// <param name="inputData">uri.</param>
 		/// <param name="httpMethod">Http method.</param>
 		/// <param name="inputData">headers</param>
-		byte[] Interpret(string inputData, Uri uri, string httpMethod = null, NameValueCollection headers = null);
+		byte[] Interpret(byte[] inputData, Uri uri = null, string httpMethod = null, NameValueCollection headers = null);
 
 		/// <summary>
-		/// The uri path on which this interprener is listening. Should return true if this listener can handle the request.
+		/// The uri path on which this interprener is listening.
 		/// </summary>
 		/// <value>The response path.</value>
-		bool Accepts (Uri uri);
-
-		/// <summary>
-		/// Thee response content type.
-		/// </summary>
-		/// <value>The type of the http content.</value>
-		string HttpContentType {get; }
+		string UriPath {get;}
 
 		/// <summary>
 		/// Extra response headers.

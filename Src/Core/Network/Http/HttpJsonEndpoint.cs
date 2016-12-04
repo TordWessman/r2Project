@@ -37,9 +37,9 @@ namespace Core.Network.Http
 	{
 		private IHttpObjectReceiver m_receiver;
 		private string m_responsePath;
-		private string m_contentType;
 		private NameValueCollection m_extraHeaders;
 		private ExpandoObjectConverter m_converter;
+		private System.Text.Encoding m_encoding;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Core.Network.Http.HttpJsonEndpoint`"/>.<br/>
@@ -49,16 +49,17 @@ namespace Core.Network.Http
 		/// <param name="responsePath">Response path.</param>
 		/// <param name="responsePath">receiver</param>
 
-		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver receiver)
+		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver receiver, System.Text.Encoding encoding = null)
 		{
 
 			m_receiver = receiver;
 
 			m_responsePath = responseURIPath;
-			m_contentType = @"application/json";
-			m_converter = new ExpandoObjectConverter();  
-
+			m_converter = new ExpandoObjectConverter();
 			m_extraHeaders = new NameValueCollection ();
+			m_encoding = encoding ?? HttpServer.DefaultEncoding;
+
+			m_extraHeaders.Add ("Content-Type", @"application/json");
 
 			// Allow cross domain access from browsers. 
 			m_extraHeaders.Add ("Access-Control-Allow-Origin", "*");
@@ -69,11 +70,13 @@ namespace Core.Network.Http
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (string inputJson, Uri uri, string httpMethod = null, NameValueCollection headers = null) {
-			
+		public byte[] Interpret (byte[] input, Uri uri = null, string httpMethod = null, NameValueCollection headers = null) {
+
+			string inputJson = m_encoding.GetString (input);
+
 			dynamic inputObject = null;
 
-			if (httpMethod.ToUpper () != "GET") {
+			if (httpMethod?.ToUpper () != "GET") {
 			
 				// Parse body
 
@@ -89,22 +92,25 @@ namespace Core.Network.Http
 			}
 
 			// Add query string parameters. Will replace json-properties for now...
-
-			NameValueCollection queryKeys = HttpUtility.ParseQueryString (uri.Query);
-			foreach (string key in  queryKeys.AllKeys) {
-
-				try {
-
-					(inputObject as IDictionary<string, Object>).Add (key, queryKeys [key]);
-
-				} catch (System.ArgumentException ex) {
+			if (uri != null) {
 				
-					//More user friendly error message upon posible duplicates.
-					Log.x(ex);
+				NameValueCollection queryKeys = HttpUtility.ParseQueryString (uri.Query);
 
-					throw new System.ArgumentException ("Unable to add header parameter: '" + key + "' from request. Does it exist a duplicate in the Json-body?");
+				foreach (string key in  queryKeys.AllKeys) {
+
+					try {
+
+						(inputObject as IDictionary<string, Object>).Add (key, queryKeys [key]);
+
+					} catch (System.ArgumentException ex) {
+
+						//More user friendly error message upon posible duplicates.
+						Log.x(ex);
+
+						throw new System.ArgumentException ("Unable to add header parameter: '" + key + "' from request. Does it exist a duplicate in the Json-body?");
+					}
+
 				}
-
 
 			}
 
@@ -113,23 +119,18 @@ namespace Core.Network.Http
 			m_extraHeaders.Add (outputObject.Headers);
 
 			string outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject.Data));
-			return outputString?.ToByteArray() ?? new byte[0];
+			return m_encoding.GetBytes(outputString) ?? new byte[0];
 
 		}
 
-		public bool Accepts(Uri uri) {
-
-			return m_responsePath == uri?.AbsolutePath;
-
-		}
-
-		public string HttpContentType {
+		public string UriPath {
 
 			get {
-
-				return m_contentType;
+			
+				return m_responsePath;
 
 			}
+
 		}
 
 		public NameValueCollection ExtraHeaders {

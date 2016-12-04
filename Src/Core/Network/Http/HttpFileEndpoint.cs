@@ -49,13 +49,15 @@ namespace Core.Network.Http
 		{
 			m_basePath = basePath;
 			m_responsePath = responsePath;
-			m_contentType = contentType;
+			m_contentType = contentType ?? "file";
 			m_lastRequestedFileExtension = "*";
+
+			//m_extraHeaders.Add ("Content-Type", @"application/json");
 		}
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (string inputData, Uri uri = null, string httpMethod = null, NameValueCollection headers = null)
+		public byte[] Interpret (byte[] inputData, Uri uri = null, string httpMethod = null, NameValueCollection headers = null)
 		{
 			if (uri == null) {
 			
@@ -85,18 +87,11 @@ namespace Core.Network.Http
 
 		}
 
-		public bool Accepts(Uri uri) {
-
-			return uri.AbsolutePath.StartsWith(m_responsePath);
-
-		}
-
-
-		public string HttpContentType {
+		public string UriPath {
 
 			get {
 
-				return m_contentType + "/" + m_lastRequestedFileExtension;
+				return m_responsePath;
 
 			}
 
@@ -106,8 +101,11 @@ namespace Core.Network.Http
 
 			get {
 
-				return new NameValueCollection ();
+				var headers = new NameValueCollection ();
 
+				headers.Add ("Content-Type", m_contentType + "/" + m_lastRequestedFileExtension);
+
+				return headers;
 			}
 
 		}

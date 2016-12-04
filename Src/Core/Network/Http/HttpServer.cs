@@ -35,15 +35,17 @@ namespace Core.Network.Http
 		private HttpListener m_listener;
 		private bool m_shouldrun;
 		private int m_port;
-		private IList<IHttpEndpoint> m_interpreters;
+		private IDictionary<string,IHttpEndpoint> m_endpoints;
 		private Task m_task;
 		private System.Text.Encoding m_encoding;
+
+		public readonly static System.Text.Encoding DefaultEncoding = System.Text.Encoding.UTF8; 
 
 		public HttpServer (string id, int port, System.Text.Encoding encoding = null) :  base (id)
 		{
 			m_port = port;
-			m_interpreters = new List<IHttpEndpoint> ();
-			m_encoding = encoding ?? System.Text.Encoding.UTF8;
+			m_endpoints = new Dictionary<string,IHttpEndpoint> ();
+			m_encoding = encoding ?? DefaultEncoding;
 
 		}
 
@@ -65,41 +67,35 @@ namespace Core.Network.Http
 					using (StreamReader reader = new StreamReader(request.InputStream, m_encoding))
 					{
 						bool didFindResponder = false;
-						byte[] responseBuffer = {};
+						byte[] responseBody = {};
+						byte[] requestBody = default(byte[]);
 
 						try {
+							
+							IHttpEndpoint interpreter = m_endpoints[request.Url.AbsolutePath];
 
-							string inputString = reader.ReadToEnd();
-
-							foreach (IHttpEndpoint interpreter in m_interpreters) {
-
-								if (interpreter.Accepts(request.Url)) {
-
-									// The interpreter can handle the specified URI and will continue to process it.
-
-									didFindResponder = true;
-									responseBuffer = interpreter.Interpret (inputString, request.Url, request.HttpMethod, request.Headers);
-
-									foreach (string headerKey in interpreter.ExtraHeaders.Keys) {
-
-										response.Headers.Add (headerKey, interpreter.ExtraHeaders [headerKey]);
-									
-									}
-
-									response.ContentType = interpreter.HttpContentType;
-
-									break;
-								
-								} 
-
+							using (var memstream = new MemoryStream())
+							{
+								reader.BaseStream.CopyTo(memstream);
+								requestBody = memstream.ToArray();
 							}
+
+							didFindResponder = true;
+							responseBody = interpreter.Interpret (requestBody, request.Url, request.HttpMethod, request.Headers);
+
+							foreach (string headerKey in interpreter.ExtraHeaders.Keys) {
+
+								response.Headers.Add (headerKey, interpreter.ExtraHeaders [headerKey]);
+							
+							}
+
 
 						} catch (Exception ex) {
 
 							Log.x (ex);
 
 							#if DEBUG
-							responseBuffer = ex.Message.ToByteArray (m_encoding);
+							responseBody = ex.Message.ToByteArray (m_encoding);
 							#else
 							responseBuffer = "ERROR".ToByteArray(m_encoding);
 							#endif
@@ -115,9 +111,9 @@ namespace Core.Network.Http
 
 						}
 
-						response.ContentLength64 = responseBuffer.Length;
+						response.ContentLength64 = responseBody.Length;
 						System.IO.Stream output = response.OutputStream;
-						output.Write(responseBuffer,0,responseBuffer.Length);
+						output.Write(responseBody,0,responseBody.Length);
 						output.Close();
 
 					}
@@ -152,8 +148,8 @@ namespace Core.Network.Http
 		}
 
 		public void AddEndpoint(IHttpEndpoint interpreter) {
-		
-			m_interpreters.Add (interpreter);
+
+			m_endpoints.Add (interpreter.UriPath, interpreter);
 
 		}
 
