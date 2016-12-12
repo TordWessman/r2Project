@@ -18,31 +18,24 @@
 
 ﻿using System;
 
-namespace Core.Network.Http {
-
-	public class JsonDeviceMessage : JsonBaseMessage
+namespace Core.Network.Web
 {
-		public enum Statuses : int
+	public class JsonRegisterMessage : JsonBaseMessage
+	{
+		public JsonRegisterMessage ()
 		{
-			OK = 200,			// Message delivered successfully
-			BadToken = 401,		// Wrot token
-			NoDevice = 404,		// The Device was not found
-			GeneralError = 500,	// Anything else...
-			ServerNotRegisteredAToken = 503	// Server had not yet registered a connection token
-			
 		}
-				
-	public string HttpMethod { get; set;}
 
-	public string Device { get; set;}
-	public string Function { get; set;}
-	public string Params  { get; set;}
-	public string Data { get; set;}
-		public string Token { get; set;}
+		public string Login { get; set;}
+		public string Password { get; set;}
+		public string Token  { get; set;}
+		public bool Success {get; set;}
+		public string ClientPort {get; set;}
 
+		public override string ToString ()
+		{
+			return string.Format ("[JsonRegisterMessage: Login={0}, Password={1}, Token={2}, Success={3}]", Login, Password, Token, Success);
+		}
 	}
-
-
-
 }
 

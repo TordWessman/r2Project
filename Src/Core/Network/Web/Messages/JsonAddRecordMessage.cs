@@ -18,12 +18,19 @@
 
 ﻿using System;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
-	public class JsonBaseMessage
+	public class JsonAddRecordMessage : JsonBaseMessage
 	{
-		public JsonBaseMessage() {}
-		public int Status {get; set;}
+		public string Login;
+		public string Password;
+		public string Device;
+		public string Registered;
+		public string Value;
+
+		public JsonAddRecordMessage ()
+		{
+		}
 	}
 }
 

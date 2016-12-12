@@ -18,7 +18,7 @@
 
 ﻿using System;
 using Core.Device;
-using Core.Network.Http;
+using Core.Network.Web;
 using Core.Memory;
 using MemoryType = System.String;
 using System.Linq;
@@ -55,9 +55,9 @@ namespace Core
 		
 		}
 
-		public HttpFactory CreateHttpFactory(string id) {
+		public WebFactory CreateHttpFactory(string id) {
 		
-			return new HttpFactory (id);
+			return new WebFactory (id);
 
 		}
 

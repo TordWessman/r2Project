@@ -27,15 +27,15 @@ using System.Dynamic;
 using Newtonsoft.Json.Converters;
 using System.Web;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 
 	/// <summary>
 	/// A JsonEndpoint is intended to represent a HttpServer endpoint mapped to a specified URI path.
 	/// </summary>
-	public class HttpJsonEndpoint : IHttpEndpoint
+	public class WebJsonEndpoint : IWebEndpoint
 	{
-		private IHttpObjectReceiver m_receiver;
+		private IWebObjectReceiver m_receiver;
 		private string m_responsePath;
 		private NameValueCollection m_extraHeaders;
 		private ExpandoObjectConverter m_converter;
@@ -49,7 +49,7 @@ namespace Core.Network.Http
 		/// <param name="responsePath">Response path.</param>
 		/// <param name="responsePath">receiver</param>
 
-		public HttpJsonEndpoint (string responseURIPath, IHttpObjectReceiver receiver, System.Text.Encoding encoding = null)
+		public WebJsonEndpoint (string responseURIPath, IWebObjectReceiver receiver, System.Text.Encoding encoding = null)
 		{
 
 			m_receiver = receiver;
@@ -114,7 +114,7 @@ namespace Core.Network.Http
 
 			}
 
-			IHttpIntermediate outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToUpper(), headers);
+			IWebIntermediate outputObject = m_receiver.onReceive (inputObject, httpMethod?.ToUpper(), headers);
 
 			m_extraHeaders.Add (outputObject.Headers);
 

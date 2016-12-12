@@ -21,12 +21,12 @@ using System.Collections.Specialized;
 using System.Dynamic;
 using System.Collections.Generic;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 	/// <summary>
 	/// Represents an implementation capable of handdling objects through HTTP requests
 	/// </summary>
-	public interface IHttpObjectReceiver
+	public interface IWebObjectReceiver
 	{
 		/// <summary>
 		/// Handles the receival of the input object using httpMethod and including the optional header fields. Returns an IHttpIntermediate intermediation object capable of storing data and headers.
@@ -34,7 +34,7 @@ namespace Core.Network.Http
 		/// <param name="input">Input.</param>
 		/// <param name="httpMethod">Http method.</param>
 		/// <param name="headers">Headers.</param>
-		IHttpIntermediate onReceive (dynamic input, string httpMethod, NameValueCollection headers = null);
+		IWebIntermediate onReceive (dynamic input, string httpMethod, NameValueCollection headers = null);
 
 	}
 }

@@ -156,14 +156,6 @@
     <Compile Include="Shared\CvRect.cs" />
     <Compile Include="Shared\CvPoint.cs" />
     <Compile Include="Shared\CvSize.cs" />
-    <Compile Include="Network\Http\IHttpServer.cs" />
-    <Compile Include="Network\Http\Messages\JsonDeviceMessage.cs" />
-    <Compile Include="Network\Http\Messages\JsonRegisterMessage.cs" />
-    <Compile Include="Network\Http\JsonClient.cs" />
-    <Compile Include="Network\Http\Messages\JsonMessageFactory.cs" />
-    <Compile Include="Network\Http\IJsonClient.cs" />
-    <Compile Include="Network\Http\Messages\JsonBaseMessage.cs" />
-    <Compile Include="Network\Http\Messages\JsonAddRecordMessage.cs" />
     <Compile Include="Device\Interfaces\IAudioPlayer.cs" />
     <Compile Include="Device\RemoteDevices\RemoteAudioPlayer.cs" />
     <Compile Include="Settings\Shared.cs">
@@ -174,7 +166,6 @@
     </Compile>
     <Compile Include="DB\IDatabase.cs" />
     <Compile Include="DB\SqliteDatabase.cs" />
-    <Compile Include="Network\Http\HttpServer.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Device\IJSONAccessible.cs" />
     <Compile Include="Device\RemoteDevices\RemoteGstream.cs" />
@@ -187,10 +178,6 @@
     <Compile Include="Network\SimpleNetworkSecurity.cs" />
     <Compile Include="Network\INetworkPackageFactory.cs" />
     <Compile Include="Log\SimpleConsoleLogger.cs" />
-    <Compile Include="Network\Http\HttpJsonEndpoint.cs" />
-    <Compile Include="Network\Http\IHttpEndpoint.cs" />
-    <Compile Include="Network\Http\HttpFileEndpoint.cs" />
-    <Compile Include="Network\Http\IHttpObjectReceiver.cs" />
     <Compile Include="Shared\DeviceFactory.cs" />
     <Compile Include="Shared\Gstream.cs" />
     <Compile Include="Shared\BaseContainer.cs" />
@@ -203,12 +190,29 @@
     <Compile Include="Shared\RecurringTimer.cs" />
     <Compile Include="Shared\Serializer.cs" />
     <Compile Include="Shared\SimpleTaskMonitor.cs" />
-    <Compile Include="Network\Http\IHttpIntermediate.cs" />
-    <Compile Include="Network\Http\Scripting\HttpRubyIntermediate.cs" />
-    <Compile Include="Network\Http\Scripting\ScriptObjectReceiver.cs" />
-    <Compile Include="Network\Http\HttpFactory.cs" />
-    <Compile Include="Network\Http\JsonExportObject.cs" />
-    <Compile Include="Network\Http\WebSocketServer.cs" />
+    <Compile Include="Network\Web\Messages\JsonDeviceMessage.cs" />
+    <Compile Include="Network\Web\Messages\JsonRegisterMessage.cs" />
+    <Compile Include="Network\Web\JsonClient.cs" />
+    <Compile Include="Network\Web\Messages\JsonMessageFactory.cs" />
+    <Compile Include="Network\Web\IJsonClient.cs" />
+    <Compile Include="Network\Web\Messages\JsonBaseMessage.cs" />
+    <Compile Include="Network\Web\Messages\JsonAddRecordMessage.cs" />
+    <Compile Include="Network\Web\HttpServer.cs" />
+    <Compile Include="Network\Web\Scripting\ScriptObjectReceiver.cs" />
+    <Compile Include="Network\Web\JsonExportObject.cs" />
+    <Compile Include="Network\Web\IWebServer.cs" />
+    <Compile Include="Network\Web\WebFactory.cs" />
+    <Compile Include="Network\Web\IWebIntermediate.cs" />
+    <Compile Include="Network\Web\IWebEndpoint.cs" />
+    <Compile Include="Network\Web\Scripting\RubyWebIntermediate.cs" />
+    <Compile Include="Network\Web\WebSockets\WebSocketServer.cs" />
+    <Compile Include="Network\Web\WebFileEndpoint.cs" />
+    <Compile Include="Network\Web\WebJsonEndpoint.cs" />
+    <Compile Include="Network\Web\IWebObjectReceiver.cs" />
+    <Compile Include="Network\Web\WebSockets\IWebSocketSender.cs" />
+    <Compile Include="Network\Web\WebSockets\IWebSocketServer.cs" />
+    <Compile Include="Network\Web\WebDummyEndpoint.cs" />
+    <Compile Include="Network\Web\WebSockets\WebSocketSender.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -222,11 +226,13 @@
     <Folder Include="Scripting\" />
     <Folder Include="Scripting\Ruby\" />
     <Folder Include="Shared\" />
-    <Folder Include="Network\Http\" />
-    <Folder Include="Network\Http\Messages\" />
     <Folder Include="Settings\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Network\Http\Scripting\" />
+    <Folder Include="Network\Web\" />
+    <Folder Include="Network\Web\Messages\" />
+    <Folder Include="Network\Web\Scripting\" />
+    <Folder Include="Network\Web\Http\" />
+    <Folder Include="Network\Web\WebSockets\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

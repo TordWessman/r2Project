@@ -20,12 +20,12 @@ using System;
 using System.Dynamic;
 using System.Collections.Specialized;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 	/// <summary>
 	/// IHttpIntermediate is responsible for containing data during Http communication. Implementations might i.e. be capable of transcribing data between the server and the sub system parser.
 	/// </summary>
-	public interface IHttpIntermediate
+	public interface IWebIntermediate
 	{
 		/// <summary>
 		/// Adds a header field to this object.
@@ -45,7 +45,7 @@ namespace Core.Network.Http
 		/// Returns a new IHttpIntermediate object.
 		/// </summary>
 		/// <value>The new.</value>
-		IHttpIntermediate New { get; }
+		IWebIntermediate New { get; }
 
 		/// <summary>
 		/// Returns all data contained in this object.

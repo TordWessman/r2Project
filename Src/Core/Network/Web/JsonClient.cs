@@ -24,7 +24,7 @@ using Core.Device;
 using System.Net;
 using System.Text;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 	public class JsonClient : DeviceBase, IJsonClient
 	{

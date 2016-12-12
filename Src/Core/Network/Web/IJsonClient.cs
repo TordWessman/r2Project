@@ -16,18 +16,15 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
-using System.Net.Sockets;
-using System.Net;
-using System.Threading;
+﻿using System;
+using Core.Device;
 
-namespace Core.Net
+namespace Core.Network.Web
 {
-	public class Client
+	public interface IJsonClient : IDevice
 	{
-		public Client ()
-		{
-		}
+		T Send<T> (T message, string path = "", string httpMethod = "POST") where T: JsonBaseMessage, new() ;
+		JsonBaseMessage SendObject (JsonBaseMessage message, string path = "", string httpMethod = "POST") ;
 	}
 }
 

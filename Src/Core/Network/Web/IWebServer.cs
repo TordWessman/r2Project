@@ -17,20 +17,18 @@
 // 
 
 ﻿using System;
+using Core.Device;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
-	public class JsonAddRecordMessage : JsonBaseMessage
+	public interface IWebServer: IDevice
 	{
-		public string Login;
-		public string Password;
-		public string Device;
-		public string Registered;
-		public string Value;
+		/// <summary>
+		/// Adds a new IHttpEndpoint to the interpreters list in order for the server to allow other, different requests.
+		/// </summary>
+		/// <param name="interpreter">Interpreter.</param>
+		void AddEndpoint(IWebEndpoint interpreter);
 
-		public JsonAddRecordMessage ()
-		{
-		}
 	}
 }
 

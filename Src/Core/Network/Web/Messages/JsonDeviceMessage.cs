@@ -17,24 +17,32 @@
 // 
 
 ﻿using System;
-using Core.Device;
 
-namespace Core.Network.Http
+namespace Core.Network.Web {
+
+	public class JsonDeviceMessage : JsonBaseMessage
 {
-	public class JsonMessageFactory : DeviceBase
-	{
-		public JsonMessageFactory (string id): base (id)
+		public enum Statuses : int
 		{
+			OK = 200,			// Message delivered successfully
+			BadToken = 401,		// Wrot token
+			NoDevice = 404,		// The Device was not found
+			GeneralError = 500,	// Anything else...
+			ServerNotRegisteredAToken = 503	// Server had not yet registered a connection token
+			
 		}
+				
+	public string HttpMethod { get; set;}
 
-		public JsonRegisterMessage CreateRegister(string login, string password, string token, string clientPort) {
-			return new JsonRegisterMessage() {Login = login, Password = password, Token = token, ClientPort = clientPort};
-		}
-
-		public JsonAddRecordMessage CreateRecord(string login, string password, string device, string value, string registered) {
-			return new JsonAddRecordMessage() {Login = login, Password = password, Device = device, Registered = registered, Value = value};
-		}
+	public string Device { get; set;}
+	public string Function { get; set;}
+	public string Params  { get; set;}
+	public string Data { get; set;}
+		public string Token { get; set;}
 
 	}
+
+
+
 }
 

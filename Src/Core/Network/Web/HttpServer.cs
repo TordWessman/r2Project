@@ -24,18 +24,18 @@ using System.Text;
 using Core.Device;
 using System.Collections.Generic;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 
 	/// <summary>
 	/// Primitive HTTP server.
 	/// </summary>
-	public class HttpServer : DeviceBase, IHttpServer
+	public class HttpServer : DeviceBase, IWebServer
 	{
 		private HttpListener m_listener;
 		private bool m_shouldrun;
 		private int m_port;
-		private IDictionary<string,IHttpEndpoint> m_endpoints;
+		private IDictionary<string,IWebEndpoint> m_endpoints;
 		private Task m_task;
 		private System.Text.Encoding m_encoding;
 
@@ -44,7 +44,7 @@ namespace Core.Network.Http
 		public HttpServer (string id, int port, System.Text.Encoding encoding = null) :  base (id)
 		{
 			m_port = port;
-			m_endpoints = new Dictionary<string,IHttpEndpoint> ();
+			m_endpoints = new Dictionary<string,IWebEndpoint> ();
 			m_encoding = encoding ?? DefaultEncoding;
 
 		}
@@ -72,7 +72,7 @@ namespace Core.Network.Http
 
 						try {
 							
-							IHttpEndpoint interpreter = m_endpoints[request.Url.AbsolutePath];
+							IWebEndpoint interpreter = m_endpoints[request.Url.AbsolutePath];
 
 							using (var memstream = new MemoryStream())
 							{
@@ -147,7 +147,7 @@ namespace Core.Network.Http
 			m_listener.Stop ();
 		}
 
-		public void AddEndpoint(IHttpEndpoint interpreter) {
+		public void AddEndpoint(IWebEndpoint interpreter) {
 
 			m_endpoints.Add (interpreter.UriPath, interpreter);
 

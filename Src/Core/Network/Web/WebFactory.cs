@@ -23,25 +23,25 @@ using System.Linq;
 using Core.Scripting;
 using System.Dynamic;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 	/// <summary>
 	/// Creates various http components
 	/// </summary>
-	public class HttpFactory : DeviceBase
+	public class WebFactory : DeviceBase
 	{
 
-		public HttpFactory (string id) : base (id) {
+		public WebFactory (string id) : base (id) {
 		
 		}
 
-		public IHttpServer CreateHttpServer (string id, int port) {
+		public IWebServer CreateHttpServer (string id, int port) {
 
 			return new HttpServer (id, port);
 
 		}
 
-		public IHttpServer CreateWebSocketServer(string id, int port) {
+		public IWebServer CreateWebSocketServer(string id, int port) {
 		
 			return new WebSocketServer (id, port);
 
@@ -57,9 +57,9 @@ namespace Core.Network.Http
 		/// Creates an instance of IHttpObjectReceiver capable of handling input through an IScript.
 		/// </summary>
 		/// <returns>The script object receiver.</returns>
-		public IHttpObjectReceiver CreateRubyScriptObjectReceiver(IScript script) {
+		public IWebObjectReceiver CreateRubyScriptObjectReceiver(IScript script) {
 		
-			return new ScriptObjectReceiver<HttpRubyIntermediate> (script);
+			return new ScriptObjectReceiver<RubyWebIntermediate> (script);
 
 		}
 
@@ -70,9 +70,9 @@ namespace Core.Network.Http
 		/// <param name="localPath">Local path.</param>
 		/// <param name="uriPath">URI path.</param>
 		/// <param name="contentType">Content type.</param>
-		public IHttpEndpoint CreateFileEndpoint (string localPath, string uriPath, string contentType = "image") {
+		public IWebEndpoint CreateFileEndpoint (string localPath, string uriPath, string contentType = "image") {
 
-			return new HttpFileEndpoint (localPath, uriPath, contentType);
+			return new WebFileEndpoint (localPath, uriPath, contentType);
 
 		}
 
@@ -82,9 +82,9 @@ namespace Core.Network.Http
 		/// <returns>The json endpoint.</returns>
 		/// <param name="deviceListenerPath">Device listener path.</param>
 		/// <param name="receiver">Receiver.</param>
-		public IHttpEndpoint CreateJsonEndpoint(string uriPath, IHttpObjectReceiver receiver) {
+		public IWebEndpoint CreateJsonEndpoint(string uriPath, IWebObjectReceiver receiver) {
 
-			return new HttpJsonEndpoint (uriPath, receiver);
+			return new WebJsonEndpoint (uriPath, receiver);
 
 		}
 

@@ -16,21 +16,25 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
+﻿using System;
+using Core.Device;
 
-namespace Core.Net
+namespace Core.Network.Web
 {
-	internal interface IConnection<T>
+	public class JsonMessageFactory : DeviceBase
 	{
-		
-		void Stop();
-		void Start();
-		
-		string IP {get;}
-		bool Ready {get; }
-		bool Busy {get; }
-		void Write (T buffer);
+		public JsonMessageFactory (string id): base (id)
+		{
+		}
+
+		public JsonRegisterMessage CreateRegister(string login, string password, string token, string clientPort) {
+			return new JsonRegisterMessage() {Login = login, Password = password, Token = token, ClientPort = clientPort};
+		}
+
+		public JsonAddRecordMessage CreateRecord(string login, string password, string device, string value, string registered) {
+			return new JsonAddRecordMessage() {Login = login, Password = password, Device = device, Registered = registered, Value = value};
+		}
+
 	}
-		
 }
 

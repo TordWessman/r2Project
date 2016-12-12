@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 
 	/// <summary>

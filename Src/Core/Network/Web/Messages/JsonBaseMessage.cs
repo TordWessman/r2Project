@@ -17,14 +17,13 @@
 // 
 
 ﻿using System;
-using Core.Device;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
-	public interface IJsonClient : IDevice
+	public class JsonBaseMessage
 	{
-		T Send<T> (T message, string path = "", string httpMethod = "POST") where T: JsonBaseMessage, new() ;
-		JsonBaseMessage SendObject (JsonBaseMessage message, string path = "", string httpMethod = "POST") ;
+		public JsonBaseMessage() {}
+		public int Status {get; set;}
 	}
 }
 

@@ -20,13 +20,13 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 	/// <summary>
 	/// Interprets data input and returns a decoded response.
 	/// sent back to the client
 	/// </summary>
-	public interface IHttpEndpoint
+	public interface IWebEndpoint
 	{
 		/// <summary>
 		/// Interprets inputData and returns byte array of response data.

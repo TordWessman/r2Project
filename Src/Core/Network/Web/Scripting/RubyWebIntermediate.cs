@@ -22,18 +22,18 @@ using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Runtime.Remoting;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 
 	/// <summary>
 	/// Default IHttpIntermediate implementation used for transporting http object data and headers.
 	/// </summary>
-	public class HttpRubyIntermediate: IHttpIntermediate
+	public class RubyWebIntermediate: IWebIntermediate
 	{
 		private IDictionary<string, dynamic> m_data;
 		private NameValueCollection m_headers;
 
-		public HttpRubyIntermediate ()
+		public RubyWebIntermediate ()
 		{
 			m_data = new Dictionary<string, dynamic> ();
 			m_headers = new NameValueCollection ();
@@ -50,7 +50,7 @@ namespace Core.Network.Http
 
 		}
 
-		public IHttpIntermediate New { get { return new HttpRubyIntermediate(); } }
+		public IWebIntermediate New { get { return new RubyWebIntermediate(); } }
 
 		public dynamic Data { get { return m_data; } }
 
@@ -63,7 +63,7 @@ namespace Core.Network.Http
 		/// <param name="value">Value.</param>
 		private dynamic ParseValue(dynamic value) {
 
-			if (value is IHttpIntermediate) {
+			if (value is IWebIntermediate) {
 
 				return value.Data;
 

@@ -22,12 +22,12 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 
-namespace Core.Network.Http
+namespace Core.Network.Web
 {
 	/// <summary>
 	/// Uses as a very primitive file server within an IHttpServer.
 	/// </summary>
-	public class HttpFileEndpoint : IHttpEndpoint
+	public class WebFileEndpoint : IWebEndpoint
 	{
 		private string m_basePath;
 		private string m_responsePath;
@@ -45,7 +45,7 @@ namespace Core.Network.Http
 		/// </summary>
 		/// <param name="basePath">Path containing file resources.</param>
 		/// <param name="responsePath">Response path.</param>
-		public HttpFileEndpoint (string basePath, string responsePath, string contentType)
+		public WebFileEndpoint (string basePath, string responsePath, string contentType)
 		{
 			m_basePath = basePath;
 			m_responsePath = responsePath;
