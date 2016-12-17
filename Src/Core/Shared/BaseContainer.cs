@@ -118,7 +118,6 @@ namespace Core
 			// Set up a very simple network security handler
 			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity ("base_security", Settings.Consts.DefaultPassword());
 
-
 			m_networkPackageFactory = new NetworkPackageFactory (simpleSecurity);
 
 			m_hostManager = new HostManager (

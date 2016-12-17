@@ -31,8 +31,12 @@ namespace Core.Network.Web
 	public class WebFactory : DeviceBase
 	{
 
-		public WebFactory (string id) : base (id) {
+		public IDeviceManager m_deviceManager;
+
+		public WebFactory (string id, IDeviceManager deviceManager) : base (id) {
 		
+			m_deviceManager = deviceManager;
+
 		}
 
 		public IWebServer CreateHttpServer (string id, int port) {
@@ -60,6 +64,17 @@ namespace Core.Network.Web
 		public IWebObjectReceiver CreateRubyScriptObjectReceiver(IScript script) {
 		
 			return new ScriptObjectReceiver<RubyWebIntermediate> (script);
+
+		}
+
+		/// <summary>
+		/// Creates a receiver capable of routing device access.
+		/// </summary>
+		/// <returns>The device object receiver.</returns>
+		/// <param name="security">Security.</param>
+		public IWebObjectReceiver CreateDeviceObjectReceiver(INetworkSecurity security = null) {
+		
+			return new DeviceReceiver (m_deviceManager, security);
 
 		}
 

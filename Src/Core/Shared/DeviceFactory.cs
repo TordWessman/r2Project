@@ -55,9 +55,9 @@ namespace Core
 		
 		}
 
-		public WebFactory CreateHttpFactory(string id) {
+		public WebFactory CreateWebFactory(string id) {
 		
-			return new WebFactory (id);
+			return new WebFactory (id, m_deviceManager);
 
 		}
 
