@@ -11,6 +11,7 @@ class MainClass < ScriptBase
 		@line_pos = 0
 		@history = Array.new
 		@key_pos = 0
+		@should_run = true
 	end
 
 	def loop
@@ -22,7 +23,7 @@ class MainClass < ScriptBase
 		key_info = System::Console.read_key true
 		key = key_info.key
 		if key == System::ConsoleKey.escape
-			stop
+			disable
 		elsif key == System::ConsoleKey.up_arrow
 			if (@line_pos > 0)
 				@line_pos = @line_pos - 1
@@ -78,7 +79,7 @@ class MainClass < ScriptBase
 	def interpret (line)
 		
 		if (line == "exit")
-			stop
+			disable
 			return true
 		elsif (line == "devices")
 			@go.robot.print_devices

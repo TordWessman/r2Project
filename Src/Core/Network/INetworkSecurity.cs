@@ -26,18 +26,13 @@ namespace Core.Network
 	/// </summary>
 	public interface INetworkSecurity
 	{
-		/// <summary>
-		/// Get the authorization token for this request
-		/// </summary>
-		/// <value>The token.</value>
-		string Token { get; }
-	
+
 		/// <summary>
 		/// Returns true if the provided token is authorized.
 		/// </summary>
 		/// <returns><c>true</c> if this instance is valud the specified token; otherwise, <c>false</c>.</returns>
 		/// <param name="token">Token.</param>
-		bool IsValud (string token);
+		bool IsValid (string token);
 
 	}
 

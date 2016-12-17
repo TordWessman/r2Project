@@ -32,9 +32,7 @@ namespace Core.Scripting
 	public class RubyScript : DeviceBase, IScript
 	{
 		public const string HANDLE_MAIN_CLASS = "main_class";
-		public const string HANDLE_SETUP = "main_class.setup";	
 		public const string HANDLE_ROBOT = "robot";
-		public const string HANDLE_ARGS = "args";
 
 		protected string m_fileName;
 		protected ScriptEngine m_engine;
@@ -111,34 +109,16 @@ namespace Core.Scripting
 		public bool HasSyntaxErrors { get { return m_hasSyntaxErrors; } }
 		
 		public override bool Ready { get {return m_mainClass != null;} }
-		
-		public void SetArgs (object[] args)
-		{
 
-			Set (HANDLE_ARGS, args);
-		
-		}
-		
-		public void Set (string handle, object value)
+		public void Set (string handle, dynamic value)
 		{
-			if (m_mainClass == null) {
-
-				throw new InvalidOperationException ("Unable to set variable for script: " + m_fileName + " with id: " + m_id + " since it has not been executed.");
-			
-			}
-			
 			m_scope.SetVariable (handle, value);
 		
 		}
 		
-		public object Get (string handle)
+		public dynamic Get (string handle)
 		{
-			if (m_mainClass == null) {
 
-				throw new InvalidOperationException ("Unable to get variable for script: " + m_fileName + " with id: " + m_id + " since it has not been executed.");
-			
-			}
-			
 			System.Runtime.Remoting.ObjectHandle tmp;
 			
 			if (!m_scope.TryGetVariableHandle (handle, out tmp)) {

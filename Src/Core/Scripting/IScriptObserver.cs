@@ -22,7 +22,18 @@ namespace Core.Scripting
 {
 	public interface IScriptObserver
 	{
-		void Finished (string id);
+		/// <summary>
+		/// Called whenever a process ran to end without errors.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		void ProcessDidFinish (string id);
+
+		/// <summary>
+		/// Called upon exception.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		void ProcessHadErrors (string id);
+
 	}
 }
 

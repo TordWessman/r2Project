@@ -31,13 +31,13 @@ namespace Core.Scripting
 		/// </summary>
 		/// <param name="handle">Handle.</param>
 		/// <param name="value">Value.</param>
-		void Set (string handle, object value);
+		void Set (string handle, dynamic value);
 
 		/// <summary>
 		/// Returns the dynamically evaluated property of handle.
 		/// </summary>
 		/// <param name="handle">Handle.</param>
-		object Get (string handle);
+		dynamic Get (string handle);
 		
 		/// <summary>
 		/// Gets a value indicating whether this <see cref="Core.Scripting.IScriptExecutor"/> is done executing.

@@ -40,13 +40,13 @@ namespace Core.Scripting
 		/// </summary>
 		/// <param name="handle">Handle.</param>
 		/// <param name="value">Value.</param>
-		void Set (string handle, object value);
+		void Set (string handle, dynamic value);
 
 		/// <summary>
 		/// Returns the value of variable identified by handle
 		/// </summary>
 		/// <param name="handle">Handle.</param>
-		object Get (string handle);
+		dynamic Get (string handle);
 
 		/// <summary>
 		/// Returns a variable or method typed as T. (i.e: a method, f(Y) -> X, would be specified as Func<X,Y> 

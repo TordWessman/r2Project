@@ -23,7 +23,7 @@ namespace Core.Network.Web
 	public class JsonBaseMessage
 	{
 		public JsonBaseMessage() {}
-		public int Status {get; set;}
+		public int Status;
 	}
 }
 

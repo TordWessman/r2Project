@@ -190,7 +190,6 @@
     <Compile Include="Shared\RecurringTimer.cs" />
     <Compile Include="Shared\Serializer.cs" />
     <Compile Include="Shared\SimpleTaskMonitor.cs" />
-    <Compile Include="Network\Web\Messages\JsonDeviceMessage.cs" />
     <Compile Include="Network\Web\Messages\JsonRegisterMessage.cs" />
     <Compile Include="Network\Web\JsonClient.cs" />
     <Compile Include="Network\Web\Messages\JsonMessageFactory.cs" />
@@ -213,6 +212,10 @@
     <Compile Include="Network\Web\WebSockets\IWebSocketServer.cs" />
     <Compile Include="Network\Web\WebDummyEndpoint.cs" />
     <Compile Include="Network\Web\WebSockets\WebSocketSender.cs" />
+    <Compile Include="Scripting\Ruby\RubyProc.cs" />
+    <Compile Include="Network\Web\DeviceReceiver.cs" />
+    <Compile Include="Network\Web\Messages\JsonObjectIntermediate.cs" />
+    <Compile Include="Network\Web\Messages\JsonObjectRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -89,8 +89,7 @@ namespace Core.Scripting
 		{
 			Log.t ("removing script: " + scriptId);
 
-			if (!m_scripts [scriptId].HasEnded &&
-				m_scripts [scriptId].HasStarted) {
+			if (m_scripts [scriptId].IsRunning) {
 
 				m_scripts [scriptId].Stop ();
 			
@@ -102,11 +101,11 @@ namespace Core.Scripting
 		
 		public override void Stop ()
 		{
-			foreach (IScriptProcess script in m_scripts.Values) {
+			foreach (IScriptProcess process in m_scripts.Values) {
 
-				if (!script.HasEnded) {
+				if (process.IsRunning) {
 				
-					script.Stop ();
+					process.Stop ();
 				
 				}
 			
@@ -167,7 +166,7 @@ namespace Core.Scripting
 
 		#region IScriptObserver implementation
 
-		public void Finished (string id)
+		public void ProcessDidFinish (string id)
 		{
 		
 			RemoveScript (id);
@@ -175,18 +174,25 @@ namespace Core.Scripting
 		
 		}
 
+		public void ProcessHadErrors (string id)
+		{
+
+			ProcessDidFinish (id);
+
+		}
+
 		#endregion
 
 		#region IScriptExecutor implementation
 	
-		public void Set (string handle, object value)
+		public void Set (string handle, dynamic value)
 		{
 
-			foreach (IScriptProcess script in m_scripts.Values) {
+			foreach (IScriptProcess process in m_scripts.Values) {
 
-				if (!script.HasEnded) {
+				if (process.Ready) {
 				
-					script.Set (handle, value);
+					process.Script.Set (handle, value);
 			
 				}
 			
@@ -194,14 +200,14 @@ namespace Core.Scripting
 
 		}
 
-		public object Get (string handle)
+		public dynamic Get (string handle)
 		{
 
-			foreach (IScriptProcess script in m_scripts.Values) {
+			foreach (IScriptProcess process in m_scripts.Values) {
 
-				if (!script.HasEnded) {
+				if (process.Ready) {
 				
-					return script.Get (handle);
+					return process.Script.Get (handle);
 				
 				}
 			
@@ -215,9 +221,9 @@ namespace Core.Scripting
 			
 			get {
 				
-				foreach (IScriptProcess script in m_scripts.Values) {
+				foreach (IScriptProcess process in m_scripts.Values) {
 
-					if ((!script.HasEnded) && script.HasStarted) {
+					if (process.IsRunning) {
 					
 						return false;
 					

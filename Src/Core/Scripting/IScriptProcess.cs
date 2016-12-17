@@ -18,19 +18,34 @@
 
 using System;
 using System.Threading.Tasks;
+using Core.Device;
 
 namespace Core.Scripting
 {
 	/// <summary>
 	/// Long running script.
 	/// </summary>
-	public interface IScriptProcess : IScript, ITaskMonitored
+	public interface IScriptProcess: IDevice, ITaskMonitored
 	{
-		void SetArgs (object [] args);
-		bool HasStarted { get;}
-		bool HasEnded { get;}
-		Task Task {get;}
-		void AddObserver (IScriptObserver observer);
-	}
-}
 
+		/// <summary>
+		/// Adds the observe which will be notified upon script changes.
+		/// </summary>
+		/// <param name="observer">Observer.</param>
+		void AddObserver (IScriptObserver observer);
+
+		/// <summary>
+		/// Returns the script being used by this process.
+		/// </summary>
+		/// <value>The script.</value>
+		IScript Script { get; }
+
+		/// <summary>
+		/// Returns true if the process is in it's main loop.
+		/// </summary>
+		/// <value><c>true</c> if this instance is running; otherwise, <c>false</c>.</value>
+		bool IsRunning { get; } 
+
+	}
+
+}

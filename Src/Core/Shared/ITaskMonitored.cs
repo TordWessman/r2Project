@@ -26,7 +26,6 @@ namespace Core
 	public interface ITaskMonitored
 	{
 		IDictionary<string,Task> GetTasksToObserve();
-		//void TaskCrashed (int index, Exception ex);
 		
 	}
 }

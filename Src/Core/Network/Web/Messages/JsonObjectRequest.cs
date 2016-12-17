@@ -1,0 +1,140 @@
+// This file is part of r2Poject.
+//
+// Copyright 2016 Tord Wessman
+// 
+// r2Project is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// r2Project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with r2Project. If not, see <http://www.gnu.org/licenses/>.
+// 
+
+﻿using System;
+using System.Dynamic;
+
+namespace Core.Network.Web {
+
+	/// <summary>
+	/// Response for object requests.
+	/// </summary>
+	public class JsonObjectResponse {
+
+		/// <summary>
+		/// Containing the object to be invoked.
+		/// </summary>
+		public dynamic Object;
+
+		/// <summary>
+		/// If ActionType was InvokeWithResponse, the result of the method will be stored here (ignored if ActionType is Get).
+		/// </summary>
+		public dynamic ActionResponse;
+
+	}
+
+	/// <summary>
+	/// Message used to invoke and retrieve data from objects.
+	/// </summary>
+	public class JsonObjectRequest
+	{
+
+		/// <summary>
+		/// Actions to perform on a requested object.
+		/// </summary>
+		public enum ActionType 
+		{
+			/// <summary>
+			/// Will only request the object data to be returned
+			/// </summary>
+			Get = 0,
+
+			/// <summary>
+			/// Sets a specific property to the first param
+			/// </summary>
+			Set = 1,
+
+			/// <summary>
+			/// Invokes a method using params (if any).
+			/// </summary>
+			Invoke = 2,
+
+			/// <summary>
+			/// As with Invoke but returning the result of the invoked method.
+			/// </summary>
+			InvokeWithResponse = 3
+		}
+
+		public enum ParamType {
+		
+			Int = 0, // regular int32
+			Float = 1, // interpreted as float
+			String = 2
+		}
+
+		/// <summary>
+		/// Parameter container for method invocation.
+		/// </summary>
+		public class Param {
+		
+			public dynamic RawValue;
+			public ParamType Type;
+
+			public static dynamic ParseValue(dynamic paramContainer) {
+
+				if (paramContainer.Type == (int)ParamType.Float) {
+					
+					return (float) paramContainer.RawValue;
+				
+				} else if (paramContainer.Type == (int)ParamType.Int) {
+				
+					return (int) paramContainer.RawValue;
+				
+				} else if (paramContainer.Type == (int)ParamType.String) {
+				
+					return (string) paramContainer.RawValue;
+				
+				} 
+					
+				return null;
+			
+			}
+
+		}
+
+		/// <summary>
+		/// Containing the object to be invoked.
+		/// </summary>
+		public dynamic Object;
+
+		/// <summary>
+		/// Type of action to be performed (ignored if ActionType is Get).
+		/// </summary>
+		public ActionType Type;
+
+		/// <summary>
+		/// Name of the method or property which will be invoked (ignored if ActionType is Get).
+		/// </summary>
+		public string Action;
+
+		/// <summary>
+		/// Containing a list of parameters used while setting values and invoking methods.
+		/// </summary>
+		public Param[] Params;
+
+		/// <summary>
+		/// Optional use for puny security.
+		/// </summary>
+		public string Token;
+
+	}
+
+
+
+}
+

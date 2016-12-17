@@ -35,7 +35,15 @@ namespace Core.Scripting
 		/// <param name="id">Identifier.</param>
 		/// <param name="sourceFile">Source file.</param>
 		/// <param name="args">Arguments.</param>
-		IScriptProcess CreateProcess (string id, string sourceFile = null, object [] args = null);
+		IScriptProcess CreateProcess (string id, string sourceFile = null);
+
+		/// <summary>
+		/// Creates a script process using the specified IScript.
+		/// </summary>
+		/// <returns>The process.</returns>
+		/// <param name="id">Identifier.</param>
+		/// <param name="script">Script.</param>
+		IScriptProcess CreateProcess (string id, IScript script);
 
 		/// <summary>
 		/// Executes a script once.

@@ -13,7 +13,11 @@ class ScriptBase
 		OP::set_logger @log
 	end
 	
-	def stop
+	def enable
+		@should_run = true
+	end
+
+	def disable
 		@should_run = false
 	end
 

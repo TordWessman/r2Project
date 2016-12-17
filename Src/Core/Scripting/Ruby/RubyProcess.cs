@@ -59,7 +59,7 @@ namespace Core.Scripting
 		}
 		
 		public override bool Ready { get {return IsRunning && MainClass != null;} }
-		public Task Task { get { return m_processTask;}}
+		//public Task Task { get { return m_processTask;}}
 
 		new public void Reload() {
 		
@@ -87,7 +87,7 @@ namespace Core.Scripting
 
 					if (observer != null) {
 
-						observer.Finished (m_id);
+						observer.ProcessDidFinish (m_id);
 
 					}
 
@@ -178,6 +178,8 @@ namespace Core.Scripting
 			m_observers.Add (observer);
 
 		}
+
+		public IScript Script { get { return this; } }
 
 
 	}

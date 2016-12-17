@@ -195,8 +195,8 @@ namespace Core
 		{
 
 			m_runLoop.Start ();
-			m_runLoop.Set (Settings.Identifiers.ScriptFactory(), m_scriptFactory);
-			m_runLoop.Set (Settings.Identifiers.TaskMonitor(), m_taskMonitor);
+			m_runLoop.Script.Set (Settings.Identifiers.ScriptFactory(), m_scriptFactory);
+			m_runLoop.Script.Set (Settings.Identifiers.TaskMonitor(), m_taskMonitor);
 			m_runLoop.GetTasksToObserve ().Values.FirstOrDefault().Wait ();
 
 		}

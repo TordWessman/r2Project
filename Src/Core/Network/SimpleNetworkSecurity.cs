@@ -18,23 +18,28 @@
 
 ﻿using System;
 using System.Security.Cryptography;
+using Core.Device;
 
 namespace Core.Network
 {
 
-	public class SimpleNetworkSecurity : INetworkSecurity
+	public class SimpleNetworkSecurity : DeviceBase, INetworkSecurity
 	{
 
 		private string m_passwordHash;
 
-		public SimpleNetworkSecurity (string password)
+		public SimpleNetworkSecurity (string id, string password) : base (id)
 		{
 
-			using (MD5 m = MD5.Create ()) {
+			if (!String.IsNullOrEmpty (password)) {
+			
+				using (MD5 m = MD5.Create ()) {
 
-				byte[] byteArray = m.ComputeHash (password.ToByteArray ());
+					byte[] byteArray = m.ComputeHash (password.ToByteArray ());
 
-				m_passwordHash = BitConverter.ToString (byteArray).Replace("-" ,"");
+					m_passwordHash = BitConverter.ToString (byteArray).Replace("-" ,"");
+
+				}
 
 			}
 
@@ -42,24 +47,27 @@ namespace Core.Network
 
 		#region INetworkSecurity implementation
 
-		public bool IsValud (string token)
+		public bool IsValid (string token)
 		{
 
-			return m_passwordHash == token;
-		
-		}
-
-		public string Token {
-
-			get {
-
-				return m_passwordHash;
+			if (token == null && m_passwordHash != null) {
 			
+				return false;
+
 			}
-		
+
+			using (MD5 m = MD5.Create ()) {
+
+				byte[] byteArray = m.ComputeHash (token.ToByteArray ());
+
+				return m_passwordHash == BitConverter.ToString (byteArray).Replace("-" ,"");
+
+			}
+
 		}
 
 		#endregion
+
 	}
 
 }

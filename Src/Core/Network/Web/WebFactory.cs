@@ -41,7 +41,7 @@ namespace Core.Network.Web
 
 		}
 
-		public IWebServer CreateWebSocketServer(string id, int port) {
+		public IWebSocketServer CreateWebSocketServer(string id, int port) {
 		
 			return new WebSocketServer (id, port);
 
@@ -85,6 +85,12 @@ namespace Core.Network.Web
 		public IWebEndpoint CreateJsonEndpoint(string uriPath, IWebObjectReceiver receiver) {
 
 			return new WebJsonEndpoint (uriPath, receiver);
+
+		}
+
+		public IWebSocketSender CreateWebSocketSender(string id, string uriPath) {
+		
+			return new WebSocketSender (id, uriPath);
 
 		}
 

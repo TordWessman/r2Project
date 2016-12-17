@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Core.Device;
+using System.Threading.Tasks;
 
 
 namespace Core.Scripting
@@ -63,6 +64,37 @@ namespace Core.Scripting
 			return new RubyCommandScript (id, script);
 		}
 
+		public IScriptProcess CreateProcess (string id, string sourceFile = null) {
+		
+			IScript script = CreateScript (id + "_contained_script", sourceFile);
+
+			IScriptProcess process = new RubyProc (id, script);
+
+			foreach (Task task in process.GetTasksToObserve().Values) {
+
+				m_taskMonitor.AddTask(script.Identifier, task);
+
+			}
+
+			return process;
+
+		}
+
+		public IScriptProcess CreateProcess (string id, IScript script) {
+
+			IScriptProcess process = new RubyProc (id, script);
+
+			foreach (Task task in process.GetTasksToObserve().Values) {
+
+				m_taskMonitor.AddTask(script.Identifier, task);
+
+			}
+
+			return process;
+
+		}
+
+		/*
 		public IScriptProcess CreateProcess (string id, string sourceFile = null,
 		                      object[] args = null)
 		{
@@ -80,15 +112,20 @@ namespace Core.Scripting
 			
 			} else {
 			
-				script.SetArgs ( null /*new object[] {}*/);
+				script.SetArgs ( null);
 			
 			}
 
-			m_taskMonitor.AddTask(script.Identifier,script.Task);
+			foreach (Task task in script.GetTasksToObserve().Values) {
+			
+				m_taskMonitor.AddTask(script.Identifier, task);
+
+			}
+
 			
 			return script;
 		
-		}
+		}*/
 
 		public IScript CreateScript (string id, string sourceFile = null) {
 		

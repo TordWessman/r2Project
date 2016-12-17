@@ -46,7 +46,7 @@ namespace Core.Scripting
 
 			foreach (IScriptObserver observer in m_observers) {
 				if (observer != null) {
-					observer.Finished (m_id);
+					observer.ProcessDidFinish (m_id);
 				}
 			}
 			
