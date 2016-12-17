@@ -29,7 +29,7 @@ namespace Core.Test
 		private NetworkPackageFactory m_factory;
 		public PackageTest ()
 		{
-			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity ("test");
+			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity ("xyz", "test");
 
 			m_factory = new NetworkPackageFactory (simpleSecurity);
 		}

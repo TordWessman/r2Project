@@ -23,7 +23,7 @@ using System.Threading;
 
 namespace Core.Device
 {
-	public class RemoteInputPort : RemoteDeviceBase, IInputPort, IJSONAccessible 
+	public class RemoteInputPort : RemoteDeviceBase, IInputPort 
 	{
 
 		private Func<object> m_triggerFunc;
@@ -96,19 +96,6 @@ namespace Core.Device
 				return val;
 			}
 		}
-
-		#region IDynamicReadable implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-			if (functionName == "get_value") { 
-				return Value.ToString ();
-			}
-
-			throw new InvalidOperationException ("function not registered: " + functionName);
-		}
-
-		#endregion
 
 	}
 }

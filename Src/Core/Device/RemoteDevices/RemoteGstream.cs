@@ -21,7 +21,7 @@ using System.Net;
 
 namespace Core.Device
 {
-	public class RemoteGstream : RemoteDeviceBase, IGstream, IJSONAccessible
+	public class RemoteGstream : RemoteDeviceBase, IGstream
 	{
 		public static readonly string IS_RUNNING_METHOD_NAME = "is_running";
 
@@ -34,35 +34,6 @@ namespace Core.Device
 			}
 		}
 
-
-		#region IExternallyAccessible implementation
-		public string Interpret (string functionName, string parameters = null)
-		{
-
-			if (functionName == "start") {
-
-				Start ();
-
-				return IsRunning.ToString();
-
-			} else 	if (functionName == "stop") {
-
-				Stop ();
-
-				return Ready.ToString();
-
-			} else if (functionName == IS_RUNNING_METHOD_NAME) {
-
-				return Ready.ToString();
-
-			}
-
-			throw new NotImplementedException ("Gstream '" + Identifier + "': Unable to interpret IJSONAccessible.Interpret: " + functionName);
-
-		}
-
-		#endregion
-	
 	}
 }
 

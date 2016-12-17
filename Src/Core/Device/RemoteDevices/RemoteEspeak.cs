@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace Core.Device
 {
-	public class RemoteEspeak : RemoteDeviceBase, ITTS, IJSONAccessible
+	public class RemoteEspeak : RemoteDeviceBase, ITTS
 	{
 		public RemoteEspeak  (RemoteDeviceReference reference) : base (reference) {}
 
@@ -49,25 +49,6 @@ namespace Core.Device
 		}
 		#endregion
 
-		#region IExternallyAccessible implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-			if (functionName == "say") {
-				if (Ready) {
-					Say(parameters);
-					return "1";
-				} else {
-					Say (parameters);
-					return "0";
-				}
-
-			}
-
-			throw new NotImplementedException ("method name: " + functionName + " not implemented"); 
-		}
-
-		#endregion
 	}
 }
 

@@ -25,7 +25,7 @@ using System.Linq;
 
 namespace PushNotifications
 {
-	public class PushNotificationHandler : DeviceBase, IPushNotificationProxy, Core.IJSONAccessible
+	public class PushNotificationHandler : DeviceBase, IPushNotificationProxy
 	{
 
 		private const string PUSH_CLIENT_ID = "push_client_id";
@@ -122,46 +122,6 @@ namespace PushNotifications
 
 		}
 
-		#region IJSONAccessible implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-			if (functionName == "register") {
-
-				if (parameters == null ) {
-
-					throw new ApplicationException ("PushNotificationHandler got null parameters. ");
-				
-				}
-
-				string[] inp = parameters.Split(',');
-
-				if (inp.Length < 2) {
-
-					throw new ApplicationException ("PushNotificationHandler got bad parameter count " + parameters.Length);
-				
-				}
-
-				if (inp.Length == 2) {
-
-					RegisterClient (inp [0], inp [1]);
-				
-				} else {
-
-					RegisterClient (inp [0], inp [1], (PushNotificationClientTypes) Convert.ToInt32(inp[2]));
-				
-				}
-
-				return "ok";
-			
-			}
-
-			return null;
-		
-		}
-
-		#endregion
-	
 	}
 
 }

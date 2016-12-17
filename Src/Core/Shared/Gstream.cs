@@ -27,7 +27,7 @@ namespace Core
 	/// <summary>
 	/// Represent a gstreamer pipeline object. Use this object to create a simple gstreamer pipline. 
 	/// </summary>
-	public class Gstream : RemotlyAccessableDeviceBase, IGstream, ITaskMonitored, IJSONAccessible
+	public class Gstream : RemotlyAccessableDeviceBase, IGstream, ITaskMonitored
 	{
 		private static readonly int START_LOCK_TIMEOUT_MS = 5000;
 
@@ -206,33 +206,6 @@ namespace Core
 
 		#endregion
 
-		#region IJSONAccessible implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-
-			if (functionName == "start") {
-
-				Start ();
-
-				return IsRunning.ToString();
-		
-			} else 	if (functionName == "stop") {
-			
-				Stop ();
-				return Ready.ToString();
-			
-			} else if (functionName == "ready") {
-			
-				return Ready.ToString();
-			
-			}
-
-			throw new NotImplementedException ("Gstream '" + Identifier + "': Unable to interpret IJSONAccessible.Interpret: " + functionName);
-		
-		}
-
-		#endregion
 	}
 
 }

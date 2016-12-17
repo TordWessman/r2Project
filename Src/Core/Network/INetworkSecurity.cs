@@ -17,6 +17,7 @@
 // 
 
 ﻿using System;
+using Core.Device;
 
 namespace Core.Network
 {
@@ -24,7 +25,7 @@ namespace Core.Network
 	/// <summary>
 	/// Handles security for network cämmunication.
 	/// </summary>
-	public interface INetworkSecurity
+	public interface INetworkSecurity: IDevice
 	{
 
 		/// <summary>
@@ -33,6 +34,12 @@ namespace Core.Network
 		/// <returns><c>true</c> if this instance is valud the specified token; otherwise, <c>false</c>.</returns>
 		/// <param name="token">Token.</param>
 		bool IsValid (string token);
+
+		/// <summary>
+		/// Returns the hashed password.
+		/// </summary>
+		/// <value>The token.</value>
+		string Token {get;}
 
 	}
 

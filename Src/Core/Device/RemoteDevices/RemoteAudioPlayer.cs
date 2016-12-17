@@ -22,7 +22,7 @@ using System.Net;
 
 namespace Core
 {
-	public class RemoteAudioPlayer : RemoteDeviceBase, IAudioPlayer, IJSONAccessible
+	public class RemoteAudioPlayer : RemoteDeviceBase, IAudioPlayer
 	{
 
 		public static readonly string MethodNamePlay = "play";
@@ -52,28 +52,6 @@ namespace Core
 			}
 		}
 
-		#region IExternallyAccessible implementation
-		public string Interpret (string functionName, string parameters = null)
-		{
-			if (functionName == RemoteAudioPlayer.MethodNamePlay) {
-				if (Ready) {
-					Play (parameters);
-					return "1";
-				} else {
-					Play (parameters);
-					return "0";
-				}
-			} else if (functionName == RemoteAudioPlayer.MethodNameGetFilesList) {
-				return String.Join (",", GetFileList);
-			} else if (functionName == RemoteAudioPlayer.MethodNameStop) {
-
-				Stop();
-				return "";
-			}
-
-			throw new NotImplementedException ("method name: " + functionName + " not implemented"); 
-		}
-		#endregion
 	}
 }
 

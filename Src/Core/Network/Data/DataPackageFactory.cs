@@ -233,7 +233,7 @@ namespace Core.Network.Data
 
 			IDataPackageHeader header = UnserializeHeader (rawPackage);
 
-			if (header.GetValue(HeaderFields.Checksum.ToString()) != m_security.Token) {
+			if (!m_security.IsValid(header.GetValue(HeaderFields.Checksum.ToString()))) {
 			
 				throw new AccessViolationException("Invalid security token.");
 

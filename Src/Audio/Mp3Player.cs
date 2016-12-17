@@ -28,7 +28,7 @@ using System.Linq;
 namespace Audio
 {
 
-	public class Mp3Player : RemotlyAccessableDeviceBase, IAudioPlayer, IJSONAccessible
+	public class Mp3Player : RemotlyAccessableDeviceBase, IAudioPlayer
 	{
 	
 		private const string dllPath = "libr2mp3.so";
@@ -190,41 +190,6 @@ namespace Audio
 
 		#endregion
 
-		#region IExternallyAccessible implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-		
-			if (functionName == RemoteAudioPlayer.MethodNamePlay) {
-			
-				if (Ready) {
-				
-					Play(parameters);
-
-					return "1";
-				
-				} else {
-				
-					Play (parameters);
-					return "0";
-				
-				}
-
-			}  else if (functionName == RemoteAudioPlayer.MethodNameGetFilesList) {
-
-				return String.Join (",", GetFileList);
-			
-			} else if (functionName == RemoteAudioPlayer.MethodNameStop) {
-
-				Stop();
-				return "";
-			}
-
-			throw new NotImplementedException ("method name: " + functionName + " not implemented"); 
-		
-		}
-
-		#endregion
 	}
 
 }

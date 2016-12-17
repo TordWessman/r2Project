@@ -29,7 +29,7 @@ using System.Linq;
 
 namespace Core.Memory
 {
-	public class MemorySource : DeviceBase, IMemorySource, IJSONAccessible, IDeviceManagerObserver, IDataReceived<byte[],IPEndPoint>
+	public class MemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver, IDataReceived<byte[],IPEndPoint>
 	{
 		private MemoryFactory m_memoryFactory;
 		private IDeviceManager m_deviceManager;
@@ -291,46 +291,6 @@ namespace Core.Memory
 			
 			
 		}
-		#endregion
-
-
-		#region IDynamicReadable implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-			if (functionName == "get_first") {
-					
-				foreach (IMemory mem in All (parameters)) {
-					return mem.Value;
-				}
-
-			} else if (functionName == "set") {
-
-				string[] typeName = parameters.Split (',');
-
-				if (typeName.Length != 2) {
-
-					throw new ApplicationException ("Memory.set source got bad parameters (should have been twe). Parameters:" + typeName);
-				
-				}
-
-				IMemory mem = Get (typeName [0], typeName [1]); 
-
-				if (mem != null) {
-
-					Delete (ref mem);
-				
-				}
-
-				mem = Create (typeName [0], typeName [1]); 
-
-				return mem.Value;
-
-			}
-
-			return null;
-		}
-
 		#endregion
 
 		public ICollection<IMemory> Get (int[] memoryIds)

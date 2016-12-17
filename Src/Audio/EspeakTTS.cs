@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace Audio.TTS
 {
-	public class EspeakTTS : RemotlyAccessableDeviceBase, ITTS, IJSONAccessible
+	public class EspeakTTS : RemotlyAccessableDeviceBase, ITTS
 	{
 		private const string dllPath = "libr2espeak.so";
 		
@@ -221,32 +221,6 @@ namespace Audio.TTS
 		}
 		#endregion
 
-		#region IDynamicReadable implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-
-			if (functionName == "say") {
-
-				if (Ready) {
-
-					Say(parameters);
-					return "1";
-				
-				} else {
-				
-					Say (parameters);
-					return "0";
-				
-				}
-
-			}
-
-			throw new NotImplementedException ("method name: " + functionName + " not implemented"); 
-
-		}
-
-		#endregion
 	}
 
 }

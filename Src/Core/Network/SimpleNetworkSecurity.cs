@@ -56,6 +56,12 @@ namespace Core.Network
 
 			}
 
+			if (token == m_passwordHash) {
+			
+				return true;
+
+			}
+
 			using (MD5 m = MD5.Create ()) {
 
 				byte[] byteArray = m.ComputeHash (token.ToByteArray ());
@@ -65,6 +71,8 @@ namespace Core.Network
 			}
 
 		}
+
+		public string Token { get { return m_passwordHash; } }
 
 		#endregion
 

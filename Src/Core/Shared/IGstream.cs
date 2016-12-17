@@ -21,7 +21,7 @@ using Core.Device;
 
 namespace Core
 {
-	public interface IGstream : IDevice, IJSONAccessible
+	public interface IGstream : IDevice
 	{
 		bool IsRunning {get;}
 	}

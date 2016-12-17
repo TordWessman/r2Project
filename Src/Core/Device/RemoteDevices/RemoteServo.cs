@@ -21,7 +21,7 @@ using System.Net;
 
 namespace Core.Device
 {
-	public class RemoteServo  : RemoteDeviceBase, IServo, IJSONAccessible
+	public class RemoteServo  : RemoteDeviceBase, IServo
 	{
 		public static readonly string GET_VALUE_FUNCTION_NAME = "get_float_function_name";
 		public static readonly string SET_VALUE_FUNCTION_NAME = "set_float_function_name";
@@ -40,32 +40,6 @@ namespace Core.Device
 			m_maxValue = -1;
 			m_minValue = -1;
 		}
-
-		#region IJSONAccessible implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-			if (functionName == "set_value") { 
-				float val = (float)Convert.ToDecimal (parameters);
-				if (val < MinValue) {
-					val = MinValue;
-				} else if (val > MaxValue) {
-					val = MaxValue;
-				}
-
-				Value = val;
-				return Value.ToString ();
-			}
-
-			if (functionName == "get_value") { 
-				return Value.ToString ();
-			}
-
-			throw new InvalidOperationException ("function not registered: " + functionName);
-		}
-
-
-		#endregion
 
 		#region IServo implementation
 

@@ -36,7 +36,7 @@ namespace Core.Network.Web
 		/// </summary>
 		/// <param name="deviceManager">Device manager.</param>
 		/// <param name="token">Token.</param>
-		public DeviceReceiver (IDeviceManager deviceManager, INetworkSecurity security)
+		public DeviceReceiver (IDeviceManager deviceManager, INetworkSecurity security = null)
 		{
 			m_deviceManager = deviceManager;
 			m_security = security;
@@ -45,7 +45,7 @@ namespace Core.Network.Web
 		public IWebIntermediate onReceive (dynamic message, string httpMethod, NameValueCollection headers = null) {
 
 
-			if (!m_security.IsValid(message.Token)) {
+			if (m_security?.IsValid(message.Token) == false) {
 			
 				throw new SecurityException ("Invalid credentials for message.");
 

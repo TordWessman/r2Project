@@ -116,7 +116,8 @@ namespace Core
 			m_serializer = new Serializer (Settings.Identifiers.Serializer());
 		
 			// Set up a very simple network security handler
-			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity (Settings.Consts.DefaultPassword());
+			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity ("base_security", Settings.Consts.DefaultPassword());
+
 
 			m_networkPackageFactory = new NetworkPackageFactory (simpleSecurity);
 
@@ -133,6 +134,7 @@ namespace Core
 			// contains and manages all devices
 			m_devices = new DeviceManager (m_hostManager, m_rpcManager, m_networkPackageFactory);
 
+			m_devices.Add (simpleSecurity);
 			m_devices.Add (m_taskMonitor);
 			m_devices.Add (Settings.Instance);
 			m_devices.Add (consoleLogger);

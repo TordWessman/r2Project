@@ -167,7 +167,6 @@
     <Compile Include="DB\IDatabase.cs" />
     <Compile Include="DB\SqliteDatabase.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
-    <Compile Include="Device\IJSONAccessible.cs" />
     <Compile Include="Device\RemoteDevices\RemoteGstream.cs" />
     <Compile Include="Device\IDeviceManagerObserver.cs" />
     <Compile Include="Device\Interfaces\IMemorySource.cs" />
