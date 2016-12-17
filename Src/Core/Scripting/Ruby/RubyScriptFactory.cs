@@ -66,7 +66,7 @@ namespace Core.Scripting
 
 		public IScriptProcess CreateProcess (string id, string sourceFile = null) {
 		
-			IScript script = CreateScript (id + "_contained_script", sourceFile);
+			IScript script = CreateScript (id, sourceFile);
 
 			IScriptProcess process = new RubyProc (id, script);
 
