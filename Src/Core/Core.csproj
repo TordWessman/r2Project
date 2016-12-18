@@ -158,9 +158,6 @@
     <Compile Include="Shared\CvSize.cs" />
     <Compile Include="Device\Interfaces\IAudioPlayer.cs" />
     <Compile Include="Device\RemoteDevices\RemoteAudioPlayer.cs" />
-    <Compile Include="Settings\Shared.cs">
-      <DependentUpon>Shared.tt</DependentUpon>
-    </Compile>
     <Compile Include="Settings\CoreConfigurationTemplate.cs">
       <DependentUpon>CoreConfigurationTemplate.tt</DependentUpon>
     </Compile>
