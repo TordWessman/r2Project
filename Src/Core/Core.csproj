@@ -215,6 +215,7 @@
     <Compile Include="Network\Web\DeviceReceiver.cs" />
     <Compile Include="Network\Web\Messages\JsonObjectIntermediate.cs" />
     <Compile Include="Network\Web\Messages\JsonObjectRequest.cs" />
+    <Compile Include="Extensions\ExpandoObjectExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

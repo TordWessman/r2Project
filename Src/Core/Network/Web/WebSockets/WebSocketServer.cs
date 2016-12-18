@@ -22,20 +22,35 @@ using WebSocketSharp.Net;
 using Core;
 using Core.Device;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Core.Network.Web
 {
 	internal class WebSocketHandler: WebSocketSharp.Server.WebSocketBehavior, IWebSocketSenderDelegate {
 	
 		private IWebEndpoint m_endpoint;
-		private IList<IWebSocketSender> m_senders;
+		private IEnumerable<IWebSocketSender> m_senders;
+		private System.Text.Encoding m_encoding;
 
 		public string UriPath { get { return m_endpoint?.UriPath; } }
 
-		public WebSocketHandler() {
+		public WebSocketHandler(IEnumerable<IWebSocketSender> senders, IWebEndpoint endpoint, System.Text.Encoding encoding) {
+			
+			m_senders = senders;
+			m_encoding = encoding;
 
-			m_senders = new List<IWebSocketSender> ();
+			if (m_senders != null) {
+			
+				foreach (IWebSocketSender sender in m_senders) {
 
+					sender.Delegate = this;
+
+				}
+
+			}
+
+
+			m_endpoint = endpoint;
 		}
 
 		public void SetEndpoint(IWebEndpoint endpoint) {
@@ -47,18 +62,29 @@ namespace Core.Network.Web
 		public void AddSender(IWebSocketSender sender) {
 		
 			sender.Delegate = this;
-			m_senders.Add (sender);
+			//m_senders.Add (sender);
 
 		}
 
 		protected override void OnMessage (MessageEventArgs e)
 		{
-			//Core.Log.d ("OnMessage");
-			//Core.Log.t (e.Data);
-			byte[] response = m_endpoint.Interpret (e.RawData);
-			if (response != null && response.Length > 0) {
+			Core.Log.d ("OnMessage");
+			Core.Log.t (e.Data);
+			Console.WriteLine (e.RawData);
+
+			if (m_endpoint != null) {
 			
-				Send (m_endpoint.Interpret (e.RawData));
+				//byte[] request = new byte[e.Data.Length * sizeof(char)];
+				//System.Buffer.BlockCopy(e.Data.ToCharArray(), 0, request, 0, request.Length);
+				byte[] request = m_encoding.GetBytes(e.Data);
+
+				byte[] response = m_endpoint.Interpret (request);
+				if (response != null && response.Length > 0) {
+
+					//m_endpoint.Interpret (e.RawData)
+					Send (response);
+
+				}
 
 			}
 
@@ -86,60 +112,77 @@ namespace Core.Network.Web
 
 	public class WebSocketServer: DeviceBase, IWebSocketServer
 	{
-		private WebSocketSharp.Server.WebSocketServer m_endpoint;
-		private IDictionary<string,WebSocketHandler> m_handlers;
+		private WebSocketSharp.Server.WebSocketServer m_server;
+		//private IDictionary<string,WebSocketHandler> m_handlers;
+		private IDictionary<string, IWebEndpoint> m_endpoints;
+		private IDictionary<string, IList<IWebSocketSender>> m_senders;
+		System.Text.Encoding m_encoding;
 
-		public WebSocketServer (string id, int port) : base (id) {
-			
-			m_endpoint = new WebSocketSharp.Server.WebSocketServer (port);
-			m_handlers = new Dictionary<string, WebSocketHandler> ();
+		public WebSocketServer (string id, int port, System.Text.Encoding encoding) : base (id) {
 
-			m_endpoint.Log.Level = LogLevel.Trace;
+			m_encoding = encoding;
+			m_server = new WebSocketSharp.Server.WebSocketServer (port);
+			m_server.WaitTime = new TimeSpan (100000000);
+
+			m_server.KeepClean = true;
+			m_endpoints = new Dictionary<string, IWebEndpoint> ();
+			m_senders = new Dictionary<string, IList<IWebSocketSender>> ();
+
+			m_server.Log.Level = LogLevel.Trace;
 
 		}
 
 		public override void Start() {
 		
-			m_endpoint.Start ();
+			m_server.Start ();
 
 		}
 
 		public override void Stop ()
 		{
-			m_endpoint.Stop ();
+			m_server.Stop ();
 		}
 
-		public override bool Ready { get { return m_endpoint.IsListening; } }
+		public override bool Ready { get { return m_server.IsListening; } }
+
+		private WebSocketHandler CreateWebSocketHandler(string uriPath) {
+
+			IWebEndpoint endpoints = m_endpoints.Where(e => e.Key == uriPath).FirstOrDefault().Value;
+			IEnumerable<IWebSocketSender> senders = m_senders.Where(s => s.Key == uriPath).FirstOrDefault().Value;
+			return new WebSocketHandler(senders, endpoints, m_encoding); 
+		}
 
 		public void AddEndpoint(IWebEndpoint interpreter) {
 
-			if (!m_handlers.ContainsKey (interpreter.UriPath)) {
+			m_server.RemoveWebSocketService (interpreter.UriPath);
 
-				WebSocketHandler handler = new WebSocketHandler ();
-				handler.SetEndpoint (interpreter);
-				m_handlers.Add (interpreter.UriPath, handler);
+			if (!m_endpoints.ContainsKey (interpreter.UriPath)) {
 
-				m_endpoint.AddWebSocketService<WebSocketHandler> (interpreter.UriPath);
+				m_endpoints.Add (interpreter.UriPath, interpreter);
+
 			} else {
 
-				m_handlers [interpreter.UriPath].SetEndpoint (interpreter);
+				m_endpoints [interpreter.UriPath] = interpreter;
 
 			}
+
+			m_server.AddWebSocketService<WebSocketHandler> (interpreter.UriPath, delegate() { return CreateWebSocketHandler(interpreter.UriPath); });
 
 		}
 
 		public void AddSender(IWebSocketSender sender) {
 
-			if (!m_handlers.ContainsKey (sender.UriPath)) {
+			m_server.RemoveWebSocketService (sender.UriPath);
 
-				WebSocketHandler handler = new WebSocketHandler ();
-				m_handlers[sender.UriPath].AddSender (sender);
-				m_endpoint.AddWebSocketService<WebSocketHandler> (sender.UriPath);
+			if (!m_senders.ContainsKey (sender.UriPath)) {
 
-			} else {
-			
-				m_handlers [sender.UriPath].AddSender (sender);
+				m_senders.Add(sender.UriPath, new List<IWebSocketSender>());
+
 			}
+
+			m_senders [sender.UriPath].Add (sender);
+
+			m_server.AddWebSocketService<WebSocketHandler> (sender.UriPath, delegate() { return CreateWebSocketHandler(sender.UriPath); });
 
 		}
 

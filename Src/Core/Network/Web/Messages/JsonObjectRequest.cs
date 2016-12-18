@@ -108,9 +108,9 @@ namespace Core.Network.Web {
 		}
 
 		/// <summary>
-		/// Containing the object to be invoked.
+		/// Containing an identifier for the object.
 		/// </summary>
-		public dynamic Object;
+		public dynamic Id;
 
 		/// <summary>
 		/// Type of action to be performed (ignored if ActionType is Get).

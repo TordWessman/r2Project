@@ -51,6 +51,12 @@ namespace Core.Network.Web
 
 		public WebJsonEndpoint (string responseURIPath, IWebObjectReceiver receiver, System.Text.Encoding encoding = null)
 		{
+			
+			JsonConvert.DefaultSettings =  delegate() { return new JsonSerializerSettings {
+				NullValueHandling = NullValueHandling.Ignore,
+				MissingMemberHandling = MissingMemberHandling.Ignore
+				};
+			};
 
 			m_receiver = receiver;
 
@@ -71,7 +77,7 @@ namespace Core.Network.Web
 		#region IHttpServerInterpreter implementation
 
 		public byte[] Interpret (byte[] input, Uri uri = null, string httpMethod = null, NameValueCollection headers = null) {
-
+			
 			string inputJson = m_encoding.GetString (input);
 
 			dynamic inputObject = null;
@@ -79,7 +85,6 @@ namespace Core.Network.Web
 			if (httpMethod?.ToUpper () != "GET") {
 			
 				// Parse body
-
 				inputObject = JsonConvert.DeserializeObject<ExpandoObject>(inputJson, m_converter);
 
 			} 

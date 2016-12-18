@@ -23,7 +23,7 @@ using Core;
 
 namespace GPIO
 {
-	public class OutputPort : RemotlyAccessableDeviceBase, IOutputPort, IJSONAccessible
+	public class OutputPort : RemotlyAccessableDeviceBase, IOutputPort
 	{
 		RaspberryPiDotNet.GPIO m_gpi;
 		private bool m_value;
@@ -83,29 +83,7 @@ namespace GPIO
 		}
 		#endregion
 
-		#region IExternallyAccessible implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-
-			if (functionName == "set_value") { 
-
-				bool val = Convert.ToBoolean (parameters);
-
-				Value = val;
-
-				return Value.ToString ();
-			}
-
-			if (functionName == "get_value") { 
-				return Value.ToString ();
-			}
-
-			throw new InvalidOperationException ("function not registered: " + functionName);
-		}
 	}
-
-	#endregion
 
 }
 

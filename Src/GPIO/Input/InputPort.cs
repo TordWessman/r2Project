@@ -24,7 +24,7 @@ using Core;
 namespace GPIO
 {
 
-	public class InputPort : RemotlyAccessableDeviceBase, IInputPort, IJSONAccessible
+	public class InputPort : RemotlyAccessableDeviceBase, IInputPort
 	{
 
 		RaspberryPiDotNet.GPIO m_gpi;
@@ -154,23 +154,6 @@ namespace GPIO
 		
 		}
 			
-
-		#endregion
-
-		#region IDynamicReadable implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-
-			if (functionName == "get_value") { 
-			
-				return Value.ToString ();
-			
-			}
-
-			throw new InvalidOperationException ("function not registered: " + functionName);
-		
-		}
 
 		#endregion
 

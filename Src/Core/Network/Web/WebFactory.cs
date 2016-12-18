@@ -30,12 +30,14 @@ namespace Core.Network.Web
 	/// </summary>
 	public class WebFactory : DeviceBase
 	{
+		private System.Text.Encoding m_encoding;
 
 		public IDeviceManager m_deviceManager;
 
-		public WebFactory (string id, IDeviceManager deviceManager) : base (id) {
+		public WebFactory (string id, IDeviceManager deviceManager, System.Text.Encoding encoding = null) : base (id) {
 		
 			m_deviceManager = deviceManager;
+			m_encoding = encoding ?? HttpServer.DefaultEncoding;
 
 		}
 
@@ -47,7 +49,7 @@ namespace Core.Network.Web
 
 		public IWebSocketServer CreateWebSocketServer(string id, int port) {
 		
-			return new WebSocketServer (id, port);
+			return new WebSocketServer (id, port, m_encoding);
 
 		}
 

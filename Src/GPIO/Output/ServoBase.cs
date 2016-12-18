@@ -23,7 +23,7 @@ using Core;
 
 namespace GPIO
 {
-	public abstract class ServoBase : RemotlyAccessableDeviceBase, ILocalServo, IJSONAccessible
+	public abstract class ServoBase : RemotlyAccessableDeviceBase, ILocalServo
 	{
 		public float DEFAULT_MIN_VALUE = 2;
 		public float DEFAULT_MAX_VALUE = 177f;
@@ -127,31 +127,6 @@ namespace GPIO
 
 		#endregion
 
-		#region IExternallyAccessible implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-			if (functionName == "set_value") { 
-				float val = (float)Convert.ToDecimal (parameters);
-				if (val < MinValue) {
-					val = MinValue;
-				} else if (val > MaxValue) {
-					val = MaxValue;
-				}
-
-				Value = val;
-				return Value.ToString ();
-			}
-
-			if (functionName == "get_value") { 
-				return Value.ToString ();
-			}
-
-			throw new InvalidOperationException ("function not registered: " + functionName);
-		}
-
-		#endregion
-		
 		protected abstract float Denomiator {get;}
 		
 		protected abstract float LevelModifier {get;}

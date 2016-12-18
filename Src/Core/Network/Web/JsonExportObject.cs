@@ -24,8 +24,7 @@ namespace Core.Network.Web
 {
 
 	/// <summary>
-	/// 
-	/// Used to pass parsed input json to the IHttpObjectReceiver (Currently used since it enables us to expose various ExpandoObject properties to scripts).
+	/// Used to pass parsed input json to the IWebObjectReceiver (Currently used since it enables us to expose various ExpandoObject properties to scripts).
 	/// </summary>
 	public class JsonExportObject<T> where T : IDictionary<string, Object> {
 

@@ -23,6 +23,7 @@ using Core.Device;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Security;
+using System.Dynamic;
 
 namespace Core.Network.Web
 {
@@ -44,19 +45,22 @@ namespace Core.Network.Web
 
 		public IWebIntermediate onReceive (dynamic message, string httpMethod, NameValueCollection headers = null) {
 
+			string token = ((IDictionary<string, Object>)message)?.ContainsKey("Token") == true ? message.Token : null; 
 
-			if (m_security?.IsValid(message.Token) == false) {
+			if (m_security?.IsValid(token) == false) {
 			
 				throw new SecurityException ("Invalid credentials for message.");
 
 			}
 
-			IDevice device = m_deviceManager.Get (message.Object.Identifier);
+			IDevice device = m_deviceManager.Get (message.Id);
 
 			IList<dynamic> parameterList = null;
 
-			if (message.Params?.Count > 0) {
-				
+			if ((((IDictionary<string, Object>)message)?.ContainsKey("Params") == true) && message.Params?.Count > 0) {
+
+				// Only add parameters if Params object array is present.
+
 				parameterList = new List<dynamic> ();
 
 				foreach (dynamic parameter in message.Params) {
@@ -70,16 +74,16 @@ namespace Core.Network.Web
 			object[] p = parameterList?.ToArray();
 			JsonObjectResponse response = new JsonObjectResponse ();
 				
-			if (message.Type == (int)JsonObjectRequest.ActionType.Invoke) {
+			if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Invoke) {
 
 				System.Reflection.MethodInfo methodInfo = device.GetType ().GetMethod (message.Action);
 				methodInfo.Invoke (device, p);
 
-			} else if (message.Type == (int)JsonObjectRequest.ActionType.InvokeWithResponse) {
+			} else if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.InvokeWithResponse) {
 
 				response.ActionResponse = device.GetType ().GetMethod (message.Action).Invoke (device, p);
 
-			} else if (message.Type == (int)JsonObjectRequest.ActionType.Set) {
+			} else if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Set) {
 
 				System.Reflection.PropertyInfo propertyInfo = device.GetType().GetProperty(message.Action);
 				propertyInfo.SetValue(device, Convert.ChangeType(p[0], propertyInfo.PropertyType), null);

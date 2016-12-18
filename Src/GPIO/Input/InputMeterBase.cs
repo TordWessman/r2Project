@@ -24,7 +24,7 @@ using Core;
 
 namespace GPIO
 {
-	public abstract class InputMeterBase  : RemotlyAccessableDeviceBase, IInputMeter, IJSONAccessible
+	public abstract class InputMeterBase  : RemotlyAccessableDeviceBase, IInputMeter
 	{
 		private MCP3008 m_ad;
 		
@@ -77,18 +77,6 @@ namespace GPIO
 		
 		protected abstract int ResolveValue ();
 
-		#region IDynamicReadable implementation
-
-		public string Interpret (string functionName, string parameters = null)
-		{
-			if (functionName == "get_value") { 
-				return Value.ToString ();
-			}
-
-			throw new InvalidOperationException ("function not registered: " + functionName);
-		}
-
-		#endregion
 	}
 }
 
