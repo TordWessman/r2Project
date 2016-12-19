@@ -69,6 +69,7 @@ namespace Core
 
 			m_ptr = _ext_create_gstream (pipeline);
 
+			Log.t ("INITIALIZE pipe");
 
 			if (m_ptr == System.IntPtr.Zero) {
 
@@ -106,14 +107,17 @@ namespace Core
 
 			}
 
-			Monitor.Enter (m_startLock);
+			//Monitor.Enter (m_startLock);
 
+			Log.t ("Will start");
 			m_task = Task.Factory.StartNew (() => {
 
 				m_isRunning = true;
 
-				Monitor.Exit(m_startLock);
+				Log.t ("task start");
+				//Monitor.Exit(m_startLock);
 
+				Log.t ("task continue");
 				if (_ext_play_gstream(m_ptr) != 1) {
 
 					m_isRunning = false;
@@ -124,7 +128,7 @@ namespace Core
 
 			});
 				
-			Monitor.Wait (m_startLock, START_LOCK_TIMEOUT_MS);
+			//Monitor.Wait (m_startLock, START_LOCK_TIMEOUT_MS);
 
 		}
 
@@ -132,11 +136,11 @@ namespace Core
 		{
 			m_isRunning = false;
 
-			if (Monitor.IsEntered (m_startLock)) {
+			//if (Monitor.IsEntered (m_startLock)) {
 			
-				Monitor.Exit(m_startLock);
+			//	Monitor.Exit(m_startLock);
 
-			}
+			//}
 
 			if (!Ready && _ext_stop_gstream(m_ptr) != 1) {
 
