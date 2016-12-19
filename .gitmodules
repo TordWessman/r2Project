@@ -4,3 +4,6 @@
 [submodule "3rdParty/websocket-sharp"]
 	path = 3rdParty/websocket-sharp
 	url = https://github.com/sta/websocket-sharp
+[submodule "3rdParty/raspberry-sharp-io"]
+	path = 3rdParty/raspberry-sharp-io
+	url = https://github.com/raspberry-sharp/raspberry-sharp-io

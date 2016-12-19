@@ -19,6 +19,7 @@
 using System;
 using Core.Device;
 using System.Runtime.InteropServices;
+using Core;
 
 
 namespace GPIO
@@ -38,6 +39,7 @@ namespace GPIO
 		public PCA9685ServoController (string id, int bus = 1, int address = 0x40, int frequency = 63) : base (id)
 		{
 
+			Log.t ("GOTOTOTOTOT");
 			_ext_init_pca9685(bus, address, frequency);
 		
 		}
@@ -61,13 +63,7 @@ namespace GPIO
 			return new CheapBlueServo(id, channel, this);
 		
 		}
-		
-		public IServo CreateBigServo (string id, int channel)
-		{
 
-			return new HS322Servo(id, channel, this);
-		
-		}
 		#endregion
 	}
 }
