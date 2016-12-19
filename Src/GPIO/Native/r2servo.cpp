@@ -16,7 +16,7 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-#include "../../../Src/PCA9685/PCA9685.h"
+#include <PCA9685.h>
 #include <iostream>
 #include <stdio.h>
 #include <unistd.h>
