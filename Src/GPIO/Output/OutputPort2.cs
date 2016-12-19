@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -14,39 +14,55 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
-// 
+// using System;
 
-using System;
 using Core.Device;
+using Raspberry.IO.GeneralPurpose;
 using Core;
-
+using System;
+using System.Threading;
 
 namespace GPIO
 {
-	public class OutputPort : RemotlyAccessableDeviceBase, IOutputPort
+	public class OutputPort2 : RemotlyAccessableDeviceBase, IOutputPort
 	{
-		RaspberryPiDotNet.GPIO m_gpi;
-		private bool m_value;
-		
-		public OutputPort (string id, RaspberryPiDotNet.GPIO gpio) : base (id)
+		// GPIO values:
+		private ProcessorPin m_pin;
+		private IGpioConnectionDriver m_driver;
+
+		public OutputPort2 (string id, ConnectorPin pin, IGpioConnectionDriver driver = null) : base(id)
 		{
-			m_gpi = gpio;
 			
-			if (m_gpi.PinDirection != RaspberryPiDotNet.GPIODirection.Out) {
-				throw new ArgumentException ("Provided GPIO pin had not out-direction");
-			}
+			m_pin = pin.ToProcessor();
+			m_driver = driver ?? GpioConnectionSettings.DefaultDriver;
+			m_driver.Allocate(m_pin, PinDirection.Output);
+
+		}
+
+		public void Set(bool value) {
+		
+			m_driver.Write (m_pin, value);
+
 		}
 
 		#region IRemotlyAccessable implementation
+
 		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
 		{
 			if (IsBaseMethod (methodName)) {
+				
 				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
+			
 			} else if (methodName == RemoteOutputPort.SET_VALUE_FUNCTION_NAME) {
-				Value = mgr.ParsePackage<bool> (rawData);
+			
+				Set (mgr.ParsePackage<bool> (rawData));
 				return null;
-			} else
+			
+			} else {
+			
 				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
+
+			}
 
 		}
 
@@ -54,28 +70,9 @@ namespace GPIO
 		{
 			return RemoteDevices.OutputPort;
 		}
-		#endregion
-
-		#region IInputPort implementation
-		private bool Value {
-			get {
-				return m_value;
-			}
-			
-			set {
-				m_value = value;
-				m_gpi.Write (value);
-			}
-		}
-		#endregion
-
-		#region IOutputPort implementation
-		public void Set ( bool value )
-		{
-			Value = true;
-		}
 
 		#endregion
+
 
 	}
 

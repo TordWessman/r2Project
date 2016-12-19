@@ -29,38 +29,14 @@ namespace Core.Device
 
 		public RemoteOutputPort (RemoteDeviceReference reference) : base (reference) {}
 
-		public static readonly string GET_VALUE_FUNCTION_NAME = "get_bool_function_name";
 		public static readonly string SET_VALUE_FUNCTION_NAME = "set_bool_function_name";
-
-		public bool Value {
-
-			get {
-			
-				return Execute<bool> (GET_VALUE_FUNCTION_NAME);
-				
-			}
-			
-			set {
-
-				Execute<bool> (SET_VALUE_FUNCTION_NAME, value);
-			
-			}
-		
-		}
 
 		#region IOutputPort implementation
 
-		public void On ()
+		public void Set (bool value)
 		{
 
-			Execute<bool> (SET_VALUE_FUNCTION_NAME, true);
-		
-		}
-
-		public void Off ()
-		{
-
-			Execute<bool> (SET_VALUE_FUNCTION_NAME, false);
+			Execute<bool> (SET_VALUE_FUNCTION_NAME, value);
 		
 		}
 

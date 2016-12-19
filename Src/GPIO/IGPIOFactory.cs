@@ -71,11 +71,6 @@ namespace GPIO
 		/// <param name="gpioPort">Gpio port.</param>
 		IOutputPort CreateOutputPort (string id, int gpioPort);
 
-		/// <summary>
-		/// Prints the current port mapping and availability
-		/// </summary>
-		void PrintPorts() ;
-
 	}
 }
 

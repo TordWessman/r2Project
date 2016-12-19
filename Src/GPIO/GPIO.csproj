@@ -34,6 +34,27 @@
     <Reference Include="RaspberryPiDotNet">
       <HintPath>..\..\3rdParty\RaspberryPiDotNet.dll</HintPath>
     </Reference>
+    <Reference Include="Raspberry.IO.Components">
+      <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.IO.Components.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.IO">
+      <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.IO.GeneralPurpose">
+      <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.IO.GeneralPurpose.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.IO.InterIntegratedCircuit">
+      <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.IO.InterIntegratedCircuit.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.IO.Interop">
+      <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.IO.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.IO.SerialPeripheralInterface">
+      <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.IO.SerialPeripheralInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="Raspberry.System">
+      <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.System.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -60,6 +81,9 @@
       <DependentUpon>GPIOConfigurationTemplate.tt</DependentUpon>
     </Compile>
     <Compile Include="Input\InputMeter.cs" />
+    <Compile Include="GPIOFactory2.cs" />
+    <Compile Include="Output\OutputPort2.cs" />
+    <Compile Include="Input\InputPort2.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
