@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using Core.Scripting;
 using System.IO;
 using System.Linq;
+using Core.Network.Web;
 
 namespace Core
 {
@@ -50,7 +51,8 @@ namespace Core
 		
 		private IDatabase m_db;
 		private IScriptFactory m_scriptFactory;
-		private IScriptProcess m_runLoop;
+		private IScript m_runLoopScript;
+		private IRunLoop m_runLoop;
 		
 		private Serializer m_serializer;
 		
@@ -147,9 +149,12 @@ namespace Core
 			    m_devices,
 			    m_taskMonitor);
 			
-			m_runLoop = m_scriptFactory.CreateProcess (
-				Settings.Identifiers.RunLoopScriptId(),
+			m_runLoopScript = m_scriptFactory.CreateScript (
+				//Settings.Identifiers.RunLoopScriptId() + "_script" ,
+				"s",
 				Settings.Paths.Common(Settings.Consts.RunLoopScript()));
+
+			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoopScriptId (), m_runLoopScript);
 
 			// Set up database and memory
 			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbPath);
@@ -158,7 +163,13 @@ namespace Core
 			// Creating a device factory used for the creation of yet uncategorized devices...
 			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices, m_memory);
 
-			// Add devices to device manager 
+			// Creating a web factory used to create http/websocket related endpoints etc.
+			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory());
+
+			// Add devices to device manager
+			m_devices.Add(m_runLoopScript);
+			m_devices.Add (m_runLoop);
+			m_devices.Add (httpFactory);
 			m_devices.Add (m_serializer);
 			m_devices.Add (m_memory);
 			m_devices.Add (m_db);
@@ -170,8 +181,6 @@ namespace Core
 			m_taskMonitor.AddMonitorable (m_server);
 			m_taskMonitor.AddMonitorable (m_hostManager);
 	
-			AddScript (m_runLoop);
-
 		}
 		
 		public void AddScript (IScriptProcess script)
@@ -196,9 +205,6 @@ namespace Core
 		{
 
 			m_runLoop.Start ();
-			m_runLoop.Script.Set (Settings.Identifiers.ScriptFactory(), m_scriptFactory);
-			m_runLoop.Script.Set (Settings.Identifiers.TaskMonitor(), m_taskMonitor);
-			m_runLoop.GetTasksToObserve ().Values.FirstOrDefault().Wait ();
 
 		}
 		
@@ -229,8 +235,7 @@ namespace Core
 			foreach (string devid in deviceIds) {
 				name += " " + devid;
 			}
-				
-			                                    
+               
 			if (deviceIds != null && deviceIds.Length > 0) {
 
 				m_taskMonitor.AddTask ("StartWhenReady" + name,

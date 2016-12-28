@@ -121,8 +121,6 @@ namespace Core.DB
 
 			lock (m_queryLock) {
 
-				Log.t (queryString);
-
 				if (m_con == null) {
 
 					throw new InvalidOperationException ("Sqlite Database not started.");
@@ -148,8 +146,6 @@ namespace Core.DB
 
 			lock (m_queryLock) {
 
-				//Log.t (queryString);
-
 				if (m_con == null) {
 
 					throw new InvalidOperationException ("Sqlite Database not started.");
@@ -173,8 +169,6 @@ namespace Core.DB
 		public Int64 Insert (string queryString)
 		{
 			lock (m_queryLock) {
-
-				//Log.t (queryString);
 
 				if (m_con == null) {
 

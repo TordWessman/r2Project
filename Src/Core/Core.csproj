@@ -213,6 +213,8 @@
     <Compile Include="Network\Web\Messages\JsonObjectIntermediate.cs" />
     <Compile Include="Network\Web\Messages\JsonObjectRequest.cs" />
     <Compile Include="Extensions\ExpandoObjectExtensions.cs" />
+    <Compile Include="Shared\IRunLoop.cs" />
+    <Compile Include="Shared\InterpreterRunLoop.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

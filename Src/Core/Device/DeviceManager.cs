@@ -500,7 +500,7 @@ namespace Core.Device
 
 				if (Has (device.Identifier)) {
 				
-					Log.d (device.Identifier + "[" + device.Guid.ToString() + "]" + (device is IRemoteDevice ? " (remote)" : "")); 
+					Log.d (device.Identifier + "    - [" + device.Guid.ToString() + "]" + (device is IRemoteDevice ? " (remote)" : "")); 
 				
 				} else {
 				

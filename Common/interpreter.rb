@@ -6,81 +6,15 @@ require 'scriptbase'
 class MainClass < ScriptBase
 
 	def setup
-		
-		@line = ""
-		@line_pos = 0
-		@history = Array.new
-		@key_pos = 0
-		@should_run = true
-	end
 
-	def loop
-		
-
-		#System::Console.set_cursor_position @key_pos, 0
-		#System::Console.read_line
-
-		key_info = System::Console.read_key true
-		key = key_info.key
-		if key == System::ConsoleKey.escape
-			disable
-		elsif key == System::ConsoleKey.up_arrow
-			if (@line_pos > 0)
-				@line_pos = @line_pos - 1
-				@line = @history[@line_pos]
-				OP::clr_cmd	
-				OP::print_cmd @line + "_"
-			end
-		elsif key == System::ConsoleKey.down_arrow
-			if (@line_pos < @history.length - 1)
-				@line_pos = @line_pos + 1
-				@line = @history[@line_pos]
-				OP::clr_cmd	
-				OP::print_cmd @line + "_"
-			end
-		elsif key == System::ConsoleKey.backspace
-			if (@line.length > 0)
-				@line = @line [0, @line.length - 1]
-				OP::clr_cmd				
-				OP::print_cmd @line	+ "_" 	
-			end
-		elsif key == System::ConsoleKey.enter
-
-			@line = " #{@line}".strip
-
-			if @line.length > 0
-				line_end @line
-			end
-			
-		else
-			@key_pos = @key_pos + 1
-			@line = @line + key_info.key_char
-			OP::print_cmd @line + "_" 
-			
-		end
-		
-	end
-
-	def line_end (line)
- 
-		@key_pos = 0
-		@history.push @line
-		@line_pos = @line_pos + 1
-		OP::clr_cmd
-		print "\n"
-		if (interpret line) == false
-			OP::msg " -- Unknown command: " + line
-		end
-	
-		@line = ""
+		@vars = Array.new
 
 	end
 
 	def interpret (line)
-		
+
 		if (line == "exit")
-			disable
-			return true
+			return false
 		elsif (line == "devices")
 			@go.robot.print_devices
 			return true
@@ -93,11 +27,8 @@ class MainClass < ScriptBase
 			return true
 		elsif (exec_device line)
 			return true
-		elsif @did_exec
-			@did_exec = false
-			return true
 		end		
-		return false
+		return true
 	end
 	
 	def set_variable (line) 
@@ -106,6 +37,7 @@ class MainClass < ScriptBase
 
 	# Execptues a custom, static command:
 	def command (line)
+
 		command_name = line.split(" ").first
 
 		if (command_name == "restart" || 
@@ -130,6 +62,7 @@ class MainClass < ScriptBase
 			end
 
 			return true
+
 		elsif (command_name == "load")
 
 			line_split = line.split(" ")
@@ -168,45 +101,52 @@ class MainClass < ScriptBase
 	
 	def load_script (script_name, args)
 			factory = @go.robot.get("script_factory")
-			script = factory.create_process script_name, script_name + ".rb", args
+			script = factory.create_process script_name, script_name + ".rb"
 			@go.robot.get("core").add_script script
 	end
 
+	#TODO: make assign work...
 	def exec_assign (line)
-		@did_exec = false
-		if line["="]
+
+		if line.split("=").length > 1
+
 			vname = line.split("=").first
+			if vname == nil || vname.length == 0
+				return false
+			end
+
 			vname = " #{vname} ".strip
 			line_exp = line[line.index("=") + 1, line.length - line.index("=")  -1]
 			line_exp = " #{line_exp} ".strip
-			dev_result = eval ("exec_device (line_exp)")
-			if @did_exec
+			dev_result = exec_device (line_exp)
+
+			if dev_result
 				OP::msg dev_result
-				eval ("#{vname} = dev_result") 
+				eval ("@#{vname} = dev_result") 
 			else
-				#puts "neej"
-				eval ("#{vname} = line_exp") 
+				eval ("@#{vname} = line_exp") 
 			end
 
 			return true
-		elsif line[0,1] == "@"
 
-			OP::msg eval (line)
-			return true
+		
+		#elsif line[0,1] == "@"
+		#	OP::msg eval (line)
+		#	return true
 		end
 		
 		return false
+
 	end
 
 	# Tries to fetch a device from the robot and execute a method specified
 	def exec_device (line)
 
 		device_name = line.split(".").first
-		@did_exec = false
 
 		if !@go.robot.has(device_name)
 
-			return nil
+			return false
 
 		end
 
@@ -215,7 +155,6 @@ class MainClass < ScriptBase
 		begin
 			
 			if (device != nil)
-				@did_exec = true
 
 				command = line[device_name.length, line.length - device_name.length]
 				command_output = eval("device" + command)
@@ -224,22 +163,23 @@ class MainClass < ScriptBase
 					OP::msg command_output
 					return command_output
 				end
-				
-				return nil
+
 			end
 
-			#rescue System::MissingMethodException
-			#	message = " -- Missing method " + command + " on device:" + device_name
-			#	puts message.cyan
-			rescue System::Exception => ex
-				message =  " -- unable to interpret: " + line
+			rescue System::MissingMethodException => ex
+				message = " -- Missing method " + command + " on device: " + device_name
 				OP::warn message
-				OP::err ex.message
-				ex.backtrace.each do |ex_line|
-					OP::err ex_line
-				end
+			#rescue System::Exception => ex
+			#	message =  " -- unable to interpret: " + line
+			#	OP::warn message
+			#	OP::err ex.message
+			#	ex.backtrace.each do |ex_line|
+			#		OP::err ex_line
+			#	end
 		end
+
 		return nil
+	
 	end
 
 end

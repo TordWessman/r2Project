@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using Core.Network.Data;
 using Core.Device;
 using System.Text;
+using System.Linq;
 
 namespace Core.Network
 {
@@ -34,7 +35,7 @@ namespace Core.Network
 	{
 
 		public const int DEFAULT_PORT = 1234;
-		public const int DEFAULT_MAX_INSTANCES = 5;
+		public const int DEFAULT_MAX_INSTANCES = 2;
 		
 		private int m_port;
 		private bool m_isRunning;
@@ -53,27 +54,11 @@ namespace Core.Network
 	
 		public int Port { get { return m_port; } }
 		
-		public string LocalIP { 
+		public string Ip { 
 
 			get {
 				
-			   IPHostEntry host = null;
-			   string localIP = null;
-			   host = Dns.GetHostEntry(Dns.GetHostName());
-
-			   foreach (IPAddress ip in host.AddressList)
-			   {
-			     if (ip.AddressFamily == AddressFamily.InterNetwork)
-			     {
-
-			       localIP = ip.ToString();
-			       break;
-
-			     }
-
-			   }
-
-			   return localIP;
+				return Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault ()?.ToString ();
 			 
 			}
 
@@ -98,7 +83,7 @@ namespace Core.Network
 		
 			get {
 		
-				return new IPEndPoint (IPAddress.Parse (LocalIP), Port);
+				return new IPEndPoint (IPAddress.Parse (Ip), Port);
 			
 			}
 		

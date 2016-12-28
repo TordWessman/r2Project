@@ -27,6 +27,9 @@ using System.Dynamic;
 
 namespace Core.Network.Web
 {
+	/// <summary>
+	/// A DeviceReceiver is a helper IWebObjectReceiver usable for dealing with devices over http/websockets. It's onReceive method requires a JsonObjectRequest formatted message, evaluates it's device id, values and actions, perform the requested action on the requested device and returns the device object affected.
+	/// </summary>
 	public class DeviceReceiver: IWebObjectReceiver
 	{
 		private IDeviceManager m_deviceManager;

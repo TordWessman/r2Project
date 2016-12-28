@@ -112,7 +112,7 @@ namespace Core.Network
 			headerFields.Add (HeaderFields.DeviceId.ToString (), identifier);
 			headerFields.Add (HeaderFields.Target.ToString (), guid.ToString());
 			headerFields.Add (HeaderFields.DeviceType.ToString (), deviceType);
-			headerFields.Add (HeaderFields.Ip.ToString (), sourceServer.LocalIP);
+			headerFields.Add (HeaderFields.Ip.ToString (), sourceServer.Ip);
 			headerFields.Add (HeaderFields.Port.ToString (), sourceServer.Port.ToString());
 			headerFields.Add (HeaderFields.Checksum.ToString (), m_security.Token);
 

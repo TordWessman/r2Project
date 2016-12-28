@@ -23,6 +23,7 @@ using System.IO;
 using System.Text;
 using Core.Device;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Core.Network.Web
 {
@@ -125,6 +126,17 @@ namespace Core.Network.Web
 			m_listener.Stop();
 
 		}
+
+		public string Ip { 
+
+			get {
+
+				return Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault ()?.ToString ();
+			
+			} 
+		
+		}
+		public int Port { get { return m_port; } }
 
 		public override bool Ready { get { return m_shouldrun; }}
 

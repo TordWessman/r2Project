@@ -122,7 +122,6 @@ namespace Core.Network.Web
 
 			m_encoding = encoding;
 			m_server = new WebSocketSharp.Server.WebSocketServer (port);
-			m_server.WaitTime = new TimeSpan (100000000);
 
 			m_server.KeepClean = true;
 			m_endpoints = new Dictionary<string, IWebEndpoint> ();
@@ -142,6 +141,9 @@ namespace Core.Network.Web
 		{
 			m_server.Stop ();
 		}
+
+		public int Port { get { return m_server.Port; } }
+		public string Ip { get { return m_server.Address.ToString (); } }
 
 		public override bool Ready { get { return m_server.IsListening; } }
 

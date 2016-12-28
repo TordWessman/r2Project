@@ -268,7 +268,7 @@ namespace Core.Network
 		{
 			Log.d ("HostManager is broadcasting its dismissal..");
 			
-			IDataPackage removeMe = m_networkPackageFactory.CreateRemoveHostPackage (m_server.LocalIP, m_server.Port.ToString ());
+			IDataPackage removeMe = m_networkPackageFactory.CreateRemoveHostPackage (m_server.Ip, m_server.Port.ToString ());
 			
 			//Sends its dismissal to all hosts.
 			SendToAll (removeMe, false);
@@ -365,7 +365,7 @@ namespace Core.Network
 			IPEndPoint ep = host != null ? host :
 				new IPEndPoint (IPAddress.Broadcast, m_broadcastPort);
 
-			if (ParseIP (ep).Equals (m_server.LocalIP)) {
+			if (ParseIP (ep).Equals (m_server.Ip)) {
 
 				Log.w ("Trying to broadcast to self. Aborting.");
 				return;
@@ -389,7 +389,7 @@ namespace Core.Network
 		private byte[] GetSerializedRegisterMePackage() {
 
 			IDataPackage registerMePackage = m_networkPackageFactory.CreateRegisterHostPackage (
-				m_server.LocalIP,
+				m_server.Ip,
 				m_server.Port.ToString ());
 
 			return m_networkPackageFactory.Serialize (registerMePackage);
@@ -478,7 +478,7 @@ namespace Core.Network
 			
 			//Console.WriteLine ("vill prata: " + ip + ":" + port + " jag är: " + m_server.LocalIP + ":" + m_server.Port);
 			
-			if (ip == m_server.LocalIP && port == m_server.Port) {
+			if (ip == m_server.Ip && port == m_server.Port) {
 
 				return null;
 				
@@ -520,7 +520,7 @@ namespace Core.Network
 			
 			} else {
 			
-				Log.d ("Ignoring message from local ip: " + m_server.LocalIP);
+				Log.d ("Ignoring message from local ip: " + m_server.Ip);
 			
 			}
 			

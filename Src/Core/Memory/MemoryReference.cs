@@ -28,7 +28,7 @@ namespace Core.Memory
 		public static readonly int NULL_REFERENCE_ID = -1;
 		
 		protected int m_id;
-		protected string m_name;
+		protected string m_value;
 		protected MemoryType m_type;
 
 		public int Id {
@@ -62,25 +62,25 @@ namespace Core.Memory
 
 			get {
 
-				return m_name;
+				return m_value;
 			
 			}
 		
 			set {
 
-				m_name = value.Replace ("\"", "");
+				m_value = value.Replace ("\"", "");
 			
 			}
 
 		}
 
 		public MemoryReference (int id, 
-		                        string name, 
+		                        string value, 
 		                        string type)
 		{
 
 			m_id = id;
-			m_name = name;
+			m_value = value;
 			m_type = type;
 			
 		}
@@ -107,7 +107,7 @@ namespace Core.Memory
 		public override string ToString ()
 		{
 
-			return string.Format ("MEMORY [{0}] - TYPE: [{1}] NAME: [{2}] ", m_id,m_type,m_name);
+			return string.Format ("MEMORY [{0}] - TYPE: [{1}] NAME: [{2}] ", m_id, m_type, m_value);
         
 		}
 		

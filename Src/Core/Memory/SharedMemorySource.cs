@@ -135,7 +135,7 @@ namespace Core.Memory
 		public bool Update (IMemory memory)
 		{
 
-			return m_memDb.Update (memory.Reference);
+			return _Update(memory.Reference, true);
 
 		}
 
@@ -152,6 +152,28 @@ namespace Core.Memory
 		}
 
 		#region private
+
+		private bool _Update(IMemoryReference reference, bool affectOther) {
+		
+			if (m_memDb.Update (reference)) {
+			
+				return true;
+
+			}
+
+			foreach (IMemorySource source in m_otherSources) {
+			
+				if (source.Update (m_memoryFactory.CreateMemory(reference, null, false))) {
+				
+					return true;
+
+				}
+
+			}
+
+			return false;
+
+		}
 
 		private bool _Delete (int memoryId, bool affectOther)
 		{
@@ -311,6 +333,14 @@ namespace Core.Memory
 				IMemory newMemory = Create (reference.Type, reference.Value);
 
 				return mgr.RPCReply<IMemoryReference> (Guid, methodName, newMemory.Reference);;
+
+			} else if (methodName == F_UpdateMemory) {
+
+				// Not implemented on remode
+				IMemoryReference reference = mgr.ParsePackage<IMemoryReference> (rawData);
+				bool didUpdate = _Update (reference, false);
+
+				return mgr.RPCReply<bool> (Guid, methodName, didUpdate);;
 
 			} else if (methodName == F_AddAssociation) {
 

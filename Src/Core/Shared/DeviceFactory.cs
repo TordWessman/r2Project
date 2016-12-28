@@ -23,6 +23,7 @@ using Core.Memory;
 using MemoryType = System.String;
 using System.Linq;
 using System.Dynamic;
+using Core.Network;
 
 namespace Core
 {
@@ -61,74 +62,17 @@ namespace Core
 
 		}
 
-		/*
-		public IHttpEndpoint CreateJsonInterpreter(string deviceListenerPath) {
-			
-			return new HttpJsonEndpoint(deviceListenerPath,
-				(message, method) => {
+		public JsonMessageFactory CreateJsonMessageFactory(string id) {
+		
+			return new JsonMessageFactory (id);
+		
+		}
 
-					IMemory requestToken = Memory.Get("client_token");
+		public INetworkSecurity CreateSimpleNetworkSecurity(string id, string password) {
+		
+			return new SimpleNetworkSecurity (id, password);
 
-					if (requestToken == null) { 
-
-						string err = "client_data.token not set. Aborting JsonDeviceMessage interpretation"; 
-						Log.e(err);
-						return new JsonDeviceMessage() {Status = (int)JsonDeviceMessage.Statuses.ServerNotRegisteredAToken, Data = err} ;
-
-					} 
-
-					if (requestToken.Value != message.Token) {
-
-						string err = "Bad token sent from client: " + message.Token; 
-						Log.w(err);
-						return new JsonDeviceMessage() {Status = (int)JsonDeviceMessage.Statuses.GeneralError, Data = err} ;
-
-					}
-
-					if (message == null) {
-
-						string err = "Message was null!"; 
-						Log.e(err);
-						return new JsonDeviceMessage() {Status = (int)JsonDeviceMessage.Statuses.GeneralError, Data = err} ;
-
-					} else if (message.Device == null) {
-
-						string err ="Message.Device was null!"; 
-						Log.e(err);
-						return new JsonDeviceMessage() {Status = (int)JsonDeviceMessage.Statuses.GeneralError, Data = err};
-
-					} else if (DeviceManager.Has(message.Device)) {
-
-						if (method == "post") {
-
-							IDevice device = DeviceManager.Get(message.Device);
-							if (device is IJSONAccessible) {
-								message.Data = (device as IJSONAccessible).Interpret(message.Function, message.Params);
-								return message;
-							}
-
-							Log.w("JsonRequest: Device not IExternallyAccessible: " + message.Device);
-
-						} else {
-
-							Log.w("JsonRequest: Method not supported " + method);
-
-						}
-
-					}
-
-					string error = "JsonRequest: Device not found: " + message.Device; 
-					Log.e(error);
-					dynamic response = new ExpandoObject();
-					response.Status = (int)JsonDeviceMessage.Statuses.GeneralError;
-					response.Data = error;
-					return response;
-
-				});
-
-			throw new NotImplementedException ();
-
-		}*/
+		}
 
 	}
 

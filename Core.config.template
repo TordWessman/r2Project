@@ -49,12 +49,14 @@
 		<Logger>log</Logger>
 		<ConsoleLogger>console_logger</ConsoleLogger>
 		<Database>sqlite_database</Database>
+		<WebFactory>web_factory</WebFactory>
 	</Identifiers>
 	<Consts>
+		<HttpPort type="int" comment="Default port for http server">4242</HttpPort>
 		<DefaultRpcPort type="int" comment="default server port">1234</DefaultRpcPort>
 		<BroadcastMgrPort type="int" comment="the port used by the host manager to broadcast">9050</BroadcastMgrPort>
 		<BroadcastMgrTcpPort type="int" comment="tcp listener port for broadcast manager">9051</BroadcastMgrTcpPort>
-		<RunLoopScript comment="Name of the run loop script!">keyboard.rb</RunLoopScript>
+		<RunLoopScript comment="Name of the run loop script!">interpreter.rb</RunLoopScript>
 		<DefaultPassword comment="Default password for RPC operations.">Din mamma!</DefaultPassword>
 	</Consts>
 </Configuration>

@@ -22,14 +22,33 @@ using Core.Device;
 
 namespace Core.Network
 {
-	public interface IBasicServer<T> : ITaskMonitored, IDevice
-	{
-		T LocalEndPoint {get;}
-		string LocalIP {get;}
+	/// <summary>
+	/// Represents an object available through a network.
+	/// </summary>
+	public interface IEndpoint {
+	
+		/// <summary>
+		/// Returns the Ip address on which the server is configured to listen to.
+		/// </summary>
+		/// <value>The port.</value>
+		string Ip {get;}
+
+		/// <summary>
+		/// Returns the port on which the server is configured to listen to.
+		/// </summary>
+		/// <value>The port.</value>
 		int Port {get;}
+
+	}
+
+	public interface IBasicServer<T> : IEndpoint, ITaskMonitored, IDevice
+	{
+		
+		T LocalEndPoint {get;}
 		void AddObserver (DataPackageType type, IDataReceived<byte[], T> observer);
 		void SetClientObserver (IClientMessageObserver observer);
 		void PrintConnections();
-	}
-}
 
+	}
+
+}

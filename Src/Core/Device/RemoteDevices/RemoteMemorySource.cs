@@ -114,7 +114,7 @@ namespace Core.Device
 		public bool Update (Core.Memory.IMemory memory)
 		{
 
-			return Execute<bool, IMemoryReference> (SharedMemorySource.F_DeleteMemory, memory.Reference);
+			return Execute<bool, IMemoryReference> (SharedMemorySource.F_UpdateMemory, memory.Reference);
 		
 		}
 
