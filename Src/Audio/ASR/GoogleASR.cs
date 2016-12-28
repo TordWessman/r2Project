@@ -101,7 +101,7 @@ namespace ASR
 				throw new ExternalException ("Unable to initialize ASR engine");
 		}
 		
-		public bool IsActive 
+		public bool Active 
 		{
 			get 
 			{

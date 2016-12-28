@@ -24,7 +24,12 @@ namespace ASR
 {
 	public interface IASR : ITaskMonitored, IDevice, ILanguageUpdated
 	{
-		bool IsActive {get; set;}
+		/// <summary>
+		/// If Active, the ASR will be listening to incomming speech. 
+		/// </summary>
+		/// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
+		bool Active {get; set;}
+
 		void AddObverver (IASRObserver observer);	
 	}
 }

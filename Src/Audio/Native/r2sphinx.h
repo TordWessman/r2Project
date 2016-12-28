@@ -28,30 +28,24 @@
 #include <string.h>
 #include <math.h>
 
-#define ASR_ERROR_INIT_ALSA_FAILED 1024
-#define ASR_ERROR_INIT_RESAMPLER_FAILED 2048
-#define ASR_ERROR_INIT_VADER_FAILED 4096
+#define ASR_ERROR_INIT_FAILED 1024
 #define ASR_ERROR_INIT_POCKETSPHINX_FAILED 8192
 #define ASR_ERROR_LINK_FAILED 16384
 #define ASR_ERROR_GST 32768
 #define ASR_WARNING 65536
 #define ASR_EOS 131072
-#define ASR_ERROR_INIT_SINK_FAILED 262144
-#define ASR_ERROR_INIT_CONVERTER_FAILED 524288
-#define ASR_ERROR_INIT_IIRFILTER_FAILED 1048576
-#define ASR_ERROR_INIT_AMPLIFIER_FAILED 2097152
 
 /*if true = callback methods will be called upon receiving data */
-void set_is_active (bool report_mode);
-bool get_is_active ();
+void _ext_asr_set_is_active (bool report_mode);
+bool _ext_asr_get_is_active ();
 
 /** sends a message to the pipeline in order to turn it of **/
-int asr_turn_off();
+int _ext_asr_turn_off();
 
 /** 	the asr_start fires up the engine and makes it ready to receive audio from the microphone
 	and to fire delegate methods.
 **/
-int asr_start ();
+int _ext_asr_start ();
 
 /**
 	asr_init is the main initialization method.
@@ -61,12 +55,13 @@ int asr_start ();
 	*) lmFile: is the path to the language model file
 	*) dictFile: is the path to the dictionary file
 	*) hmmFile: is the path to the file containing the audio vocabulary file
+	*) as_server: if true, the src element will not be autoaudiosrc, but a tcpserversrc
 **/
-int asr_init (const char*(*textReceivedCallback)(const char *message ),
+int _ext_asr_init (const char*(*textReceivedCallback)(const char *message ),
 		  const char*(*reportErrorCallback)(int type, const char *message),
-		  const char *lmFile, const char *dictFile, const char *hmmFile, int port, const char* hostIp);
+		  const char *lmFile, const char *dictFile, const char *hmmFile, int port, const char* hostIp,  bool as_server);
 		  
-void asr_set_text_received_callback(const char*(*text_received_callback)(const char *message ));
-void asr_set_report_error_callback (const char*(*report_error_callback)(int type, const char *message));
-bool get_is_running ();
+void _ext_asr_set_text_received_callback(const char*(*text_received_callback)(const char *message ));
+void _ext_asr_set_report_error_callback (const char*(*report_error_callback)(int type, const char *message));
+bool _ext_asr_get_is_running ();
 

@@ -179,9 +179,9 @@ namespace ASR
 				
 
 				
-				m_asr.IsActive = false;
+				m_asr.Active = false;
 				tts.Say (response);
-				m_asr.IsActive = true;
+				m_asr.Active = true;
 				
 			}
 

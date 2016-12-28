@@ -23,59 +23,94 @@ using Core;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Core.Device;
-
+using Core.Network;
 
 namespace ASR
 {
-	public class SphinxASRServer : DeviceBase, IASR
+	public class SphinxASRServer : DeviceBase, IASR, IEndpoint
 	{
 		
 		protected delegate void TextInterpretedCallBack(string message);
 		protected delegate void SphinxErrorCallBack(int errorType, string message);
-		
-		private const string dllPath = "sphinx_stream.so";
+
+		private const string dllPath = "libr2sphinx.so";
 	
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-   	 	public static extern int asr_start();
+		public static extern int _ext_asr_start();
 
 		[DllImport( dllPath)]
-   	 	protected static extern int asr_turn_off();
+		protected static extern int _ext_asr_turn_off();
 		
 		[DllImport(dllPath)]
-   	 	protected static extern void set_is_active(bool reportMode);
+		protected static extern void _ext_asr_set_is_active(bool reportMode);
 		
 		[DllImport(dllPath)]
-   	 	protected static extern bool get_is_active();
+		protected static extern bool _ext_asr_get_is_active();
 
 		[DllImport(dllPath)]
-   	 	protected static extern bool get_is_running();
+		protected static extern bool _ext_asr_get_is_running();
 		
 		[DllImport(dllPath)]
-   	 	protected static extern int asr_init(
+   	 	protected static extern int _ext_asr_init(
 		   	TextInterpretedCallBack msgFunc,
 			SphinxErrorCallBack errorFunc,
 		    string lmFile,
 		    string dictFile,
 		    string hmmFile,
 			int port,
-			string hostIp);
+			string hostIp,
+			bool as_server);
 		
-		
+
 		protected bool m_isRunning;
 		protected Task m_asrTask;
 
 		//observers are called from a gstreamer thread...
 		private static ICollection<IASRObserver> m_observers;
-		
-		public const int AUDIO_SERVER_PORT = 5005;
-				
+
 		private TextInterpretedCallBack m_textReceivedCallBack;
 		private SphinxErrorCallBack m_errorReceivedCallBack;
-		
-		public SphinxASRServer (string id, string lm, string dic, string hmmDir, string hostIp, int port = AUDIO_SERVER_PORT)
+		private int m_port;
+		private string m_ip;
+
+		public int Port { get { return m_port; } }
+		public string Ip { get { return m_ip; } }
+
+		/// <summary>
+		/// Initailize and listen to local microphpone
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="lm">Lm.</param>
+		/// <param name="dic">Dic.</param>
+		/// <param name="hmmDir">Hmm dir.</param>
+		public SphinxASRServer (string id, string lm = null, string dic = null, string hmmDir = null)
+			: base (id) {
+
+			initialize (null, 0, lm, dic, hmmDir, false);
+
+		}
+
+		/// <summary>
+		/// Initialize and use as tcp server. Expecting audio to be received to the specified tcp address/port
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="hostIp">Host ip.</param>
+		/// <param name="port">Port.</param>
+		/// <param name="lm">Lm.</param>
+		/// <param name="dic">Dic.</param>
+		/// <param name="hmmDir">Hmm dir.</param>
+		public SphinxASRServer (string id, int port, string hostIp, string lm = null, string dic = null, string hmmDir = null)
 			: base (id)
 		{
-			
+			initialize (hostIp, port, lm, dic, hmmDir, true);
+		}
+
+
+		public void initialize (string hostIp, int port, string lm, string dic, string hmmDir, bool as_tcp_server)
+		{
+
+			m_ip = hostIp;
+			m_port = port;
 
 			m_observers = new List<IASRObserver> ();
 			
@@ -85,43 +120,53 @@ namespace ASR
 			m_asrTask = new Task (() => {
 				
 				while (m_isRunning) {
-					if (asr_start () != 0) {
+					
+					if (_ext_asr_start () != 0) {
+						
 						throw new ExternalException ("Unable to start ASR!");
+					
 					}
+				
 				}
-			}
-			);
-			
-			
-			
-			if (asr_init (
-				m_textReceivedCallBack, 
-			    m_errorReceivedCallBack,
-				lm, dic, hmmDir,
-				port,
-				hostIp
-			) != 0)
-			
+
+			});
+
+			if (_ext_asr_init (
+				    m_textReceivedCallBack, 
+				    m_errorReceivedCallBack,
+				    lm, dic, hmmDir,
+				    port,
+				    hostIp,
+					as_tcp_server
+
+			    ) != 0) {
+
 				throw new ExternalException ("Unable to initialize ASR engine");
+
+			}
+
+		}
+
+		public void SetActive(bool active) {
+		
+			Active = active;
+
 		}
 		
-		public bool IsActive 
-		{
-			get 
-			{
-				return get_is_active();
-			}
-			set
-			{
-				set_is_active(value);
-			}
+		public bool Active  { 
+			
+			get { return _ext_asr_get_is_active(); }
+			set { _ext_asr_set_is_active(value); }
+		
 		}
 		
 		public override void Start ()
 		{
 
-			if (m_isRunning)
+			if (m_isRunning) {
+				
 				throw new DeviceException ("ASR is already running...");
+			}
 			
 			m_isRunning = true;
 			m_asrTask.Start ();
@@ -130,31 +175,14 @@ namespace ASR
 		public override void Stop ()
 		{
 			m_isRunning = false;
-			asr_turn_off ();
+			_ext_asr_turn_off ();
 		}
 		
 		
 		protected void DefaultTextReceived (string text)
 		{
-			if (text == null)
-				Log.t ("TEXT WAS NULL");
-			else
 			Console.WriteLine ("ASR: " + text);
-			/*
-			foreach (IASRObserver observer in m_observers) {
-				IASRObserver clone = observer;
-				Task.Factory.StartNew (() => {
-					try {
-						observer.TextReceived (text);
-					} catch (Exception ex) {
-						Log.x (ex);
-					}
-						
-				}
-				);
-				
-			}*/
-			
+
 			Parallel.ForEach (m_observers, observer => {
 				try {
 					observer.TextReceived (text);
@@ -181,7 +209,7 @@ namespace ASR
 
 		public override bool Ready {
 			get {
-				return m_isRunning && get_is_running ();
+				return m_isRunning && _ext_asr_get_is_running ();
 			}
 		}
 		#endregion
@@ -192,7 +220,7 @@ namespace ASR
 		private void ReloadLanguageModels ()
 		{
 			Stop ();
-			while (get_is_running()) {
+			while (_ext_asr_get_is_running()) {
 				Console.Write ("x");
 			}
 			

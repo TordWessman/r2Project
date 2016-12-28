@@ -34,7 +34,7 @@ namespace ASR
 		
 		public void SetActive (bool active)
 		{
-			m_asr.IsActive = active;
+			m_asr.Active = active;
 		}
 		
 		#region implemented abstract members of Core.Device.RemotlyAccessableDeviceBase
