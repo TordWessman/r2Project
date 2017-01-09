@@ -20,8 +20,16 @@ using System;
 
 namespace Core.Device
 {
+	/// <summary>
+	/// Implementations are required to be able to inform observers upon mutation.
+	/// </summary>
+	public interface IDeviceObservable {
 
-	public interface IDevice : IStartable, IStopable
+		void AddObserver (IDeviceObserver observer);
+
+	}
+
+	public interface IDevice : IStartable, IStopable, IDeviceObservable
 	{
 		/// <summary>
 		/// Textual representation of the device. Used as key for retrieving the device from a device manager.

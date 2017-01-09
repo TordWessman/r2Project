@@ -30,6 +30,9 @@ namespace Core.Device
 
 		public RemoteDummy (RemoteDeviceReference reference) : base (reference) {}
 
+		public int Value { get { return Execute<int> ("get_Value"); } 
+			set { Execute<int> ("Set_value", value); }
+		}
 		#region IDummy implementation
 		public int Test (TestObject testObj)
 		{

@@ -26,8 +26,7 @@ namespace GPIO
 	public class OutputPort : RemotlyAccessableDeviceBase, IOutputPort
 	{
 		RaspberryPiDotNet.GPIO m_gpi;
-		private bool m_value;
-		
+
 		public OutputPort (string id, RaspberryPiDotNet.GPIO gpio) : base (id)
 		{
 			m_gpi = gpio;
@@ -43,7 +42,7 @@ namespace GPIO
 			if (IsBaseMethod (methodName)) {
 				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
 			} else if (methodName == RemoteOutputPort.SET_VALUE_FUNCTION_NAME) {
-				Value = mgr.ParsePackage<bool> (rawData);
+				Set(mgr.ParsePackage<bool> (rawData));
 				return null;
 			} else
 				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
@@ -56,23 +55,10 @@ namespace GPIO
 		}
 		#endregion
 
-		#region IInputPort implementation
-		private bool Value {
-			get {
-				return m_value;
-			}
-			
-			set {
-				m_value = value;
-				m_gpi.Write (value);
-			}
-		}
-		#endregion
-
 		#region IOutputPort implementation
 		public void Set ( bool value )
 		{
-			Value = true;
+			m_gpi.Write (value);
 		}
 
 		#endregion

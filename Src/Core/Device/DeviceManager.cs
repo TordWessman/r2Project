@@ -30,7 +30,7 @@ namespace Core.Device
 	/// <summary>
 	/// Implementation of IDeviceManager. Able to handle remote devices.
 	/// </summary>
-	public class DeviceManager : IDeviceManager
+	public class DeviceManager : DeviceBase, IDeviceManager
 	{
 		private IDictionary<Guid, IDevice> m_devices;
 		private IHostManager<IPEndPoint> m_hostManager;
@@ -49,7 +49,7 @@ namespace Core.Device
 		/// </summary>
 		/// <param name="hostManager">Host manager.</param>
 		/// <param name="rpcManager">Rpc manager.</param>
-		public DeviceManager (IHostManager<IPEndPoint> hostManager, IRPCManager<IPEndPoint> rpcManager, INetworkPackageFactory networkPackageFactory)
+		public DeviceManager (string id, IHostManager<IPEndPoint> hostManager, IRPCManager<IPEndPoint> rpcManager, INetworkPackageFactory networkPackageFactory) : base(id)
 		{
 			m_rpcManager = rpcManager;
 			m_hostManager = hostManager;
@@ -87,6 +87,9 @@ namespace Core.Device
 					m_devices.Add (newDevice.Guid, newDevice);
 				
 				}
+
+				// Device Manager will be able to propagate changes in any device to it's own observers. 
+				newDevice.AddObserver (this);
 			
 			}
 
@@ -511,6 +514,16 @@ namespace Core.Device
 			}
 		
 		}
+
+		#region IDeviceObserver
+
+		public void OnValueChanged(IDeviceNotification<object> notification) {
+		
+			NotifyChange (notification);
+
+		}
+
+		#endregion
 	
 	}
 

@@ -23,9 +23,9 @@ class MainClass < ScriptBase
 			return true
 		elsif (command line)
 			return true
-		elsif (exec_assign line)
-			return true
 		elsif (exec_device line)
+			return true
+		elsif (exec_assign line)
 			return true
 		end		
 		return true
@@ -107,7 +107,7 @@ class MainClass < ScriptBase
 
 	#TODO: make assign work...
 	def exec_assign (line)
-
+		
 		if line.split("=").length > 1
 
 			vname = line.split("=").first
@@ -157,6 +157,7 @@ class MainClass < ScriptBase
 			if (device != nil)
 
 				command = line[device_name.length, line.length - device_name.length]
+				
 				command_output = eval("device" + command)
 				
 				if (command_output != nil) 

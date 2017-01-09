@@ -95,70 +95,54 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 					
 		}
 
-		public void Write(string message, LogTypes logType, string tag) 
+		public void Write(ILogMessage message) 
 		{
 			lock (m_lock) {
 
-				if (tag == null) {
+				m_queue.Enqueue (() => {
 
-					m_queue.Enqueue (() => {
+					Write (message, false);
 
-						Write (message, logType, false);
-
-					});
-
-				} else {
-
-					m_queue.Enqueue (() => {
-
-						Write("[" + tag + "] " + message, logType, false);
-
-					});
-				}
+				});
 
 			}
 
 		}
 		
-		public void WriteLine (string message, LogTypes logType, string tag)
+		public void WriteLine (ILogMessage message)
 		{
 			
 			lock (m_lock) {
 
-				if (tag == null) {
+				m_queue.Enqueue (() => {
 
-					m_queue.Enqueue (() => {
+					Write (message, true);
 
-						Write (message, logType, true);
-
-					});
-
-				} else {
-
-					m_queue.Enqueue (() => {
-
-						Write("[" + tag + "] " + message, logType, true);
-
-					});
-				}
-				
+				});
 
 			}
 		}
 
-		private void Write (string msg, LogTypes type, bool line = true ) {
+		private void Write (ILogMessage message, bool line = true ) {
+
+			NotifyChange (message);
 
 			if (Console.OpenStandardOutput ().CanWrite) {
 
-				SetConsoleColor(type);
+				SetConsoleColor(message.Type);
 
 				if (line) {
-					Console.WriteLine (msg);
+					
+					Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
+				
 				} else {
-					Console.Write (msg);
+				
+					Console.Write ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
+				
 				}
 
 				SetConsoleColor( m_defaultColor);
+			
 			}
 
 		}
@@ -170,18 +154,18 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 			}
 		}
 
-		private void SetConsoleColor (LogTypes logType)
+		private void SetConsoleColor (LogType logType)
 		{
 
-			if (logType == LogTypes.Error)
-				SetConsoleColor( ConsoleColor.Red);
-			else if (logType == LogTypes.Warning)
-				SetConsoleColor( ConsoleColor.Yellow);
-			else if (logType == LogTypes.Temp)
-				SetConsoleColor( ConsoleColor.Green);
-			else
-				SetConsoleColor( ConsoleColor.Gray);
-			
+			if (logType == LogType.Error) {
+				SetConsoleColor (ConsoleColor.Red);
+			} else if (logType == LogType.Warning) {
+				SetConsoleColor (ConsoleColor.Yellow);
+			} else if (logType == LogType.Temp) {
+				SetConsoleColor (ConsoleColor.Green);
+			} else {
+				SetConsoleColor (ConsoleColor.Gray);
+			}
 		}
 
 	}

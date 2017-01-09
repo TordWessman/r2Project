@@ -28,22 +28,33 @@ using System.Dynamic;
 namespace Core.Network.Web
 {
 	/// <summary>
-	/// A DeviceReceiver is a helper IWebObjectReceiver usable for dealing with devices over http/websockets. It's onReceive method requires a JsonObjectRequest formatted message, evaluates it's device id, values and actions, perform the requested action on the requested device and returns the device object affected.
+	/// A DeviceRouter is a specialized helper IWebObjectReceiver usable for dealing with devices over http/websockets. It's onReceive method requires a JsonObjectRequest formatted message, evaluates it's device id, values and actions, perform the requested action on the requested device and returns the device object affected. It keeps track of devices requested and will communicate changes.
 	/// </summary>
-	public class DeviceReceiver: IWebObjectReceiver
+	public class DeviceRouter: IWebObjectReceiver, IDeviceObserver
 	{
 		private IDeviceManager m_deviceManager;
+
+		// Optional security parameter.
 		private INetworkSecurity m_security;
+
+		// An object which will be used to send changes in devices which has been invoked.
+		private IWebSocketSender m_sender;
+
+		// Contains a list identifiers for all devices being invoked
+		private IList<string> m_registeredDevices;
 
 		/// <summary>
 		/// The token is used as a very simple mean of authentication...
 		/// </summary>
 		/// <param name="deviceManager">Device manager.</param>
 		/// <param name="token">Token.</param>
-		public DeviceReceiver (IDeviceManager deviceManager, INetworkSecurity security = null)
+		public DeviceRouter (IDeviceManager deviceManager, INetworkSecurity security = null)
 		{
+			
 			m_deviceManager = deviceManager;
 			m_security = security;
+			m_registeredDevices = new List<string> ();
+
 		}
 
 		public IWebIntermediate onReceive (dynamic message, string httpMethod, NameValueCollection headers = null) {
@@ -80,16 +91,19 @@ namespace Core.Network.Web
 			if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Invoke) {
 
 				System.Reflection.MethodInfo methodInfo = device.GetType ().GetMethod (message.Action);
+				response.Action = message.Action;
 				methodInfo.Invoke (device, p);
 
 			} else if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.InvokeWithResponse) {
 
 				response.ActionResponse = device.GetType ().GetMethod (message.Action).Invoke (device, p);
+				response.Action = message.Action;
 
 			} else if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Set) {
 
 				System.Reflection.PropertyInfo propertyInfo = device.GetType().GetProperty(message.Action);
 				propertyInfo.SetValue(device, Convert.ChangeType(p[0], propertyInfo.PropertyType), null);
+				response.Action = propertyInfo.Name;
 
 			}
 
@@ -98,6 +112,33 @@ namespace Core.Network.Web
 			return new JsonObjectIntermediate(response);
 
 		}
-	}
-}
 
+		public IWebSocketSender Sender { 
+			get { return m_sender; }
+			set { m_sender = value; }
+		}
+
+		#region IDeviceObserver
+
+		public void OnValueChanged(IDeviceNotification<object> notification) {
+
+			IDevice device = m_deviceManager.Get (notification.Identifier);
+
+			if (m_sender != null && device != null && m_registeredDevices.Contains(device.Identifier)) {
+			
+				JsonObjectResponse response = new JsonObjectResponse ();
+				response.Action = notification.Action;
+				response.ActionResponse = notification.NewValue;
+				response.Object = device;
+
+				m_sender.Send (response);
+
+			}
+
+		}
+
+		#endregion
+
+	}
+
+}

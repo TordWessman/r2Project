@@ -37,6 +37,7 @@
 	</Paths>
 	<Identifiers>
 		<Core>core</Core>
+		<DeviceManager comment="Keeps track of all IDevice implementations.">device_manager</DeviceManager>
 		<HostManager comment="Host manager. Keep tracks of/receive hello packages from remote hosts and broadcasts existance.">hostmgr</HostManager>
 		<Server>server</Server>
 		<ScriptFactory comment="Responsible for creating new (iron) scripts">script_factory</ScriptFactory>

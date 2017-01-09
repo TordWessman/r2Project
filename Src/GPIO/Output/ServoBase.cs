@@ -44,16 +44,6 @@ namespace GPIO
 			m_minValue = DEFAULT_MIN_VALUE;
 			m_value = (int) LevelModifier;
 		}
-		
-		public void SetValue (float value)
-		{
-			Value = value;
-		}
-
-		public float GetValue ()
-		{
-			return Value;
-		}
 
 		public float Value {
 		
@@ -120,10 +110,6 @@ namespace GPIO
 				m_minValue = value;
 			}
 		}
-
-		public void SetMaxValue(float value) { MaxValue = value; }
-
-		public void SetMinValue(float value) { MinValue = value; }
 
 		#endregion
 

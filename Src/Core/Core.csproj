@@ -209,12 +209,15 @@
     <Compile Include="Network\Web\WebDummyEndpoint.cs" />
     <Compile Include="Network\Web\WebSockets\WebSocketSender.cs" />
     <Compile Include="Scripting\Ruby\RubyProc.cs" />
-    <Compile Include="Network\Web\DeviceReceiver.cs" />
     <Compile Include="Network\Web\Messages\JsonObjectIntermediate.cs" />
     <Compile Include="Network\Web\Messages\JsonObjectRequest.cs" />
     <Compile Include="Extensions\ExpandoObjectExtensions.cs" />
     <Compile Include="Shared\IRunLoop.cs" />
     <Compile Include="Shared\InterpreterRunLoop.cs" />
+    <Compile Include="Device\IDeviceObserver.cs" />
+    <Compile Include="Device\IDeviceNotification.cs" />
+    <Compile Include="Device\DeviceNotification.cs" />
+    <Compile Include="Network\Web\DeviceRouter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

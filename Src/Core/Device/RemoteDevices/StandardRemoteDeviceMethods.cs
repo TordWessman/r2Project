@@ -22,7 +22,8 @@ namespace Core.Device
 	public enum StandardRemoteDeviceMethods {
 		Start,
 		Stop,
-		Ready
+		Ready,
+		NotifyChange
 		
 	}
 }

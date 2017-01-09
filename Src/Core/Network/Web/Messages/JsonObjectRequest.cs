@@ -32,9 +32,14 @@ namespace Core.Network.Web {
 		public dynamic Object;
 
 		/// <summary>
-		/// If ActionType was InvokeWithResponse, the result of the method will be stored here (ignored if ActionType is Get).
+		/// If a value or property changed, the result of the method will be stored here (ignored if ActionType is Get).
 		/// </summary>
 		public dynamic ActionResponse;
+
+		/// <summary>
+		/// The name of the method or property wich was invoked (or null if no changes was made).
+		/// </summary>
+		public string Action;
 
 	}
 

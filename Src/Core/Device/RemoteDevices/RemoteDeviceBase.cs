@@ -21,6 +21,10 @@ using System.Net;
 using System.Threading.Tasks;
 using Core;
 using System.Net.Sockets;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Core.Device
 {
@@ -34,7 +38,8 @@ namespace Core.Device
 		protected IRPCManager<IPEndPoint> m_networkManager;
 		protected IPEndPoint m_host;
 		private Guid m_guid;
-		
+		private List<IDeviceObserver> m_observers;
+
 		public IPEndPoint Host { get { return m_host; }}
 		
 		public RemoteDeviceBase (RemoteDeviceReference reference)
@@ -44,6 +49,7 @@ namespace Core.Device
 			m_id = reference.Id;
 			m_networkManager = reference.NetworkManager;
 			m_host = reference.Host;
+			m_observers = new List<IDeviceObserver> ();
 			
 		}
 		
@@ -107,6 +113,29 @@ namespace Core.Device
 			
 			return task.Result;
 
+		}
+
+		/// <summary>
+		/// Will notify observers of a value change
+		/// </summary>
+		protected void NotifyChange<T>(T value) {
+
+			IDeviceNotification<object> deviceNotification = new DeviceNotification (m_id, GetCurrentMethod ().Name, value);
+			m_observers.AsParallel ().ForAll (y => y.OnValueChanged (deviceNotification));
+
+			//The notification to the local device should be triggered in their respeciva functions. m_networkManager.RPCRequest<IDeviceNotification<object>> (Guid, StandardRemoteDeviceMethods.NotifyChange.ToString (), m_host, deviceNotification);
+
+		}
+
+		public void AddObserver(IDeviceObserver observer) { m_observers.Add (observer); }
+
+		[MethodImpl(MethodImplOptions.NoInlining)]
+		private System.Reflection.MethodBase GetCurrentMethod ()
+		{
+			StackTrace st = new StackTrace ();
+			StackFrame sf = st.GetFrame (2);
+
+			return sf.GetMethod();
 		}
 
 		public void Start ()

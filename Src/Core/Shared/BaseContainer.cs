@@ -133,7 +133,7 @@ namespace Core
 			m_rpcManager = new RPCManager (m_hostManager, m_networkPackageFactory, m_taskMonitor);
 
 			// contains and manages all devices
-			m_devices = new DeviceManager (m_hostManager, m_rpcManager, m_networkPackageFactory);
+			m_devices = new DeviceManager (Settings.Identifiers.DeviceManager (), m_hostManager, m_rpcManager, m_networkPackageFactory);
 
 			m_devices.Add (simpleSecurity);
 			m_devices.Add (m_taskMonitor);
@@ -150,8 +150,7 @@ namespace Core
 			    m_taskMonitor);
 			
 			m_runLoopScript = m_scriptFactory.CreateScript (
-				//Settings.Identifiers.RunLoopScriptId() + "_script" ,
-				"s",
+				Settings.Identifiers.RunLoopScriptId() + "_script" ,
 				Settings.Paths.Common(Settings.Consts.RunLoopScript()));
 
 			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoopScriptId (), m_runLoopScript);
@@ -167,7 +166,7 @@ namespace Core
 			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory());
 
 			// Add devices to device manager
-			m_devices.Add(m_runLoopScript);
+			m_devices.Add (m_runLoopScript);
 			m_devices.Add (m_runLoop);
 			m_devices.Add (httpFactory);
 			m_devices.Add (m_serializer);

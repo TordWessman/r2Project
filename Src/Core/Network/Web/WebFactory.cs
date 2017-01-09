@@ -76,7 +76,7 @@ namespace Core.Network.Web
 		/// <param name="security">Security.</param>
 		public IWebObjectReceiver CreateDeviceObjectReceiver(INetworkSecurity security = null) {
 		
-			return new DeviceReceiver (m_deviceManager, security);
+			return new DeviceRouter (m_deviceManager, security);
 
 		}
 

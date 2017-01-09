@@ -83,6 +83,15 @@ namespace Core.Device
 
 				return mgr.RPCReply<bool> (Guid, methodName, Ready);
 			
+			} else if (methodName.ToLower ().Equals (
+				StandardRemoteDeviceMethods.NotifyChange.ToString ().ToLower ())) {
+
+				IDeviceNotification<object> deviceNotification = mgr.ParsePackage<IDeviceNotification<object>> (rawData);
+
+				NotifyChange (deviceNotification);
+
+				return null;
+
 			}
 			
 			throw new NotImplementedException ("Method: " + methodName + " is not implemented" +

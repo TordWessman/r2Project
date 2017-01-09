@@ -49,6 +49,8 @@ namespace Core.Device
 	
 	public interface IDummy : IDevice
 	{
+		int Value { get; set;}
+
 		int Test(TestObject obj);
 		void Test2 (TestObject testObj);
 		TestObject Test3 ();

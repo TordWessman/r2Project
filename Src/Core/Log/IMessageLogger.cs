@@ -20,18 +20,43 @@ using System;
 
 namespace Core
 {
-	public enum LogTypes {
+	public enum LogType {
 		Message,
 		Warning,
 		Error,
 		Temp
 	}
 
+	/// <summary>
+	/// Represents a message to be printed.
+	/// </summary>
+	public interface ILogMessage {
+	
+		/// <summary>
+		/// The message to be printed.
+		/// </summary>
+		/// <value>The message.</value>
+		object Message { get; }
+
+		/// <summary>
+		/// Type of message
+		/// </summary>
+		/// <value>The type.</value>
+		LogType Type { get; }
+
+		/// <summary>
+		/// Optional tag for the message.
+		/// </summary>
+		/// <value>The tag.</value>
+		string Tag { get; }
+
+	}
+
 	public interface IMessageLogger
 	{
 
-		void Write(string message, LogTypes logType, string tag);
-		void WriteLine(string message, LogTypes logType, string tag);
+		void Write(ILogMessage message);
+		void WriteLine(ILogMessage message);
 
 	}
 }

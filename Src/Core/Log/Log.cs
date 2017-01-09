@@ -20,6 +20,8 @@ using System.Collections.Generic;
 using System;
 using System.Threading;
 using Core.Device;
+using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace Core
 {
@@ -27,8 +29,28 @@ namespace Core
 	{
 		private List<IMessageLogger> loggers;
 		protected static Log instance;
-		protected bool _showThreadId;
-		
+
+		private class LogMessage: ILogMessage {
+			
+			private object m_message;
+			private LogType m_type;
+			private string m_tag;
+
+			public LogMessage(object message, LogType type, string tag = null) {
+			
+				m_message = message;
+				m_type = type;
+				m_tag = tag;
+
+			}
+
+			public object Message { get { return m_message; } }
+
+			public LogType Type { get { return m_type; } }
+
+			public string Tag { get { return m_tag; } }
+
+		}
 		
 		public static Log Instance 
 		{
@@ -57,36 +79,29 @@ namespace Core
 		}
 		
 		
-		public void Write (string message,Core.LogTypes logType, string tag)
+		public void Write (ILogMessage message)
 		{
 
 			foreach (IMessageLogger logger in loggers) {
 
-				logger.WriteLine(message, logType, tag);
+				logger.WriteLine(message);
 			
 			}
 				
 		}
 	
-		public void WriteLine (string message, Core.LogTypes logType, string tag)
+		public void WriteLine (ILogMessage message)
 		{
-
-			if (_showThreadId) {
-
-				message += "[" + Thread.CurrentThread.ManagedThreadId + "] ";
-
-			}
-				
 			
 			if (loggers.Count == 0) {
 
-				throw new InvalidOperationException ("No logger attached for message: " + message + " and type: " + logType);
+				throw new InvalidOperationException ("No logger attached for message: " + message.Message + " and type: " + message.Type);
 			
 			}
 			
 			foreach (IMessageLogger logger in loggers) {
 			
-				logger.WriteLine(message, logType, tag);
+				logger.WriteLine(message);
 
 			}
 				
@@ -129,63 +144,16 @@ namespace Core
 		}
 
 		/// <summary>
-		/// Used for temporary testing outprint
-		/// </summary>
-		/// <param name="message">Message.</param>
-		public void ok(string message) 
-		{
-
-			Log.t (message);
-
-		}
-
-		/// <summary>
 		/// Used to print debug messages
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="tag">Tag.</param>
-		public static void d(string message) 
-		{
-
-			Log.d (message, null);
-		
-		}
-
-		/// <summary>
-		/// Used to print warning messages
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="tag">Tag.</param>
-		public static void w(string message) 
-		{
-
-			Log.w (message, null);
-		
-		}
-
-		/// <summary>
-		/// Used to print error messages
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="tag">Tag.</param>
-		public static void e(string message) 
-		{
-
-			Log.e (message, null);
-		
-		}
-
-		/// <summary>
-		/// Used to print debug messages
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="tag">Tag.</param>
-		public static void d(string message, object tag) 
+		public static void d(object message, string tag = null) 
 		{
 
 			if (Log.Instance != null) {
 
-				Log.Instance.WriteLine(message, LogTypes.Message, tag != null ? tag.ToString() : null);	
+				Log.Instance.WriteLine(new LogMessage(message, LogType.Message, tag));	
 			
 			}
 
@@ -196,11 +164,11 @@ namespace Core
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="tag">Tag.</param>
-		public static void w(string message, object tag)  
+		public static void w(object message, string tag = null)  
 		{
 			if (Log.Instance != null) {
 
-				Log.Instance.WriteLine (message, LogTypes.Warning, tag != null ? tag.ToString () : null);	
+				Log.Instance.WriteLine (new LogMessage(message, LogType.Warning, tag));	
 			}
 
 		}
@@ -210,12 +178,12 @@ namespace Core
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="tag">Tag.</param>
-		public static void e(string message, object tag) 
+		public static void e(object message, string tag = null) 
 		{
 
 			if (Log.Instance != null) {
 
-				Log.Instance.WriteLine (message, LogTypes.Error, tag != null ? tag.ToString () : null);
+				Log.Instance.WriteLine (new LogMessage(message, LogType.Error, tag));
 
 			}
 
@@ -225,11 +193,11 @@ namespace Core
 		/// Used for temporary testing outprint
 		/// </summary>
 		/// <param name="message">Message.</param>
-		public static void t (string message)
+		public static void t (object message)
 		{
 			if (Log.Instance != null) {
 
-				Log.Instance.WriteLine (message, LogTypes.Temp, null);
+				Log.Instance.WriteLine (new LogMessage(message, LogType.Temp, null));
 
 			}
 
@@ -251,29 +219,19 @@ namespace Core
 					new string ('-', recursionCount * 2) + ex.StackTrace + "\n" +
 					new string ('-', recursionCount * 2) + ex.Source + "\n";
 
-				Log.Instance.WriteLine (exString, LogTypes.Error, null);
+				Log.Instance.WriteLine (new LogMessage (exString, LogType.Error, null));
 
 			}
 			
 			if (ex.InnerException != null && recursionCount < 10) {
 
-				Log.Instance.WriteLine ("==== Inner Exception ====", LogTypes.Error, null);
+				Log.Instance.WriteLine (new LogMessage("==== Inner Exception ====", LogType.Error));
 				x (ex.InnerException, recursionCount + 1);
 			
 			}
 		
 		}
-		
-		public static bool ShowThreadId 
-		{
 
-			set {
-
-				Log.instance._showThreadId = value;
-			}
-
-		}
-		
 		~Log() 
 		{
 
