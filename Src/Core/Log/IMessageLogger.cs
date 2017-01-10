@@ -17,6 +17,7 @@
 // 
 
 using System;
+using System.Collections.Generic;
 
 namespace Core
 {
@@ -54,9 +55,18 @@ namespace Core
 
 	public interface IMessageLogger
 	{
-
+		/// <summary>
+		/// Writes message to the logger.
+		/// </summary>
+		/// <param name="message">Message.</param>
 		void Write(ILogMessage message);
-		void WriteLine(ILogMessage message);
+
+		/// <summary>
+		/// Returns output history (descending age) 
+		/// </summary>
+		/// <returns>The history.</returns>
+		/// <param name="count">Maximum number of output messages.</param>
+		IEnumerable<ILogMessage> History { get; } 
 
 	}
 }

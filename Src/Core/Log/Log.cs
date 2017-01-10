@@ -22,6 +22,7 @@ using System.Threading;
 using Core.Device;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Core
 {
@@ -30,25 +31,13 @@ namespace Core
 		private List<IMessageLogger> loggers;
 		protected static Log instance;
 
-		private class LogMessage: ILogMessage {
-			
-			private object m_message;
-			private LogType m_type;
-			private string m_tag;
+		public IEnumerable<ILogMessage> History {
 
-			public LogMessage(object message, LogType type, string tag = null) {
-			
-				m_message = message;
-				m_type = type;
-				m_tag = tag;
+			get {
+
+				return loggers.SelectMany (t => t.History);
 
 			}
-
-			public object Message { get { return m_message; } }
-
-			public LogType Type { get { return m_type; } }
-
-			public string Tag { get { return m_tag; } }
 
 		}
 		
@@ -77,20 +66,8 @@ namespace Core
 			loggers.Add(logger);
 		
 		}
-		
-		
-		public void Write (ILogMessage message)
-		{
-
-			foreach (IMessageLogger logger in loggers) {
-
-				logger.WriteLine(message);
-			
-			}
-				
-		}
 	
-		public void WriteLine (ILogMessage message)
+		public void Write (ILogMessage message)
 		{
 			
 			if (loggers.Count == 0) {
@@ -101,46 +78,23 @@ namespace Core
 			
 			foreach (IMessageLogger logger in loggers) {
 			
-				logger.WriteLine(message);
+				logger.Write(message);
 
 			}
 				
 		}
 
-		/// <summary>
-		/// Used to print debug messages
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="tag">Tag.</param>
-		public void debug(string message) 
-		{
-
-			Log.d (message);
-
+		public void message(object message, string tag = null) {
+			Log.Instance.Write (new LogMessage (message, LogType.Message, tag));
 		}
-
-		/// <summary>
-		/// Used to print warning messages
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="tag">Tag.</param>
-		public void warn(string message) 
-		{
-
-			Log.w (message);
-
+		public void warning(object message, string tag = null) {
+			Log.Instance.Write (new LogMessage (message, LogType.Warning, tag));
 		}
-
-		/// <summary>
-		/// Used to print error messages
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="tag">Tag.</param>
-		public void error(string message) 
-		{
-
-			Log.e (message);
-
+		public void error(object message, string tag = null) {
+			Log.Instance.Write (new LogMessage (message, LogType.Error, tag));
+		}
+		public void temp(object message, string tag = null) {
+			Log.Instance.Write (new LogMessage (message, LogType.Temp, tag));
 		}
 
 		/// <summary>
@@ -153,7 +107,7 @@ namespace Core
 
 			if (Log.Instance != null) {
 
-				Log.Instance.WriteLine(new LogMessage(message, LogType.Message, tag));	
+				Log.Instance.message (message, tag);
 			
 			}
 
@@ -168,7 +122,7 @@ namespace Core
 		{
 			if (Log.Instance != null) {
 
-				Log.Instance.WriteLine (new LogMessage(message, LogType.Warning, tag));	
+				Log.Instance.warning (message, tag);	
 			}
 
 		}
@@ -183,7 +137,7 @@ namespace Core
 
 			if (Log.Instance != null) {
 
-				Log.Instance.WriteLine (new LogMessage(message, LogType.Error, tag));
+				Log.Instance.error (message, tag);
 
 			}
 
@@ -197,7 +151,7 @@ namespace Core
 		{
 			if (Log.Instance != null) {
 
-				Log.Instance.WriteLine (new LogMessage(message, LogType.Temp, null));
+				Log.Instance.temp (message);
 
 			}
 
@@ -219,13 +173,13 @@ namespace Core
 					new string ('-', recursionCount * 2) + ex.StackTrace + "\n" +
 					new string ('-', recursionCount * 2) + ex.Source + "\n";
 
-				Log.Instance.WriteLine (new LogMessage (exString, LogType.Error, null));
+				Log.Instance.Write (new LogMessage (exString, LogType.Error, null));
 
 			}
 			
 			if (ex.InnerException != null && recursionCount < 10) {
 
-				Log.Instance.WriteLine (new LogMessage("==== Inner Exception ====", LogType.Error));
+				Log.Instance.Write (new LogMessage("==== Inner Exception ====", LogType.Error));
 				x (ex.InnerException, recursionCount + 1);
 			
 			}

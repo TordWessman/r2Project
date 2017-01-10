@@ -20,6 +20,7 @@ using System;
 using Core.Device;
 using System.Collections.Generic;
 using System.Timers;
+using System.Linq;
 
 namespace Core
 {
@@ -30,6 +31,7 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 		private Queue<Action> m_queue;
 		private Timer m_consoleTimer;
 		private bool m_isPrinting;
+		private Stack<ILogMessage> m_history;
 
 		public bool Paused;
 
@@ -39,8 +41,20 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 			m_defaultColor = Console.ForegroundColor;
 			m_queue = new Queue<Action> ();
 			m_isPrinting = false;
+			m_history = new Stack<ILogMessage> ();
+
 			Paused = false;
 
+		}
+
+		public IEnumerable<ILogMessage> History {
+
+			get {
+
+				return m_history.Reverse ().Select (t => t);
+		
+			}
+		
 		}
 
 		public override void Start ()
@@ -95,63 +109,41 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 					
 		}
 
-		public void Write(ILogMessage message) 
+		public void Write (ILogMessage message)
 		{
+
 			lock (m_lock) {
+
+				m_history.Push (message);
 
 				m_queue.Enqueue (() => {
 
-					Write (message, false);
+					NotifyChange (message);
+
+					if (Console.OpenStandardOutput ().CanWrite) {
+
+						SetConsoleColor(message.Type);
+
+						Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
+
+						SetConsoleColor( m_defaultColor);
+
+					}
 
 				});
 
 			}
 
 		}
-		
-		public void WriteLine (ILogMessage message)
-		{
 			
-			lock (m_lock) {
-
-				m_queue.Enqueue (() => {
-
-					Write (message, true);
-
-				});
-
-			}
-		}
-
-		private void Write (ILogMessage message, bool line = true ) {
-
-			NotifyChange (message);
-
-			if (Console.OpenStandardOutput ().CanWrite) {
-
-				SetConsoleColor(message.Type);
-
-				if (line) {
-					
-					Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
-				
-				} else {
-				
-					Console.Write ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
-				
-				}
-
-				SetConsoleColor( m_defaultColor);
-			
-			}
-
-		}
-
 		private void SetConsoleColor (ConsoleColor color) {
 
 			if (Console.OpenStandardOutput ().CanWrite) {
+				
 				Console.ForegroundColor = color;
+			
 			}
+		
 		}
 
 		private void SetConsoleColor (LogType logType)

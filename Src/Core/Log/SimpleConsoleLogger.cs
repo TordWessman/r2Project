@@ -18,33 +18,42 @@
 
 ﻿using System;
 using Core.Device;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Core
 {
 	public class SimpleConsoleLogger : DeviceBase, IMessageLogger
 	{
 		private ConsoleColor m_defaultColor;
+		private Stack<ILogMessage> m_history;
+		private int m_maxHistory;
 
-		public SimpleConsoleLogger (string id) : base (id)
+		/// <summary>
+		/// Use the maxHistory to define how many messages that can be contain in the message history.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="maxHistory">Max history.</param>
+		public SimpleConsoleLogger (string id, int maxHistory) : base (id)
 		{
 			m_defaultColor = Console.ForegroundColor;
+			m_history = new Stack<ILogMessage> ();
+			m_maxHistory = maxHistory;
 		}
 
-		public void Write(ILogMessage message) 
-		{
+		public IEnumerable<ILogMessage> History {
+		
+			get {
+		
+				return m_history.Reverse ().Select (t => t);
 
-			Write (message, false);
+			}
+		
 		}
 
-		public void WriteLine (ILogMessage message)
-		{
-
-			Write (message, true);
-
-		}
-
-
-		private void Write (ILogMessage message, bool line = true ) {
+		public void Write (ILogMessage message) {
+			
+			m_history.Push (message);
 
 			NotifyChange (message);
 
@@ -52,15 +61,7 @@ namespace Core
 
 				SetConsoleColor(message.Type);
 
-				if (line) {
-
-					Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
-
-				} else {
-
-					Console.Write ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
-
-				}
+				Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
 
 				SetConsoleColor( m_defaultColor);
 
@@ -71,23 +72,36 @@ namespace Core
 		private void SetConsoleColor (ConsoleColor color) {
 
 			if (Console.OpenStandardOutput ().CanWrite) {
+				
 				Console.ForegroundColor = color;
+			
 			}
+		
 		}
 
 		private void SetConsoleColor (LogType logType)
 		{
 
 			if (logType == LogType.Error) {
+		
 				SetConsoleColor (ConsoleColor.Red);
+			
 			} else if (logType == LogType.Warning) {
+			
 				SetConsoleColor (ConsoleColor.Yellow);
+			
 			} else if (logType == LogType.Temp) {
+			
 				SetConsoleColor (ConsoleColor.Green);
+			
 			} else {
+			
 				SetConsoleColor (ConsoleColor.Gray);
+			
 			}
+		
 		}
+	
 	}
-}
 
+}
