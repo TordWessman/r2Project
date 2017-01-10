@@ -103,7 +103,7 @@ namespace Core
 			m_shouldRun = true;
 
 			//Set up logging
-			SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger (Settings.Identifiers.ConsoleLogger ());
+			SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger (Settings.Identifiers.ConsoleLogger (), Settings.Consts.MaxConsoleHistory());
 			consoleLogger.Start ();
 			Log logger = new Log (Settings.Identifiers.Logger ());
 			logger.AddLogger (consoleLogger);
@@ -148,12 +148,14 @@ namespace Core
 			    DEFAULT_RUBY_PATHS,
 			    m_devices,
 			    m_taskMonitor);
-			
+
+			// The run loop script must meet the method requirements of the InterpreterRunLoop.
 			m_runLoopScript = m_scriptFactory.CreateScript (
-				Settings.Identifiers.RunLoopScriptId() + "_script" ,
+				Settings.Identifiers.RunLoopId() + "_script" ,
 				Settings.Paths.Common(Settings.Consts.RunLoopScript()));
 
-			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoopScriptId (), m_runLoopScript);
+			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
+			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoopId (), m_runLoopScript, consoleLogger);
 
 			// Set up database and memory
 			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbPath);

@@ -20,38 +20,74 @@ using System;
 using Core.Device;
 using Core.Scripting;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Core
 {
 	
 	public class InterpreterRunLoop : DeviceBase, IRunLoop
 	{
+		// The string that is dislpayed before an executed command.
+		private const string COMMAND_DEFINITION = "> ";
+
 		private IScript m_interpreterScript;
 		private bool m_shouldRun;
 		private IList<string> m_history;
 		private int m_historyPosition;
+		private bool m_isRunning;
+		private IMessageLogger m_logger;
 
-		public InterpreterRunLoop (string id, IScript script) : base (id) {
+		/// <summary>
+		/// The IScript's MainClass is required to implement a 'bool interpret(string)' method. The return value of this method determines weither the loop should continue or not.
+		/// The logger will be used to print output.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="script">Script.</param>
+		/// <param name="logger">LOgger.</param>
+		public InterpreterRunLoop (string id, IScript script, IMessageLogger logger) : base (id) {
 		
 			m_interpreterScript = script;
 			m_history = new List<string> ();
+			m_logger = logger;
 
 		}
 
 		public override void Start () {
 
-			m_shouldRun = true;
+			if (m_isRunning) {
+				throw new ApplicationException("Unable to start run loop, since it has started.");
+			}
 
+			m_shouldRun = true;
+			m_isRunning = true;
+
+			RunLoop ();
+
+			m_isRunning = false;
+
+		}
+
+		public override void Stop () {
+
+			m_shouldRun = false;
+
+		}
+
+		/// <summary>
+		/// Will block the current thread until finished
+		/// </summary>
+		private void RunLoop() {
+		
 			string line = "";
 
 			do {
-				
+
 				ConsoleKeyInfo key = Console.ReadKey (true);
 
 				if (key.Key == ConsoleKey.Escape) {
-					
+
 					m_shouldRun = false;
-				
+
 				} else if (key.Key == ConsoleKey.UpArrow && m_historyPosition > 0) {
 
 					ClearLine (line);
@@ -64,16 +100,16 @@ namespace Core
 					ClearLine (line);
 
 					if (m_historyPosition < m_history.Count - 1) {
-						
+
 						m_historyPosition++;
 						line = m_history[m_historyPosition];
-					
-					} else if (m_historyPosition == m_history.Count - 1) {
+
+					} else if (m_historyPosition == m_history.Count) {
 
 						line = "";
-					
+
 					}
-					
+
 					PrintLine(line);
 
 				} else if (key.Key == ConsoleKey.Backspace && line.Length > 0) {
@@ -87,16 +123,16 @@ namespace Core
 					line = line.Trim();
 
 					ClearLine(line);
-					Log.d("> " + line);
+					m_logger.Write(new LogMessage(COMMAND_DEFINITION + line,LogType.Message));
 					m_history.Add(line);
-					m_historyPosition = m_history.Count - 1;
+					m_historyPosition = m_history.Count;
 
 					try {
-						
-						m_shouldRun = m_interpreterScript.MainClass.@interpret (line);
-					
+
+						InterpretText (line);
+
 					} catch (Exception ex) {
-					
+
 						Console.Beep();
 						Log.x(ex);
 
@@ -105,7 +141,7 @@ namespace Core
 					line = "";
 
 				} else {
-					
+
 					line += key.KeyChar;
 					PrintLine(line);
 
@@ -115,6 +151,28 @@ namespace Core
 
 		}
 
+		/// <summary>
+		/// Will interpret the text string through it's interpreter script.
+		/// </summary>
+		/// <param name="text">Text.</param>
+		public void InterpretText(string text) {
+
+			// If @interpret returns false, the run loop should quit.
+
+			m_shouldRun = m_interpreterScript.MainClass.@interpret (text);
+
+		}
+
+		public IEnumerable<ILogMessage> GetHistory(int historyCount) {
+		
+			return m_logger.History.Take (historyCount);
+				
+		}
+
+		/// <summary>
+		/// Clear the line at the current position.
+		/// </summary>
+		/// <param name="line">Line.</param>
 		private void ClearLine(string line) {
 
 			string clearLine = new string (' ', line.Length < Console.LargestWindowWidth ? line.Length : Console.LargestWindowWidth);
@@ -127,7 +185,10 @@ namespace Core
 
 		}
 
-		//Re-prints the line at current row position.
+		/// <summary>
+		/// Re-prints the line at current row position.
+		/// </summary>
+		/// <param name="line">Line.</param>
 		private void PrintLine(string line) {
 
 			int currentRow = Console.LargestWindowHeight - 1;
@@ -136,11 +197,6 @@ namespace Core
 
 		}
 
-		public override void Stop () {
-
-			m_shouldRun = false;
-
-		}
 	}
-}
 
+}

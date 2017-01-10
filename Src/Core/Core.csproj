@@ -218,6 +218,8 @@
     <Compile Include="Device\IDeviceNotification.cs" />
     <Compile Include="Device\DeviceNotification.cs" />
     <Compile Include="Network\Web\DeviceRouter.cs" />
+    <Compile Include="Shared\IConsole.cs" />
+    <Compile Include="Log\LogMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
