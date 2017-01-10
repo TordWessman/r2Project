@@ -57,7 +57,7 @@ namespace Core.Network.Web
 
 		}
 
-		public IWebIntermediate onReceive (dynamic message, string httpMethod, NameValueCollection headers = null) {
+		public IWebIntermediate OnReceive (dynamic message, string httpMethod, NameValueCollection headers = null) {
 
 			string token = ((IDictionary<string, Object>)message)?.ContainsKey("Token") == true ? message.Token : null; 
 
@@ -68,6 +68,14 @@ namespace Core.Network.Web
 			}
 
 			IDevice device = m_deviceManager.Get (message.Id);
+
+			if (device == null) {
+
+				throw new DeviceException ("Device with id: " + message.Id + " not found.");
+			
+			}
+
+			m_registeredDevices.Add (device.Identifier);
 
 			IList<dynamic> parameterList = null;
 
@@ -126,6 +134,8 @@ namespace Core.Network.Web
 
 			if (m_sender != null && device != null && m_registeredDevices.Contains(device.Identifier)) {
 			
+				// Send device through sender to nofie connected clients about the change.
+
 				JsonObjectResponse response = new JsonObjectResponse ();
 				response.Action = notification.Action;
 				response.ActionResponse = notification.NewValue;

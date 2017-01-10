@@ -44,7 +44,7 @@ namespace Core.Network.Web
 		
 		}
 
-		public IWebIntermediate onReceive (dynamic input, string httpMethod, NameValueCollection headers = null) {
+		public IWebIntermediate OnReceive (dynamic input, string httpMethod, NameValueCollection headers = null) {
 
 			return m_script.MainClass.@on_receive (new JsonExportObject<ExpandoObject>(input), httpMethod, headers, new T());
 

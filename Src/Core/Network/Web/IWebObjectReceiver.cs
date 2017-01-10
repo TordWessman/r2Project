@@ -34,7 +34,7 @@ namespace Core.Network.Web
 		/// <param name="input">Input.</param>
 		/// <param name="httpMethod">Http method.</param>
 		/// <param name="headers">Headers.</param>
-		IWebIntermediate onReceive (dynamic input, string httpMethod, NameValueCollection headers = null);
+		IWebIntermediate OnReceive (dynamic input, string httpMethod, NameValueCollection headers = null);
 
 	}
 }
