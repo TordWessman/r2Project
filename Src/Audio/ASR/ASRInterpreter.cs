@@ -23,7 +23,7 @@ using AIMLbot;
 using Core.Scripting;
 using System.Threading.Tasks;
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class ASRInterpreter : DeviceBase, IASRInterpreter
 	{

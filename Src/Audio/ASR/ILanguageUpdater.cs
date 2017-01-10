@@ -22,7 +22,7 @@ using Core.Device;
 using System.Threading.Tasks;
 
 
-namespace ASR
+namespace Audio.ASR
 {
 	public interface ILanguageUpdater : IDevice
 	{

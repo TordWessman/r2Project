@@ -27,7 +27,7 @@ using System.Xml.XPath;
 using System.Xml;
 using Core.Device;
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class UglyLanguageUpdater : DeviceBase, ILanguageUpdater
 	{

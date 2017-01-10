@@ -20,7 +20,7 @@ using System;
 using Core;
 using Core.Device;
 
-namespace ASR
+namespace Audio.ASR
 {
 	public interface IASR : ITaskMonitored, IDevice, ILanguageUpdated
 	{

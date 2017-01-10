@@ -22,7 +22,7 @@ using System.Xml.XPath;
 using System.Linq;
 using Core.Scripting;
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class CommandInterpreter : ILanguageUpdated
 	{

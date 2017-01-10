@@ -23,7 +23,7 @@ using System.Xml;
 using System.Text.RegularExpressions;
 using Core;
 
-namespace ASR
+namespace Audio.ASR
 {
 	/// <summary>
 	/// Aiml to sphinx converter used to 

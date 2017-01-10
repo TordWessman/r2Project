@@ -26,7 +26,7 @@ using Core;
 using System.Threading;
 
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class SphinxModelCreator : IModelCreator
 	{

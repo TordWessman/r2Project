@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 using Core;
 using System.IO;
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class GoogleASR : DeviceBase, IASR
 	{

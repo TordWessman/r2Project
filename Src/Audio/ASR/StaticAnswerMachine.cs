@@ -25,7 +25,7 @@ using System.Text.RegularExpressions;
 using System.Linq;
 using Core.Device;
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class StaticAnswerMachine : DeviceBase, ISpeechInterpreter
 	{

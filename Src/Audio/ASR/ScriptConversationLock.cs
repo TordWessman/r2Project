@@ -21,7 +21,7 @@ using Core.Scripting;
 using Core;
 
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class ScriptConversationLock : IConversationLock
 	{

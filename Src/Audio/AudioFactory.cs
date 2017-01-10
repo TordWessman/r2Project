@@ -19,6 +19,7 @@
 ﻿using System;
 using Audio.TTS;
 using Core.Device;
+using Audio.ASR;
 
 namespace Audio
 {
@@ -37,6 +38,18 @@ namespace Audio
 
 		public IAudioPlayer CreateMp3Player(string id) {
 			return new Mp3Player (id, m_basePath);
+		}
+
+		public IASR CreateSphinxServer(string id, int port, string hostIp, string lm = null, string dic = null, string hmmDir = null) {
+		
+			return new SphinxASRServer(id, port, hostIp, lm, dic, hmmDir);
+
+		}
+
+		public IASR CreateSphinx(string id, string lm = null, string dic = null, string hmmDir = null) {
+
+			return new SphinxASRServer(id, lm, dic, hmmDir);
+
 		}
 	}
 }

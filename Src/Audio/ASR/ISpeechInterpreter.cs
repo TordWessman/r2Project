@@ -19,7 +19,7 @@
 using System;
 using Core.Device;
 
-namespace ASR
+namespace Audio.ASR
 {
 	public interface ISpeechInterpreter : ILanguageUpdated, IDevice
 	{

@@ -17,7 +17,8 @@
 // 
 
 using System;
-namespace ASR
+
+namespace Audio.ASR
 {
 	public interface IConversationLock
 	{

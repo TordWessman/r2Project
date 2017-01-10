@@ -21,7 +21,7 @@ using Core.Device;
 using Core.Scripting;
 
 
-namespace ASR
+namespace Audio.ASR
 {
 	public interface IASRInterpreter :  IASRObserver, ILanguageUpdated, IDevice
 	{

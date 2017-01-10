@@ -20,7 +20,7 @@ using System;
 using Core.Device;
 
 
-namespace ASR
+namespace Audio.ASR
 {
 
 	public class ASRController : RemotlyAccessableDeviceBase, IASRController

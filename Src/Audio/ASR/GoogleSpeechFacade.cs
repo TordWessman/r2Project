@@ -24,7 +24,7 @@ using Core;
 using Newtonsoft.Json.Linq;
 
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class GoogleSpeechFacade
 	{

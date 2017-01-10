@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using Core.Device;
 using Core.Network;
 
-namespace ASR
+namespace Audio.ASR
 {
 	public class SphinxASRServer : DeviceBase, IASR, IEndpoint
 	{
