@@ -27,7 +27,10 @@ class MainClass < ScriptBase
 			return true
 		elsif (exec_assign line)
 			return true
-		end		
+		end	
+
+		OP::warn "Unable to interpret: " + line	
+
 		return true
 	end
 	

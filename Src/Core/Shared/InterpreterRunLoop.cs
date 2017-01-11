@@ -165,7 +165,7 @@ namespace Core
 
 		public IEnumerable<ILogMessage> GetHistory(int historyCount) {
 		
-			return m_logger.History.Take (historyCount);
+			return m_logger.History.Reverse().Take (historyCount);
 				
 		}
 

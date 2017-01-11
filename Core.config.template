@@ -45,7 +45,7 @@
 		<MemoryBus comment="communicates memories">membus</MemoryBus>
 		<Serializer>serializer</Serializer>
 		<DeviceFactory comment="default factory instance for general devices">device_factory</DeviceFactory>
-		<RunLoopScriptId comment="the id of the script running the show">main</RunLoopScriptId>
+		<RunLoopId comment="the id of the script running the show">run_loop</RunLoopId>
 		<TaskMonitor comment="keeps track of all running processes">task_monitor</TaskMonitor>
 		<Logger>log</Logger>
 		<ConsoleLogger>console_logger</ConsoleLogger>
@@ -53,6 +53,7 @@
 		<WebFactory>web_factory</WebFactory>
 	</Identifiers>
 	<Consts>
+		<MaxConsoleHistory type="int">200</MaxConsoleHistory>
 		<HttpPort type="int" comment="Default port for http server">4242</HttpPort>
 		<DefaultRpcPort type="int" comment="default server port">1234</DefaultRpcPort>
 		<BroadcastMgrPort type="int" comment="the port used by the host manager to broadcast">9050</BroadcastMgrPort>
