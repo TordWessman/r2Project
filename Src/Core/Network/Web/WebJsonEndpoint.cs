@@ -42,9 +42,9 @@ namespace Core.Network.Web
 		private System.Text.Encoding m_encoding;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Core.Network.Http.HttpJsonEndpoint`"/>.<br/>
+		/// Parsing the input as a dictionary.
 		/// responseURIPath is the URI path of which this interpeter listens to (i.e. '/devices')<br/>
-		/// receiver is the interface responsible of handle incoming input json.
+		/// receiver is the interface responsible of handle incoming input json and returning data in a suitable format.
 		/// </summary>
 		/// <param name="responsePath">Response path.</param>
 		/// <param name="responsePath">receiver</param>
@@ -112,7 +112,7 @@ namespace Core.Network.Web
 						//More user friendly error message upon posible duplicates.
 						Log.x(ex);
 
-						throw new System.ArgumentException ("Unable to add header parameter: '" + key + "' from request. Does it exist a duplicate in the Json-body?");
+						throw new System.ArgumentException ("Unable to add header parameter: '" + key + "' from request. Does it exist a duplicate in the JSON-body?");
 					}
 
 				}
@@ -123,8 +123,18 @@ namespace Core.Network.Web
 
 			m_extraHeaders.Add (outputObject.Headers);
 
-			string outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject.Data));
-			return m_encoding.GetBytes(outputString) ?? new byte[0];
+			if (outputObject.Data is byte[]) {
+			
+				//Data was returned in raw format. Return imediately.
+				return outputObject.Data as byte[];
+
+			} else {
+			
+				//Data will be serialized to a JSON object defore transformed into raw byte data.
+
+				string outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject.Data));
+				return m_encoding.GetBytes(outputString) ?? new byte[0];
+			}
 
 		}
 

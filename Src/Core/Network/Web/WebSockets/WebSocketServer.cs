@@ -23,6 +23,7 @@ using Core;
 using Core.Device;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 
 namespace Core.Network.Web
 {
@@ -73,16 +74,17 @@ namespace Core.Network.Web
 			Console.WriteLine (e.RawData);
 
 			if (m_endpoint != null) {
-			
-				//byte[] request = new byte[e.Data.Length * sizeof(char)];
-				//System.Buffer.BlockCopy(e.Data.ToCharArray(), 0, request, 0, request.Length);
+
 				byte[] request = m_encoding.GetBytes(e.Data);
 
 				byte[] response = m_endpoint.Interpret (request);
 				if (response != null && response.Length > 0) {
 
-					//m_endpoint.Interpret (e.RawData)
-					Send (response);
+					if (this.State == WebSocketState.Open) {
+
+						Send (response);
+
+					}
 
 				}
 
@@ -104,7 +106,11 @@ namespace Core.Network.Web
 
 		public void OnSend (byte[] data) {
 		
-			Send (data);
+			if (this.State == WebSocketState.Open) {
+			
+				Send (data);
+
+			}
 
 		}
 
@@ -143,7 +149,7 @@ namespace Core.Network.Web
 		}
 
 		public int Port { get { return m_server.Port; } }
-		public string Ip { get { return m_server.Address.ToString (); } }
+		public string Ip { get { return /*m_server.Address.ToString (); */ Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault ()?.ToString ();  } }
 
 		public override bool Ready { get { return m_server.IsListening; } }
 

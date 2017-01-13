@@ -41,7 +41,7 @@ namespace Core.Device
 		/// Returns a device with the specified identifier or null.
 		/// </summary>
 		/// <param name="identifier">Identifier.</param>
-		IDevice Get (string identifier);
+		dynamic Get (string identifier);
 
 		/// <summary>
 		/// Returns a device with the specified Guid.

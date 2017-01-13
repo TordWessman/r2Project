@@ -68,7 +68,8 @@ namespace Core.Network.Web
 					using (StreamReader reader = new StreamReader(request.InputStream, m_encoding))
 					{
 						bool didFindResponder = false;
-						byte[] responseBody = {};
+						//IEnumerable<byte> responseBody = new List<byte>();
+						byte[] responseBody;
 						byte[] requestBody = default(byte[]);
 
 						try {
@@ -96,7 +97,7 @@ namespace Core.Network.Web
 							Log.x (ex);
 
 							#if DEBUG
-							responseBody = ex.Message.ToByteArray (m_encoding);
+							responseBody = ("{ error:\"" + ex.Message + "\"}").ToByteArray (m_encoding);
 							#else
 							responseBuffer = "ERROR".ToByteArray(m_encoding);
 							#endif

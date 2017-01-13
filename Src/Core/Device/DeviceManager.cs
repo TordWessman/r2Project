@@ -166,7 +166,7 @@ namespace Core.Device
 
 		}
 
-		public IDevice Get (string identifier) {
+		public dynamic Get (string identifier) {
 
 			return Get<IDevice> (identifier);
 

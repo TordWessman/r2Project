@@ -39,7 +39,6 @@ namespace Core.Network.Web
 		private const string DefaultFileType = "text";
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="Core.Network.Http.HttpFileEndpoint"/> class.
 		/// image path is the local directory where the served files resides
 		/// responsePath is the response resource uri part (ie "/images")
 		/// </summary>
@@ -83,6 +82,15 @@ namespace Core.Network.Web
 
 			m_lastRequestedFileExtension = new Regex (ExtensionMatchRegexp).Match (imageName)?.Value ?? DefaultFileType;
 
+			using (FileStream file = new FileStream (fileName, FileMode.Open)) {
+			
+				//file.
+				using (StreamReader reader = new StreamReader (file)) {
+			
+					//reader.r
+				}
+			
+			}
 			return File.ReadAllBytes (fileName);
 
 		}

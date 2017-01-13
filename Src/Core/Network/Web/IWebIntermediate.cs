@@ -51,7 +51,7 @@ namespace Core.Network.Web
 		/// Returns all data contained in this object.
 		/// </summary>
 		/// <value>The data.</value>
-		dynamic Data { get; }
+		dynamic Data { get; set; }
 
 		/// <summary>
 		/// Returns all header fields in this object.

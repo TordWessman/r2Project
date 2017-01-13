@@ -68,7 +68,7 @@ namespace Core.Device
 		}
 
 		protected void NotifyChange(IDeviceNotification<object> deviceNotification) {
-		
+
 			m_observers.AsParallel ().ForAll (y => y.OnValueChanged (deviceNotification));
 
 		}

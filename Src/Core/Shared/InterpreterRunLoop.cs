@@ -25,7 +25,7 @@ using System.Linq;
 namespace Core
 {
 	
-	public class InterpreterRunLoop : DeviceBase, IRunLoop
+	public class InterpreterRunLoop : DeviceBase, IRunLoop, IDeviceObserver
 	{
 		// The string that is dislpayed before an executed command.
 		private const string COMMAND_DEFINITION = "> ";
@@ -167,6 +167,16 @@ namespace Core
 		
 			return m_logger.History.Reverse().Take (historyCount);
 				
+		}
+
+		public void OnValueChanged(IDeviceNotification<object> notification) {
+		
+			if (notification.Type == typeof(LogMessage)) {
+			
+				OnValueChanged (notification);
+
+			}
+
 		}
 
 		/// <summary>

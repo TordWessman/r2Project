@@ -118,17 +118,17 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 
 				m_queue.Enqueue (() => {
 
-					NotifyChange (message);
+					try {
 
-					if (Console.OpenStandardOutput ().CanWrite) {
+						NotifyChange (message);
 
-						SetConsoleColor(message.Type);
+					} catch (Exception ex) {
 
-						Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
-
-						SetConsoleColor( m_defaultColor);
+						_Write (new LogMessage ("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogType.Error));
 
 					}
+
+					_Write(message);
 
 				});
 
@@ -136,6 +136,20 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 
 		}
 			
+		private void _Write (ILogMessage message) {
+
+			if (Console.OpenStandardOutput ().CanWrite) {
+
+				SetConsoleColor(message.Type);
+
+				Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
+
+				SetConsoleColor( m_defaultColor);
+
+			}
+
+		}
+
 		private void SetConsoleColor (ConsoleColor color) {
 
 			if (Console.OpenStandardOutput ().CanWrite) {

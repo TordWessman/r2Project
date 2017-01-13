@@ -38,7 +38,7 @@ namespace Core.Network.Web
 
 		public IWebIntermediate New { get { return null; } }
 
-		public dynamic Data { get { return m_data; } }
+		public dynamic Data { get { return m_data; } set { m_data = value; } }
 
 		public NameValueCollection Headers { get { return new NameValueCollection(); } }
 	}

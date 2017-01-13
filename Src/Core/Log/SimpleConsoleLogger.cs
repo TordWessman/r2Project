@@ -55,8 +55,22 @@ namespace Core
 			
 			m_history.Push (message);
 
-			NotifyChange (message);
+			try {
+				
+				NotifyChange (message);
+			
+			} catch (Exception ex) {
+			
+				_Write (new LogMessage ("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogType.Error));
 
+			}
+
+			_Write (message);
+
+		}
+
+		private void _Write (ILogMessage message) {
+		
 			if (Console.OpenStandardOutput ().CanWrite) {
 
 				SetConsoleColor(message.Type);

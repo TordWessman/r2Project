@@ -36,6 +36,8 @@ namespace Core.Device
 			m_newValue = newValue;
 		}
 
+		public Type Type { get { return m_newValue?.GetType(); } }
+
 		/// <summary>
 		/// The string identifier (IDevice.Identifier) of the object changed.
 		/// </summary>

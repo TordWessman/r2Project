@@ -30,7 +30,7 @@ namespace Core.Network.Web
 	/// </summary>
 	public class RubyWebIntermediate: IWebIntermediate
 	{
-		private IDictionary<string, dynamic> m_data;
+		private dynamic m_data;
 		private NameValueCollection m_headers;
 
 		public RubyWebIntermediate ()
@@ -52,7 +52,11 @@ namespace Core.Network.Web
 
 		public IWebIntermediate New { get { return new RubyWebIntermediate(); } }
 
-		public dynamic Data { get { return m_data; } }
+		public dynamic Data {
+		
+			get { return m_data; }
+			set { m_data = value; }
+		}
 
 		public NameValueCollection Headers { get { return m_headers; } }
 

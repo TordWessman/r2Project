@@ -69,17 +69,14 @@ namespace Core.Network.Web {
 			/// </summary>
 			Invoke = 2,
 
-			/// <summary>
-			/// As with Invoke but returning the result of the invoked method.
-			/// </summary>
-			InvokeWithResponse = 3
 		}
 
 		public enum ParamType {
 		
 			Int = 0, // regular int32
 			Float = 1, // interpreted as float
-			String = 2
+			String = 2,
+			Null = 3 // Interpreted as null
 		}
 
 		/// <summary>

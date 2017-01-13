@@ -26,6 +26,12 @@ namespace Core.Device
 	public interface IDeviceNotification<T>
 	{
 		/// <summary>
+		/// The object type contained.
+		/// </summary>
+		/// <value>The type.</value>
+		Type Type { get; }
+
+		/// <summary>
 		/// The identifier of the device changed.
 		/// </summary>
 		/// <value>The identifier.</value>
