@@ -60,6 +60,7 @@ namespace Core
 
 		public static readonly ICollection<string> DEFAULT_RUBY_PATHS = new List<string> () {
 			Settings.Paths.Ruby(),
+			Settings.Paths.RubyLib(),
 			Settings.Paths.Common()
 		};
 

@@ -125,8 +125,12 @@ namespace Core.Network.Web
 
 			if (outputObject.Data is byte[]) {
 			
+				byte [] opd = outputObject.Data as byte[];
+
+				Log.t (opd.Length);
 				//Data was returned in raw format. Return imediately.
-				return outputObject.Data as byte[];
+
+				return opd;
 
 			} else {
 			

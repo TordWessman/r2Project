@@ -23,6 +23,11 @@ using System.Collections.Specialized;
 
 namespace Core.Network.Web
 {
+	//TODO: finish this class...
+
+	/// <summary>
+	/// Used as a raw intermediate type. 
+	/// </summary>
 	public class JsonObjectIntermediate : IWebIntermediate
 	{
 		private dynamic m_data;
@@ -32,13 +37,19 @@ namespace Core.Network.Web
 			m_data = data; 
 		}
 
+		public void SetRawData(byte[] data) {
+
+			m_data = data;
+
+		}
+
 		public void AddHeader(string key, string value) {}
 
 		public void SetValue(string key, dynamic value) {}
 
 		public IWebIntermediate New { get { return null; } }
 
-		public dynamic Data { get { return m_data; } set { m_data = value; } }
+		public dynamic Data { get { return m_data; }  }
 
 		public NameValueCollection Headers { get { return new NameValueCollection(); } }
 	}

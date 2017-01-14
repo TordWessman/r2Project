@@ -7,6 +7,8 @@
 		</r2ProjectDirectory>
 
 		<Common relative="./r2Project/Common" comment="Shared project resources path."/>
+		<!-- RubyLib path should be pointing at the location where the standard ruby components resides. -->
+		<RubyLib comment="Standard ruby libraries." absolute="/usr/lib/ruby/2.1.0" />
 
 		<Resources comment="Resource base path." relative="./Resources">
 			<Scripts comment="contains various types of runtime scripts">

@@ -28,6 +28,12 @@ namespace Core.Network.Web
 	public interface IWebIntermediate
 	{
 		/// <summary>
+		/// Will set (and overwrite) the data contained. Use this to set raw data (binary files, images etc).
+		/// </summary>
+		/// <param name="data">Data.</param>
+		void SetRawData (byte[] data);
+
+		/// <summary>
 		/// Adds a header field to this object.
 		/// </summary>
 		/// <param name="key">Key.</param>
@@ -51,7 +57,7 @@ namespace Core.Network.Web
 		/// Returns all data contained in this object.
 		/// </summary>
 		/// <value>The data.</value>
-		dynamic Data { get; set; }
+		dynamic Data { get;}
 
 		/// <summary>
 		/// Returns all header fields in this object.

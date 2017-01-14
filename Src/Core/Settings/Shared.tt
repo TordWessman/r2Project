@@ -148,7 +148,7 @@
 			pathsString += GetPaths(baseDir, path, node, isExtension) + "";
 	
 		}
-	
+
 		return pathsString;
 	
 	}
@@ -165,6 +165,11 @@
 			absoluteDirectoryPath = baseDir + Path.DirectorySeparatorChar + pathNode.Attributes["relative"].Value;
 			directoryPath = System.IO.Path.DirectorySeparatorChar + pathNode.Attributes["relative"].Value;
 		
+		} else if (pathNode.Attributes["absolute"] != null) { 
+
+			absoluteDirectoryPath = pathNode.Attributes["absolute"].Value;
+			directoryPath = pathNode.Attributes["absolute"].Value;
+		
 		}
 
 		if (!Directory.Exists(absoluteDirectoryPath)) {
@@ -175,9 +180,9 @@
 
 		return "\t\t\t" + (isExtension ? "public static string " : "public string ") + pathNode.Name  + " (" + (isExtension ? "this Settings.PathsClass self, " : "") + "string fileName = null) {\n\n" +
 "				if (fileName == null) {\n" +
-"					return Settings.BasePath + \"" + directoryPath + "\";\n" +
+"					return " + ( pathNode.Attributes["absolute"] != null ? "" : "Settings.BasePath + " ) + "\"" + directoryPath + "\";\n" +
 "				}\n" +
-"				return Settings.BasePath + \"" + directoryPath + "\" + System.IO.Path.DirectorySeparatorChar + fileName;\n" +
+"				return " + ( pathNode.Attributes["absolute"] != null ? "" : "Settings.BasePath + " ) + "\"" + directoryPath + "\" + System.IO.Path.DirectorySeparatorChar + fileName;\n" +
 "			}\n\n";
 	} 
 

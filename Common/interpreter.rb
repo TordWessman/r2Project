@@ -165,8 +165,9 @@ class MainClass < ScriptBase
 				
 				if (command_output != nil) 
 					OP::msg command_output
-					return command_output
 				end
+				
+				return true
 
 			end
 
@@ -182,7 +183,7 @@ class MainClass < ScriptBase
 			#	end
 		end
 
-		return nil
+		return false
 	
 	end
 

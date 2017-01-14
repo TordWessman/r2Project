@@ -46,7 +46,19 @@ namespace Core.Network.Web
 
 		public void SetValue(string key, dynamic value) {
 
+			if (m_data is Dictionary<string, dynamic>) {
+			
+				m_data = new Dictionary<string, dynamic> ();
+
+			}
+
 			m_data.Add(key, ParseValue(value));
+
+		}
+
+		public void SetRawData(byte[] data) {
+		
+			m_data = data;
 
 		}
 
@@ -55,7 +67,6 @@ namespace Core.Network.Web
 		public dynamic Data {
 		
 			get { return m_data; }
-			set { m_data = value; }
 		}
 
 		public NameValueCollection Headers { get { return m_headers; } }

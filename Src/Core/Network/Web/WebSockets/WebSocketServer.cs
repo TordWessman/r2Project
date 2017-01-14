@@ -71,7 +71,6 @@ namespace Core.Network.Web
 		{
 			Core.Log.d ("OnMessage");
 			Core.Log.t (e.Data);
-			Console.WriteLine (e.RawData);
 
 			if (m_endpoint != null) {
 

@@ -220,6 +220,9 @@
     <Compile Include="Network\Web\DeviceRouter.cs" />
     <Compile Include="Shared\IConsole.cs" />
     <Compile Include="Log\LogMessage.cs" />
+    <Compile Include="Settings\Shared.cs">
+      <DependentUpon>Shared.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
