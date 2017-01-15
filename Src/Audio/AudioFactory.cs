@@ -51,6 +51,20 @@ namespace Audio
 			return new SphinxASRServer(id, lm, dic, hmmDir);
 
 		}
+
+		/// <summary>
+		/// Will create a server that only deliver input to speakers
+		/// </summary>
+		/// <returns>The mic receiver.</returns>
+		/// <param name="id">Identifier.</param>
+		/// <param name="port">Port.</param>
+		/// <param name="hostIp">Host ip.</param>
+		public IASR CreateMicReceiver(string id, int port, string hostIp) {
+
+			return new SphinxASRServer(id, port, hostIp, null, null, null, true);
+
+		}
+
 	}
 }
 

@@ -9,6 +9,7 @@ ESPEAK_LIB=lib$(ESPEAK).so
 MP3_LIB=lib$(MP3).so
 SPHINX_LIB=lib$(SPHINX).so
 
+
 all: espeak mp3 sphinx
 
 espeak:
@@ -22,8 +23,10 @@ mp3:
 sphinx:
 	$(CC) $(PREFIX) $(SPHINX).c -o $(SPHINX_LIB) $(CFLAGS)
 	cp $(SPHINX_LIB) $(R2_LIB_DIR)
+
 clean:
 	rm *.so
 	rm $(R2_LIB_DIR)$(MP3_LIB)
 	rm $(R2_LIB_DIR)$(ESPEAK_LIB)
+	rm $(R2_LIB_DIR)$(SPHINX_LIB)
 

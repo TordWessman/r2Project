@@ -172,6 +172,12 @@ namespace GPIO
 			return new OutputPort(id, output);
 		}
 
+		public IDHT11 CreateDTH11(string id, int pin) {
+		
+			return new DHT11 (id, pin);
+
+		}
+
 		public void PrintPorts() {
 			foreach (int portNum in m_pinConfiguration.Keys) {
 				if (m_ioPortsUsed[(int)m_pinConfiguration[portNum]]) {
@@ -191,6 +197,8 @@ namespace GPIO
 
 			return m_pinConfiguration[number];
 		}
+
+	
 	}
 }
 

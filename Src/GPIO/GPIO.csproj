@@ -84,6 +84,8 @@
     <Compile Include="GPIOFactory2.cs" />
     <Compile Include="Output\OutputPort2.cs" />
     <Compile Include="Input\InputPort2.cs" />
+    <Compile Include="Input\IDHT11.cs" />
+    <Compile Include="Input\DHT11.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

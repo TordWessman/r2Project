@@ -23,14 +23,14 @@
 static const char*(*text_received)(const char *message);				//delegate method for sending messages
 static const char*(*report_error)(int type, const char *message);	//delegate method for reporting back error
 
-static bool is_active = true, is_running = false, use_tcp_server = false, should_turn_off = false;
+static bool is_active = true, is_running = false, use_tcp_server = false, should_turn_off = false, dry_run = false;
 static int m_port = 5002, error_count = 0;
 static const char *m_hostIp;
 static GMainLoop *loop;
 
 #define MAX_ERROR_RETRIES 10
 
-GstElement *pipeline, *source, *decoder, *sink, *audioconvert, *audioresample;
+GstElement *pipeline, *source, *gdpdepay,  *decoder, *sink, *audioconvert, *audioresample;
 
 static GstBus *bus;	//the bus element te transport messages from/to the pipeline
 guint bus_watch_id;
@@ -136,6 +136,7 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 		source = gst_element_factory_make("tcpserversrc", "audiosrc");
 		g_object_set(G_OBJECT(source), "port", m_port, NULL);
 		g_object_set(G_OBJECT(source), "host", m_hostIp, NULL);
+		gdpdepay = gst_element_factory_make("gdpdepay", "gdpdepay");
 
 	} else {
 
@@ -146,14 +147,22 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
     	pipeline = gst_pipeline_new("asr_pipeline");
 	audioconvert = gst_element_factory_make("audioconvert", "audioconvert");
 	audioresample = gst_element_factory_make("audioresample", "audioresample");
-    	decoder = gst_element_factory_make("pocketsphinx", "asr");
-    	sink = gst_element_factory_make("fakesink", "output");
 
+	if (dry_run) {
 
-    gst_bin_add_many(GST_BIN(pipeline), source, audioconvert , audioresample , decoder, sink, NULL);
+	    	decoder = gst_element_factory_make("queue", "queue");
+	    	sink = gst_element_factory_make("autoaudiosink", "output");	
+		
+	} else {
 
-	if (!gst_element_link_filtered( source, audioconvert,
-		gst_caps_new_simple("audio/x-raw",
+	    	decoder = gst_element_factory_make("pocketsphinx", "asr");
+	    	sink = gst_element_factory_make("fakesink", "output");
+
+	}
+
+    gst_bin_add_many(GST_BIN(pipeline), source, gdpdepay, audioconvert , audioresample , decoder, sink, NULL);
+
+	GstCaps *caps = gst_caps_new_simple("audio/x-raw",
 		"rate", G_TYPE_INT, 16000,
 		"depth", G_TYPE_INT, 16,	
 		"width", G_TYPE_INT, 16,
@@ -162,15 +171,20 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 		"signed", G_TYPE_BOOLEAN, true,
 		"layoun", G_TYPE_STRING, "interleaved",
 		"format", G_TYPE_STRING, "S16LE",
-		NULL))) {
+		NULL);
 
-		return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to converter!"); 
+	if (use_tcp_server) {
+
+		if (!gst_element_link_many ( source, gdpdepay, NULL)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to source to gdpdepap!");  }
+		if (!gst_element_link_filtered( gdpdepay, audioconvert, caps)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link gdpdepay to audioconvert!");  }
+
+	} else {
+
+		if (!gst_element_link_filtered( source, audioconvert, caps)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to converter!");  }
+
+	} 
 	
-	}
-	
-	if (!gst_element_link_many(audioconvert , audioresample , decoder, sink, NULL)) {
-	 	return send_error(ASR_ERROR_LINK_FAILED, "Unable to link elements!");
-	}
+	if (!gst_element_link_many(audioconvert , audioresample , decoder, sink, NULL)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link elements!"); }
 
 	if (hmm_file && lm_file && dict_file) {
 
@@ -247,10 +261,11 @@ void _ext_asr_set_report_error_callback (const char*(*report_error_callback)(int
 
 int _ext_asr_init (const char*(*text_received_callback)(const char *message ),
 		  const char*(*report_error_callback)(int type, const char *message),
-		  const char *lm_file, const char *dict_file, const char *hmm_file, int port, const char *hostIp, bool as_server)
+		  const char *lm_file, const char *dict_file, const char *hmm_file, int port, const char *hostIp, bool as_server, bool using_dry_run)
 {
 
 	use_tcp_server = as_server;
+	dry_run = using_dry_run;
 
 	_ext_asr_set_text_received_callback(text_received_callback);
 	_ext_asr_set_report_error_callback(report_error_callback);
@@ -353,7 +368,7 @@ int main (int argc, char *argv[])
 			NULL, //arpa
 			NULL, //dict
 			NULL, //language model
-			5005, "192.168.0.10", false ) == 0) {
+			3333, "192.168.1.143", true, true ) == 0) {
 		_ext_asr_start ();
 
 		while (is_running) {

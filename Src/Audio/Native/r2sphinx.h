@@ -56,10 +56,11 @@ int _ext_asr_start ();
 	*) dictFile: is the path to the dictionary file
 	*) hmmFile: is the path to the file containing the audio vocabulary file
 	*) as_server: if true, the src element will not be autoaudiosrc, but a tcpserversrc
+	*) using_dry_run: if true, the ASR will be omitted and audio transfered to autoaudiosink
 **/
 int _ext_asr_init (const char*(*textReceivedCallback)(const char *message ),
 		  const char*(*reportErrorCallback)(int type, const char *message),
-		  const char *lmFile, const char *dictFile, const char *hmmFile, int port, const char* hostIp,  bool as_server);
+		  const char *lmFile, const char *dictFile, const char *hmmFile, int port, const char* hostIp,  bool as_server, bool using_dry_run);
 		  
 void _ext_asr_set_text_received_callback(const char*(*text_received_callback)(const char *message ));
 void _ext_asr_set_report_error_callback (const char*(*report_error_callback)(int type, const char *message));

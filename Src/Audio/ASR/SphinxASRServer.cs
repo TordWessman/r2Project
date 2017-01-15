@@ -59,7 +59,8 @@ namespace Audio.ASR
 		    string hmmFile,
 			int port,
 			string hostIp,
-			bool as_server);
+			bool as_server,
+			bool using_dry_run);
 		
 
 		protected bool m_isRunning;
@@ -86,7 +87,7 @@ namespace Audio.ASR
 		public SphinxASRServer (string id, string lm = null, string dic = null, string hmmDir = null)
 			: base (id) {
 
-			initialize (null, 0, lm, dic, hmmDir, false);
+			initialize (null, 0, lm, dic, hmmDir, false, false);
 
 		}
 
@@ -99,14 +100,14 @@ namespace Audio.ASR
 		/// <param name="lm">Lm.</param>
 		/// <param name="dic">Dic.</param>
 		/// <param name="hmmDir">Hmm dir.</param>
-		public SphinxASRServer (string id, int port, string hostIp, string lm = null, string dic = null, string hmmDir = null)
+		public SphinxASRServer (string id, int port, string hostIp, string lm = null, string dic = null, string hmmDir = null, bool dryRun = false)
 			: base (id)
 		{
-			initialize (hostIp, port, lm, dic, hmmDir, true);
+			initialize (hostIp, port, lm, dic, hmmDir, true, dryRun);
 		}
 
 
-		public void initialize (string hostIp, int port, string lm, string dic, string hmmDir, bool as_tcp_server)
+		public void initialize (string hostIp, int port, string lm, string dic, string hmmDir, bool as_tcp_server,  bool dryRun = false)
 		{
 
 			m_ip = hostIp;
@@ -137,7 +138,8 @@ namespace Audio.ASR
 				    lm, dic, hmmDir,
 				    port,
 				    hostIp,
-					as_tcp_server
+					as_tcp_server,
+					dryRun
 
 			    ) != 0) {
 
