@@ -75,7 +75,7 @@ namespace Core
 
 				SetConsoleColor(message.Type);
 
-				Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
+				Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + "[" +  message.TimeStamp + "] " + message.Message);
 
 				SetConsoleColor( m_defaultColor);
 

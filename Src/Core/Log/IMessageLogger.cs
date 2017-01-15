@@ -51,6 +51,12 @@ namespace Core
 		/// <value>The tag.</value>
 		string Tag { get; }
 
+		/// <summary>
+		/// Time of log message creation
+		/// </summary>
+		/// <value>The time stamp.</value>
+		DateTime TimeStamp { get; }
+
 	}
 
 	public interface IMessageLogger

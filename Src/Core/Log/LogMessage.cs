@@ -28,12 +28,15 @@ namespace Core
 		private object m_message;
 		private LogType m_type;
 		private string m_tag;
+		private DateTime m_creationTime;
 
 		public LogMessage(object message, LogType type, string tag = null) {
 
 			m_message = message;
 			m_type = type;
 			m_tag = tag;
+
+			m_creationTime = DateTime.Now;
 
 		}
 
@@ -43,7 +46,8 @@ namespace Core
 
 		public string Tag { get { return m_tag; } }
 
-	
+		public DateTime TimeStamp { get { return m_creationTime; } } 
+
 	}
 }
 
