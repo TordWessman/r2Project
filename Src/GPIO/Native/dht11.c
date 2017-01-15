@@ -2,6 +2,8 @@
 
 // Install wiringpi in order for this to work..
 
+#include "dht11.h"
+
 #include <wiringPi.h>
  
 #include <stdio.h>

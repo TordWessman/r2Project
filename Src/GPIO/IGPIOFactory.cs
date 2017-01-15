@@ -71,6 +71,8 @@ namespace GPIO
 		/// <param name="gpioPort">Gpio port.</param>
 		IOutputPort CreateOutputPort (string id, int gpioPort);
 
+		IDHT11 CreateTempHumidity (string id, int pin);
+
 	}
 }
 

@@ -66,6 +66,12 @@ namespace GPIO
 
 		}
 
+		public IDHT11 CreateTempHumidity(string id, int pin) {
+		
+			throw new NotImplementedException ();
+
+		}
+
 	}
 }
 
