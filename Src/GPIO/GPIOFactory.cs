@@ -172,7 +172,7 @@ namespace GPIO
 			return new OutputPort(id, output);
 		}
 
-		public IDHT11 CreateDTH11(string id, int pin) {
+		public IDHT11 Create11(string id, int pin) {
 		
 			return new DHT11 (id, pin);
 
