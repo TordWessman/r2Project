@@ -68,15 +68,11 @@ obj/*.txt
 **/Debug/*.exe
 **/Release/*.exe
 *ConfigurationTemplate.cs
-Makefile
 config.status
 Shared.cs
 
 # binary directories
 Src/Core/bin/Debug/*
-Implementations/Node/Node/bin/Debug/*
-Implementations/MainFramePi/MainFramePi/bin/Debug/*
 Src/GPIO/bin/Debug/*
 Src/Video/bin/Debug/*
-Implementations/MainFrame/MainFrame/bin/Debug/*
 Src/Audio/bin/Debug/*

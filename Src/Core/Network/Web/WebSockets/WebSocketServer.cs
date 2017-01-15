@@ -69,8 +69,8 @@ namespace Core.Network.Web
 
 		protected override void OnMessage (MessageEventArgs e)
 		{
-			Core.Log.d ("OnMessage");
-			Core.Log.t (e.Data);
+			Core.Log.d ("Web socket: OnMessage");
+			//Core.Log.t (e.Data);
 
 			if (m_endpoint != null) {
 
@@ -93,14 +93,14 @@ namespace Core.Network.Web
 
 		protected override void OnClose (CloseEventArgs e)
 		{
-			Core.Log.d ("OnClose");
+			Core.Log.d ("Web socket: OnClose");
 
 			//Sessions.Broadcast (String.Format ("{0} got logged off...", _name));
 		}
 
 		protected override void OnOpen ()
 		{
-			Core.Log.d ("OnOpen");
+			Core.Log.d ("Web socket: OnOpen");
 		}
 
 		public void OnSend (byte[] data) {

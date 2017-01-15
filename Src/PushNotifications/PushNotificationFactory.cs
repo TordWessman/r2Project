@@ -18,6 +18,7 @@
 
 ﻿using System;
 using System.IO;
+using Core.Device;
 
 namespace PushNotifications
 {
@@ -63,6 +64,13 @@ namespace PushNotifications
 			 appleCertFile = appleCertFile == null ? DEFAULT_APPLE_CERT_FILE : appleCertFile;
 
 			return new ApplePushNotificationFacade (id, m_certPath + appleCertFile, password);
+		}
+
+		public IPushNotificationProxy CreateHandler(string id, IMemorySource memory) {
+		
+			return new PushNotificationHandler (id, memory);
+
+
 		}
 	}
 }

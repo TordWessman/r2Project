@@ -28,9 +28,9 @@ namespace PushNotifications
 	public class PushNotificationHandler : DeviceBase, IPushNotificationProxy
 	{
 
-		private const string PUSH_CLIENT_ID = "push_client_id";
-		private const string PUSH_CLIENT_TYPE = "push_client_type";
-		private const string PUSH_CLIENT_TOKEN = "push_client_token";
+		public const string PUSH_CLIENT_ID = "push_client_id";
+		public const string PUSH_CLIENT_TYPE = "push_client_type";
+		public const string PUSH_CLIENT_TOKEN = "push_client_token";
 
 		private IMemorySource m_memory;
 		private ICollection<IPushNotificationFacade> m_facades;
