@@ -223,6 +223,8 @@
     <Compile Include="Settings\Shared.cs">
       <DependentUpon>Shared.tt</DependentUpon>
     </Compile>
+    <Compile Include="Scripting\IScriptInterpreter.cs" />
+    <Compile Include="Scripting\Ruby\RubySrlptInterpreter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

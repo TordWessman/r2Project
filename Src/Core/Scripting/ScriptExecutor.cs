@@ -26,22 +26,22 @@ namespace Core.Scripting
 	/// <summary>
 	/// Implementation of an IScriptExecutor. Remotely accissble (which allows communication with scripts created on other instances).
 	/// </summary>
-	public class ScriptExecutor : RemotlyAccessableDeviceBase, IScriptExecutor, IScriptObserver
+	public class ScriptExecutor<T> : RemotlyAccessableDeviceBase, IScriptExecutor, IScriptObserver where T: IScript
 	{
 		
 		private IDictionary<string, IScriptProcess> m_scripts;
 		private IDeviceManager m_deviceManager;
 		private ITaskMonitor m_taskMonitor;
-		private IScriptFactory m_scriptFactory;
+		private IScriptFactory<T> m_scriptFactory;
 		private Random m_random;
 		private string m_scriptId;
 		private string m_currentScriptId;
 		
-		public ScriptExecutor (string id, 
-		                       string scriptId,
-		                      IDeviceManager deviceManager,
-		                      ITaskMonitor taskMonitor, 
-		                      IScriptFactory scriptFactory) : base(id)
+		public ScriptExecutor (	string id, 
+		                       	string scriptId,
+		                      	IDeviceManager deviceManager,
+		                      	ITaskMonitor taskMonitor, 
+								IScriptFactory<T> scriptFactory) : base(id)
 		{
 
 			m_deviceManager = deviceManager;

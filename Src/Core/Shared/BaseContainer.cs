@@ -50,8 +50,7 @@ namespace Core
 		private DeviceFactory m_deviceFactory;
 		
 		private IDatabase m_db;
-		private IScriptFactory m_scriptFactory;
-		private IScript m_runLoopScript;
+		private IScriptFactory<RubyScript> m_scriptFactory;
 		private IRunLoop m_runLoop;
 		
 		private Serializer m_serializer;
@@ -151,12 +150,13 @@ namespace Core
 			    m_taskMonitor);
 
 			// The run loop script must meet the method requirements of the InterpreterRunLoop.
-			m_runLoopScript = m_scriptFactory.CreateScript (
+			RubyScript runLoopScript = m_scriptFactory.CreateScript (
 				Settings.Identifiers.RunLoopId() + "_script" ,
 				Settings.Paths.Common(Settings.Consts.RunLoopScript()));
 
+			IScriptInterpreter runLoopInterpreter = m_scriptFactory.CreateInterpreter (runLoopScript);
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
-			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoopId (), m_runLoopScript, consoleLogger);
+			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoopId (), runLoopInterpreter, consoleLogger);
 
 			// Set up database and memory
 			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbPath);
@@ -169,7 +169,7 @@ namespace Core
 			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory());
 
 			// Add devices to device manager
-			m_devices.Add (m_runLoopScript);
+			m_devices.Add (runLoopScript);
 			m_devices.Add (m_runLoop);
 			m_devices.Add (httpFactory);
 			m_devices.Add (m_serializer);

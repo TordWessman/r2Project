@@ -24,16 +24,16 @@ using Core.Scripting;
 
 namespace Audio.ASR
 {
-	public class CommandInterpreter : ILanguageUpdated
+	public class CommandInterpreter<T> : ILanguageUpdated where T: IScript
 	{
 		private string m_xmlLanguageFile;
 		private List<string> m_commands;
-		private IScriptFactory m_commandScriptFactory;
+		private IScriptFactory<T> m_commandScriptFactory;
 		private string m_commandScriptTemplateFileName;
 		
-		public CommandInterpreter (string xmlLanguageFile,
-		                           string commandScriptTemplateFile,
-		                           IScriptFactory commandScript)
+		public CommandInterpreter (	string xmlLanguageFile,
+		                           	string commandScriptTemplateFile,
+									IScriptFactory<T> commandScript)
 		{
 			m_xmlLanguageFile = xmlLanguageFile;
 			Reload ();

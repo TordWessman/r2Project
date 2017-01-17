@@ -27,16 +27,16 @@ namespace Core.Scripting
 	/// <summary>
 	/// Remotly accessible implementation of a IScriptExecutorFactory. Use the Create on a remote ScriptExecutorFactory in order to create a (remotly accessible) script on a remote machine.
 	/// </summary>
-	public class ScriptExecutorFactory : RemotlyAccessableDeviceBase, IScriptExecutorFactory
+	public class ScriptExecutorFactory<T> : RemotlyAccessableDeviceBase, IScriptExecutorFactory where T : IScript
 	{
 		private IDeviceManager m_deviceManager;
 		private ITaskMonitor m_taskMonitor;
-		private IScriptFactory m_scriptFactory;
+		private IScriptFactory<T> m_scriptFactory;
 		
 		public ScriptExecutorFactory (string id,
 		                      IDeviceManager deviceManager,
 		                      ITaskMonitor taskMonitor, 
-		                      IScriptFactory scriptFactory) : base (id)
+			IScriptFactory<T> scriptFactory) : base (id)
 		{
 		
 			m_deviceManager = deviceManager;
@@ -57,7 +57,7 @@ namespace Core.Scripting
 			
 			}
 				
-			IScriptExecutor executor = new ScriptExecutor (id, 
+			IScriptExecutor executor = new ScriptExecutor<T> (id, 
 			                                               scriptId,
 			                                               m_deviceManager,
 			                                               m_taskMonitor,

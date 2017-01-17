@@ -30,7 +30,7 @@ namespace Core
 		// The string that is dislpayed before an executed command.
 		private const string COMMAND_DEFINITION = "> ";
 
-		private IScript m_interpreterScript;
+		private IScriptInterpreter m_interpreter;
 		private bool m_shouldRun;
 		private IList<string> m_history;
 		private int m_historyPosition;
@@ -44,9 +44,9 @@ namespace Core
 		/// <param name="id">Identifier.</param>
 		/// <param name="script">Script.</param>
 		/// <param name="logger">LOgger.</param>
-		public InterpreterRunLoop (string id, IScript script, IMessageLogger logger) : base (id) {
+		public InterpreterRunLoop (string id, IScriptInterpreter interpreter, IMessageLogger logger) : base (id) {
 		
-			m_interpreterScript = script;
+			m_interpreter = interpreter;
 			m_history = new List<string> ();
 			m_logger = logger;
 
@@ -159,7 +159,7 @@ namespace Core
 
 			// If @interpret returns false, the run loop should quit.
 
-			m_shouldRun = m_interpreterScript.MainClass.@interpret (text);
+			m_shouldRun = m_interpreter.Interpret (text);
 
 		}
 

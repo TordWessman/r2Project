@@ -28,7 +28,7 @@ namespace Core.Scripting
 	/// <summary>
 	/// Implementation of a script factory. Used to create ruby scripts.
 	/// </summary>
-	public class RubyScriptFactory : DeviceBase, IScriptFactory
+	public class RubyScriptFactory : DeviceBase, IScriptFactory<RubyScript>
 	{
 		private string m_scriptSourcePath;
 		private IDeviceManager m_deviceManager;
@@ -80,7 +80,7 @@ namespace Core.Scripting
 
 		}
 
-		public IScriptProcess CreateProcess (string id, IScript script) {
+		public IScriptProcess CreateProcess (string id, RubyScript script) {
 
 			IScriptProcess process = new RubyProc (id, script);
 
@@ -93,41 +93,8 @@ namespace Core.Scripting
 			return process;
 
 		}
-
-		/*
-		public IScriptProcess CreateProcess (string id, string sourceFile = null,
-		                      object[] args = null)
-		{
 			
-			
-			IScriptProcess script = new RubyProcess (id, 
-				GetSourceFilePath(id,sourceFile),
-			                       m_paths,
-			                       m_deviceManager);
-			
-			
-			if (args != null) {
-
-				script.SetArgs (args);
-			
-			} else {
-			
-				script.SetArgs ( null);
-			
-			}
-
-			foreach (Task task in script.GetTasksToObserve().Values) {
-			
-				m_taskMonitor.AddTask(script.Identifier, task);
-
-			}
-
-			
-			return script;
-		
-		}*/
-
-		public IScript CreateScript (string id, string sourceFile = null) {
+		public RubyScript CreateScript (string id, string sourceFile = null) {
 		
 			return new RubyScript (id,
 				GetSourceFilePath(id,sourceFile),
@@ -156,6 +123,12 @@ namespace Core.Scripting
 
 			return sourceFilePath;
 		
+		}
+
+		public IScriptInterpreter CreateInterpreter(RubyScript script) {
+
+			return new RubySrlptInterpreter (script);
+
 		}
 
 	}

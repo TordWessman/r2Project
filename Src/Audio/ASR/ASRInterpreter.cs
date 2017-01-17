@@ -25,13 +25,13 @@ using System.Threading.Tasks;
 
 namespace Audio.ASR
 {
-	public class ASRInterpreter : DeviceBase, IASRInterpreter
+	public class ASRInterpreter<T> : DeviceBase, IASRInterpreter where T: IScript
 	{
 		private string m_TTSId;
 		private ISpeechInterpreter m_speechInterpreter;
 		private IASR m_asr;
 		private IDeviceManager m_deviceManager;
-		private CommandInterpreter m_commandInterpreter;
+		private CommandInterpreter<T> m_commandInterpreter;
 		
 		private IConversationLock m_conversationLock;
 		private Bot m_bot;
@@ -40,7 +40,7 @@ namespace Audio.ASR
 		private bool m_ttsMode;
 		
 		public ASRInterpreter (string id, ISpeechInterpreter speechInterpreter,
-		                       CommandInterpreter commandInterpreter,
+							CommandInterpreter<T> commandInterpreter,
 		                       IASR asr, IDeviceManager deviceManager, ITaskMonitor taskMonitor,
 		                      string aimlPath,
 		                   	  string settingsPath = "/../aimlConfig",
