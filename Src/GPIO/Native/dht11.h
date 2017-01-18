@@ -2,13 +2,12 @@
 
 // Install wiringpi in order for this to work..
 
-void _ext_dht11_init(int pin);
+#include <stdbool.h>
 
-int _ext_dht11_get_temp_h();
-int _ext_dht11_get_temp_l();
+bool _ext_dht11_init(int pin);
 
-int _ext_dht11_get_h_h();
-int _ext_dht11_get_h_l();
+int _ext_dht11_get_temp();
+int _ext_dht11_get_humidity();
 
 void _ext_dht11_start();
 

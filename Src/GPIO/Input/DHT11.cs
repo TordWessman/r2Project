@@ -13,16 +13,10 @@ namespace GPIO
 		protected static extern bool _ext_dht11_init (int pin);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_dht11_get_temp_h();
+		protected static extern int _ext_dht11_get_temp();
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_dht11_get_temp_l();
-
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_dht11_get_h_h();
-
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_dht11_get_h_l();
+		protected static extern int _ext_dht11_get_humidity();
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern int _ext_dht11_start();
@@ -44,24 +38,15 @@ namespace GPIO
 
 		}
 
+		public int Temperature {  get { return _ext_dht11_get_temp(); } }
 
+		public int Humidity  {  get { return _ext_dht11_get_humidity(); } }
 
-		public float Temperature {  get {
-				
-				return Parse (_ext_dht11_get_temp_h(), _ext_dht11_get_temp_l());
-			
-			}
-		
-		}
-
-		public float Humidity  {  get {
-				
-				return Parse (_ext_dht11_get_h_h(), _ext_dht11_get_h_l());
-			}
-		}
+		public override bool Ready { get { return _ext_dht11_is_running (); } }
 
 		public override void Start ()
 		{
+			
 			Task.Factory.StartNew (() => {
 
 				_ext_dht11_start ();
@@ -72,33 +57,23 @@ namespace GPIO
 
 		public override void Stop ()
 		{
+			
 			_ext_dht11_stop ();
+		
 		}
 
-		public override bool Ready {
-			get {
-				return _ext_dht11_is_running ();
-			}
-		}
-
-		private float Parse(int integer, int dec) {
-	
-			return float.Parse( integer + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + dec);
-
-		}
-
-
-		public IInputMeter<float> GetHumiditySensor(string id) {
+		public IInputMeter<int> GetHumiditySensor(string id) {
 		
 			return new DHT11Sensor (id, this, DHT11Sensor.DHT11ValueType.Humidity);
 		
 		}
 
-		public IInputMeter<float> GetTemperatureSensor(string id) {
+		public IInputMeter<int> GetTemperatureSensor(string id) {
 		
 			return new DHT11Sensor (id, this, DHT11Sensor.DHT11ValueType.Temperature);
 
 		}
-	}
-}
 
+	}
+
+}
