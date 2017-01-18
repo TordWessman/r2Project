@@ -74,7 +74,7 @@ namespace Core.Network.Web {
 		public enum ParamType {
 		
 			Int = 0, // regular int32
-			Float = 1, // interpreted as float
+			Float = 1, // interpreted as double
 			String = 2,
 			Null = 3 // Interpreted as null
 		}
@@ -91,7 +91,7 @@ namespace Core.Network.Web {
 
 				if (paramContainer.Type == (int)ParamType.Float) {
 					
-					return (float) paramContainer.RawValue;
+					return (double) paramContainer.RawValue;
 				
 				} else if (paramContainer.Type == (int)ParamType.Int) {
 				
