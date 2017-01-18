@@ -37,12 +37,12 @@ namespace GPIO
 		{
 		}
 
-		public IInputMeter CreateInputMeter (string id, GPIOTypes type, int adcPort) {
+		public IInputMeter<int> CreateInputMeter (string id, GPIOTypes type, int adcPort) {
 		
 			throw new NotImplementedException ();
 		}
 			
-		public IInputMeter CreateInputMeter (string id, int type, int adcPort) {
+		public IInputMeter<int> CreateInputMeter (string id, int type, int adcPort) {
 		
 			throw new NotImplementedException ();
 

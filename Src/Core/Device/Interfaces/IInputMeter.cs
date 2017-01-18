@@ -22,9 +22,9 @@ using Core.Device;
 
 namespace Core.Device
 {
-	public interface IInputMeter : IDevice
+	public interface IInputMeter<T> : IDevice
 	{
-		int Value { get;}
+		T Value { get;}
 	}
 }
 

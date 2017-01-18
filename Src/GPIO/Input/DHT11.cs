@@ -10,7 +10,7 @@ namespace GPIO
 		private const string dllPath = "libdht11.so";
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_dht11_init (int pin);
+		protected static extern bool _ext_dht11_init (int pin);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern int _ext_dht11_get_temp_h();
@@ -36,9 +36,15 @@ namespace GPIO
 		public DHT11 (string id, int pin): base (id)
 		{
 
-			_ext_dht11_init (pin);
+			if (!_ext_dht11_init (pin)) {
+			
+				throw new ApplicationException ("Unable to start DHT11. Initialization failed. Is wiringPi installed?");
+			
+			}
 
 		}
+
+
 
 		public float Temperature {  get {
 				
@@ -78,6 +84,19 @@ namespace GPIO
 		private float Parse(int integer, int dec) {
 	
 			return float.Parse( integer + System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator + dec);
+
+		}
+
+
+		public IInputMeter<float> GetHumiditySensor(string id) {
+		
+			return new DHT11Sensor (id, this, DHT11Sensor.DHT11ValueType.Humidity);
+		
+		}
+
+		public IInputMeter<float> GetTemperatureSensor(string id) {
+		
+			return new DHT11Sensor (id, this, DHT11Sensor.DHT11ValueType.Temperature);
 
 		}
 	}

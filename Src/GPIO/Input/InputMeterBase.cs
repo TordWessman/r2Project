@@ -24,7 +24,7 @@ using Core;
 
 namespace GPIO
 {
-	public abstract class InputMeterBase  : RemotlyAccessableDeviceBase, IInputMeter
+	public abstract class InputMeterBase: RemotlyAccessableDeviceBase, IInputMeter<int>
 	{
 		private MCP3008 m_ad;
 		

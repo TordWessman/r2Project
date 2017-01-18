@@ -86,6 +86,7 @@
     <Compile Include="Input\InputPort2.cs" />
     <Compile Include="Input\IDHT11.cs" />
     <Compile Include="Input\DHT11.cs" />
+    <Compile Include="Input\DHT11Sensor.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

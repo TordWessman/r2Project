@@ -34,7 +34,7 @@ namespace GPIO
 		/// <param name="id">Identifier.</param>
 		/// <param name="type">Type.</param>
 		/// <param name="adcPort">Adc port.</param>
-		IInputMeter CreateInputMeter (string id, GPIOTypes type, int adcPort);
+		IInputMeter<int> CreateInputMeter (string id, GPIOTypes type, int adcPort);
 
 		/// <summary>
 		/// Creates an input meter, but specifify the type through it's id (used by dynamics, i.e. scripts)
@@ -43,7 +43,7 @@ namespace GPIO
 		/// <param name="id">Identifier.</param>
 		/// <param name="type">Type.</param>
 		/// <param name="adcPort">Adc port.</param>
-		IInputMeter CreateInputMeter (string id, int type, int adcPort);
+		IInputMeter<int> CreateInputMeter (string id, int type, int adcPort);
 
 		/// <summary>
 		/// Creates a servo controller (servo hub)

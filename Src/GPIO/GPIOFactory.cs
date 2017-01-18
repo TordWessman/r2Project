@@ -110,12 +110,12 @@ namespace GPIO
 			return new PCA9685ServoController (id, bus, address, frequency);
 		}
 		
-		public IInputMeter CreateInputMeter (string id, int type, int adcPort)
+		public IInputMeter<int> CreateInputMeter (string id, int type, int adcPort)
 		{
 			return CreateInputMeter (id, (GPIOTypes)type, adcPort);
 		}
 		
-		public IInputMeter CreateInputMeter (string id, GPIOTypes type, int adcPort)
+		public IInputMeter<int> CreateInputMeter (string id, GPIOTypes type, int adcPort)
 		{
 			switch (type) {
 				
