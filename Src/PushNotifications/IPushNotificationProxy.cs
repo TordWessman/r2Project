@@ -31,7 +31,15 @@ namespace PushNotifications {
 		/// <param name="deviceId">Device identifier.</param>
 		/// <param name="deviceToken">Device token.</param>
 		/// <param name="type">Type.</param>
-		void RegisterClient  (string deviceId, string deviceToken, PushNotificationClientTypes type = PushNotificationClientTypes.Apple);
+		void RegisterClient  (string deviceId, string deviceToken, PushNotificationClientType type = PushNotificationClientType.Apple);
+
+		/// <summary>
+		/// As above but takes the int value of PushNotificationClientType as parameter instead.
+		/// </summary>
+		/// <param name="deviceId">Device identifier.</param>
+		/// <param name="deviceToken">Device token.</param>
+		/// <param name="rawType">Raw type.</param>
+		void Register (string deviceId, string deviceToken, int rawType);
 
 		/// <summary>
 		/// Adds a push notification sender for receiving push notification messages

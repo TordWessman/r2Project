@@ -41,13 +41,13 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IPushNotificationProxy.cs" />
-    <Compile Include="PushNotificationClientTypes.cs" />
     <Compile Include="IPushNotificationFacade.cs" />
     <Compile Include="ApplePushNotificationFacade.cs" />
     <Compile Include="IPushNotification.cs" />
     <Compile Include="PushNotificationHandler.cs" />
     <Compile Include="PushNotificationFactory.cs" />
     <Compile Include="PushNotification.cs" />
+    <Compile Include="PushNotificationClientType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

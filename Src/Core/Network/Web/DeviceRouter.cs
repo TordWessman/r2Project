@@ -96,13 +96,7 @@ namespace Core.Network.Web
 			object[] p = parameterList?.ToArray();
 			JsonObjectResponse response = new JsonObjectResponse ();
 				
-			/*if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Invoke) {
-
-				System.Reflection.MethodInfo methodInfo = device.GetType ().GetMethod (message.Action);
-				response.Action = message.Action;
-				methodInfo.Invoke (device, p);
-
-			} else */if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Invoke) {
+			if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Invoke) {
 
 				response.ActionResponse = device.GetType ().GetMethod (message.Action).Invoke (device, p);
 				response.Action = message.Action;

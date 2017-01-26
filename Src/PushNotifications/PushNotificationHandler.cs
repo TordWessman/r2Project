@@ -42,7 +42,13 @@ namespace PushNotifications
 		}
 
 
-		public void RegisterClient (string deviceId, string deviceToken, PushNotificationClientTypes type = PushNotificationClientTypes.Apple)
+		public void Register (string deviceId, string deviceToken, int rawType) {
+		
+			RegisterClient (deviceId, deviceToken, (PushNotificationClientType) rawType);
+
+		}
+
+		public void RegisterClient (string deviceId, string deviceToken, PushNotificationClientType type)
 		{
 			IMemory entry = m_memory.All (PUSH_CLIENT_ID).Where(d => d.Value == deviceId).FirstOrDefault();
 

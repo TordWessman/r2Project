@@ -20,7 +20,7 @@
 
 namespace PushNotifications
 {
-	public enum PushNotificationClientTypes : int
+	public enum PushNotificationClientType : int
 	{
 		None = 0,
 		Apple = 1

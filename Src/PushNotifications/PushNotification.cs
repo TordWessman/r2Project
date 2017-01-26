@@ -33,7 +33,7 @@ namespace PushNotifications
 			Values = new System.Collections.Generic.Dictionary<PushNotificationValues, object> ();
 		}
 
-		internal void AddClientType (PushNotificationClientTypes type) {
+		internal void AddClientType (PushNotificationClientType type) {
 			ClientTypeMask |= (int)type;
 		}
 

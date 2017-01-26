@@ -44,7 +44,6 @@ namespace PushNotifications
 		}
 
 		public void QueuePushNotification(IPushNotification notification , IEnumerable<string> deviceIds) {
-			//"9ff08be00e8ea8cba4590b55cf3179dc906ca21eedfcfb82d50ca37b928e2d22"
 
 			if (!AcceptsNotification(notification)) {
 				throw new ArgumentException ("Cannot push notification with mask: " + notification.ClientTypeMask + " to Apple.");
@@ -72,7 +71,7 @@ namespace PushNotifications
 
 		public bool AcceptsNotification (IPushNotification notification)
 		{
-			return (notification.ClientTypeMask & (int)PushNotificationClientTypes.Apple) > 0;
+			return (notification.ClientTypeMask & (int)PushNotificationClientType.Apple) > 0;
 		}
 
 	}

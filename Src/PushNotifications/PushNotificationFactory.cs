@@ -41,7 +41,7 @@ namespace PushNotifications
 		public IPushNotification CreateSimple( string message) {
 			PushNotification note = new PushNotification (message);
 
-			foreach (PushNotificationClientTypes type in Enum.GetValues(typeof(PushNotificationClientTypes)) ) {
+			foreach (PushNotificationClientType type in Enum.GetValues(typeof(PushNotificationClientType)) ) {
 				note.AddClientType (type);
 			}
 
@@ -50,7 +50,7 @@ namespace PushNotifications
 
 		public IPushNotification CreateApple(string message, string sound = "sound.caf", int badge = 1) {
 			PushNotification note = new PushNotification (message);
-			note.AddClientType (PushNotificationClientTypes.Apple);
+			note.AddClientType (PushNotificationClientType.Apple);
 			note.AddValue (PushNotificationValues.AppleSound, sound);
 
 			if (badge > 0) {
