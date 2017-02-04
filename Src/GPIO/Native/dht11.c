@@ -5,7 +5,7 @@
 #include "dht11.h"
 
 #include <wiringPi.h>
- 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -109,13 +109,18 @@ void read_dht11_dat()
 		dht11_humidity = dht11_dat[0];
 		dht11_temp = dht11_dat[2];
 
+//		printf( "- Values: temp: %d  humid: %d \n", dht11_dat[2], dht11_dat[0] );
+
+	} else  {
+//		printf( "TEMP HUMID: Data not good, skip. temp: %d  humid: %d \n", dht11_dat[2], dht11_dat[0] );
 	}
+
 }
  
 int main( void )
 {
 	printf( "Raspberry Pi wiringPi DHT11 Temperature test program\n" );
- 	;
+ 	
 
 	if (!_ext_dht11_init (7))
 		exit( 1 );
