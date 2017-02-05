@@ -15,7 +15,7 @@ servo:
 	echo "Make sure to install (i e by symlinking) libraries into /usr/lib."
 	
 dht11:
-	gcc $(DHT11).c -o $(DHT11_LIB) -lwiringPi -shared -Wall -fPIC -I /usr/include -L /usr/lib
+	gcc $(DHT11).c -o $(DHT11_LIB) -lwiringPi -Wall -fPIC -I /usr/include -L /usr/lib -shared
 	cp $(DHT11_LIB) $(R2_LIB_DIR)
 
 clean:
