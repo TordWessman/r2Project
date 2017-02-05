@@ -52,6 +52,7 @@ namespace PushNotifications {
 		/// </summary>
 		/// <param name="notification">Notification.</param>
 		void Broadcast(IPushNotification notification);
+
 	}
 
 }

@@ -22,58 +22,131 @@ using PushSharp;
 using PushSharp.Apple;
 using System.IO;
 using System.Collections.Generic;
+using Core;
+using System.Linq;
+using Newtonsoft.Json.Linq;
+
 
 namespace PushNotifications
 {
 	public class ApplePushNotificationFacade: DeviceBase, IPushNotificationFacade
 	{
 	
-		private PushBroker m_push;
+		private ApnsServiceBroker m_push;
+		private ApnsConfiguration m_configuration;
 
 		public ApplePushNotificationFacade (string id,  string certFileName, string password) : base (id)
 		{
 
+			if (!File.Exists (certFileName)) {
+			
+				throw new IOException ($"A push notification certificate with name '{certFileName}' could not be found.");
+
+			}
+
+			m_configuration = new ApnsConfiguration (ApnsConfiguration.ApnsServerEnvironment.Sandbox, 
+				certFileName, password);
+			
 			//Create our push services broker
-			m_push = new PushBroker();
+			m_push = new ApnsServiceBroker(m_configuration);
 
-			//(CERT_PATH + Path.AltDirectorySeparatorChar + 
+			m_push.OnNotificationFailed += (notification, aggregateEx) => {
 
-			var appleCert = File.ReadAllBytes(certFileName);
-			m_push.RegisterAppleService(new ApplePushChannelSettings(appleCert, password));
+				aggregateEx.Handle (ex => {
+
+					// See what kind of exception it was to further diagnose
+					if (ex is ApnsNotificationException) {
+						
+						var notificationException = (ApnsNotificationException)ex;
+
+						// Deal with the failed notification
+						var apnsNotification = notificationException.Notification;
+						var statusCode = notificationException.ErrorStatusCode;
+
+						Log.e ($"Apple Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
+
+					} else {
+						
+						// Inner exception might hold more useful information like an ApnsConnectionException           
+						Log.e ($"Apple Notification Failed for some unknown reason : {ex.InnerException}");
+					
+					}
+
+					// Mark it as handled
+					return true;
+
+				});
+
+			};
+
+			m_push.OnNotificationSucceeded += (ApnsNotification notification) =>  {
+
+				Log.t($"Did send notification: {notification.DeviceToken}. ");
+
+			};
+
+			var fbs = new FeedbackService (m_configuration);
+
+			fbs.FeedbackReceived += (string deviceToken, DateTime timestamp) => {
+
+				Log.w("Obsolete device token: " + deviceToken);
+
+			};
+
+			fbs.Check ();
 
 		}
 
 		public void QueuePushNotification(IPushNotification notification , IEnumerable<string> deviceIds) {
 
 			if (!AcceptsNotification(notification)) {
-				throw new ArgumentException ("Cannot push notification with mask: " + notification.ClientTypeMask + " to Apple.");
+				
+				throw new ArgumentException ($"Cannot push notification with mask: '{notification.ClientTypeMask}' to Apple.");
+			
 			}
+
+			m_push.Start ();
 
 			foreach (string deviceId in deviceIds) {
-				AppleNotification note = new AppleNotification ()
-					.ForDeviceToken (deviceId)
-					.WithAlert (notification.Message);
+
+				string payload = "{\"aps\":{\"alert\": \"" + notification.Message + "\""; 
 
 				if (notification.Values.ContainsKey (PushNotificationValues.AppleBadge)) {
-					note = note.WithBadge ((int)notification.Values [PushNotificationValues.AppleBadge]);
-				}
-				if (notification.Values.ContainsKey (PushNotificationValues.AppleSound)) {
-					note = note.WithSound ((string)notification.Values [PushNotificationValues.AppleSound]);
+					
+					payload +=  ", \"badge\":" + ((int)notification.Values [PushNotificationValues.AppleBadge]);
+				
 				}
 
-				m_push.QueueNotification(note);
+				if (notification.Values.ContainsKey (PushNotificationValues.AppleSound)) {
+					
+					payload +=  ", \"sound\":\"" + (string)notification.Values [PushNotificationValues.AppleSound] + "\"";
+
+				}
+
+				payload += "}}";
+
+				Log.t (payload);
+
+				m_push.QueueNotification (new ApnsNotification {
+
+					DeviceToken = deviceId,
+					Payload = JObject.Parse (payload)
+				
+				});
+
 			}
 
-
-
+			m_push.Stop ();
 
 		}
 
 		public bool AcceptsNotification (IPushNotification notification)
 		{
+
 			return (notification.ClientTypeMask & (int)PushNotificationClientType.Apple) > 0;
+
 		}
 
 	}
-}
 
+}

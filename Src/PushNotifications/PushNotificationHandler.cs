@@ -25,7 +25,10 @@ using System.Linq;
 
 namespace PushNotifications
 {
-	public class PushNotificationHandler : DeviceBase, IPushNotificationProxy
+	/// <summary>
+	/// Uses the IMemorySource to keep track of and send push notifications.
+	/// </summary>
+	public class PushNotificationHandler: DeviceBase, IPushNotificationProxy
 	{
 
 		public const string PUSH_CLIENT_ID = "push_client_id";
@@ -37,10 +40,11 @@ namespace PushNotifications
 
 		public PushNotificationHandler (string id, IMemorySource memory) : base (id)
 		{
+			
 			m_memory = memory;
 			m_facades = new List<IPushNotificationFacade> ();
+		
 		}
-
 
 		public void Register (string deviceId, string deviceToken, int rawType) {
 		
@@ -50,6 +54,7 @@ namespace PushNotifications
 
 		public void RegisterClient (string deviceId, string deviceToken, PushNotificationClientType type)
 		{
+			
 			IMemory entry = m_memory.All (PUSH_CLIENT_ID).Where(d => d.Value == deviceId).FirstOrDefault();
 
 			if (entry == null) {
@@ -94,8 +99,8 @@ namespace PushNotifications
 
 		public void Broadcast(IPushNotification notification) {
 
-			foreach (IPushNotificationFacade facade in m_facades) {
-
+			m_facades.AsParallel().ForAll (facade => {
+			
 				if (facade.AcceptsNotification(notification)) {
 
 					List<string> tokens = new List<string> ();
@@ -107,13 +112,13 @@ namespace PushNotifications
 							IMemory token = type.GetAssociation (PUSH_CLIENT_TOKEN);
 
 							if (token != null) {
-							
+
 								tokens.Add (token.Value);
 
 							} else {
 
-								Log.e ("PushNotification Broadcast error: A device of type: " + PUSH_CLIENT_TYPE + " has no token.");
-							
+								Log.e ($"PushNotification Broadcast error: A device of type '{PUSH_CLIENT_TYPE}' has no token.");
+
 							}
 
 						}
@@ -124,11 +129,10 @@ namespace PushNotifications
 
 				}
 
-			}
+			});
 
 		}
 
 	}
 
 }
-
