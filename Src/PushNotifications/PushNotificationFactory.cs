@@ -62,15 +62,10 @@ namespace PushNotifications
 
 		}
 
-		public IPushNotification CreateApple(string message, string sound = "sound.caf", int badge = 1) {
+		public IPushNotification CreateApple(string message) {
 			
 			PushNotification note = new PushNotification (message);
 			note.AddClientType (PushNotificationClientType.Apple);
-			note.AddValue (PushNotificationValues.AppleSound, sound);
-
-			if (badge > 0) {
-				note.AddValue (PushNotificationValues.AppleBadge, badge);
-			}
 
 			return note;
 		}

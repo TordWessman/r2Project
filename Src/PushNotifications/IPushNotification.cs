@@ -21,13 +21,6 @@ using System.Collections.Generic;
 
 namespace PushNotifications
 {
-	/// <summary>
-	/// Contains available push notification values (specific to host)
-	/// </summary>
-	public enum PushNotificationValues {
-		AppleBadge,
-		AppleSound
-	}
 
 	/// <summary>
 	/// Push notification message representation
@@ -47,10 +40,18 @@ namespace PushNotifications
 		string Message {get;}
 
 		/// <summary>
-		/// Custom, target host platform-unique values
+		/// Custom metadata.
 		/// </summary>
 		/// <value>The values.</value>
-		Dictionary<PushNotificationValues,object> Values { get; }
+		Dictionary<string,object> Metadata { get; }
+
+		/// <summary>
+		/// Add payload data to the message.
+		/// </summary>
+		/// <param name="key">Key.</param>
+		/// <param name="value">Value.</param>
+		void AddMetadata(string key, object value);
+
 	}
 
 }

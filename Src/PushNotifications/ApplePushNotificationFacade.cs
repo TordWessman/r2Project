@@ -48,42 +48,6 @@ namespace PushNotifications
 				certFileName, password);
 			
 			//Create our push services broker
-			m_push = new ApnsServiceBroker(m_configuration);
-
-			m_push.OnNotificationFailed += (notification, aggregateEx) => {
-
-				aggregateEx.Handle (ex => {
-
-					// See what kind of exception it was to further diagnose
-					if (ex is ApnsNotificationException) {
-						
-						var notificationException = (ApnsNotificationException)ex;
-
-						// Deal with the failed notification
-						var apnsNotification = notificationException.Notification;
-						var statusCode = notificationException.ErrorStatusCode;
-
-						Log.e ($"Apple Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
-
-					} else {
-						
-						// Inner exception might hold more useful information like an ApnsConnectionException           
-						Log.e ($"Apple Notification Failed for some unknown reason : {ex.InnerException}");
-					
-					}
-
-					// Mark it as handled
-					return true;
-
-				});
-
-			};
-
-			m_push.OnNotificationSucceeded += (ApnsNotification notification) =>  {
-
-				Log.t($"Did send notification: {notification.DeviceToken}. ");
-
-			};
 
 			var fbs = new FeedbackService (m_configuration);
 
@@ -105,21 +69,17 @@ namespace PushNotifications
 			
 			}
 
+			SetupBroker ();
+
 			m_push.Start ();
 
 			foreach (string deviceId in deviceIds) {
 
 				string payload = "{\"aps\":{\"alert\": \"" + notification.Message + "\""; 
 
-				if (notification.Values.ContainsKey (PushNotificationValues.AppleBadge)) {
-					
-					payload +=  ", \"badge\":" + ((int)notification.Values [PushNotificationValues.AppleBadge]);
-				
-				}
+				foreach (KeyValuePair<string, object> kvp in notification.Metadata) {
 
-				if (notification.Values.ContainsKey (PushNotificationValues.AppleSound)) {
-					
-					payload +=  ", \"sound\":\"" + (string)notification.Values [PushNotificationValues.AppleSound] + "\"";
+					payload += ", \"" + kvp.Key + "\":\"" + kvp.Value.ToString() + "\"";
 
 				}
 
@@ -137,6 +97,48 @@ namespace PushNotifications
 			}
 
 			m_push.Stop ();
+
+		}
+
+		private void SetupBroker() {
+		
+			m_push = new ApnsServiceBroker(m_configuration);
+
+			m_push.OnNotificationFailed += (notification, aggregateEx) => {
+
+				aggregateEx.Handle (ex => {
+
+					// See what kind of exception it was to further diagnose
+					if (ex is ApnsNotificationException) {
+
+						var notificationException = (ApnsNotificationException)ex;
+
+						// Deal with the failed notification
+						var apnsNotification = notificationException.Notification;
+						var statusCode = notificationException.ErrorStatusCode;
+
+						Log.e ($"Apple Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
+
+					} else {
+
+						// Inner exception might hold more useful information like an ApnsConnectionException           
+						Log.e ($"Apple Notification Failed for some unknown reason : {ex.InnerException}");
+
+					}
+
+					// Mark it as handled
+					return true;
+
+				});
+
+			};
+
+			m_push.OnNotificationSucceeded += (ApnsNotification notification) =>  {
+
+				Log.t($"Did send notification: {notification.DeviceToken}. ");
+
+			};
+
 
 		}
 

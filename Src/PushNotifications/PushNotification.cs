@@ -30,16 +30,13 @@ namespace PushNotifications
 		{
 
 			Message = message;
-			Values = new System.Collections.Generic.Dictionary<PushNotificationValues, object> ();
+			Metadata = new System.Collections.Generic.Dictionary<string, object> ();
+
 		}
 
-		internal void AddClientType (PushNotificationClientType type) {
-			ClientTypeMask |= (int)type;
-		}
+		internal void AddClientType (PushNotificationClientType type) { ClientTypeMask |= (int)type; }
 
-		internal void AddValue (PushNotificationValues type, object value) {
-			Values [type] = value;
-		}
+		public void AddMetadata (string key, object value) { Metadata [key] = value; }
 
 		#region IPushNotification implementation
 
@@ -47,7 +44,7 @@ namespace PushNotifications
 
 		public string Message { get; private set;}
 
-		public System.Collections.Generic.Dictionary<PushNotificationValues, object> Values  { get; private set;}
+		public System.Collections.Generic.Dictionary<string, object> Metadata  { get; private set;}
 
 		#endregion
 	}
