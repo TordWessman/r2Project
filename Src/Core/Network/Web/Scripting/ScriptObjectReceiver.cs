@@ -29,8 +29,8 @@ using System.Collections.Generic;
 namespace Core.Network.Web
 {
 	/// <summary>
-	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(JsonExportObject<ExpandoObject> inputObject, string httpMethod, NameValueCollection headers, IHttpIntermediate outputObject).</para>
-	/// <para>The type T must be an IHttpIntermediate implementation used to transcibe data from script to sub system.</para>
+	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(dynamic inputObject, IWebIntermediate outputObject).</para>
+	/// <para>The type T must be an IWebIntermediate implementation used to transcibe data from script to sub system.</para>
 	/// The outputObject is required for the script implementation to know how to return a data type compatible with a serializer.
 	/// </summary>
 	public class ScriptObjectReceiver<T>: IWebObjectReceiver where T: IWebIntermediate, new()
@@ -44,9 +44,13 @@ namespace Core.Network.Web
 		
 		}
 
-		public IWebIntermediate OnReceive (dynamic input, string httpMethod, NameValueCollection headers = null) {
+		public IWebIntermediate OnReceive (dynamic input) {
+			
+			T response = m_script.MainClass.@on_receive (input, new T());
 
-			return m_script.MainClass.@on_receive (new JsonExportObject<ExpandoObject>(input), httpMethod, headers, new T());
+			response.CLRConvert ();
+
+			return response;
 
 		}
 

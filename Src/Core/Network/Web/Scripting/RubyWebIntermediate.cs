@@ -31,45 +31,29 @@ namespace Core.Network.Web
 	public class RubyWebIntermediate: IWebIntermediate
 	{
 		private dynamic m_data;
-		private NameValueCollection m_headers;
+		private IDictionary<string, object> m_metadata;
 
 		public RubyWebIntermediate ()
 		{
-			m_data = new Dictionary<string, dynamic> ();
-			m_headers = new NameValueCollection ();
+			Data = new R2Dynamic ();
+			m_metadata = new  Dictionary<string, object>();
 		}
 
-		public void AddHeader(string key, string value) {
+		public dynamic Data { get { return m_data; } set { m_data = value; } }
+		public IDictionary<string, object> Metadata { get { return m_metadata; } } 
 
-			m_headers.Add (key, value);
-		}
+		public void AddMetadata(string key, object value) {
 
-		public void SetValue(string key, dynamic value) {
-
-			if (m_data is Dictionary<string, dynamic>) {
-			
-				m_data = new Dictionary<string, dynamic> ();
-
-			}
-
-			m_data.Add(key, ParseValue(value));
+			//m_metadata
+			m_metadata[key] = value;
 
 		}
 
-		public void SetRawData(byte[] data) {
+		public void CLRConvert() {
 		
-			m_data = data;
+			Data = ParseValue (Data);
 
 		}
-
-		public IWebIntermediate New { get { return new RubyWebIntermediate(); } }
-
-		public dynamic Data {
-		
-			get { return m_data; }
-		}
-
-		public NameValueCollection Headers { get { return m_headers; } }
 
 		/// <summary>
 		/// Checks the type of the value and parses it accordingly
@@ -83,7 +67,17 @@ namespace Core.Network.Web
 				return value.Data;
 
 			} else if (value is IronRuby.Builtins.MutableString) {
-				
+
+				IronRuby.Builtins.MutableString stringValue = value as IronRuby.Builtins.MutableString; 
+
+				if (stringValue.IsBinary) {
+
+					// The string was a container of raw byte data. Convert to byte[].
+
+					return stringValue.GetBinarySlice(0);
+
+				}
+
 				return (string)value;
 
 			} else if (value is IronRuby.Builtins.RubyArray) {
@@ -105,7 +99,7 @@ namespace Core.Network.Web
 
 				foreach (object key in hash.Keys) {
 
-					dictionary.Add (key.ToString(), ParseValue (hash[key]));
+					dictionary[key.ToString()] = ParseValue (hash[key]);
 
 				}
 
@@ -116,7 +110,9 @@ namespace Core.Network.Web
 				return value;
 
 			}
+
 		}
 
 	}
+
 }

@@ -24,6 +24,8 @@ using System.Text;
 using Core.Device;
 using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Specialized;
+using System.Web;
 
 namespace Core.Network.Web
 {
@@ -33,6 +35,10 @@ namespace Core.Network.Web
 	/// </summary>
 	public class HttpServer : DeviceBase, IWebServer
 	{
+		public static readonly string HEADERS_KEY = "_headers";
+		public static readonly string HTTP_METHOD_KEY = "_httpMethod";
+		public static readonly string URI_KEY = "_uri";
+
 		private HttpListener m_listener;
 		private bool m_shouldrun;
 		private int m_port;
@@ -61,62 +67,16 @@ namespace Core.Network.Web
 				if (m_listener.IsListening) {
 
 					HttpListenerRequest request = context.Request;
-
-					// Obtain a response object.
 					HttpListenerResponse response = context.Response;
 
-					using (StreamReader reader = new StreamReader(request.InputStream, m_encoding))
-					{
-						bool didFindResponder = false;
-						//IEnumerable<byte> responseBody = new List<byte>();
-						byte[] responseBody;
-						byte[] requestBody = default(byte[]);
+					if (!m_endpoints.ContainsKey (request.Url.AbsolutePath)) {
 
-						try {
-							
-							IWebEndpoint interpreter = m_endpoints[request.Url.AbsolutePath];
+						Log.w ("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
+						response.StatusCode = 404;
 
-							using (var memstream = new MemoryStream())
-							{
-								reader.BaseStream.CopyTo(memstream);
-								requestBody = memstream.ToArray();
-							}
-
-							didFindResponder = true;
-							responseBody = interpreter.Interpret (requestBody, request.Url, request.HttpMethod, request.Headers);
-
-							foreach (string headerKey in interpreter.ExtraHeaders.Keys) {
-
-								response.Headers.Add (headerKey, interpreter.ExtraHeaders [headerKey]);
-							
-							}
-
-
-						} catch (Exception ex) {
-
-							Log.x (ex);
-
-							#if DEBUG
-							responseBody = ("{ error:\"" + ex.Message + "\"}").ToByteArray (m_encoding);
-							#else
-							responseBuffer = "ERROR".ToByteArray(m_encoding);
-							#endif
-
-							response.StatusCode = 500;
-						
-						}
-
-						if (!didFindResponder && response.StatusCode != 500) {
-
-							Log.w("No IHttpServerInterpreter accepts: " + request.Url.AbsolutePath);
-							response.StatusCode = 404;
-
-						}
-
-						response.ContentLength64 = responseBody.Length;
-						System.IO.Stream output = response.OutputStream;
-						output.Write(responseBody,0,responseBody.Length);
-						output.Close();
+					} else {
+					
+						Interpret (request, response);
 
 					}
 
@@ -163,6 +123,81 @@ namespace Core.Network.Web
 		public void AddEndpoint(IWebEndpoint interpreter) {
 
 			m_endpoints.Add (interpreter.UriPath, interpreter);
+
+		}
+
+		private void Interpret(HttpListenerRequest request, HttpListenerResponse response) {
+		
+			using (StreamReader reader = new StreamReader(request.InputStream, m_encoding))
+			{
+
+				byte[] responseBody;
+				byte[] requestBody = default(byte[]);
+
+				try {
+
+					IWebEndpoint interpreter = m_endpoints[request.Url.AbsolutePath];
+
+					// Read body
+					using (var memstream = new MemoryStream())
+					{
+
+						reader.BaseStream.CopyTo(memstream);
+						requestBody = memstream.ToArray();
+
+					}
+
+					// Parse request and create response body.
+					responseBody = interpreter.Interpret (requestBody, CreateMetadata(request));
+
+					// Add header fields from metadata
+					interpreter.Metadata.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
+
+				} catch (Exception ex) {
+
+					Log.x (ex);
+
+					#if DEBUG
+					responseBody = ("{ error:\"" + ex.Message + "\"}").ToByteArray (m_encoding);
+					#else
+					responseBuffer = "ERROR".ToByteArray(m_encoding);
+					#endif
+
+					response.StatusCode = 500;
+
+				}
+
+				response.ContentLength64 = responseBody.Length;
+				System.IO.Stream output = response.OutputStream;
+				output.Write(responseBody,0,responseBody.Length);
+				output.Close();
+
+			}
+		}
+
+		/// <summary>
+		/// Creates meta data (headers, HTTP method, uri etc)  retreived from the request
+		/// </summary>
+		/// <returns>The meta data.</returns>
+		/// <param name="request">Request.</param>
+		private IDictionary<string, object> CreateMetadata(HttpListenerRequest request) {
+
+			IDictionary<string, object> metadata = new Dictionary<string, object> ();
+
+			// Add query string parameters to meta data.
+			if (request.Url != null) {
+
+				NameValueCollection queryStringParameters = HttpUtility.ParseQueryString (request.Url.Query);
+
+				foreach (string key in  queryStringParameters.AllKeys) { metadata[key] = queryStringParameters[key]; }
+
+			}
+
+			metadata[HEADERS_KEY] = request.Headers;
+			metadata[HTTP_METHOD_KEY] = request.HttpMethod;
+			metadata[URI_KEY] = request.Url;
+
+			return metadata;
 
 		}
 

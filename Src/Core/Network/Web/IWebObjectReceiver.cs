@@ -29,12 +29,10 @@ namespace Core.Network.Web
 	public interface IWebObjectReceiver
 	{
 		/// <summary>
-		/// Handles the receival of the input object using httpMethod and including the optional header fields. Returns an IHttpIntermediate intermediation object capable of storing data and headers.
+		/// Handles the receival of the input object. Output object should contain
 		/// </summary>
 		/// <param name="input">Input.</param>
-		/// <param name="httpMethod">Http method.</param>
-		/// <param name="headers">Headers.</param>
-		IWebIntermediate OnReceive (dynamic input, string httpMethod, NameValueCollection headers = null);
+		IWebIntermediate OnReceive (dynamic input);
 
 	}
 }

@@ -28,7 +28,47 @@ using System.Dynamic;
 namespace Core.Network.Web
 {
 	/// <summary>
-	/// A DeviceRouter is a specialized helper IWebObjectReceiver usable for dealing with devices over http/websockets. It's onReceive method requires a JsonObjectRequest formatted message, evaluates it's device id, values and actions, perform the requested action on the requested device and returns the device object affected. It keeps track of devices requested and will communicate changes.
+	/// A DeviceRouter is a specialized helper IWebObjectReceiver usable for dealing with devices using the a WebJsonEndpoint. It's onReceive method requires a JsonObjectRequest formatted message, evaluates it's device id, values and actions, perform the requested action on the requested device and returns the device object affected. It keeps track of devices requested and will communicate changes.
+	/// 
+	///  - Object to invoke:
+	/// interface ITestObject: IDevice {
+	/// 
+	/// 	// Return true if values were updated.
+	/// 	bool UpdateNumberAndString(int aNumber, string aString);
+	/// 	int MyNumber {get;}
+	/// 	string MyString {get;}
+	/// 
+	/// }
+	/// 
+	///  - Example of a request sructure:
+	/// {
+	/// 	Token: "optional password",
+	/// 	Params [ 
+	/// 		{
+	/// 			Type: 0
+	/// 			RawValue: 42
+	/// 		},
+	/// 		{
+	/// 			Type: 2
+	/// 			RawValue: "foo"
+	/// 		} 
+	/// 	],
+	/// 	ActionType: 2,
+	/// 	Action: "UpdateNumberAndString",
+	/// 	Identifier: "device_with_a_number_and_a_string"
+	/// }
+	/// 
+	///  - Example of a response structure
+	/// {
+	/// 	Object: {
+	/// 		Identifier: "device_with_a_number_and_a_string",
+	/// 		Ready: true,
+	/// 		MyNumber: 42,
+	/// 		MyString: "foo"
+	/// 	},
+	/// 	Action: "UpdateNumberAndString",
+	/// 	ActionResponse: true
+	/// }
 	/// </summary>
 	public class DeviceRouter: IWebObjectReceiver, IDeviceObserver
 	{
@@ -57,11 +97,9 @@ namespace Core.Network.Web
 
 		}
 
-		public IWebIntermediate OnReceive (dynamic message, string httpMethod, NameValueCollection headers = null) {
+		public IWebIntermediate OnReceive (dynamic message) {
 
-			string token = ((IDictionary<string, Object>)message)?.ContainsKey("Token") == true ? message.Token : null; 
-
-			if (m_security?.IsValid(token) == false) {
+			if (m_security?.IsValid(message.Token) == false) {
 			
 				throw new SecurityException ("Invalid credentials for message.");
 
@@ -79,7 +117,7 @@ namespace Core.Network.Web
 
 			IList<dynamic> parameterList = null;
 
-			if ((((IDictionary<string, Object>)message)?.ContainsKey("Params") == true) && message.Params?.Count > 0) {
+			if (message.Params?.Count > 0) {
 
 				// Only add parameters if Params object array is present.
 
@@ -94,6 +132,7 @@ namespace Core.Network.Web
 			}
 			 
 			object[] p = parameterList?.ToArray();
+
 			JsonObjectResponse response = new JsonObjectResponse ();
 				
 			if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Invoke) {

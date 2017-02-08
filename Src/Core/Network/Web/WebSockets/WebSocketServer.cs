@@ -76,7 +76,9 @@ namespace Core.Network.Web
 
 				byte[] request = m_encoding.GetBytes(e.Data);
 
-				byte[] response = m_endpoint.Interpret (request);
+				//Interpret response. No metadata is provided (and thus null).
+				byte[] response = m_endpoint.Interpret (request, null);
+
 				if (response != null && response.Length > 0) {
 
 					if (this.State == WebSocketState.Open) {
@@ -163,15 +165,7 @@ namespace Core.Network.Web
 
 			m_server.RemoveWebSocketService (interpreter.UriPath);
 
-			if (!m_endpoints.ContainsKey (interpreter.UriPath)) {
-
-				m_endpoints.Add (interpreter.UriPath, interpreter);
-
-			} else {
-
-				m_endpoints [interpreter.UriPath] = interpreter;
-
-			}
+			m_endpoints [interpreter.UriPath] = interpreter;
 
 			m_server.AddWebSocketService<WebSocketHandler> (interpreter.UriPath, delegate() { return CreateWebSocketHandler(interpreter.UriPath); });
 

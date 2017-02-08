@@ -18,7 +18,6 @@
 
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 
 namespace Core.Network.Web
 {
@@ -32,10 +31,8 @@ namespace Core.Network.Web
 		/// Interprets inputData and returns byte array of response data.
 		/// </summary>
 		/// <param name="inputData">Input data.</param>
-		/// <param name="inputData">uri.</param>
-		/// <param name="httpMethod">Http method.</param>
-		/// <param name="inputData">headers</param>
-		byte[] Interpret(byte[] inputData, Uri uri = null, string httpMethod = null, NameValueCollection headers = null);
+		/// <param name="metadata">metadata.</param>
+		byte[] Interpret(byte[] inputData, IDictionary<string, object> metadata);
 
 		/// <summary>
 		/// The uri path on which this interprener is listening.
@@ -44,10 +41,10 @@ namespace Core.Network.Web
 		string UriPath {get;}
 
 		/// <summary>
-		/// Extra response headers.
+		/// Metadata (i.e. response headers.)
 		/// </summary>
 		/// <value>The extra headers.</value>
-		NameValueCollection ExtraHeaders {get;}
+		IDictionary<string, object> Metadata {get;}
 
 	}
 }

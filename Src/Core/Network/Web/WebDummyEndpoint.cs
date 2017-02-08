@@ -19,6 +19,7 @@
 using System;
 using Core.Device;
 using System.Collections.Specialized;
+using System.Collections.Generic;
 
 namespace Core.Network.Web
 {
@@ -34,9 +35,9 @@ namespace Core.Network.Web
 			m_path = path;
 		}
 
-		public byte[] Interpret(byte[] inputData, Uri uri = null, string httpMethod = null, NameValueCollection headers = null) { return new byte[0]; }
+		public byte[] Interpret(byte[] inputData, IDictionary<string, object> metadata) { return new byte[0]; }
 		public string UriPath { get { return m_path; } }
-		public NameValueCollection ExtraHeaders { get { return new NameValueCollection(); } }
+		public IDictionary<string, object> Metadata { get { return new Dictionary<string, object>(); } }
 	
 	}
 

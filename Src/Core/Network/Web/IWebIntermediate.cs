@@ -19,6 +19,7 @@
 using System;
 using System.Dynamic;
 using System.Collections.Specialized;
+using System.Collections.Generic;
 
 namespace Core.Network.Web
 {
@@ -28,42 +29,29 @@ namespace Core.Network.Web
 	public interface IWebIntermediate
 	{
 		/// <summary>
-		/// Will set (and overwrite) the data contained. Use this to set raw data (binary files, images etc).
-		/// </summary>
-		/// <param name="data">Data.</param>
-		void SetRawData (byte[] data);
-
-		/// <summary>
-		/// Adds a header field to this object.
-		/// </summary>
-		/// <param name="key">Key.</param>
-		/// <param name="value">Value.</param>
-		void AddHeader(string key, string value);
-
-		/// <summary>
-		/// Sets a data field of this object.
-		/// </summary>
-		/// <param name="key">Key.</param>
-		/// <param name="value">Value.</param>
-		void SetValue(string key, dynamic value);
-
-		/// <summary>
-		/// Returns a new IHttpIntermediate object.
-		/// </summary>
-		/// <value>The new.</value>
-		IWebIntermediate New { get; }
-
-		/// <summary>
 		/// Returns all data contained in this object.
 		/// </summary>
 		/// <value>The data.</value>
-		dynamic Data { get;}
+		dynamic Data { get; set; }
 
 		/// <summary>
-		/// Returns all header fields in this object.
+		/// Adds a metadata field to this object.
+		/// </summary>
+		/// <param name="key">Key.</param>
+		/// <param name="value">Value.</param>
+		void AddMetadata(string key, object value);
+
+		/// <summary>
+		/// Returns all metadata fields in this object.
 		/// </summary>
 		/// <value>The headers.</value>
-		NameValueCollection Headers { get; }
-	}
-}
+		IDictionary<string, object> Metadata { get; }
 
+		/// <summary>
+		/// Converts data to CLR typed format.
+		/// </summary>
+		void CLRConvert ();
+
+	}
+
+}

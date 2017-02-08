@@ -56,11 +56,13 @@ namespace Core.Network.Web
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (byte[] inputData, Uri uri = null, string httpMethod = null, NameValueCollection headers = null)
+		public byte[] Interpret (byte[] input, IDictionary<string, object> metaData = null)
 		{
+			Uri uri = metaData.ContainsKey (HttpServer.URI_KEY) && metaData [HttpServer.URI_KEY] is Uri  ? metaData [HttpServer.URI_KEY] as Uri : null;
+
 			if (uri == null) {
 			
-				throw new InvalidDataException ("Unable to process request. Uri was null");
+				throw new MissingFieldException ("Unable to process request. Uri was null");
 			}
 
 			Match fileNameMatch = new Regex (FileMatchRegexp).Match (uri.AbsolutePath);
@@ -105,11 +107,11 @@ namespace Core.Network.Web
 
 		}
 
-		public NameValueCollection ExtraHeaders {
+		public IDictionary<string, object> Metadata {
 
 			get {
 
-				var headers = new NameValueCollection ();
+				var headers = new Dictionary<string, object> ();
 
 				headers.Add ("Content-Type", m_contentType + "/" + m_lastRequestedFileExtension);
 

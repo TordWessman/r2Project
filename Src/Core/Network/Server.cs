@@ -239,7 +239,7 @@ namespace Core.Network
 					
 					} else {
 					
-						Log.w ("Friendly exception: " + ex.ToString ());
+						Log.x (ex);
 					
 					}
 				

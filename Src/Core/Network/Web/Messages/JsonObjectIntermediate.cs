@@ -20,6 +20,7 @@ using System;
 using System.Dynamic;
 using Core.Device;
 using System.Collections.Specialized;
+using System.Collections.Generic;
 
 namespace Core.Network.Web
 {
@@ -37,21 +38,13 @@ namespace Core.Network.Web
 			m_data = data; 
 		}
 
-		public void SetRawData(byte[] data) {
+		public void CLRConvert() {}
 
-			m_data = data;
+		public void AddMetadata(string key, object value) {}
 
-		}
+		public dynamic Data { get { return m_data; } set { m_data = value; } }
 
-		public void AddHeader(string key, string value) {}
-
-		public void SetValue(string key, dynamic value) {}
-
-		public IWebIntermediate New { get { return null; } }
-
-		public dynamic Data { get { return m_data; }  }
-
-		public NameValueCollection Headers { get { return new NameValueCollection(); } }
+		public IDictionary<string, object> Metadata { get { return new Dictionary<string, object>(); } }
 	}
 }
 

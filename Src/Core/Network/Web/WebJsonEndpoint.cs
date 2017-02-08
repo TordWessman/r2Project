@@ -26,6 +26,7 @@ using System.Collections.Specialized;
 using System.Dynamic;
 using Newtonsoft.Json.Converters;
 using System.Web;
+using System.Linq;
 
 namespace Core.Network.Web
 {
@@ -35,9 +36,10 @@ namespace Core.Network.Web
 	/// </summary>
 	public class WebJsonEndpoint : IWebEndpoint
 	{
+
 		private IWebObjectReceiver m_receiver;
 		private string m_responsePath;
-		private NameValueCollection m_extraHeaders;
+		private IDictionary<string, object> m_extraHeaders;
 		private ExpandoObjectConverter m_converter;
 		private System.Text.Encoding m_encoding;
 
@@ -62,7 +64,7 @@ namespace Core.Network.Web
 
 			m_responsePath = responseURIPath;
 			m_converter = new ExpandoObjectConverter();
-			m_extraHeaders = new NameValueCollection ();
+			m_extraHeaders = new Dictionary<string, object> ();
 			m_encoding = encoding ?? HttpServer.DefaultEncoding;
 
 			m_extraHeaders.Add ("Content-Type", @"application/json");
@@ -76,52 +78,31 @@ namespace Core.Network.Web
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (byte[] input, Uri uri = null, string httpMethod = null, NameValueCollection headers = null) {
+		public byte[] Interpret (byte[] input, IDictionary<string, object> metaData = null) {
 			
 			string inputJson = m_encoding.GetString (input);
 
-			dynamic inputObject = null;
+			R2Dynamic inputObject = null;
 
-			if (httpMethod?.ToUpper () != "GET") {
+			if (inputJson.Length > 0) {
 			
 				// Parse body
-				inputObject = JsonConvert.DeserializeObject<ExpandoObject>(inputJson, m_converter);
+				inputObject = new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(inputJson, m_converter));
 
-			} 
+			} else {
 
-			if (inputObject == null) {
-			
-				// HTTP-GET or no body
-				inputObject = new ExpandoObject ();
+				inputObject = new R2Dynamic ();
 
 			}
 
-			// Add query string parameters. Will replace json-properties for now...
-			if (uri != null) {
-				
-				NameValueCollection queryKeys = HttpUtility.ParseQueryString (uri.Query);
+			// Add metadata to input object.
+			metaData?.ToList ().ForEach (kvp => inputObject.SetMember (kvp.Key, kvp.Value));
 
-				foreach (string key in  queryKeys.AllKeys) {
+			// Let reciver parse response.
+			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject);
 
-					try {
-
-						(inputObject as IDictionary<string, Object>).Add (key, queryKeys [key]);
-
-					} catch (System.ArgumentException ex) {
-
-						//More user friendly error message upon posible duplicates.
-						Log.x(ex);
-
-						throw new System.ArgumentException ("Unable to add header parameter: '" + key + "' from request. Does it exist a duplicate in the JSON-body?");
-					}
-
-				}
-
-			}
-
-			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject, httpMethod?.ToUpper(), headers);
-
-			m_extraHeaders.Add (outputObject.Headers);
+			// Let Metadata be the extra headers.
+			outputObject.Metadata?.ToList ().ForEach (kvp => m_extraHeaders[kvp.Key] = kvp.Value.ToString ());
 
 			if (outputObject.Data is byte[]) {
 			
@@ -138,28 +119,14 @@ namespace Core.Network.Web
 
 				string outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject.Data));
 				return m_encoding.GetBytes(outputString) ?? new byte[0];
-			}
-
-		}
-
-		public string UriPath {
-
-			get {
-			
-				return m_responsePath;
 
 			}
 
 		}
 
-		public NameValueCollection ExtraHeaders {
-		
-			get {
+		public string UriPath { get { return m_responsePath; } }
 
-				return m_extraHeaders;
-			}
-
-		}
+		public IDictionary<string, object> Metadata { get { return m_extraHeaders; } }
 
 		#endregion
 
