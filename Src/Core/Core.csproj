@@ -225,6 +225,9 @@
     </Compile>
     <Compile Include="Scripting\IScriptInterpreter.cs" />
     <Compile Include="Scripting\Ruby\RubySrlptInterpreter.cs" />
+    <Compile Include="Network\Web\TCP\TCPServer.cs" />
+    <Compile Include="Network\Web\TCP\TCPPackage.cs" />
+    <Compile Include="Shared\R2Dynamic.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -245,6 +248,7 @@
     <Folder Include="Network\Web\Scripting\" />
     <Folder Include="Network\Web\Http\" />
     <Folder Include="Network\Web\WebSockets\" />
+    <Folder Include="Network\Web\TCP\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">
