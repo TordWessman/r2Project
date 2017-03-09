@@ -25,7 +25,7 @@ using Core.Device;
 
 namespace Core
 {
-	public class SimpleTaskMonitor: DeviceBase, ITaskMonitor
+	public class SimpleTaskMonitor: DeviceBase, ITaskMonitor	
 	{
 		private IDictionary<string, Task> m_tasks;
 		
@@ -40,7 +40,9 @@ namespace Core
 			m_monitorTask = new Task (() => {
 				
 				while (m_shouldRun) {
+					
 					lock (m_assignLock) {
+						
 						List<string> done = new List<string> ();
 						List<string> faulted = new List<string> ();
 						
@@ -78,6 +80,7 @@ namespace Core
 		public void AddTask (string id, System.Threading.Tasks.Task task)
 		{
 			lock (m_assignLock) {
+				
 				if (m_tasks.ContainsKey (id)) {
 					id = id + task.GetHashCode ().ToString();
 				}
@@ -92,6 +95,7 @@ namespace Core
 				}
 				
 			}
+
 		}
 
 		public void AddMonitorable (ITaskMonitored observer)

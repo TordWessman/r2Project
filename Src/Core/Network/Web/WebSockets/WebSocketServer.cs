@@ -69,23 +69,30 @@ namespace Core.Network.Web
 
 		protected override void OnMessage (MessageEventArgs e)
 		{
-			Core.Log.d ("Web socket: OnMessage");
-			//Core.Log.t (e.Data);
+
 
 			if (m_endpoint != null) {
 
-				byte[] request = m_encoding.GetBytes(e.Data);
+				try {
 
-				//Interpret response. No metadata is provided (and thus null).
-				byte[] response = m_endpoint.Interpret (request, null);
+					byte[] request = m_encoding.GetBytes(e.Data);
 
-				if (response != null && response.Length > 0) {
+					//Interpret response. No metadata is provided (and thus null).
+					byte[] response = m_endpoint.Interpret (request, null);
 
-					if (this.State == WebSocketState.Open) {
+					if (response != null && response.Length > 0) {
 
-						Send (response);
+						if (this.State == WebSocketState.Open) {
+
+							Send (response);
+
+						}
 
 					}
+
+				} catch (Exception ex) {
+
+					Core.Log.x (ex);
 
 				}
 
