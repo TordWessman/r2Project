@@ -29,7 +29,13 @@ namespace Audio.ASR
 {
 	public class SphinxASRServer : DeviceBase, IASR, IEndpoint
 	{
-		
+
+		// Local audio input as source instead of the TCP server
+		const int ASR_INPUT_LOCAL = 1;
+
+		// Use local audio as output, ignoring the ASR.
+		const int ASR_OUTPUT_LOCAL = 2;
+
 		protected delegate void TextInterpretedCallBack(string message);
 		protected delegate void SphinxErrorCallBack(int errorType, string message);
 
@@ -59,8 +65,7 @@ namespace Audio.ASR
 		    string hmmFile,
 			int port,
 			string hostIp,
-			bool as_server,
-			bool using_dry_run);
+			int configuration_flags);
 		
 
 		protected bool m_isRunning;
@@ -138,8 +143,8 @@ namespace Audio.ASR
 				    lm, dic, hmmDir,
 				    port,
 				    hostIp,
-					as_tcp_server,
-					dryRun
+				(as_tcp_server ? 0 : ASR_INPUT_LOCAL) + 
+				(dryRun ? ASR_OUTPUT_LOCAL : 0)
 
 			    ) != 0) {
 

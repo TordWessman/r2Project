@@ -40,12 +40,30 @@ namespace Audio
 			return new Mp3Player (id, m_basePath);
 		}
 
+		/// <summary>
+		/// Creates an ASR server. The ASR server will send audio data received through the TCP server to the ASR engine.
+		/// </summary>
+		/// <returns>The sphinx server.</returns>
+		/// <param name="id">Identifier.</param>
+		/// <param name="port">Port.</param>
+		/// <param name="hostIp">Host ip.</param>
+		/// <param name="lm">Lm.</param>
+		/// <param name="dic">Dic.</param>
+		/// <param name="hmmDir">Hmm dir.</param>
 		public IASR CreateSphinxServer(string id, int port, string hostIp, string lm = null, string dic = null, string hmmDir = null) {
 		
 			return new SphinxASRServer(id, port, hostIp, lm, dic, hmmDir);
 
 		}
 
+		/// <summary>
+		/// Creates a ASR instance that uses local audio as input.
+		/// </summary>
+		/// <returns>The sphinx.</returns>
+		/// <param name="id">Identifier.</param>
+		/// <param name="lm">Lm.</param>
+		/// <param name="dic">Dic.</param>
+		/// <param name="hmmDir">Hmm dir.</param>
 		public IASR CreateSphinx(string id, string lm = null, string dic = null, string hmmDir = null) {
 
 			return new SphinxASRServer(id, lm, dic, hmmDir);
@@ -53,7 +71,7 @@ namespace Audio
 		}
 
 		/// <summary>
-		/// Will create a server that only deliver input to speakers
+		/// Will create a server that only deliver input to speakers.
 		/// </summary>
 		/// <returns>The mic receiver.</returns>
 		/// <param name="id">Identifier.</param>

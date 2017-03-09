@@ -39,6 +39,10 @@
     <Reference Include="AIMLbot">
       <HintPath>..\..\3rdParty\AIMLbot.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\..\3rdParty\IronRuby\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />

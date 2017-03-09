@@ -19,17 +19,17 @@
 using System;
 using Core.Scripting;
 using Core;
-
+using System.Dynamic;
 
 namespace Audio.ASR
 {
 	public class ScriptConversationLock : IConversationLock
 	{
-		Func<string,bool> m_lockFunction;
+		dynamic m_lockFunction;
 
 		public ScriptConversationLock (IScript script, string methodHandle)
 		{
-			m_lockFunction = script.GetTyped<Func<string,bool>> (methodHandle);
+			m_lockFunction = script.Get (methodHandle);
 		}
 
 		#region IConversationLock implementation

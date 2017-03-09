@@ -16,18 +16,21 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-/**
-*
-*
-*
-*/
-
 #include <gst/gst.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+/** Configuration flags **/
+
+// Local audio input as source instead of the TCP server
+#define ASR_INPUT_LOCAL 1
+
+// Use local audio as output, ignoring the ASR.
+#define ASR_OUTPUT_LOCAL 2
+
+/** Status codes **/
 #define ASR_ERROR_INIT_FAILED 1024
 #define ASR_ERROR_INIT_POCKETSPHINX_FAILED 8192
 #define ASR_ERROR_LINK_FAILED 16384
@@ -35,7 +38,7 @@
 #define ASR_WARNING 65536
 #define ASR_EOS 131072
 
-/*if true = callback methods will be called upon receiving data */
+/* If true, callback methods will be called upon receiving data */
 void _ext_asr_set_is_active (bool report_mode);
 bool _ext_asr_get_is_active ();
 
@@ -55,12 +58,11 @@ int _ext_asr_start ();
 	*) lmFile: is the path to the language model file
 	*) dictFile: is the path to the dictionary file
 	*) hmmFile: is the path to the file containing the audio vocabulary file
-	*) as_server: if true, the src element will not be autoaudiosrc, but a tcpserversrc
-	*) using_dry_run: if true, the ASR will be omitted and audio transfered to autoaudiosink
+	*) configuration_flags: Determines how the pipeline will be configured.
 **/
 int _ext_asr_init (const char*(*textReceivedCallback)(const char *message ),
 		  const char*(*reportErrorCallback)(int type, const char *message),
-		  const char *lmFile, const char *dictFile, const char *hmmFile, int port, const char* hostIp,  bool as_server, bool using_dry_run);
+		  const char *lmFile, const char *dictFile, const char *hmmFile, int port, const char* hostIp, int configuration_flags);
 		  
 void _ext_asr_set_text_received_callback(const char*(*text_received_callback)(const char *message ));
 void _ext_asr_set_report_error_callback (const char*(*report_error_callback)(int type, const char *message));

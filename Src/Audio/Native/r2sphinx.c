@@ -27,10 +27,9 @@ static bool is_active = true, is_running = false, use_tcp_server = false, should
 static int m_port = 5002, error_count = 0;
 static const char *m_hostIp;
 static GMainLoop *loop;
+GstElement *pipeline;
 
 #define MAX_ERROR_RETRIES 10
-
-GstElement *pipeline, *source, *gdpdepay,  *decoder, *sink, *audioconvert, *audioresample;
 
 static GstBus *bus;	//the bus element te transport messages from/to the pipeline
 guint bus_watch_id;
@@ -42,13 +41,11 @@ void turn_off () {
 
 	should_turn_off = true;
 	g_main_loop_quit(loop);
-	//gst_element_set_state(GST_ELEMENT(pipeline), GST_STATE_NULL);
 
 }
 
 //the send error method WILL send errors back to the caller
-int send_error (int error_type, const char *error_message)
-{
+int send_error (int error_type, const char *error_message) {
 	if (report_error != NULL) {
 		report_error(error_type, error_message);
 	}
@@ -63,9 +60,7 @@ char *strdupa (const char *s) {
     return d;                            // Return new memory
 }
 
-static gboolean
-bus_call(GstBus * bus, GstMessage * msg, gpointer data)
-{
+static gboolean bus_call(GstBus * bus, GstMessage * msg, gpointer data) {
     GMainLoop *loop = (GMainLoop *) data;
 
     switch (GST_MESSAGE_TYPE(msg)) {
@@ -117,22 +112,37 @@ bus_call(GstBus * bus, GstMessage * msg, gpointer data)
 
     }
 
-    return TRUE;
+    return true;
+
 }
 
-int _ext_asr_turn_off()
-{
+int _ext_asr_turn_off() {
 	turn_off ();
 	return 1;
 }
 
+GstCaps* asr_create_caps(int rate) {
 
-int init_elements (const char *lm_file, const char *dict_file, const char *hmm_file)
-{
+	return gst_caps_new_simple("audio/x-raw",
+		"rate", G_TYPE_INT, rate,
+		"depth", G_TYPE_INT, 8,	
+		"width", G_TYPE_INT, 8,
+		"channels", G_TYPE_INT, 1,
+		//"endianess", G_TYPE_INT, 1234,
+		"signed", G_TYPE_BOOLEAN, true,
+		"layout", G_TYPE_STRING, "interleaved",
+		"format", G_TYPE_STRING, "S16LE",
+		NULL);
+}
+
+int init_elements (const char *lm_file, const char *dict_file, const char *hmm_file) {
+
+	GstElement *source, *gdpdepay,  *decoder, *sink, *audioconvert, *audioresample;
 
 	if (use_tcp_server) {
 
 		if (!m_hostIp) { return send_error (0, "No host ip assigned!"); }
+
 		source = gst_element_factory_make("tcpserversrc", "audiosrc");
 		g_object_set(G_OBJECT(source), "port", m_port, NULL);
 		g_object_set(G_OBJECT(source), "host", m_hostIp, NULL);
@@ -152,6 +162,7 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 
 	    	decoder = gst_element_factory_make("queue", "queue");
 	    	sink = gst_element_factory_make("autoaudiosink", "output");	
+		g_object_set(G_OBJECT(sink), "sync", false, NULL);
 		
 	} else {
 
@@ -160,31 +171,30 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 
 	}
 
-    gst_bin_add_many(GST_BIN(pipeline), source, gdpdepay, audioconvert , audioresample , decoder, sink, NULL);
+	if (!source || !audioconvert) { return send_error(ASR_ERROR_INIT_FAILED, "Unable create src or audioconvert"); }
 
-	GstCaps *caps = gst_caps_new_simple("audio/x-raw",
-		"rate", G_TYPE_INT, 16000,
-		"depth", G_TYPE_INT, 16,	
-		"width", G_TYPE_INT, 16,
-		"channels", G_TYPE_INT, 1,
-		"endianess", G_TYPE_INT, 1234,
-		"signed", G_TYPE_BOOLEAN, true,
-		"layoun", G_TYPE_STRING, "interleaved",
-		"format", G_TYPE_STRING, "S16LE",
-		NULL);
+    	
 
 	if (use_tcp_server) {
 
-		if (!gst_element_link_many ( source, gdpdepay, NULL)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to source to gdpdepap!");  }
-		if (!gst_element_link_filtered( gdpdepay, audioconvert, caps)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link gdpdepay to audioconvert!");  }
+		gst_bin_add_many(GST_BIN(pipeline), source, gdpdepay, audioconvert , audioresample , decoder, sink, NULL);
+
+		if (!gst_element_link ( source, gdpdepay)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to source to gdpdepap!"); }
+		if (!gst_element_link_filtered( gdpdepay, audioconvert, asr_create_caps(44100))) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link gdpdepay to audioconvert!"); }
+		if (!gst_element_link ( audioconvert, audioresample)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link audioconvert to audioresample!"); }
+		if (!gst_element_link_filtered( audioresample, decoder, asr_create_caps(16000))) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link audioresample to decoder!"); }
+		if (!gst_element_link (decoder, sink)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link decoder to sink!"); }
 
 	} else {
+		
+		gst_bin_add_many(GST_BIN(pipeline), source, audioconvert , audioresample , decoder, sink, NULL);
 
-		if (!gst_element_link_filtered( source, audioconvert, caps)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to converter!");  }
-
+		if (!gst_element_link_filtered( source, audioconvert, asr_create_caps(16000))) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to converter!"); }
+		if (!gst_element_link_many(audioconvert , audioresample , decoder, sink, NULL)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link elements!"); }
+		
 	} 
 	
-	if (!gst_element_link_many(audioconvert , audioresample , decoder, sink, NULL)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link elements!"); }
+	
 
 	if (hmm_file && lm_file && dict_file) {
 
@@ -203,8 +213,7 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 
 }
 
-int _ext_asr_start ()
-{
+int _ext_asr_start () {
 	if (is_running) {
 		send_error (0, "Unable to start ASR - already running!");
 		return 1;  
@@ -250,33 +259,36 @@ int _ext_asr_start ()
 	return 0;
 }
 
-void _ext_asr_set_text_received_callback(const char*(*text_received_callback)(const char *message ))
-{
+void _ext_asr_set_text_received_callback(const char*(*text_received_callback)(const char *message )) {
+
 	text_received = text_received_callback;
+
 }
-void _ext_asr_set_report_error_callback (const char*(*report_error_callback)(int type, const char *message))
-{
+
+void _ext_asr_set_report_error_callback (const char*(*report_error_callback)(int type, const char *message)) {
+
 	report_error = report_error_callback;
+
 }
 
 int _ext_asr_init (const char*(*text_received_callback)(const char *message ),
 		  const char*(*report_error_callback)(int type, const char *message),
-		  const char *lm_file, const char *dict_file, const char *hmm_file, int port, const char *hostIp, bool as_server, bool using_dry_run)
-{
-
-	use_tcp_server = as_server;
-	dry_run = using_dry_run;
+		  const char *lm_file, const char *dict_file, const char *hmm_file, int port, const char *hostIp, int configuration_flags) {
 
 	_ext_asr_set_text_received_callback(text_received_callback);
 	_ext_asr_set_report_error_callback(report_error_callback);
 
+	if (configuration_flags == (ASR_INPUT_LOCAL | ASR_OUTPUT_LOCAL)) {
+		
+		return send_error(ASR_ERROR_INIT_FAILED, "Bad ASR configuration: using both local input and output.");
+	}
+
+	use_tcp_server = !(configuration_flags & ASR_INPUT_LOCAL);
+	dry_run = configuration_flags & ASR_OUTPUT_LOCAL;
+
 	m_port = port;
 
-	if (hostIp) {
-		m_hostIp = strdupa (hostIp);	
-	}
-	
-	int fail = 0;
+	if (hostIp) { m_hostIp = strdupa (hostIp); }
 
 	if (lm_file == NULL || dict_file == NULL || hmm_file == NULL) {
 	
@@ -293,31 +305,28 @@ int _ext_asr_init (const char*(*text_received_callback)(const char *message ),
 		fh = fopen(lm_file, "rb");
 
 	    	if (lm_file && fh == NULL) {
-			printf("\nFailed to open lm_file:%s\n", lm_file);
-			fail = 1;
+
+			return send_error(ASR_ERROR_INIT_FAILED, "Failed to open lm_file. Check if file exists.");
+
 		} else { fclose(fh); }
 
 		fh = fopen(dict_file, "rb");
+
 	    	if (dict_file && fh == NULL) {
-			printf("\nFailed to open dict_file:%s\n", dict_file);
-			fail = 1;
+
+			return send_error(ASR_ERROR_INIT_FAILED, "Failed to open dict_file. Check if file exists.");
+
 		} else { fclose(fh); }	
 	
 		fh = fopen(hmm_file, "rb");
 	    	
 		if (hmm_file && fh == NULL) {
-			printf("\nFailed to open hmm_file:%s\n", hmm_file);
-			fail = 1;
+
+			return send_error(ASR_ERROR_INIT_FAILED, "Failed to open hmm_file. Check if file exists.");
+
 		} else { fclose(fh); }
 
-		if (fail == 1)
-		{
-			g_critical("ASR init failed!");
-
-			return fail;
-		} 
-
-		lm_file_name = strdupa(lm_file); //copy and use stack! (gnu only)
+		lm_file_name = strdupa(lm_file); // copy and use stack! (gnu only)
 		dic_file_name = strdupa(dict_file);
 		hmm_file_name = strdupa(hmm_file);
 
@@ -325,50 +334,42 @@ int _ext_asr_init (const char*(*text_received_callback)(const char *message ),
 
 	gst_init (NULL, NULL);
 	
-	int init_elements_result = init_elements(lm_file_name , dic_file_name, hmm_file_name);
-
-	if (init_elements_result  != 0) {		
-		return 1;
-	}
-	return fail;
+	return init_elements(lm_file_name , dic_file_name, hmm_file_name);
 
 }
 
-void _ext_asr_set_is_active (bool report_mode)
-{
+void _ext_asr_set_is_active (bool report_mode) {
 	printf (report_mode ? " ASR is active\n" : " ASR is inactive\n");
 	is_active = report_mode;
 	GstState currentState = GST_STATE(GST_ELEMENT(pipeline));
 
 	if (is_active && currentState == GST_STATE_PAUSED) {
+
 		gst_element_set_state(GST_ELEMENT(pipeline), GST_STATE_PLAYING);	
+
 	} else if (!is_active && currentState== GST_STATE_PLAYING) {
+
 		gst_element_set_state(GST_ELEMENT(pipeline), GST_STATE_PAUSED);
+
 	}
 	
 }
 
-bool _ext_asr_get_is_active () 
-{
-	return is_active;
-}
+bool _ext_asr_get_is_active ()  { return is_active; }
 
+bool _ext_asr_get_is_running () { return is_running; }
 
+// Compile without the -shared flag if you want to test-run this locally
+int main (int argc, char *argv[]) {
 
-bool _ext_asr_get_is_running () 
-{
-	return is_running;
-}
-
-//Compile without the -shared flag if you want to test-run this locally
-int main (int argc, char *argv[])
-{
+	// Test server: gst-launch-1.0 -v tcpserversrc host=192.168.0.10 port=9876 ! gdpdepay !  audio/x-raw,format=S16LE,channels=1,layout=interleaved,width=16,depth=16,rate=16000,signed=true  ! audioconvert ! audioresample ! alsasink
+	// Test client: gst-launch-1.0 -v autoaudiosrc ! audio/x-raw,format=S16LE,channels=1,layout=interleaved,width=16,depth=16,rate=16000,signed=true ! gdppay ! tcpclientsink host=192.168.0.10 port=3333
 
 	if (_ext_asr_init (0,0,
 			NULL, //arpa
 			NULL, //dict
 			NULL, //language model
-			3333, "192.168.1.143", true, true ) == 0) {
+			0, NULL, ASR_INPUT_LOCAL) == 0) {
 		_ext_asr_start ();
 
 		while (is_running) {
