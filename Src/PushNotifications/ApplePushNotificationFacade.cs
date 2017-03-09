@@ -53,7 +53,7 @@ namespace PushNotifications
 
 			fbs.FeedbackReceived += (string deviceToken, DateTime timestamp) => {
 
-				Log.w("Obsolete device token: " + deviceToken);
+				Log.w($"Obsolete device token: {deviceToken}");
 
 			};
 

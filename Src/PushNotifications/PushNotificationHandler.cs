@@ -22,13 +22,14 @@ using Core.Memory;
 using System.Collections.Generic;
 using Core;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PushNotifications
 {
 	/// <summary>
 	/// Uses the IMemorySource to keep track of and send push notifications.
 	/// </summary>
-	public class PushNotificationHandler: DeviceBase, IPushNotificationProxy
+	public class PushNotificationHandler: DeviceBase, IPushNotificationProxy, ITaskMonitored
 	{
 
 		public const string PUSH_CLIENT_ID = "push_client_id";
@@ -37,6 +38,8 @@ namespace PushNotifications
 
 		private IMemorySource m_memory;
 		private ICollection<IPushNotificationFacade> m_facades;
+		private bool m_isSending;
+		private Task m_sendTask;
 
 		public PushNotificationHandler (string id, IMemorySource memory) : base (id)
 		{
@@ -51,6 +54,8 @@ namespace PushNotifications
 			RegisterClient (deviceId, deviceToken, (PushNotificationClientType) rawType);
 
 		}
+
+		public override bool Ready { get { return !m_isSending; } }
 
 		public void RegisterClient (string deviceId, string deviceToken, PushNotificationClientType type)
 		{
@@ -90,46 +95,61 @@ namespace PushNotifications
 
 		}
 
-		public void AddFacade (IPushNotificationFacade facade)
-		{
-		
-			m_facades.Add (facade);
-		
-		}
+		public void AddFacade (IPushNotificationFacade facade) { m_facades.Add (facade); }
 
 		public void Broadcast(IPushNotification notification) {
 
-			m_facades.AsParallel().ForAll (facade => {
+			m_isSending = true;
+
+			m_sendTask = Task.Factory.StartNew( () => {
 			
-				if (facade.AcceptsNotification(notification)) {
+				m_facades.AsParallel().ForAll (facade => {
 
-					List<string> tokens = new List<string> ();
+					SendNotifictation(notification, facade);
 
-					foreach (IMemory type in m_memory.All(PUSH_CLIENT_TYPE)) {
+				});
 
-						if ((notification.ClientTypeMask & Convert.ToInt32 (type.Value)) > 0) {
+				m_isSending = false;
 
-							IMemory token = type.GetAssociation (PUSH_CLIENT_TOKEN);
+			});
 
-							if (token != null) {
+		}
 
-								tokens.Add (token.Value);
+		public IDictionary<string,Task> GetTasksToObserve() {
+		
+			return new Dictionary<string,Task> () { { this.ToString (), m_sendTask } };
+		
+		}
 
-							} else {
+		private void SendNotifictation (IPushNotification notification, IPushNotificationFacade facade) {
 
-								Log.e ($"PushNotification Broadcast error: A device of type '{PUSH_CLIENT_TYPE}' has no token.");
+			if (facade.AcceptsNotification(notification)) {
 
-							}
+				List<string> tokens = new List<string> ();
+
+				foreach (IMemory type in m_memory.All(PUSH_CLIENT_TYPE)) {
+
+					if ((notification.ClientTypeMask & Convert.ToInt32 (type.Value)) > 0) {
+
+						IMemory token = type.GetAssociation (PUSH_CLIENT_TOKEN);
+
+						if (token != null) {
+
+							tokens.Add (token.Value);
+
+						} else {
+
+							Log.e ($"PushNotification Broadcast error: A device of type '{PUSH_CLIENT_TYPE}' has no token.");
 
 						}
 
 					}
 
-					facade.QueuePushNotification (notification, tokens);
-
 				}
 
-			});
+				facade.QueuePushNotification (notification, tokens);
+
+			}
 
 		}
 
