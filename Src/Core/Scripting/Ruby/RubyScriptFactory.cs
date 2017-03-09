@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using System.IO;
 using Core.Device;
 using System.Threading.Tasks;
+using Microsoft.Scripting.Hosting;
+using IronRuby;
 
 
 namespace Core.Scripting
@@ -30,17 +32,29 @@ namespace Core.Scripting
 	/// </summary>
 	public class RubyScriptFactory : DeviceBase, IScriptFactory<RubyScript>
 	{
-		private string m_scriptSourcePath;
-		private IDeviceManager m_deviceManager;
-		private ICollection<string> m_paths;
+
 		private const string RUBY_FILE_EXTENSION = ".rb";
 		private const string RUBY_COMMAND_SCRIPT_ID_POSTFIX = "_in_command_script";
+
+		private string m_scriptSourcePath;
+		private IDeviceManager m_deviceManager;
 		private ITaskMonitor m_taskMonitor;
-		
-		public RubyScriptFactory (string id, string scriptSourcePath, 
-		                      ICollection<string> paths,
-		                      IDeviceManager deviceManager,
-		                       ITaskMonitor taskMonitor) : base (id)
+		private ScriptEngine m_engine;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Core.Scripting.RubyScriptFactory"/> class.
+		/// scriptSourcePath points to the default directory containing scripts. paths is an array of ruby search paths.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="scriptSourcePath">Script source path.</param>
+		/// <param name="paths">Paths.</param>
+		/// <param name="deviceManager">Device manager.</param>
+		/// <param name="taskMonitor">Task monitor.</param>
+		public RubyScriptFactory (string id, 
+								string scriptSourcePath, 
+		                      	ICollection<string> paths,
+		                      	IDeviceManager deviceManager,
+		                      	ITaskMonitor taskMonitor) : base (id)
 		{
 
 			if (scriptSourcePath.EndsWith (Path.DirectorySeparatorChar.ToString ())) {
@@ -50,9 +64,11 @@ namespace Core.Scripting
 			}
 
 			m_taskMonitor = taskMonitor;
-			m_paths = paths;
+
 			m_deviceManager = deviceManager;
 			m_scriptSourcePath = scriptSourcePath;
+			m_engine = Ruby.CreateEngine ();
+			m_engine.SetSearchPaths (paths);
 		
 		}
 		
@@ -96,10 +112,16 @@ namespace Core.Scripting
 			
 		public RubyScript CreateScript (string id, string sourceFile = null) {
 		
-			return new RubyScript (id,
+			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
+
+			inputParams.Add(RubyScript.HANDLE_DEVICES, m_deviceManager);
+
+			RubyScript script = new RubyScript (id,
 				GetSourceFilePath(id,sourceFile),
-				m_paths,
-				m_deviceManager);
+				m_engine, inputParams);
+			
+			return script;
+
 		}
 		
 		public string GetSourceFilePath (string id, string sourceFile = null)
@@ -117,7 +139,7 @@ namespace Core.Scripting
 
 			if (!File.Exists (sourceFilePath)) {
 
-				throw new ArgumentException ("Ruby file with path '" + sourceFilePath + "' does not exist.");
+				throw new ArgumentException ($"Ruby file with path '{sourceFilePath}' does not exist.");
 
 			}
 

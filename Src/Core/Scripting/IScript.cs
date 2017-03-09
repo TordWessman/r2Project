@@ -28,13 +28,7 @@ namespace Core.Scripting
 	/// </summary>
 	public interface IScript : IDevice
 	{
-
-		/// <summary>
-		/// Returns the script main class 
-		/// </summary>
-		/// <value>The main class.</value>
-		dynamic MainClass { get; }
-
+		
 		/// <summary>
 		/// Set the variable identified by handle to value.
 		/// </summary>
@@ -49,17 +43,16 @@ namespace Core.Scripting
 		dynamic Get (string handle);
 
 		/// <summary>
-		/// Returns a variable or method typed as T. (i.e: a method, f(Y) -> X, would be specified as Func<X,Y> 
-		/// </summary>
-		/// <returns>The typed.</returns>
-		/// <param name="methodHandle">Method handle.</param>
-		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		T GetTyped<T> (string methodHandle);
-
-		/// <summary>
 		/// Reloads the script from script file.
 		/// </summary>
 		void Reload();
-	}
-}
 
+		/// <summary>
+		/// Invokes a method using provided arguments (args) and returning result (or null if a void function invoced)
+		/// </summary>
+		/// <param name="args">Arguments.</param>
+		dynamic Invoke (string handle, params dynamic[] args);
+
+	}
+
+}

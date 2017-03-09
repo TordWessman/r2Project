@@ -17,30 +17,58 @@
 //
 //
 using System;
+using Core.Device;
+using NLua;
+using System.Linq;
 
 namespace Core.Scripting
 {
-	public class RubySrlptInterpreter: IScriptInterpreter
+	public class LuaScript : DeviceBase, IScript
 	{
-		private RubyScript m_rubyScript;
+		private Lua m_state;
+		private string m_fileName;
 
-		/// <summary>
-		/// The IScript must be of type 
-		/// </summary>
-		/// <param name="rubyScript">Ruby script.</param>
-		public RubySrlptInterpreter (RubyScript rubyScript)
+		public LuaScript (string id, string fileName) : base (id)
 		{
+			
+			m_state = new Lua ();
+			m_fileName = fileName;
 
-			m_rubyScript = rubyScript;
+			Reload()
 		
 		}
 
-		public bool Interpret(string expression) {
-
-			return m_rubyScript.Get(RubyScript.HANDLE_MAIN_CLASS).@interpret (expression);
+		public void Set (string handle, dynamic value) {
 		
+			m_state [handle] = value;
+
 		}
 
+		public dynamic Get (string handle) {
+		
+			return m_state [handle];
+
+		}
+
+		public dynamic Invoke (string handle, params dynamic[] args) {
+		
+			LuaFunction function = m_state [handle] as LuaFunction;
+		
+			return function.Call (args)?.FirstOrDefault ();
+
+		}
+
+		public override void Start () {
+			
+		}
+
+		public void Reload() {
+
+			m_state.LoadCLRPackage ();
+			m_state.DoFile (m_fileName);
+
+		}
+	
 	}
 
 }

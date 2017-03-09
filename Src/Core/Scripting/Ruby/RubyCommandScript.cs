@@ -42,7 +42,7 @@ namespace Core.Scripting
 		
 		public object Execute (string text)
 		{
-			m_script.MainClass.@execute (text);
+			m_script.Get(RubyScript.HANDLE_MAIN_CLASS).@execute (text);
 
 			foreach (IScriptObserver observer in m_observers) {
 				if (observer != null) {

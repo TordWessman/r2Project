@@ -31,31 +31,48 @@ namespace Core.Scripting
 	/// </summary>
 	public class RubyScript : DeviceBase, IScript
 	{
+		/// <summary>
+		/// The required name of the main class in each ruby script
+		/// </summary>
 		public const string HANDLE_MAIN_CLASS = "main_class";
-		public const string HANDLE_ROBOT = "robot";
 
-		protected string m_fileName;
+		/// <summary>
+		/// The object which will contain the device manager. Should be set before execution.
+		/// </summary>
+		public const string HANDLE_DEVICES = "robot";
+
 		protected ScriptEngine m_engine;
 		protected ScriptScope m_scope;
 		protected ScriptSource m_source;
-		protected IDeviceManager m_deviceManager;
 
+		// The name of the ruby script file being executed
+		protected string m_fileName;
+
+		// Reference to the main class of the script
 		private dynamic m_mainClass;
+
+		// Contains a list of input parameters
+		private IDictionary<string, dynamic> m_params;
+
+		// If syntax error exception occurs, this will be true;
 		private bool m_hasSyntaxErrors;
 
-		public dynamic MainClass { get { return m_mainClass; } }
+		//public dynamic MainClass { get { return m_mainClass; } }
 
-		public RubyScript (string id, 
-		                    string fileName, 
-		                    ICollection<string> searchPaths, 
-		                    IDeviceManager deviceManager) : base (id)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Core.Scripting.RubyScript"/> class. id is the Device Identifier of the script. fileName is the absolute path to the file being executed, engine is the RubyEngine and parameters are a list of input parameters being set before execution.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="fileName">File name.</param>
+		/// <param name="engine">Engine.</param>
+		/// <param name="parameters">Parameters.</param>
+		public RubyScript (string id, string fileName, ScriptEngine engine, IDictionary<string, dynamic> parameters) : base (id)
 		{
 
 			m_fileName = fileName;
-			m_engine = Ruby.CreateEngine ();
+			m_engine = engine;
 			m_scope = m_engine.CreateScope ();
-			m_engine.SetSearchPaths (searchPaths);
-			m_deviceManager = deviceManager;
+			m_params = parameters;
 
 			Reload ();
 
@@ -67,16 +84,21 @@ namespace Core.Scripting
 			
 			if (!File.Exists (m_fileName)) {
 
-				throw new IOException ("Ruby file does not exist: " + m_fileName);
+				throw new IOException ($"Ruby file does not exist: {m_fileName}");
 			
 			} else {
 			
-				Log.d ("Loading script: " + m_fileName);
+				Log.d ($"Loading script: {m_fileName}");
 			
 			}
 
-			m_scope.SetVariable (HANDLE_ROBOT, m_deviceManager);
 			m_source = m_engine.CreateScriptSourceFromFile (m_fileName);
+
+			foreach (KeyValuePair<string, dynamic> kvp in m_params) {
+			
+				Set (kvp.Key, kvp.Value);
+
+			}
 
 			try {
 
@@ -110,40 +132,38 @@ namespace Core.Scripting
 		
 		public override bool Ready { get {return m_mainClass != null;} }
 
-		public void Set (string handle, dynamic value)
-		{
+		public void Set (string handle, dynamic value) {
+			
 			m_scope.SetVariable (handle, value);
 		
 		}
 		
-		public dynamic Get (string handle)
-		{
+		public dynamic Get (string handle) {
 
 			System.Runtime.Remoting.ObjectHandle tmp;
 			
 			if (!m_scope.TryGetVariableHandle (handle, out tmp)) {
 
-				Log.e ("Unable to get handle: " + handle + " from script: " + Identifier);
+				Log.e ($"Unable to get handle: {handle} from script: {Identifier}" );
 			
 			}
 			
 			return tmp.Unwrap();
 
+		} 
+
+		public dynamic Invoke (string handle, params dynamic[] args) {
+
+			return m_engine.Operations.InvokeMember (m_mainClass, handle, args);
+
 		}
 		
-		private void HandleSyntaxException (Exception ex)
-		{
+		private void HandleSyntaxException (Exception ex) {
 			
 			m_hasSyntaxErrors = true;
 			m_mainClass = null;
-			Log.e ("Script: " + m_fileName + " contains syntax error and will not be started: ");
+			Log.e ("Script: '{m_fileName}' contains syntax error and will not be executed: ");
 			Log.x (ex);
-
-		}
-
-		public T GetTyped<T> (string methodHandle)
-		{	
-			return m_scope.GetVariable<T> (methodHandle);
 
 		}
 

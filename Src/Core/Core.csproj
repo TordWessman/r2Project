@@ -65,6 +65,9 @@
       <HintPath>..\..\3rdParty\websocket-sharp.dll</HintPath>
     </Reference>
     <Reference Include="System.Web" />
+    <Reference Include="NLua">
+      <HintPath>..\..\3rdParty\NLua.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -112,7 +115,6 @@
     <Compile Include="Device\IRemotlyAccessable.cs" />
     <Compile Include="Scripting\IScript.cs" />
     <Compile Include="Scripting\IScriptFactory.cs" />
-    <Compile Include="Scripting\Ruby\RubyProcess.cs" />
     <Compile Include="Device\RemotlyAccessableDeviceBase.cs" />
     <Compile Include="Scripting\ICommandScript.cs" />
     <Compile Include="Scripting\Ruby\RubyScript.cs" />
@@ -228,6 +230,8 @@
     <Compile Include="Network\Web\TCP\TCPServer.cs" />
     <Compile Include="Network\Web\TCP\TCPPackage.cs" />
     <Compile Include="Shared\R2Dynamic.cs" />
+    <Compile Include="Scripting\Lua\LuaScript.cs" />
+    <Compile Include="Scripting\Lua\LuaScriptFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -249,6 +253,7 @@
     <Folder Include="Network\Web\Http\" />
     <Folder Include="Network\Web\WebSockets\" />
     <Folder Include="Network\Web\TCP\" />
+    <Folder Include="Scripting\Lua\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

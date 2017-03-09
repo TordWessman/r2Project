@@ -46,7 +46,7 @@ namespace Core.Network.Web
 
 		public IWebIntermediate OnReceive (dynamic input) {
 			
-			T response = m_script.MainClass.@on_receive (input, new T());
+			T response = m_script.Get(RubyScript.HANDLE_MAIN_CLASS).@on_receive (input, new T());
 
 			response.CLRConvert ();
 

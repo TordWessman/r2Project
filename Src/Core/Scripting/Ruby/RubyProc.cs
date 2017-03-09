@@ -20,6 +20,7 @@ using System;
 using Core.Device;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Dynamic;
 
 namespace Core.Scripting
 {
@@ -35,13 +36,13 @@ namespace Core.Scripting
 		private Task m_processTask;
 
 		private IScript m_script;
+		private dynamic m_mainClass;
 
 		public RubyProc (string id, IScript script) : base (id)
 		{
 			m_observers = new List<IScriptObserver> ();
 			m_script = script;
-
-			//TODO: Check all required functions
+			m_mainClass = script.Get (RubyScript.HANDLE_MAIN_CLASS);
 
 			m_processTask = GetProcessTask ();
 		}
@@ -57,11 +58,9 @@ namespace Core.Scripting
 			
 			return new Task (() => {
 
-				m_script?.MainClass?.@enable();
+				while (false != m_mainClass?.@should_run() && true == m_mainClass?.@loop ()) {
 
-				while (false != m_script.MainClass?.@should_run()) {
-
-					m_script.MainClass.@loop ();
+					// In the class' loop function
 
 				}
 
@@ -92,7 +91,7 @@ namespace Core.Scripting
 			try {
 				
 				m_isRunning = true;
-				m_script.MainClass.@setup ();
+				m_mainClass.@setup ();
 				m_processTask.Start ();
 
 			} catch (Exception ex) {
@@ -113,7 +112,7 @@ namespace Core.Scripting
 
 		public override void Stop () {
 		
-			m_script?.MainClass?.@disable();
+			m_mainClass?.@disable();
 			m_processTask = GetProcessTask ();
 
 		}
