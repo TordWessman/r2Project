@@ -22,7 +22,7 @@ namespace Core.Device
 {
 	public interface IOutputPort : IDevice
 	{
-		void Set (bool value);
+		bool Value { get; set; }
 	}
 }
 

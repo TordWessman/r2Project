@@ -39,6 +39,18 @@ namespace GPIO
 
 		}
 
+		public bool Value  {
+
+			set {
+
+				throw new NotImplementedException();
+
+			}
+
+			get { throw new NotImplementedException(); }
+
+		}
+
 		public void Set(bool value) {
 		
 			m_driver.Write (m_pin, value);
