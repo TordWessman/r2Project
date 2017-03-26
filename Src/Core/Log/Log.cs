@@ -40,11 +40,16 @@ namespace Core
 			}
 
 		}
+
+		public static void Instantiate(string id) {
 		
-		public static Log Instance 
-		{
-			get 
-			{
+			Log.instance = new Log (id);
+
+		}
+		
+		public static Log Instance  {
+
+			get {
 
 				return instance; 
 				
@@ -52,23 +57,19 @@ namespace Core
 
 		}
 		
-		public Log (string id): base (id)
-		{
+		public Log (string id): base (id) {
 
 			loggers = new List<IMessageLogger>();
 		
 		}
 		
-		public void AddLogger(IMessageLogger logger) 
-		{
-			Log.instance = this;
-
+		public void AddLogger(IMessageLogger logger) {
+			
 			loggers.Add(logger);
 		
 		}
 	
-		public void Write (ILogMessage message)
-		{
+		public void Write (ILogMessage message) {
 			
 			if (loggers.Count == 0) {
 
@@ -85,16 +86,27 @@ namespace Core
 		}
 
 		public void message(object message, string tag = null) {
+			
 			Log.Instance.Write (new LogMessage (message, LogType.Message, tag));
+		
 		}
+
 		public void warning(object message, string tag = null) {
+		
 			Log.Instance.Write (new LogMessage (message, LogType.Warning, tag));
+		
 		}
+
 		public void error(object message, string tag = null) {
+		
 			Log.Instance.Write (new LogMessage (message, LogType.Error, tag));
+		
 		}
+
 		public void temp(object message, string tag = null) {
+		
 			Log.Instance.Write (new LogMessage (message, LogType.Temp, tag));
+		
 		}
 
 		/// <summary>
