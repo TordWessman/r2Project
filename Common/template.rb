@@ -1,31 +1,26 @@
-class MainClass
+require 'scriptbase'
 
-	def initialize (global_object)
-		@go = global_object
-		@should_run = true
+class MainClass < ScriptBase
 
-	end
 	def setup
 		
-		puts "TEMPLATE"
+		OP::msg "TEMPLATE"
+		# set up code for ruby processes goes here
 
 	end
 
 	def loop
+		
+		# will continue to run until stopped or if returning false
 		sleep (1);
 		print "."
-	end
 
-	def stop
-		@should_run = false
-	end
-
-	def should_run
-		return @should_run
+		# return true if loop should continue. Otherwise it will stop.
+		return true
 	end
 
 
 end
 
-self.main_class = MainClass.new(self)
+self.main_class = MainClass.new()
 
