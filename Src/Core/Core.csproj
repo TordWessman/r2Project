@@ -68,6 +68,9 @@
     <Reference Include="NLua">
       <HintPath>..\..\3rdParty\NLua.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework, Version=2.6.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>nunit</Package>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -232,6 +235,14 @@
     <Compile Include="Shared\R2Dynamic.cs" />
     <Compile Include="Scripting\Lua\LuaScript.cs" />
     <Compile Include="Scripting\Lua\LuaScriptFactory.cs" />
+    <Compile Include="Tests\RubyScriptTests.cs" />
+    <Compile Include="Tests\DummyClasses\Networking\DummyHostManager.cs" />
+    <Compile Include="Tests\DummyClasses\Networking\DummyR2Server.cs" />
+    <Compile Include="Tests\DummyClasses\DummyTaskMonitor.cs" />
+    <Compile Include="Tests\TestBase.cs" />
+    <Compile Include="Log\FileLogger.cs" />
+    <Compile Include="Tests\DummyClasses\CoreTests.cs" />
+    <Compile Include="Scripting\ScriptBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -254,6 +265,8 @@
     <Folder Include="Network\Web\WebSockets\" />
     <Folder Include="Network\Web\TCP\" />
     <Folder Include="Scripting\Lua\" />
+    <Folder Include="Tests\DummyClasses\" />
+    <Folder Include="Tests\DummyClasses\Networking\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

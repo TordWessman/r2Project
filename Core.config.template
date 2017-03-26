@@ -9,7 +9,7 @@
 		<Common relative="./r2Project/Common" comment="Shared project resources path."/>
 		<!-- RubyLib path should be pointing at the location where the standard ruby components resides. -->
 		<RubyLib comment="Standard ruby libraries." absolute="/usr/lib/ruby/2.1.0" />
-
+		<TestData relative="./r2Project/TestData" comment="Contains resource files for tests."/>
 		<Resources comment="Resource base path." relative="./Resources">
 			<Scripts comment="contains various types of runtime scripts">
 				<Ruby comment="Here be all Ruby script files.">
@@ -39,7 +39,7 @@
 	</Paths>
 	<Identifiers>
 		<Core>core</Core>
-		<DeviceManager comment="Keeps track of all IDevice implementations.">device_manager</DeviceManager>
+		<DeviceManager comment="Keeps track of all IDevice implementations. Should not be changed, since scripts are accessing it.">device_manager</DeviceManager>
 		<HostManager comment="Host manager. Keep tracks of/receive hello packages from remote hosts and broadcasts existance.">hostmgr</HostManager>
 		<Server>server</Server>
 		<ScriptFactory comment="Responsible for creating new (iron) scripts">script_factory</ScriptFactory>

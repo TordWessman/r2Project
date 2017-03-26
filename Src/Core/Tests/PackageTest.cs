@@ -22,7 +22,7 @@ using Core.Network.Data;
 using Core.Device;
 using System.Collections.Generic;
 
-namespace Core.Test
+namespace Core.Tests
 {
 	public class PackageTest
 	{

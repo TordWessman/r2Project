@@ -36,13 +36,13 @@ namespace Core.Scripting
 		private Task m_processTask;
 
 		private IScript m_script;
-		private dynamic m_mainClass;
+		//private dynamic m_mainClass;
 
 		public RubyProc (string id, IScript script) : base (id)
 		{
 			m_observers = new List<IScriptObserver> ();
 			m_script = script;
-			m_mainClass = script.Get (RubyScript.HANDLE_MAIN_CLASS);
+			//m_mainClass = script.Get (RubyScript.HANDLE_MAIN_CLASS);
 
 			m_processTask = GetProcessTask ();
 		}
@@ -58,11 +58,20 @@ namespace Core.Scripting
 			
 			return new Task (() => {
 
-				while (false != m_mainClass?.@should_run() && true == m_mainClass?.@loop ()) {
+				try {
 
-					// In the class' loop function
+					while (false != m_script.Get("should_run") && true == m_script.Invoke("loop")) {
+
+						// In the class' loop function
+
+					}
+
+				} catch (Exception ex) {
+				
+					Log.x(ex);
 
 				}
+
 
 				m_isRunning = false;
 
@@ -71,6 +80,8 @@ namespace Core.Scripting
 					observer?.ProcessDidFinish (m_id);
 				
 				}
+
+				Log.d($"Loop did finnish for script {m_script.Identifier}.");
 
 				Reload ();
 
@@ -82,7 +93,7 @@ namespace Core.Scripting
 		
 			if (!m_script.Ready) {
 
-				Log.e ("Unable to start process. The script used to run the process (" + m_script.Identifier +  ") is not ready.");
+				Log.e ($"Unable to start process. The script used to run the process ({m_script.Identifier} is not ready.");
 
 				return;
 
@@ -91,7 +102,7 @@ namespace Core.Scripting
 			try {
 				
 				m_isRunning = true;
-				m_mainClass.@setup ();
+				m_script.Invoke("setup");
 				m_processTask.Start ();
 
 			} catch (Exception ex) {
@@ -112,7 +123,7 @@ namespace Core.Scripting
 
 		public override void Stop () {
 		
-			m_mainClass?.@disable();
+			m_script.Invoke ("stop");
 			m_processTask = GetProcessTask ();
 
 		}

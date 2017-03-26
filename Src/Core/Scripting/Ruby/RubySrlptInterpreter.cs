@@ -22,6 +22,12 @@ namespace Core.Scripting
 {
 	public class RubySrlptInterpreter: IScriptInterpreter
 	{
+		// The interpret method of the script. Takes a string argument containing the command to be interpreted.
+		public static readonly string METHOD_INTERPRET = "interpret"; 
+
+		// The setup method of the script. will be run before execution.
+		public static readonly string METHOD_SETUP = "setup"; 
+
 		private RubyScript m_rubyScript;
 
 		/// <summary>
@@ -32,12 +38,13 @@ namespace Core.Scripting
 		{
 
 			m_rubyScript = rubyScript;
+			m_rubyScript.Invoke ("setup");
 		
 		}
 
 		public bool Interpret(string expression) {
 
-			return m_rubyScript.Get(RubyScript.HANDLE_MAIN_CLASS).@interpret (expression);
+			return m_rubyScript.Invoke("interpret", expression);
 		
 		}
 

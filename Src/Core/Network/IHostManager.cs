@@ -31,9 +31,7 @@ namespace Core.Network
 
 	public interface IHostManager<T> : ITaskMonitored, IDataReceived<byte[],IPEndPoint>, IDevice
 	{
-		IBasicServer<IPEndPoint> Server {
-				get;
-		}
+		IBasicServer<IPEndPoint> Server { get; }
 		
 		bool Has (IPEndPoint endpoint);
 		int ConnectedHostsCount {get;}

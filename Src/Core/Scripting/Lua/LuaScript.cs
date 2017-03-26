@@ -34,7 +34,7 @@ namespace Core.Scripting
 			m_state = new Lua ();
 			m_fileName = fileName;
 
-			Reload()
+			Reload ();
 		
 		}
 

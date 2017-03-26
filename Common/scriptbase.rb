@@ -4,12 +4,14 @@ require 'output'
 
 class ScriptBase
 	
-	def initialize (global_object)
-		@go = global_object
+	attr_accessor :should_run
+	attr_accessor :device_manager
+
+	def r2_init
+
 		@should_run = true
-		@settings = @go.robot.get("settings")
-		@core = @go.robot.get(@settings.i.core)
-		@log = @go.robot.get(@settings.i.logger)
+		@settings = @device_manager.get("settings")
+		@log = @device_manager.get(@settings.i.logger)
 		OP::set_logger @log
 	end
 	
@@ -21,7 +23,4 @@ class ScriptBase
 		@should_run = false
 	end
 
-	def should_run
-		return @should_run
-	end
 end

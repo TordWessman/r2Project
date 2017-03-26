@@ -8,6 +8,7 @@ class MainClass < ScriptBase
 	def setup
 
 		@vars = Array.new
+		@task_monitor = @device_manager.get(@settings.i.task_monitor)
 
 	end
 
@@ -16,10 +17,10 @@ class MainClass < ScriptBase
 		if (line == "exit")
 			return false
 		elsif (line == "devices")
-			@go.robot.print_devices
+			@device_manager.print_devices
 			return true
 		elsif (line == "tasks")
-			@go.taskmonitor.print_tasks
+			@taskmonitor.print_tasks
 			return true
 		elsif (command line)
 			return true
@@ -47,7 +48,7 @@ class MainClass < ScriptBase
 		    command_name == "start" || 
 			command_name == "stop")
 			device_name = line.split(" ").last
-			device = @go.robot.get(device_name)
+			device = @device_manager.get(device_name)
 			if (device != nil)
 				if (command_name == "restart")
 					OP::msg " -- restarting: #{device_name}" 
@@ -83,15 +84,17 @@ class MainClass < ScriptBase
 				args = System::Array[System::Object].new (line_split [2..line_split.length-1].map { |s| s.to_s.to_clr_string })
 			end
 
-			if @go.robot.has(script_name)
+			if @device_manager.has(script_name)
 
-				script =  @go.robot.get(script_name)
+				script =  @device_manager.get(script_name)
 
 				if script.ready
 					script.stop
 				end
 
-				@go.robot.get("core").remove_script script
+				@device_manager.remove script
+				@task_monitor.remove_monitorable script
+
 			end
 
 			load_script script_name, args
@@ -103,9 +106,12 @@ class MainClass < ScriptBase
 	end
 	
 	def load_script (script_name, args)
-			factory = @go.robot.get("script_factory")
+
+			#args not yet implemented
+			factory = @device_manager.get("script_factory")
 			script = factory.create_process script_name, script_name + ".rb"
-			@go.robot.get("core").add_script script
+			@device_manager.add script
+			@task_monitor.add_monitorable script
 	end
 
 	#TODO: make assign work...
@@ -147,13 +153,13 @@ class MainClass < ScriptBase
 
 		device_name = line.split(".").first
 
-		if !@go.robot.has(device_name)
+		if !@device_manager.has(device_name)
 
 			return false
 
 		end
 
-		device = @go.robot.get(device_name)
+		device = @device_manager.get(device_name)
 		
 		begin
 			
@@ -189,5 +195,5 @@ class MainClass < ScriptBase
 
 end
 
-self.main_class = MainClass.new(self)
+self.main_class = MainClass.new()
 

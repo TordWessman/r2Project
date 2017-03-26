@@ -105,8 +105,10 @@ namespace Core
 			//Set up logging
 			SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger (Settings.Identifiers.ConsoleLogger (), Settings.Consts.MaxConsoleHistory());
 			consoleLogger.Start ();
-			Log logger = new Log (Settings.Identifiers.Logger ());
-			logger.AddLogger (consoleLogger);
+			Log.Instantiate(Settings.Identifiers.Logger ());
+
+			Log.Instance.AddLogger (consoleLogger);
+			Log.Instance.AddLogger (new FileLogger("file_logger", "test_output.txt"));
 
 			//Check if the file is in an absoulute path. If not create/open the database in the database-base folder.
 			string dbPath = dbFile.Contains(Path.DirectorySeparatorChar) ? 
@@ -139,7 +141,7 @@ namespace Core
 			m_devices.Add (m_taskMonitor);
 			m_devices.Add (Settings.Instance);
 			m_devices.Add (consoleLogger);
-			m_devices.Add (logger);
+			m_devices.Add (Log.Instance);
 			m_devices.Add (this);
 
 			m_scriptFactory = new RubyScriptFactory (
@@ -184,13 +186,7 @@ namespace Core
 			m_taskMonitor.AddMonitorable (m_hostManager);
 	
 		}
-		
-		public void AddScript (IScriptProcess script)
-		{
-			m_devices.Add (script);
-			m_taskMonitor.AddMonitorable (script);
-		}
-		
+
 		public void RemoveScript (IScriptProcess script)
 		{
 

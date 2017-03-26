@@ -23,13 +23,15 @@ using System.Collections.Generic;
 using IronRuby;
 using System.IO;
 using System.Linq;
+using IronRuby.Builtins;
+using System.Dynamic;
 
 namespace Core.Scripting
 {
 	/// <summary>
 	/// Represents a runnable ruby script file following the specified template (scripts not conforming to the template will render error).
 	/// </summary>
-	public class RubyScript : DeviceBase, IScript
+	public class RubyScript: ScriptBase, IScript
 	{
 		/// <summary>
 		/// The required name of the main class in each ruby script
@@ -37,9 +39,9 @@ namespace Core.Scripting
 		public const string HANDLE_MAIN_CLASS = "main_class";
 
 		/// <summary>
-		/// The object which will contain the device manager. Should be set before execution.
+		/// Will be called upon script initialization. This method must be defined in the MainClass. Defined in scriptbase.rb
 		/// </summary>
-		public const string HANDLE_DEVICES = "robot";
+		public const string HANDLE_INIT_FUNCTION = "r2_init";
 
 		protected ScriptEngine m_engine;
 		protected ScriptScope m_scope;
@@ -49,15 +51,10 @@ namespace Core.Scripting
 		protected string m_fileName;
 
 		// Reference to the main class of the script
-		private dynamic m_mainClass;
+		private RubyObject m_mainClass;
 
 		// Contains a list of input parameters
 		private IDictionary<string, dynamic> m_params;
-
-		// If syntax error exception occurs, this will be true;
-		private bool m_hasSyntaxErrors;
-
-		//public dynamic MainClass { get { return m_mainClass; } }
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Core.Scripting.RubyScript"/> class. id is the Device Identifier of the script. fileName is the absolute path to the file being executed, engine is the RubyEngine and parameters are a list of input parameters being set before execution.
@@ -78,9 +75,8 @@ namespace Core.Scripting
 
 		}
 
-		public void Reload ()
+		public override void Reload ()
 		{
-			m_hasSyntaxErrors = false;
 			
 			if (!File.Exists (m_fileName)) {
 
@@ -93,12 +89,6 @@ namespace Core.Scripting
 			}
 
 			m_source = m_engine.CreateScriptSourceFromFile (m_fileName);
-
-			foreach (KeyValuePair<string, dynamic> kvp in m_params) {
-			
-				Set (kvp.Key, kvp.Value);
-
-			}
 
 			try {
 
@@ -114,56 +104,62 @@ namespace Core.Scripting
 				HandleSyntaxException (ex);
 				return;
 			
+			} catch (System.ArgumentNullException ex) {
+
+				HandleSyntaxException (ex);
+				return;
+
 			}
-			
+
 			System.Runtime.Remoting.ObjectHandle tmp;
-			
+
 			if (!m_scope.TryGetVariableHandle (HANDLE_MAIN_CLASS, out tmp)) {
 
-				throw new ApplicationException ("ERROR: no " + HANDLE_MAIN_CLASS + " defined for Ruby process: " + m_fileName);	
+				throw new ArgumentNullException ($"Unable to get main class: '{HANDLE_MAIN_CLASS}' from script: '{m_fileName}'" );
 
 			}
-				
-			m_mainClass = m_scope.GetVariable (HANDLE_MAIN_CLASS);
+
+			m_mainClass =  tmp?.Unwrap () as RubyObject;
+
+			foreach (KeyValuePair<string, dynamic> kvp in m_params) {
+
+				Set (kvp.Key, kvp.Value);
+
+			}
+
+			Invoke (HANDLE_INIT_FUNCTION);
 
 		}
-		
-		public bool HasSyntaxErrors { get { return m_hasSyntaxErrors; } }
-		
+
 		public override bool Ready { get {return m_mainClass != null;} }
 
-		public void Set (string handle, dynamic value) {
-			
-			m_scope.SetVariable (handle, value);
+		public override void Set (string handle, dynamic value) {
+
+			m_engine.Operations.SetMember (m_mainClass, handle, value);
 		
 		}
 		
-		public dynamic Get (string handle) {
+		public override  dynamic Get (string handle) {
 
-			System.Runtime.Remoting.ObjectHandle tmp;
-			
-			if (!m_scope.TryGetVariableHandle (handle, out tmp)) {
-
-				Log.e ($"Unable to get handle: {handle} from script: {Identifier}" );
-			
-			}
-			
-			return tmp.Unwrap();
+			return m_engine.Operations.GetMember (m_mainClass, handle);
 
 		} 
 
-		public dynamic Invoke (string handle, params dynamic[] args) {
+		public override dynamic Invoke (string handle, params dynamic[] args) {
 
-			return m_engine.Operations.InvokeMember (m_mainClass, handle, args);
+			dynamic invocation = m_engine.Operations.InvokeMember (m_mainClass, handle, args);
+
+			return invocation;
 
 		}
 		
 		private void HandleSyntaxException (Exception ex) {
-			
-			m_hasSyntaxErrors = true;
+
+			string exception_message = m_engine.GetService<ExceptionOperations>().FormatException(ex);
 			m_mainClass = null;
 			Log.e ("Script: '{m_fileName}' contains syntax error and will not be executed: ");
-			Log.x (ex);
+
+			throw new ApplicationException($"Syntax exception.\n{exception_message}");
 
 		}
 

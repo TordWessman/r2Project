@@ -114,7 +114,7 @@ namespace Core.Scripting
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
 
-			inputParams.Add(RubyScript.HANDLE_DEVICES, m_deviceManager);
+			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
 			RubyScript script = new RubyScript (id,
 				GetSourceFilePath(id,sourceFile),
