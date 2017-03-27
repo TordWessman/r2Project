@@ -134,12 +134,17 @@ namespace Core.Scripting
 		public override bool Ready { get {return m_mainClass != null;} }
 
 		public override void Set (string handle, dynamic value) {
-
+			
 			m_engine.Operations.SetMember (m_mainClass, handle, value);
 		
 		}
 		
-		public override  dynamic Get (string handle) {
+		public override dynamic Get (string handle) {
+
+			if (!m_engine.Operations.ContainsMember (m_mainClass, handle)) {
+			
+				throw new ArgumentException ($"Error in script: {m_fileName}. Handle '{handle}' was not declared in {HANDLE_MAIN_CLASS}.");
+			}
 
 			return m_engine.Operations.GetMember (m_mainClass, handle);
 
@@ -147,9 +152,12 @@ namespace Core.Scripting
 
 		public override dynamic Invoke (string handle, params dynamic[] args) {
 
-			dynamic invocation = m_engine.Operations.InvokeMember (m_mainClass, handle, args);
+			if (!m_engine.Operations.ContainsMember (m_mainClass, handle)) {
 
-			return invocation;
+				throw new ArgumentException ($"Error in script: {m_fileName}. Handle '{handle}' was not declared in {HANDLE_MAIN_CLASS}.");
+			}
+				
+			return m_engine.Operations.InvokeMember (m_mainClass, handle, args);
 
 		}
 		

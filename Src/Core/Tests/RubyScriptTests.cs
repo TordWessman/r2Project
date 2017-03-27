@@ -35,13 +35,7 @@ namespace Core.Tests
 		[TestFixtureSetUp]
 		public override void Setup() {
 
-			//funkar ej: Console.WriteLine ("sassa");
-
 			base.Setup ();
-
-
-
-			// funkar ej: Log.d ("mamma");
 
 			m_scriptFactory = new RubyScriptFactory ("sf", Settings.Paths.TestData (), BaseContainer.DEFAULT_RUBY_PATHS, m_deviceManager, m_dummyTaskMonitor);
 

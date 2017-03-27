@@ -76,11 +76,6 @@ namespace Core.Scripting
 			return true;
 
 		}
-		/*
-		public override bool TryInvokeM (InvokeBinder binder, object[] args, out object result)
-		{
-			result = Invoke(binder
-		}*/
 
 	}
 }
