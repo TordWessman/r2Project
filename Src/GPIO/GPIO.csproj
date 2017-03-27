@@ -87,11 +87,14 @@
     <Compile Include="Input\IDHT11.cs" />
     <Compile Include="Input\DHT11.cs" />
     <Compile Include="Input\DHT11Sensor.cs" />
+    <Compile Include="Communication\II2CMaster.cs" />
+    <Compile Include="Communication\R2I2CMaster.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Input\" />
     <Folder Include="Output\" />
+    <Folder Include="Communication\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GPIOConfigurationTemplate.tt">

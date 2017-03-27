@@ -168,13 +168,18 @@ namespace GPIO
                                                            false);
 			ReservePort (output);
 				
-			
 			return new OutputPort(id, output);
 		}
 
 		public IDHT11 CreateTempHumidity(string id, int pin) {
 		
 			return new DHT11 (id, pin);
+
+		}
+
+		public II2CMaster CreateI2C(string id, int bus, int port) {
+		
+			return new R2I2CMaster (id, bus, port);
 
 		}
 
@@ -196,9 +201,10 @@ namespace GPIO
 		private RaspberryPiDotNet.GPIOPins GetPort (int number) {
 
 			return m_pinConfiguration[number];
+		
 		}
 
-	
+
 	}
 }
 

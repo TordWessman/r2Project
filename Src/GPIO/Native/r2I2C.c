@@ -1,6 +1,23 @@
+// This file is part of r2Poject.
+//
+// Copyright 2016 Tord Wessman
+// 
+// r2Project is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// r2Project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with r2Project. If not, see <http://www.gnu.org/licenses/>.
+// 
+
 #include "r2I2C.h"
 
-//#include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <linux/i2c-dev.h>
@@ -19,12 +36,24 @@ static bool _r2I2C_is_busy = false;
 static bool _r2I2C_is_initialized = false;
 static bool _r2I2C_is_reading = false;
 
-void r2I2C_init (int bus, int address) {
+int r2I2C_init (int bus, int address) {
 
 	_r2I2C_i2cbus = bus;
 	_r2I2C_i2caddr = address;
 	snprintf(_r2I2C_busfile, sizeof(_r2I2C_busfile), "/dev/i2c-%d", bus);
+
+	int status = r2I2C_open_bus();
+ 
+	if (status < 0) {
+		
+		_r2I2C_is_initialized = false;
+		return R2I2C_BUS_ERROR;
+
+	} 
+
 	_r2I2C_is_initialized = true;
+
+	return status;
 
 }
 

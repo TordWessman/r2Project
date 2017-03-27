@@ -1,3 +1,20 @@
+// This file is part of r2Poject.
+//
+// Copyright 2016 Tord Wessman
+// 
+// r2Project is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// r2Project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with r2Project. If not, see <http://www.gnu.org/licenses/>.
+// 
 
 #include <stdbool.h>
 #include <inttypes.h>
@@ -24,8 +41,8 @@
 // The I2C slave should begin every response with R2I2C_READY_TO_READ_FLAG, telling the receive operation that it's ready to receive data.
 #define R2I2C_READY_TO_READ_FLAG 0xFF
 
-// Initializes the bus and address variables.
-void r2I2C_init (int bus, int address);
+// Initializes the bus and address variables. Will return the status of the bus request operation.
+int r2I2C_init (int bus, int address);
 
 // Requests ´data_size´ bytes from slave. Returns 0 if successful. Will block until R2I2C_READY_TO_READ_FLAG has been received from slave.
 int r2I2C_receive(int data_size);
