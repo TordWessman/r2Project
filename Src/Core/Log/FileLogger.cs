@@ -37,8 +37,8 @@ namespace Core
 		{
 
 			m_fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite);
-
 			m_outputStream = new StreamWriter (m_fs);
+			m_inputStream = new StreamReader (m_fs);
 			m_fileName = path;
 
 		}
@@ -62,12 +62,19 @@ namespace Core
 		public IEnumerable<ILogMessage> History { 
 		
 			get {
-			
+				string line = m_inputStream.ReadLine ();
 				throw new NotImplementedException ();
 
 			}
 			 
-		} 
+		}
+
+		private ILogMessage ParseLog(string line) {
+		
+			return new LogMessage (line, LogType.Temp);
+
+		}
+
 	}
 }
 
