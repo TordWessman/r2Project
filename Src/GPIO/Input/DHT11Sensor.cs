@@ -37,7 +37,7 @@ namespace GPIO
 
 		public override RemoteDevices GetTypeId ()
 		{
-			return RemoteDevices.InputMeter;
+			return RemoteDevices.AnalogInput;
 		}
 		#endregion
 	}

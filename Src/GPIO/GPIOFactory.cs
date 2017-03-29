@@ -21,7 +21,8 @@ using Core.Device;
 using System.Collections.Generic;
 using RaspberryPiDotNet;
 using Core;
-
+using System.IO;
+using System.Linq;
 
 namespace GPIO 
 {
@@ -38,13 +39,20 @@ namespace GPIO
 		private Dictionary<int, RaspberryPiDotNet.GPIOPins> m_pinConfiguration;
 
 		private bool[] m_ioPortsUsed;
+		private string m_dataPath;
 
-		public GPIOFactory (string id) : base (id)
+		/// <summary>
+		/// Instantiation of the factory. Will set up the MCP3008 hub. The `dataPath` is the path to the GPIO resources.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="dataPath">Data path.</param>
+		public GPIOFactory (string id, string dataPath = null) : base (id)
 		{
 		
 			m_ioPortsUsed = new bool[40];
 			SetUpPinConfiguration ();
 			SetUpMCP3008 ();
+			m_dataPath = dataPath == null ?  null : dataPath.EndsWith(Path.DirectorySeparatorChar.ToString()) ? dataPath : dataPath + Path.DirectorySeparatorChar;
 
 		}
 
@@ -66,6 +74,7 @@ namespace GPIO
 		/// Maps the pin number to the actual pin
 		/// </summary>
 		private void SetUpPinConfiguration() {
+			
 			m_pinConfiguration = new Dictionary<int,RaspberryPiDotNet.GPIOPins> ();
 
 			m_pinConfiguration.Add (7, GPIOPins.GPIO_04);
@@ -85,8 +94,7 @@ namespace GPIO
 
 		}
 		
-		private void ReservePort (RaspberryPiDotNet.GPIO port)
-		{
+		private void ReservePort (RaspberryPiDotNet.GPIO port) {
 			
 			if (m_ioPortsUsed [(int)port.Pin]) {
 				throw new InvalidOperationException ("Port: " + port + " is allready used!");
@@ -96,8 +104,7 @@ namespace GPIO
 
 		}
 		
-		private RaspberryPiDotNet.MCP3008 GetMPCFor (int adcPort)
-		{
+		private RaspberryPiDotNet.MCP3008 GetMPCFor (int adcPort) {
 			return  new RaspberryPiDotNet.MCP3008 (adcPort,
 				                                        m_clck,
 				            m_spiIn,
@@ -105,62 +112,30 @@ namespace GPIO
 			                     m_spiS);
 		}
 		
-		public IServoController CreateServoController (string id, int bus = 1, int address = 0x40, int frequency = 63)
-		{
+		public IServoController CreateServoController (string id, int bus = 1, int address = 0x40, int frequency = 63) {
 			return new PCA9685ServoController (id, bus, address, frequency);
 		}
-		
-		public IInputMeter<int> CreateInputMeter (string id, int type, int adcPort)
-		{
-			return CreateInputMeter (id, (GPIOTypes)type, adcPort);
-		}
-		
-		public IInputMeter<int> CreateInputMeter (string id, GPIOTypes type, int adcPort)
-		{
-			switch (type) {
-				
-			case GPIOTypes.Sharp2Y0A02:
-				return new Sharp2Y0A02 (id, GetMPCFor (adcPort));
-			case GPIOTypes.Sharp2D120:
-				return new Sharp2D120 (id, GetMPCFor (adcPort));
-			case GPIOTypes.MoistYL69:
-				return new RT69 (id, GetMPCFor (adcPort));
-			case GPIOTypes.LightSensor10k:
-				return new LightSensor10k (id, GetMPCFor (adcPort));
-			case GPIOTypes.SonarMaxBot:
-				return new SonarMaxBot (id, GetMPCFor (adcPort));
-			case GPIOTypes.PIRMotionSensor:
-				return new PIRMotionSensor (id, GetMPCFor (adcPort));
-			case GPIOTypes.InputMeter:
-				return new InputMeter	 (id, GetMPCFor (adcPort));
-			}
-			
-			throw new NotImplementedException ("No InputMeterType defined for: " + type.ToString ());
-		}
-		
-		public IInputPort CreateInputPort (string id, int gpioPort)
-		{
-			
 
-			//RaspberryPiDotNet.GPIOPins
+		public IInputMeter<double> CreateAnalogInput (string id, int adcPort) {
+
+			return new AnalogInput (id, GetMPCFor (adcPort));
+		
+		}
+		
+		public IInputPort CreateInputPort (string id, int gpioPort) {
+			
 			RaspberryPiDotNet.GPIO input = new GPIOFile (GetPort(gpioPort),
 				                                                          RaspberryPiDotNet.GPIODirection.In,
 				                                                         false);
 			input.PinDirection = GPIODirection.In;
 
-			Log.d("DIRection: " + input.PinDirection.ToString());
-
-			//	new RaspberryPiDotNet.GPIOMem (GetPort(gpioPort),
-			  //                                                           RaspberryPiDotNet.GPIODirection.In,
-			    //                                                         false);
-				
 			ReservePort (input);
 				
 			return new InputPort(id, input);
+
 		}
 		
-		public IOutputPort CreateOutputPort (string id, int gpioPort)
-		{
+		public IOutputPort CreateOutputPort (string id, int gpioPort) {
 			
 
 			RaspberryPiDotNet.GPIO output = new RaspberryPiDotNet.GPIOMem (GetPort(gpioPort),
@@ -169,6 +144,7 @@ namespace GPIO
 			ReservePort (output);
 				
 			return new OutputPort(id, output);
+
 		}
 
 		public IDHT11 CreateTempHumidity(string id, int pin) {

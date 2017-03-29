@@ -21,16 +21,10 @@ namespace GPIO
 {
 	public enum GPIOTypes
 	{
-		Sharp2Y0A02 = 1,
 		InputPin = 2,
 		OutputPin = 3,
-		Sharp2D120 = 4,
 		ServoController = 5,
-		MoistYL69 = 6,
-		LightSensor10k = 7,
-		SonarMaxBot = 8,
-		PIRMotionSensor = 9,
-		InputMeter = 10
+		AnalogInput = 10,
 		
 	}
 }

@@ -55,32 +55,29 @@
     <Reference Include="Raspberry.System">
       <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.System.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.framework, Version=2.6.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>nunit</Package>
+    </Reference>
+    <Reference Include="nunit.core, Version=2.6.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>nunit</Package>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="TestGPIO.cs" />
-    <Compile Include="Input\InputMeterBase.cs" />
-    <Compile Include="Input\Sharp2Y0A02.cs" />
     <Compile Include="GPIOTypes.cs" />
     <Compile Include="IGPIOFactory.cs" />
     <Compile Include="GPIOFactory.cs" />
     <Compile Include="Input\InputPort.cs" />
     <Compile Include="Output\OutputPort.cs" />
-    <Compile Include="Input\Sharp2D120.cs" />
     <Compile Include="Output\IServoController.cs" />
     <Compile Include="Output\PCA9685ServoController.cs" />
     <Compile Include="Output\CheapBlueServo.cs" />
     <Compile Include="Output\ILocalServo.cs" />
     <Compile Include="Output\HS322Servo.cs" />
     <Compile Include="Output\ServoBase.cs" />
-    <Compile Include="Input\RT69.cs" />
-    <Compile Include="Input\LightSensor10k.cs" />
-    <Compile Include="Input\SonarMaxBot.cs" />
-    <Compile Include="Input\PIRMotionSensor.cs" />
     <Compile Include="GPIOConfigurationTemplate.cs">
       <DependentUpon>GPIOConfigurationTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="Input\InputMeter.cs" />
     <Compile Include="GPIOFactory2.cs" />
     <Compile Include="Output\OutputPort2.cs" />
     <Compile Include="Input\InputPort2.cs" />
@@ -89,12 +86,15 @@
     <Compile Include="Input\DHT11Sensor.cs" />
     <Compile Include="Communication\II2CMaster.cs" />
     <Compile Include="Communication\R2I2CMaster.cs" />
+    <Compile Include="Input\AnalogInput.cs" />
+    <Compile Include="Tests\GPIOTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Input\" />
     <Folder Include="Output\" />
     <Folder Include="Communication\" />
+    <Folder Include="Tests\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GPIOConfigurationTemplate.tt">

@@ -20,62 +20,65 @@ using System;
 using Core.Device;
 using RaspberryPiDotNet;
 using Core;
-
+using Core.Data;
 
 namespace GPIO
 {
-	public abstract class InputMeterBase: RemotlyAccessableDeviceBase, IInputMeter<int>
+	public class AnalogInput: RemotlyAccessableDeviceBase, IInputMeter<double>
 	{
 		private MCP3008 m_ad;
-		
-		private float m_c; // Calibration value
+		private ILinearDataSet<double> m_dataSet;
 
-		public InputMeterBase (string id, MCP3008 ad) : base (id)
-		{
+		public AnalogInput (string id, MCP3008 ad) : base (id) {
+			
 			m_ad = ad;
-			m_c = 1.0f;
 
 		}
 		
-		public int Value {
+		public double Value {
+			
 			get {
-				return  (int)((float) ResolveValue () * m_c);
+				
+				return  m_dataSet?.Interpolate (AnalogValue) ?? (double) AnalogValue;
+
 			}
+
 		}
 			
 		/// <summary>
 		/// Used by overriding classes to resolve the value
 		/// </summary>
 		/// <value>The analog value.</value>
-		protected int AnalogValue {
-			get {
-				return m_ad.AnalogToDigital;
-			}
+		public int AnalogValue { get { return m_ad.AnalogToDigital; } }
+
+		public void SetData(ILinearDataSet<double> dataSet) {
+		
+			m_dataSet = dataSet;
+
 		}
 
-		public void Calibrate(float c) {
-			m_c = c;
-		}
-		
 		#region IRemotlyAccessable implementation
 		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
 		{
 			if (IsBaseMethod (methodName)) {
+				
 				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			} else if (methodName == RemoteInputMeter.GET_VALUE_FUNCTION_NAME) {
-				return mgr.RPCReply<int> (Guid, methodName, Value);
-			} else
-				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
 			
+			} else if (methodName == RemoteInputMeter.GET_VALUE_FUNCTION_NAME) {
+			
+				return mgr.RPCReply<double> (Guid, methodName, Value);
+			
+			} 
+
+			throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
+
 		}
 
 		public override RemoteDevices GetTypeId ()
 		{
-			return RemoteDevices.InputMeter;
+			return RemoteDevices.AnalogInput;
 		}
 		#endregion
-		
-		protected abstract int ResolveValue ();
 
 	}
 }

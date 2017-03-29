@@ -37,15 +37,9 @@ namespace GPIO
 		{
 		}
 
-		public IInputMeter<int> CreateInputMeter (string id, GPIOTypes type, int adcPort) {
+		public IInputMeter<double> CreateAnalogInput (string id, int adcPort) {
 		
 			throw new NotImplementedException ();
-		}
-			
-		public IInputMeter<int> CreateInputMeter (string id, int type, int adcPort) {
-		
-			throw new NotImplementedException ();
-
 		}
 
 		public IServoController CreateServoController (string id, int bus = 1, int address = 0x40, int frequency = 63) {
