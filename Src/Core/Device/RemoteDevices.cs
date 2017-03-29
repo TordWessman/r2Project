@@ -26,7 +26,7 @@ namespace Core.Device
 		Espeak,
 		MemoryBus,
 		Camera,
-		InputMeter,
+		AnalogInput,
 		InputPort,
 		OutputPort,
 		ScriptExecutor,

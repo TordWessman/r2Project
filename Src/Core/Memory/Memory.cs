@@ -89,7 +89,7 @@ namespace Core.Memory
 
 		public Memory (IMemoryReference reference, 
 		               IMemorySource source,
-						bool isLocal)
+						bool isLocal = true)
 		{
 			m_isLocal = isLocal;
 			m_reference = reference;

@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Core.DB
+namespace Core.Data
 {
 	public interface IDBAdapter
 	{

@@ -19,7 +19,7 @@
 ﻿using System;
 using Core.Device;
 using System.Collections.Generic;
-using Core.DB;
+using Core.Data;
 using MemoryType = System.String;
 using System.Linq;
 

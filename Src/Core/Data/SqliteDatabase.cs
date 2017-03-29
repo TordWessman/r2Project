@@ -24,15 +24,13 @@ using System.Collections.Generic;
 using System.Data;
 using Core.Device;
 
-namespace Core.DB
+namespace Core.Data
 {
 	public class SqliteDatabase : DeviceBase, IDatabase
 	{
 		private string m_fileName;
 		private SqliteConnection m_con;
-		
-		private static ICollection<string> m_fileNames;
-		
+
 		private readonly object m_queryLock = new object();
 
 		/// <summary>
@@ -43,18 +41,6 @@ namespace Core.DB
 		{
 
 			m_fileName = fileName;
-			
-			if (m_fileNames == null) {
-
-				m_fileNames = new List<string> ();
-
-			} else if (m_fileNames.Contains (fileName)) {
-
-				throw new InvalidOperationException ("This sqlite file already assigned.");
-
-			}
-			
-			m_fileNames.Add (m_fileName); 
 
 		}
 		

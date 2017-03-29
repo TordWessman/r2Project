@@ -27,7 +27,7 @@ namespace Core.Tests
 {
 	
 	[TestFixture]
-	public class RubyScriptTests: TestBase
+	public class ScriptTests: TestBase
 	{
 		
 		private IScriptFactory<RubyScript> m_scriptFactory;
@@ -38,11 +38,6 @@ namespace Core.Tests
 			base.Setup ();
 
 			m_scriptFactory = new RubyScriptFactory ("sf", Settings.Paths.TestData (), BaseContainer.DEFAULT_RUBY_PATHS, m_deviceManager, m_dummyTaskMonitor);
-
-		}
-
-		public RubyScriptTests ()
-		{
 
 		}
 

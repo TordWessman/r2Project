@@ -47,7 +47,7 @@ namespace Core.Device
 				return new RemoteMemoryBus (reference);
 			} else if (deviceType.Equals (RemoteDevices.Camera.ToString ())) {
 				return new RemoteCameraController (reference);
-			} else if (deviceType.Equals (RemoteDevices.InputMeter.ToString ())) {
+			} else if (deviceType.Equals (RemoteDevices.AnalogInput.ToString ())) {
 				return new RemoteInputMeter (reference);
 			} else if (deviceType.Equals (RemoteDevices.InputPort.ToString ())) {
 				return new RemoteInputPort (reference);

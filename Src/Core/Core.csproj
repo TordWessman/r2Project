@@ -68,6 +68,9 @@
     <Reference Include="NLua">
       <HintPath>..\..\3rdParty\NLua.dll</HintPath>
     </Reference>
+    <Reference Include="nunit.core, Version=2.6.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>nunit</Package>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
       <Package>nunit</Package>
     </Reference>
@@ -112,7 +115,6 @@
     <Compile Include="Memory\Memory.cs" />
     <Compile Include="Memory\IMemory.cs" />
     <Compile Include="Memory\MemoryDBAdapter.cs" />
-    <Compile Include="DB\IDBAdapter.cs" />
     <Compile Include="Memory\AssociationsDBAdapter.cs" />
     <Compile Include="Device\RemoteDeviceFactory.cs" />
     <Compile Include="Device\IRemotlyAccessable.cs" />
@@ -166,8 +168,6 @@
     <Compile Include="Settings\CoreConfigurationTemplate.cs">
       <DependentUpon>CoreConfigurationTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="DB\IDatabase.cs" />
-    <Compile Include="DB\SqliteDatabase.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Device\RemoteDevices\RemoteGstream.cs" />
     <Compile Include="Device\IDeviceManagerObserver.cs" />
@@ -235,7 +235,6 @@
     <Compile Include="Shared\R2Dynamic.cs" />
     <Compile Include="Scripting\Lua\LuaScript.cs" />
     <Compile Include="Scripting\Lua\LuaScriptFactory.cs" />
-    <Compile Include="Tests\RubyScriptTests.cs" />
     <Compile Include="Tests\DummyClasses\Networking\DummyHostManager.cs" />
     <Compile Include="Tests\DummyClasses\Networking\DummyR2Server.cs" />
     <Compile Include="Tests\DummyClasses\DummyTaskMonitor.cs" />
@@ -243,6 +242,16 @@
     <Compile Include="Log\FileLogger.cs" />
     <Compile Include="Tests\DummyClasses\CoreTests.cs" />
     <Compile Include="Scripting\ScriptBase.cs" />
+    <Compile Include="Data\ILinearDataSet.cs" />
+    <Compile Include="Data\LinearDataSet.cs" />
+    <Compile Include="Tests\DataTests.cs" />
+    <Compile Include="Tests\ScriptTests.cs" />
+    <Compile Include="Memory\TemporaryMemorySource.cs" />
+    <Compile Include="Data\IDatabase.cs" />
+    <Compile Include="Data\IDBAdapter.cs" />
+    <Compile Include="Data\SqliteDatabase.cs" />
+    <Compile Include="Data\DataFactory.cs" />
+    <Compile Include="Tests\TestMemory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -252,7 +261,6 @@
     <Folder Include="Tests\" />
     <Folder Include="Device\" />
     <Folder Include="Memory\" />
-    <Folder Include="DB\" />
     <Folder Include="Scripting\" />
     <Folder Include="Scripting\Ruby\" />
     <Folder Include="Shared\" />
@@ -267,6 +275,8 @@
     <Folder Include="Scripting\Lua\" />
     <Folder Include="Tests\DummyClasses\" />
     <Folder Include="Tests\DummyClasses\Networking\" />
+    <Folder Include="Data\" />
+    <Folder Include="Tests\DummyClasses\Memory\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

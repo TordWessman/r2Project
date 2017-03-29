@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using Core.Network.Data;
 using Core.Network;
 using MemoryType = System.String;
-using Core.DB;
+using Core.Data;
 using Core.Device;
 
 namespace Core.Memory

@@ -25,7 +25,7 @@ using System.Data;
 using Core.Device;
 
 
-namespace Core.DB
+namespace Core.Data
 {
 	public interface IDatabase : IDevice
 	{

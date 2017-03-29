@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 namespace Core.Device
 {
 
-	public class RemoteInputMeter : RemoteDeviceBase, IInputMeter<int>
+	public class RemoteInputMeter : RemoteDeviceBase, IInputMeter<double>
 	{
 		public static readonly string GET_VALUE_FUNCTION_NAME = "get_cm_function_name";
 
@@ -31,7 +31,7 @@ namespace Core.Device
 
 		#region IDistanceMeter implementation
 
-		public int Value {
+		public double Value {
 
 			get {
 			

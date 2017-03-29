@@ -20,7 +20,7 @@ using System;
 using Core.Device;
 using Core.Network;
 using NUnit.Framework;
-
+using Core.Memory;
 
 namespace Core.Tests
 {
@@ -30,34 +30,47 @@ namespace Core.Tests
 		protected IDeviceManager m_deviceManager;
 		protected ITaskMonitor m_dummyTaskMonitor;
 		protected IMessageLogger console;
+		protected DeviceFactory m_deviceFactory;
 
 		[TestFixtureSetUp]
 		public virtual void Setup() {
 
-			if (Log.Instance == null) {
+			Console.WriteLine ("pappa");
+
+			try {
+				
+				if (Log.Instance == null) {
+
+
+					Log.Instantiate(Settings.Identifiers.Logger ());
+
+					console = new ConsoleLogger (Settings.Identifiers.ConsoleLogger());
+
+					Log.Instance.AddLogger (new FileLogger("file_logger", "test_output.txt"));
+
+					Log.Instance.AddLogger (console);
+				}
+
+				var dummyServer = new DummyR2Server ();
+				var dummyHostManager = new DummyHostManager (dummyServer);
+				m_dummyTaskMonitor = new DummyTaskMonitor ();
+
+				var packageFactory = new NetworkPackageFactory (null);
+				var rpcManager = new RPCManager (dummyHostManager, packageFactory, m_dummyTaskMonitor);
+
+				m_deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager(), dummyHostManager, rpcManager, packageFactory);
+
+				m_deviceManager.Add (Settings.Instance);
+				m_deviceManager.Add (Log.Instance);
+
+				m_deviceFactory = new DeviceFactory ("device_factory", m_deviceManager, new TemporaryMemorySource("ms"));
+
+			} catch (Exception ex) {
 			
-				Console.WriteLine ("pappa");
-				Log.Instantiate(Settings.Identifiers.Logger ());
+				Console.WriteLine (ex.Message);
 
 			}
 
-			console = new ConsoleLogger (Settings.Identifiers.ConsoleLogger());
-
-			Log.Instance.AddLogger (new FileLogger("file_logger", "test_output.txt"));
-
-			Log.Instance.AddLogger (console);
-
-			var dummyServer = new DummyR2Server ();
-			var dummyHostManager = new DummyHostManager (dummyServer);
-			m_dummyTaskMonitor = new DummyTaskMonitor ();
-
-			var packageFactory = new NetworkPackageFactory (null);
-			var rpcManager = new RPCManager (dummyHostManager, packageFactory, m_dummyTaskMonitor);
-
-			m_deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager(), dummyHostManager, rpcManager, packageFactory);
-
-			m_deviceManager.Add (Settings.Instance);
-			m_deviceManager.Add (Log.Instance);
 
 		}
 

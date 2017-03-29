@@ -24,6 +24,10 @@ using MemoryType = System.String;
 using System.Linq;
 using System.Dynamic;
 using Core.Network;
+using System.Text.RegularExpressions;
+using System.IO;
+using Core.Data;
+using System.Collections.Generic;
 
 namespace Core
 {
@@ -71,6 +75,12 @@ namespace Core
 		public INetworkSecurity CreateSimpleNetworkSecurity(string id, string password) {
 		
 			return new SimpleNetworkSecurity (id, password);
+
+		}
+
+		public DataFactory CreateDataSetFactory(string id, IEnumerable<string> searchPaths) {
+		
+			return new DataFactory(id, searchPaths);
 
 		}
 
