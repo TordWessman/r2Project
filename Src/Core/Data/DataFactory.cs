@@ -30,26 +30,39 @@ namespace Core.Data
 		public ILinearDataSet<double> CreateDataSet(string fileName) {
 
 			string filePath = GetFilePath (fileName);
-			string[] fileData = File.ReadAllText (filePath).Replace(Environment.NewLine, ",").Split(',');
+			string[] fileData = File.ReadAllText (filePath).Trim( new char[]{'\n', '\r', ' ', '	'}).Replace(Environment.NewLine, ",").Split(',');
 
 			if (fileData.Length % 2 != 0) {
 
-				throw new InvalidDataException ($"Unable to parse CSV data in file {filePath}. Uneven number of coordinates.");
+				throw new InvalidDataException ($"Unable to parse CSV data in file {filePath}. Uneven number of coordinates ({fileData.Length})");
 
 			}
 
+
+			IDictionary<double, double> points = new Dictionary<double, double> ();
 			int i = 0;
-			double[] x = new double[fileData.Length / 2];
-			double[] y = new double[fileData.Length / 2];
+			double x = 0;
 
 			foreach (double value in fileData.Select(v => double.Parse(v)).AsEnumerable()) {
+				
+				if (i++ % 2 == 0) { x = value; }
+				else { 
+				
+					if (points.Keys.Contains(x)) { 
 
-				if (i % 2 == 0) { x [i / 2] = value; }
-				else { y [i / 2] = value; }
+						Log.e ($"Trying to add duplicate values for x = {x}");
+
+					} else {
+
+						points.Add (x, value); 
+
+					}
+						
+				}
 
 			}
 
-			return new LinearDataSet (x, y);
+			return new LinearDataSet (points);
 
 		}
 

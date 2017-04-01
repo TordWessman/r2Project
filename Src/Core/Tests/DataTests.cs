@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using Core.Data;
 using Core.Device;
+using System.Linq;
 
 namespace Core.Tests
 {
@@ -24,9 +25,22 @@ namespace Core.Tests
 		}
 
 		[Test]
-		public void TestTemporaryMemory() {
+		public void TestLinearDataSet() {
 		
-			//IMemorySource
+			ILinearDataSet<double> dataSet = m_factory.CreateDataSet ("test_device.csv");
+
+			Assert.AreEqual (dataSet.Points.Keys.ElementAt (0), 1.0d);
+			Assert.AreEqual (dataSet.Points.Values.ElementAt (0), 10.0d);
+
+			Assert.AreEqual (dataSet.Points.Keys.ElementAt (2), 3.0d);
+			Assert.AreEqual (dataSet.Points.Values.ElementAt (2), 30.0d);
+
+			Assert.AreEqual (dataSet.Interpolate (0.5), 10.0d);
+			Assert.AreEqual (dataSet.Interpolate (100), 30.0d);
+
+			Assert.AreEqual (dataSet.Interpolate (1.5), 15.0d);
+			Assert.AreEqual (dataSet.Interpolate (2.9), 29.0d);
+
 		}
 	}
 }

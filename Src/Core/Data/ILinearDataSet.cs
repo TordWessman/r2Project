@@ -10,6 +10,12 @@ namespace Core.Data
 		/// <param name="x">The x coordinate.</param>
 		T Interpolate(T x);
 
+		/// <summary>
+		/// Gets the values.
+		/// </summary>
+		/// <value>The values.</value>
+		System.Collections.Generic.IDictionary<double, double> Points { get; }
+
 	}
 }
 
