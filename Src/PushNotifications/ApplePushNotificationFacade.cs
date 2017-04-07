@@ -31,12 +31,12 @@ namespace PushNotifications
 {
 	public class ApplePushNotificationFacade: DeviceBase, IPushNotificationFacade
 	{
-	
 		private ApnsServiceBroker m_push;
 		private ApnsConfiguration m_configuration;
 
 		public ApplePushNotificationFacade (string id,  string certFileName, string password) : base (id)
 		{
+
 
 			if (!File.Exists (certFileName)) {
 			
@@ -84,13 +84,14 @@ namespace PushNotifications
 				}
 
 				payload += "}}";
+				var pl = JObject.Parse (payload);
 
 				Log.t (payload);
 
 				m_push.QueueNotification (new ApnsNotification {
 
 					DeviceToken = deviceId,
-					Payload = JObject.Parse (payload)
+					Payload = pl
 				
 				});
 

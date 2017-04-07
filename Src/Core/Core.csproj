@@ -39,6 +39,23 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Dynamic" />
+    <Reference Include="websocket-sharp">
+      <HintPath>..\..\3rdParty\websocket-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="NLua">
+      <HintPath>..\..\3rdParty\NLua.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.core, Version=2.6.4.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>nunit</Package>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.4.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <Package>nunit</Package>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="IronRuby">
       <HintPath>..\..\3rdParty\IronRuby\IronRuby.dll</HintPath>
     </Reference>
@@ -56,23 +73,6 @@
     </Reference>
     <Reference Include="Microsoft.Scripting.Metadata">
       <HintPath>..\..\3rdParty\IronRuby\Microsoft.Scripting.Metadata.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Dynamic" />
-    <Reference Include="websocket-sharp">
-      <HintPath>..\..\3rdParty\websocket-sharp.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="NLua">
-      <HintPath>..\..\3rdParty\NLua.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.core, Version=2.6.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>nunit</Package>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.3.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
-      <Package>nunit</Package>
     </Reference>
   </ItemGroup>
   <ItemGroup>
