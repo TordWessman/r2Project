@@ -36,6 +36,11 @@ namespace Core.Scripting
 		private const string RUBY_FILE_EXTENSION = ".rb";
 		private const string RUBY_COMMAND_SCRIPT_ID_POSTFIX = "_in_command_script";
 
+		//Make sure the IronRuby.Library.dll are included during compilation.
+		#pragma warning disable 0169
+		private static readonly IronRuby.StandardLibrary.BigDecimal.BigDecimal INCLUDE_IRONRUBY_LIBRARY_ON_COMPILE_TIME;
+		#pragma warning restore 0169
+		
 		private string m_scriptSourcePath;
 		private IDeviceManager m_deviceManager;
 		private ITaskMonitor m_taskMonitor;
@@ -78,6 +83,7 @@ namespace Core.Scripting
 			IScript script = CreateScript (id + RUBY_COMMAND_SCRIPT_ID_POSTFIX, sourceFile);
 			
 			return new RubyCommandScript (id, script);
+
 		}
 
 		public IScriptProcess CreateProcess (string id, string sourceFile = null) {
