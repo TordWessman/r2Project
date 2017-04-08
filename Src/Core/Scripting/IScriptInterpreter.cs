@@ -21,10 +21,14 @@ using System;
 namespace Core.Scripting
 {
 	/// <summary>
-	/// Capable of evaluating a string expression
+	/// Capable of evaluating a string expression. 
 	/// </summary>
 	public interface IScriptInterpreter
 	{
+		/// <summary>
+		/// An expression could be "@a = 42 / 10." Should return true if the interpreter script where able to perform the interpretation.
+		/// </summary>
+		/// <param name="expression">Expression.</param>
 		bool Interpret(string expression);
 	}
 }

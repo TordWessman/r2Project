@@ -18,50 +18,42 @@
 //
 using System;
 using Core.Device;
+using System.Collections.Generic;
 
 namespace Core.Scripting
 {
-	public class LuaScriptFactory: DeviceBase, IScriptFactory<LuaScript>
+	public class LuaScriptFactory: ScriptFactoryBase<LuaScript>
 	{
 		private const string LUA_FILE_EXTENSION = ".lua";
+		private IEnumerable<string> m_searchPaths;
+
+		protected override string FileExtension { get { return LUA_FILE_EXTENSION; } }
 
 		public LuaScriptFactory (string id) : base(id)
 		{
-		}
-
-		public LuaScript CreateScript (string id, string sourceFile = null) {
-		
-			sourceFile = sourceFile ?? id + LUA_FILE_EXTENSION;
-
-			return new LuaScript (id, sourceFile);
 
 		}
 
-		public IScriptProcess CreateProcess (string id, string sourceFile = null) {
-		
-			throw new NotImplementedException ();
+		public override LuaScript CreateScript (string id) {
+
+			return new LuaScript (id, GetScriptFilePath(id));
 
 		}
 
-		public IScriptProcess CreateProcess (string id, LuaScript script) {
+
+		public override IScriptProcess CreateProcess (string id, LuaScript script = null) {
 
 			throw new NotImplementedException ();
 
 		}
 
-		public ICommandScript CreateCommand (string id, string sourceFile = null) {
+		public override ICommandScript CreateCommand (string id) {
 
 			throw new NotImplementedException ();
 
 		}
 
-		public string GetSourceFilePath (string id, string sourceFile = null) {
-
-			throw new NotImplementedException ();
-
-		}
-
-		public IScriptInterpreter CreateInterpreter(LuaScript script) {
+		public override IScriptInterpreter CreateInterpreter(LuaScript script) {
 
 			throw new NotImplementedException ();
 

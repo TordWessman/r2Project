@@ -252,6 +252,7 @@
     <Compile Include="Data\SqliteDatabase.cs" />
     <Compile Include="Data\DataFactory.cs" />
     <Compile Include="Tests\TestMemory.cs" />
+    <Compile Include="Scripting\ScriptFactoryBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

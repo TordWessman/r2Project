@@ -38,13 +38,13 @@ namespace Core.Scripting
 		{
 
 			m_rubyScript = rubyScript;
-			m_rubyScript.Invoke ("setup");
+			m_rubyScript.Invoke (METHOD_SETUP);
 		
 		}
 
 		public bool Interpret(string expression) {
 
-			return m_rubyScript.Invoke("interpret", expression);
+			return m_rubyScript.Invoke(METHOD_INTERPRET, expression);
 		
 		}
 

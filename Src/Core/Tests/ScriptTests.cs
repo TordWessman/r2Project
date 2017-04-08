@@ -30,21 +30,26 @@ namespace Core.Tests
 	public class ScriptTests: TestBase
 	{
 		
-		private IScriptFactory<RubyScript> m_scriptFactory;
+		private IScriptFactory<RubyScript> m_rubyScriptFactory;
+		private IScriptFactory<LuaScript> m_luaScriptFactory;
 
 		[TestFixtureSetUp]
 		public override void Setup() {
 
 			base.Setup ();
 
-			m_scriptFactory = new RubyScriptFactory ("sf", Settings.Paths.TestData (), BaseContainer.DEFAULT_RUBY_PATHS, m_deviceManager, m_dummyTaskMonitor);
+			m_rubyScriptFactory = new RubyScriptFactory ("rf", BaseContainer.DEFAULT_RUBY_PATHS, m_deviceManager, m_dummyTaskMonitor);
+			m_rubyScriptFactory.AddSourcePath (Settings.Paths.TestData ());
+
+			m_luaScriptFactory = new LuaScriptFactory ("ls");
+			m_luaScriptFactory.AddSourcePath (Settings.Paths.TestData ());
 
 		}
 
 		[Test]
 		public void RubyTest1() {
 	
-			dynamic ruby = m_scriptFactory.CreateScript ("RubyTest1");
+			dynamic ruby = m_rubyScriptFactory.CreateScript ("RubyTest1");
 			Assert.NotNull (ruby);
 
 			Assert.AreEqual (ruby.set_up_foo (), "baz");
@@ -54,6 +59,15 @@ namespace Core.Tests
 			ruby.bar = 42;
 
 			Assert.AreEqual (42, ruby.Get ("bar"));
+
+		}
+
+		[Test]
+		public void LuaTest1() {
+		
+			dynamic lua = m_luaScriptFactory.CreateScript ("LuaTest1");
+		
+			Assert.AreEqual (lua.str, "fish");
 
 		}
 	

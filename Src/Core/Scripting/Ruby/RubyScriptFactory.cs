@@ -30,7 +30,7 @@ namespace Core.Scripting
 	/// <summary>
 	/// Implementation of a script factory. Used to create ruby scripts.
 	/// </summary>
-	public class RubyScriptFactory : DeviceBase, IScriptFactory<RubyScript>
+	public class RubyScriptFactory : ScriptFactoryBase<RubyScript>
 	{
 
 		private const string RUBY_FILE_EXTENSION = ".rb";
@@ -40,69 +40,47 @@ namespace Core.Scripting
 		#pragma warning disable 0169
 		private static readonly IronRuby.StandardLibrary.BigDecimal.BigDecimal INCLUDE_IRONRUBY_LIBRARY_ON_COMPILE_TIME;
 		#pragma warning restore 0169
-		
-		private string m_scriptSourcePath;
+
 		private IDeviceManager m_deviceManager;
 		private ITaskMonitor m_taskMonitor;
 		private ScriptEngine m_engine;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Core.Scripting.RubyScriptFactory"/> class.
-		/// scriptSourcePath points to the default directory containing scripts. paths is an array of ruby search paths.
+		/// scriptSourcePaths contains search paths for the directories conaining script. paths is an array of ruby search paths used by the script and the engine.
 		/// </summary>
 		/// <param name="id">Identifier.</param>
-		/// <param name="scriptSourcePath">Script source path.</param>
 		/// <param name="paths">Paths.</param>
 		/// <param name="deviceManager">Device manager.</param>
 		/// <param name="taskMonitor">Task monitor.</param>
 		public RubyScriptFactory (string id, 
-								string scriptSourcePath, 
 		                      	ICollection<string> paths,
 		                      	IDeviceManager deviceManager,
 		                      	ITaskMonitor taskMonitor) : base (id)
 		{
 
-			if (scriptSourcePath.EndsWith (Path.DirectorySeparatorChar.ToString ())) {
-
-				scriptSourcePath = scriptSourcePath.Substring (0, scriptSourcePath.Length - 1);
-			
-			}
-
 			m_taskMonitor = taskMonitor;
 
 			m_deviceManager = deviceManager;
-			m_scriptSourcePath = scriptSourcePath;
 			m_engine = Ruby.CreateEngine ();
 			m_engine.SetSearchPaths (paths);
 		
 		}
-		
-		public ICommandScript CreateCommand (string id, string sourceFile = null)
+
+		protected override string FileExtension { get { return RUBY_FILE_EXTENSION; } }
+
+		public override ICommandScript CreateCommand (string id)
 		{
 			
-			IScript script = CreateScript (id + RUBY_COMMAND_SCRIPT_ID_POSTFIX, sourceFile);
+			IScript script = CreateScript (id);
 			
 			return new RubyCommandScript (id, script);
 
 		}
 
-		public IScriptProcess CreateProcess (string id, string sourceFile = null) {
+		public override IScriptProcess CreateProcess (string id, RubyScript script = null) {
 		
-			IScript script = CreateScript (id, sourceFile);
-
-			IScriptProcess process = new RubyProc (id, script);
-
-			foreach (Task task in process.GetTasksToObserve().Values) {
-
-				m_taskMonitor.AddTask(script.Identifier, task);
-
-			}
-
-			return process;
-
-		}
-
-		public IScriptProcess CreateProcess (string id, RubyScript script) {
+			script = script ?? CreateScript (id);
 
 			IScriptProcess process = new RubyProc (id, script);
 
@@ -116,44 +94,21 @@ namespace Core.Scripting
 
 		}
 			
-		public RubyScript CreateScript (string id, string sourceFile = null) {
+		public override RubyScript CreateScript (string id) {
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
 
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
 			RubyScript script = new RubyScript (id,
-				GetSourceFilePath(id,sourceFile),
+				GetScriptFilePath(id),
 				m_engine, inputParams);
 			
 			return script;
 
 		}
-		
-		public string GetSourceFilePath (string id, string sourceFile = null)
-		{
-
-			if (sourceFile == null) {
-
-				sourceFile = id + RUBY_FILE_EXTENSION;
-
-			}
-
-			//Check if the file is in the script base folder. If not, use the provided path as an absolute path.
-			string sourceFilePath = File.Exists (m_scriptSourcePath + Path.DirectorySeparatorChar + sourceFile) ? 
-				m_scriptSourcePath + Path.DirectorySeparatorChar + sourceFile : sourceFile;
-
-			if (!File.Exists (sourceFilePath)) {
-
-				throw new ArgumentException ($"Ruby file with path '{sourceFilePath}' does not exist.");
-
-			}
-
-			return sourceFilePath;
-		
-		}
-
-		public IScriptInterpreter CreateInterpreter(RubyScript script) {
+	
+		public override IScriptInterpreter CreateInterpreter(RubyScript script) {
 
 			return new RubySrlptInterpreter (script);
 

@@ -47,7 +47,8 @@
 		<MemoryBus comment="communicates memories">membus</MemoryBus>
 		<Serializer>serializer</Serializer>
 		<DeviceFactory comment="default factory instance for general devices">device_factory</DeviceFactory>
-		<RunLoopId comment="the id of the script running the show">run_loop</RunLoopId>
+		<RunLoop comment="The object representing the run loop.">run_loop</RunLoop>
+		<RunLoopScript comment="the id of the script running the show (probably used by the run_loop to interpret stuff).">run_loop_script</RunLoopScript>
 		<TaskMonitor comment="keeps track of all running processes">task_monitor</TaskMonitor>
 		<Logger>log</Logger>
 		<ConsoleLogger>console_logger</ConsoleLogger>
@@ -60,7 +61,6 @@
 		<DefaultRpcPort type="int" comment="default server port">1234</DefaultRpcPort>
 		<BroadcastMgrPort type="int" comment="the port used by the host manager to broadcast">9050</BroadcastMgrPort>
 		<BroadcastMgrTcpPort type="int" comment="tcp listener port for broadcast manager">9051</BroadcastMgrTcpPort>
-		<RunLoopScript comment="Name of the run loop script!">interpreter.rb</RunLoopScript>
 		<DefaultPassword comment="Default password for RPC operations.">Din mamma!</DefaultPassword>
 	</Consts>
 </Configuration>

@@ -57,6 +57,9 @@ namespace Core
 		
 		private bool m_shouldRun;
 
+		/// <summary>
+		/// Search paths for the script engine.
+		/// </summary>
 		public static readonly ICollection<string> DEFAULT_RUBY_PATHS = new List<string> () {
 			Settings.Paths.Ruby(),
 			Settings.Paths.RubyLib(),
@@ -146,19 +149,23 @@ namespace Core
 
 			m_scriptFactory = new RubyScriptFactory (
 				Settings.Identifiers.ScriptFactory(),
-				Settings.Paths.Ruby(),
 			    DEFAULT_RUBY_PATHS,
 			    m_devices,
 			    m_taskMonitor);
 
+			// Point to the defauult ruby script files resides.
+			m_scriptFactory.AddSourcePath (Settings.Paths.Ruby ());
+
+			// Point to the common folder.
+			m_scriptFactory.AddSourcePath (Settings.Paths.Common ());
+
 			// The run loop script must meet the method requirements of the InterpreterRunLoop.
-			RubyScript runLoopScript = m_scriptFactory.CreateScript (
-				Settings.Identifiers.RunLoopId() + "_script" ,
-				Settings.Paths.Common(Settings.Consts.RunLoopScript()));
+			RubyScript runLoopScript = m_scriptFactory.CreateScript (Settings.Identifiers.RunLoopScript());
 
 			IScriptInterpreter runLoopInterpreter = m_scriptFactory.CreateInterpreter (runLoopScript);
+
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
-			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoopId (), runLoopInterpreter, consoleLogger);
+			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoop (), runLoopInterpreter, consoleLogger);
 
 			// Set up database and memory
 			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbPath);

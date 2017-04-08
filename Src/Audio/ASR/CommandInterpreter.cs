@@ -65,7 +65,10 @@ namespace Audio.ASR
 		}
 		
 		public bool Execute (string text)
-		{
+		{ 
+			throw new NotImplementedException ("Will this ever be used?");
+			/*
+			
 			ICommandScript script = m_commandScriptFactory.CreateCommand (
 				"command_script", m_commandScriptTemplateFileName);
 			
@@ -73,7 +76,7 @@ namespace Audio.ASR
 			
 			return result is bool && ((bool)result) || CanInterpretFromXml(text);
 			
-			
+			*/
 		}
 	}
 }

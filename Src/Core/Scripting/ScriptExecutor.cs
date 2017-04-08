@@ -59,12 +59,14 @@ namespace Core.Scripting
 		private void CreateScript ()
 		{
 
+			throw new NotImplementedException ("Fix this if/when it's time to figure out what the script-executor thing is good for.");
+			/*
 			IScriptProcess script = m_scriptFactory.CreateProcess (m_scriptId + "_" + m_random.Next (int.MaxValue),
-				m_scriptFactory.GetSourceFilePath (m_scriptId));
+				m_scriptFactory.GetScriptFilePath (m_scriptId));
 
 			m_scripts.Add (script.Identifier, script);
 			m_currentScriptId = script.Identifier;
-				
+			*/	
 		}
 			                                          
 			                                          

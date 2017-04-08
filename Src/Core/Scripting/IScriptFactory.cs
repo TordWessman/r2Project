@@ -25,25 +25,27 @@ namespace Core.Scripting
 {
 	public interface IScriptFactory<T>: IDevice where T: IScript
 	{
-
-		T CreateScript (string id, string sourceFile = null);
-
 		/// <summary>
-		/// Creates a looping process conforming to structural requirements (i.e. naming, composition) of the implemented language. The surceFile is the file containing the source code. It may be a relative or an absolute path.
+		/// Creates an IScript of type T
 		/// </summary>
-		/// <returns>The process.</returns>
+		/// <returns>The script.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="sourceFile">Source file.</param>
-		/// <param name="args">Arguments.</param>
-		IScriptProcess CreateProcess (string id, string sourceFile = null);
+		T CreateScript (string id);
 
 		/// <summary>
-		/// Creates a script process using the specified IScript.
+		/// Adds a search path for script source files.
+		/// </summary>
+		/// <param name="path">Path.</param>
+		void AddSourcePath (string path);
+
+		/// <summary>
+		/// Creates a looping process conforming to structural requirements (i.e. naming, composition) of the implemented language. If script is null, a script will be created for this IScriptProcess.
 		/// </summary>
 		/// <returns>The process.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="script">Script.</param>
-		IScriptProcess CreateProcess (string id, T script);
+		IScriptProcess CreateProcess (string id, T script = default(T));
 
 		/// <summary>
 		/// Executes a script once.
@@ -51,7 +53,7 @@ namespace Core.Scripting
 		/// <returns>The command.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="sourceFile">Source file.</param>
-		ICommandScript CreateCommand (string id, string sourceFile = null);
+		ICommandScript CreateCommand (string id);
 		
 		/// <summary>
 		/// Gets the default name of the script source file based upon the id.
@@ -62,7 +64,7 @@ namespace Core.Scripting
 		/// <param name='id'>
 		/// Identifier. The id of the script to evaluate the name of
 		/// </param>
-		string GetSourceFilePath (string id, string sourceFile = null);
+		string GetScriptFilePath (string id);
 
 		/// <summary>
 		/// Creates a script interpreter capable of evaluating string expressions. The requirements of the implementations of the interpreted script is dependent on the IScriptInterpreter implementation.
