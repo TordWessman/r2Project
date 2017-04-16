@@ -36,6 +36,8 @@ static bool _r2I2C_is_busy = false;
 static bool _r2I2C_is_initialized = false;
 static bool _r2I2C_is_reading = false;
 
+int r2I2C_open_bus ();
+
 int r2I2C_init (int bus, int address) {
 
 	_r2I2C_i2cbus = bus;

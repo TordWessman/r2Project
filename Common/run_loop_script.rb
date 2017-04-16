@@ -109,7 +109,7 @@ class MainClass < ScriptBase
 
 			#args not yet implemented
 			factory = @device_manager.get("script_factory")
-			script = factory.create_process script_name, script_name + ".rb"
+			script = factory.create_process script_name
 			@device_manager.add script
 			@task_monitor.add_monitorable script
 	end
