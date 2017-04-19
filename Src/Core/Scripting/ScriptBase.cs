@@ -23,21 +23,26 @@ using System.Collections.Generic;
 
 namespace Core.Scripting
 {
+	/// <summary>
+	/// IScript implementations should inherit from ScriptBase, since it's usingthe DynamicObject features for method and member access.
+	/// </summary>
 	public abstract class ScriptBase: DynamicObject, IScript 
 	{
 		protected string m_id;
 		protected Guid m_guid;
 		private List<IDeviceObserver> m_observers;
 
-		public ScriptBase (string id)
-		{
+		public ScriptBase (string id) {
+			
 			m_id = id;
 			m_guid = Guid.NewGuid ();
 			m_observers = new List<IDeviceObserver> ();
+
 		}
 
-		public string Identifier { get {
-				return m_id;}}
+		public void AddObserver(IDeviceObserver observer) { m_observers.Add (observer); }
+
+		public string Identifier { get { return m_id; } }
 
 		public Guid Guid { get { return m_guid; } }
 
@@ -46,8 +51,6 @@ namespace Core.Scripting
 		public virtual void Stop () {}
 
 		public virtual bool Ready { get { return true; } }
-
-		public void AddObserver(IDeviceObserver observer) { m_observers.Add (observer); }
 
 		public abstract void Set (string handle, dynamic value);
 		public abstract dynamic Get (string handle);
@@ -64,7 +67,6 @@ namespace Core.Scripting
 		public override bool TryGetMember (GetMemberBinder binder, out object result) {
 		
 			result = Get (binder.Name);
-
 			return true;
 
 		}
@@ -78,5 +80,5 @@ namespace Core.Scripting
 		}
 
 	}
-}
 
+}

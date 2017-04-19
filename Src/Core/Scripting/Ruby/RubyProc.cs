@@ -26,8 +26,25 @@ namespace Core.Scripting
 {
 	public class RubyProc: DeviceBase, IScriptProcess
 	{
-		public const string HANDLE_SHOULD_RUN = "main_class.should_run";		
-		public const string HANDLE_STOP = "main_class.stop";	
+		/// <summary>
+		/// Instance variable of boolean type. If false, the run loop will quit after the current cycle. 
+		/// </summary>
+		public const string HANDLE_SHOULD_RUN = "should_run";
+
+		/// <summary>
+		/// Method handle to the scripts 'stop' method (termination).
+		/// </summary>
+		public const string HANDLE_STOP = "stop";
+
+		/// <summary>
+		/// Method handle to the run loop.
+		/// </summary>
+		public const string HANDLE_LOOP = "loop";
+
+		/// <summary>
+		/// Method handle for the setup function (which will be executed before each execution).
+		/// </summary>
+		public const string HANDLE_SETUP = "setup";	
 
 		private bool m_isRunning;
 
@@ -60,7 +77,7 @@ namespace Core.Scripting
 
 				try {
 
-					while (false != m_script.Get("should_run") && true == m_script.Invoke("loop")) {
+					while (false != m_script.Get(HANDLE_SHOULD_RUN) && true == m_script.Invoke(HANDLE_LOOP)) {
 
 						// In the class' loop function
 
@@ -102,7 +119,7 @@ namespace Core.Scripting
 			try {
 				
 				m_isRunning = true;
-				m_script.Invoke("setup");
+				m_script.Invoke(HANDLE_SETUP);
 				m_processTask.Start ();
 
 			} catch (Exception ex) {
@@ -123,7 +140,7 @@ namespace Core.Scripting
 
 		public override void Stop () {
 		
-			m_script.Invoke ("stop");
+			m_script.Invoke (HANDLE_STOP);
 			m_processTask = GetProcessTask ();
 
 		}
