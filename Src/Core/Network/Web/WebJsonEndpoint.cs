@@ -27,6 +27,7 @@ using System.Dynamic;
 using Newtonsoft.Json.Converters;
 using System.Web;
 using System.Linq;
+using Core.Data;
 
 namespace Core.Network.Web
 {
@@ -95,8 +96,9 @@ namespace Core.Network.Web
 
 			}
 
+
 			// Add metadata to input object.
-			metaData?.ToList ().ForEach (kvp => inputObject.SetMember (kvp.Key, kvp.Value));
+			metaData?.ToList ().ForEach (kvp => inputObject[kvp.Key] = kvp.Value);
 
 			// Let reciver parse response.
 			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject);
@@ -108,7 +110,6 @@ namespace Core.Network.Web
 			
 				byte [] opd = outputObject.Data as byte[];
 
-				Log.t (opd.Length);
 				//Data was returned in raw format. Return imediately.
 
 				return opd;

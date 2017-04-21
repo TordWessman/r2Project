@@ -17,30 +17,41 @@
 //
 //
 using System;
-using Core.Network.Data;
 using System.Collections.Generic;
+using System.Dynamic;
+using Core.Device;
+using Core.Data;
 
 namespace Core.Network.Web
 {
-	public class TCPPackage 
+	public class TCPPackageFactory: DeviceBase
 	{
-		
-		private string m_path;
-		private IDictionary<string, object> m_headers;
-		private dynamic m_payload;
+		private IR2Serialization m_serialization;
+		private INetworkSecurity m_security;
 
-		public string Path { get { return m_path; } }
-		public IDictionary<string, object> Headers { get { return m_headers; } }
-		public dynamic Payload { get { return m_payload; } }
-
-		public TCPPackage (string path, IDictionary<string, object> headers, dynamic payload) {
+		public TCPPackageFactory (string id, IR2Serialization serialization, INetworkSecurity security = null): base(id) {
 		
-			m_path = path;
-			m_headers = headers;
-			m_payload = payload;
-				
+			m_security = security;
+			m_serialization = serialization;
+
 		}
 
+		public byte[] CreateRaw(TCPPackage package) {
+		
+			byte[] headerData = m_serialization.Serialize (package.Headers);
+			byte[] bodyData = m_serialization.Serialize (package.Payload);
+			byte[] path = m_serialization.Serialize (package.Path);
+
+			throw new NotImplementedException ();
+		
+		}
+
+		public TCPPackage CreatePackage(byte [] rawData) {
+		
+			throw new NotImplementedException ();
+
+		}
 	}
 
 }
+

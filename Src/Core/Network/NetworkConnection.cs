@@ -27,15 +27,17 @@ namespace Core.Network
 {
 	
 	public enum NetworkConnectionStatus {
+		
 		None = 0,
 		OK = 1,
 		BadContentLength = 2,
 		Hash1Failed = 3,
 		Hash2Failed = 4
+			
 	}
 	
-	public class NetworkConnection
-	{
+	public class NetworkConnection {
+		
 		private const int MD5_HASH_LENGTH = 16;
 		private const int DEFAULT_BUFFER_SIZE = 4096;
 		
@@ -43,8 +45,7 @@ namespace Core.Network
 		private bool m_keepalive;
 		private NetworkStream m_networkStream;
 
-		public NetworkConnection (NetworkStream stream)
-		{
+		public NetworkConnection (NetworkStream stream) {
 
 			m_status = NetworkConnectionStatus.None;
 			m_networkStream = stream;
@@ -55,8 +56,7 @@ namespace Core.Network
 		public bool Keepalive { get { return m_keepalive; } }
 		public NetworkConnectionStatus Status { get { return m_status; } }
 		
-		public byte[] ReadData ()
-		{
+		public byte[] ReadData () {
 
 			byte [] hashAndSize = ReadStream (MD5_HASH_LENGTH + sizeof(int)); 
 			byte [] hash_in1 = new byte[MD5_HASH_LENGTH];
@@ -108,8 +108,7 @@ namespace Core.Network
 
 		}
 		
-		public void WriteData (byte[] buffer, bool keepalive)
-		{
+		public void WriteData (byte[] buffer, bool keepalive) {
 		
 			byte [] size = BitConverter.GetBytes (buffer.Length);
 			byte [] hash = GenerateCheckSum (buffer);
@@ -128,8 +127,7 @@ namespace Core.Network
 
 		}
 
-		private  byte [] ReadStream (int expectedSize = -1)
-		{
+		private  byte [] ReadStream (int expectedSize = -1) {
 
 			byte [] tmpBuffer = new byte [DEFAULT_BUFFER_SIZE < expectedSize ?
                     DEFAULT_BUFFER_SIZE : expectedSize];
@@ -153,9 +151,8 @@ namespace Core.Network
 					size += bytesRead;
 				
 				} else {
-
-					SocketException ex = new SocketException (10004); //Interrupted
-					throw ex;
+					
+					throw  new SocketException (10004); //Interrupted;
 				
 				}
 				
@@ -164,8 +161,7 @@ namespace Core.Network
             byte []buffer = new byte[size];
             int offset = 0;
 
-            foreach (byte [] chunk in chunks)
-            {
+            foreach (byte [] chunk in chunks) {
 
                     System.Array.Copy(chunk,0, buffer, offset, chunk.Length);
                     offset += chunk.Length;
@@ -176,8 +172,7 @@ namespace Core.Network
 
         }
 		
-		private bool CompareArrays (byte [] array1, byte [] array2) 
-		{
+		private bool CompareArrays (byte [] array1, byte [] array2)  {
 
 			if (array1 == null && array2 == null) {
 			
@@ -213,8 +208,7 @@ namespace Core.Network
 			
 		}
 		
-		public static byte [] GenerateCheckSum (byte[] buffer)
-		{
+		public static byte [] GenerateCheckSum (byte[] buffer) {
 			
 			if (buffer == null || buffer.Length < 1) {
 			

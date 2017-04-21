@@ -19,6 +19,7 @@
 using System;
 using Core.Device;
 using System.Collections.Generic;
+using NLua;
 
 namespace Core.Scripting
 {
@@ -30,7 +31,7 @@ namespace Core.Scripting
 
 		public LuaScriptFactory (string id) : base(id)
 		{
-
+			
 		}
 
 		public override LuaScript CreateScript (string id) {

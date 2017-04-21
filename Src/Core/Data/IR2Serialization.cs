@@ -17,30 +17,14 @@
 //
 //
 using System;
-using Core.Network.Data;
-using System.Collections.Generic;
 
-namespace Core.Network.Web
+namespace Core.Data
 {
-	public class TCPPackage 
+	public interface IR2Serialization
 	{
-		
-		private string m_path;
-		private IDictionary<string, object> m_headers;
-		private dynamic m_payload;
-
-		public string Path { get { return m_path; } }
-		public IDictionary<string, object> Headers { get { return m_headers; } }
-		public dynamic Payload { get { return m_payload; } }
-
-		public TCPPackage (string path, IDictionary<string, object> headers, dynamic payload) {
-		
-			m_path = path;
-			m_headers = headers;
-			m_payload = payload;
-				
-		}
-
+		byte[] Serialize (dynamic data);
+		dynamic Deserialize (byte[] data);
+		System.Text.Encoding Encoding { get; }
 	}
-
 }
+

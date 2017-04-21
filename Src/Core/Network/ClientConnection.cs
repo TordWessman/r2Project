@@ -59,8 +59,7 @@ namespace Core.Network
 		/// <param name="host">Host.</param>
 		/// <param name="hostManager">Host manager.</param>
 		/// <param name="keepalive">If set to <c>true</c> keepalive.</param>
-		public ClientConnection (IPEndPoint host, IHostManager<IPEndPoint> hostManager = null, bool keepalive = false)
-		{
+		public ClientConnection (IPEndPoint host, IHostManager<IPEndPoint> hostManager = null, bool keepalive = false) {
 			
 			m_keepalive = keepalive;
 			m_host = host;

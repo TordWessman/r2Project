@@ -80,7 +80,7 @@ namespace Core.Network.Web
 		// An object which will be used to send changes in devices which has been invoked.
 		private IWebSocketSender m_sender;
 
-		// Contains a list identifiers for all devices being invoked
+		// Contains a list identifiers for all devices being invoked. Used by the IDeviceObserver implementation.
 		private IList<string> m_registeredDevices;
 
 		/// <summary>
@@ -113,7 +113,11 @@ namespace Core.Network.Web
 			
 			}
 
-			m_registeredDevices.Add (device.Identifier);
+			if (!m_registeredDevices.Contains (device.Identifier)) {
+			
+				m_registeredDevices.Add (device.Identifier);
+
+			}
 
 			IList<dynamic> parameterList = null;
 

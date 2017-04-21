@@ -3,6 +3,7 @@ using NUnit.Framework;
 using Core.Data;
 using Core.Device;
 using System.Linq;
+using System.Dynamic;
 
 namespace Core.Tests
 {
@@ -40,6 +41,32 @@ namespace Core.Tests
 
 			Assert.AreEqual (dataSet.Interpolate (1.5), 15.0d);
 			Assert.AreEqual (dataSet.Interpolate (2.9), 29.0d);
+
+		}
+
+		class TestSer {
+		
+			public string Foo;
+			public int Bar;
+
+		}
+
+		[Test]
+		public void TestSerialization() {
+
+			TestSer t = new TestSer ();
+
+			t.Foo = "bar";
+			t.Bar = 42;
+
+			IR2Serialization serializer = new R2DynamicJsonSerialization ();
+
+			byte[] serialized = serializer.Serialize (t);
+
+			dynamic r = serializer.Deserialize (serialized);
+
+			Assert.AreEqual ("bar", r.Foo);
+			Assert.AreEqual (42, r.Bar);
 
 		}
 	}
