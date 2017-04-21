@@ -32,6 +32,7 @@ namespace Core.Scripting
 		{
 
 			m_scriptSourcePaths = new List<string>();
+
 		}
 
 

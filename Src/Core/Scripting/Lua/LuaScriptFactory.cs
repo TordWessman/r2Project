@@ -25,7 +25,6 @@ namespace Core.Scripting
 	public class LuaScriptFactory: ScriptFactoryBase<LuaScript>
 	{
 		private const string LUA_FILE_EXTENSION = ".lua";
-		private IEnumerable<string> m_searchPaths;
 
 		protected override string FileExtension { get { return LUA_FILE_EXTENSION; } }
 

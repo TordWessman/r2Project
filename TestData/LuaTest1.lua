@@ -4,9 +4,9 @@ function sleep(n)
   os.execute("sleep " .. tonumber(n))
 end
 
-local shouldRun = true
+shouldRun = true
 
-local str = "fish"
+str = "fish"
 
 function test1(arg)
 

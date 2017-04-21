@@ -67,7 +67,7 @@ namespace Core.Tests
 		
 			dynamic lua = m_luaScriptFactory.CreateScript ("LuaTest1");
 		
-			Assert.AreEqual (lua.str, "fish");
+			Assert.AreEqual ("fish", lua.str);
 
 		}
 	

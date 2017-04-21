@@ -23,7 +23,7 @@ using System.Linq;
 
 namespace Core.Scripting
 {
-	public class LuaScript : DeviceBase, IScript
+	public class LuaScript : ScriptBase, IScript
 	{
 		private Lua m_state;
 		private string m_fileName;
@@ -34,23 +34,29 @@ namespace Core.Scripting
 			m_state = new Lua ();
 			m_fileName = fileName;
 
+			if (!System.IO.File.Exists (m_fileName)) {
+			
+				throw new System.IO.FileNotFoundException ($"The Lua file {m_fileName} was not found.");
+			
+			}
+
 			Reload ();
 		
 		}
 
-		public void Set (string handle, dynamic value) {
+		public override void Set (string handle, dynamic value) {
 		
 			m_state [handle] = value;
 
 		}
 
-		public dynamic Get (string handle) {
+		public override dynamic Get (string handle) {
 		
 			return m_state [handle];
 
 		}
 
-		public dynamic Invoke (string handle, params dynamic[] args) {
+		public override dynamic Invoke (string handle, params dynamic[] args) {
 		
 			LuaFunction function = m_state [handle] as LuaFunction;
 		
@@ -62,7 +68,7 @@ namespace Core.Scripting
 			
 		}
 
-		public void Reload() {
+		public override void Reload() {
 
 			m_state.LoadCLRPackage ();
 			m_state.DoFile (m_fileName);
