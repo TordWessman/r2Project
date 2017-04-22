@@ -40,7 +40,7 @@ namespace Core.Network.Web
 	/// 
 	/// }
 	/// 
-	///  - Example of a request sructure:
+	///  - Example of a request structure:
 	/// {
 	/// 	Token: "optional password",
 	/// 	Params [ 
@@ -97,7 +97,7 @@ namespace Core.Network.Web
 
 		}
 
-		public IWebIntermediate OnReceive (dynamic message) {
+		public IWebIntermediate OnReceive (dynamic message, IDictionary<string, object> metadata = null) {
 
 			if (m_security?.IsValid(message.Token) == false) {
 			

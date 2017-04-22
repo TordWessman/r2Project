@@ -257,6 +257,7 @@
     <Compile Include="Network\Web\TCP\TCPPackageFactory.cs" />
     <Compile Include="Data\IR2Serialization.cs" />
     <Compile Include="Data\R2DynamicJsonSerialization.cs" />
+    <Compile Include="Tests\NetworkTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

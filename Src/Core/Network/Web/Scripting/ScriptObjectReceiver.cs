@@ -29,12 +29,14 @@ using System.Collections.Generic;
 namespace Core.Network.Web
 {
 	/// <summary>
-	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(dynamic inputObject, IWebIntermediate outputObject).</para>
+	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(dynamic inputObject, IDictionary<string, object> metadata, IWebIntermediate outputObject).</para>
 	/// <para>The type T must be an IWebIntermediate implementation used to transcibe data from script to sub system.</para>
 	/// The outputObject is required for the script implementation to know how to return a data type compatible with a serializer.
 	/// </summary>
 	public class ScriptObjectReceiver<T>: IWebObjectReceiver where T: IWebIntermediate, new()
 	{
+
+		public static readonly string ON_RECEIVE_METHOD_NAME = "on_receive";
 
 		IScript m_script;
 
@@ -44,9 +46,9 @@ namespace Core.Network.Web
 		
 		}
 
-		public IWebIntermediate OnReceive (dynamic input) {
+		public IWebIntermediate OnReceive (dynamic input, IDictionary<string, object> metadata) {
 			
-			T response = m_script.Invoke("on_receive", input, new T());
+			T response = m_script.Invoke(ON_RECEIVE_METHOD_NAME, input, metadata, new T());
 
 			response.CLRConvert ();
 

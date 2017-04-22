@@ -41,8 +41,7 @@ namespace Core.Network.Web
 		private IWebObjectReceiver m_receiver;
 		private string m_responsePath;
 		private IDictionary<string, object> m_extraHeaders;
-		private ExpandoObjectConverter m_converter;
-		private System.Text.Encoding m_encoding;
+		private IR2Serialization m_serialization;
 
 		/// <summary>
 		/// Parsing the input as a dictionary.
@@ -52,21 +51,14 @@ namespace Core.Network.Web
 		/// <param name="responsePath">Response path.</param>
 		/// <param name="responsePath">receiver</param>
 
-		public WebJsonEndpoint (string responseURIPath, IWebObjectReceiver receiver, System.Text.Encoding encoding = null)
+		public WebJsonEndpoint (string responseURIPath, IWebObjectReceiver receiver, IR2Serialization serialization)
 		{
 			
-			JsonConvert.DefaultSettings =  delegate() { return new JsonSerializerSettings {
-				NullValueHandling = NullValueHandling.Ignore,
-				MissingMemberHandling = MissingMemberHandling.Ignore
-				};
-			};
-
 			m_receiver = receiver;
 
 			m_responsePath = responseURIPath;
-			m_converter = new ExpandoObjectConverter();
 			m_extraHeaders = new Dictionary<string, object> ();
-			m_encoding = encoding ?? HttpServer.DefaultEncoding;
+			m_serialization = serialization;
 
 			m_extraHeaders.Add ("Content-Type", @"application/json");
 
@@ -79,29 +71,15 @@ namespace Core.Network.Web
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (byte[] input, IDictionary<string, object> metaData = null) {
+		public byte[] Interpret (byte[] input, IDictionary<string, object> metadata = null) {
 			
-			string inputJson = m_encoding.GetString (input);
-
-			R2Dynamic inputObject = null;
-
-			if (inputJson.Length > 0) {
-			
-				// Parse body
-				inputObject = new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(inputJson, m_converter));
-
-			} else {
-
-				inputObject = new R2Dynamic ();
-
-			}
-
+			R2Dynamic inputObject = m_serialization.Deserialize(input);
 
 			// Add metadata to input object.
-			metaData?.ToList ().ForEach (kvp => inputObject[kvp.Key] = kvp.Value);
+			//metaData?.ToList ().ForEach (kvp => inputObject[kvp.Key] = kvp.Value);
 
 			// Let reciver parse response.
-			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject);
+			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject, metadata);
 
 			// Let Metadata be the extra headers.
 			outputObject.Metadata?.ToList ().ForEach (kvp => m_extraHeaders[kvp.Key] = kvp.Value.ToString ());
@@ -115,11 +93,8 @@ namespace Core.Network.Web
 				return opd;
 
 			} else {
-			
-				//Data will be serialized to a JSON object defore transformed into raw byte data.
 
-				string outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject.Data));
-				return m_encoding.GetBytes(outputString) ?? new byte[0];
+				return m_serialization.Serialize(outputObject.Data);
 
 			}
 

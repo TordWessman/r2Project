@@ -56,9 +56,9 @@ namespace Core.Network.Web
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (byte[] input, IDictionary<string, object> metaData = null)
+		public byte[] Interpret (byte[] input, IDictionary<string, object> metadata = null)
 		{
-			Uri uri = metaData.ContainsKey (HttpServer.URI_KEY) && metaData [HttpServer.URI_KEY] is Uri  ? metaData [HttpServer.URI_KEY] as Uri : null;
+			Uri uri = metadata.ContainsKey (HttpServer.URI_KEY) && metadata [HttpServer.URI_KEY] is Uri  ? metadata [HttpServer.URI_KEY] as Uri : null;
 
 			if (uri == null) {
 			

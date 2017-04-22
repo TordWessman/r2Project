@@ -32,7 +32,7 @@ namespace Core.Network.Web
 		/// Handles the receival of the input object. Output object should contain
 		/// </summary>
 		/// <param name="input">Input.</param>
-		IWebIntermediate OnReceive (dynamic input);
+		IWebIntermediate OnReceive (dynamic input, IDictionary<string, object> metadata);
 
 	}
 }

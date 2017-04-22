@@ -22,6 +22,7 @@ using Core.Device;
 using System.Linq;
 using Core.Scripting;
 using System.Dynamic;
+using Core.Data;
 
 namespace Core.Network.Web
 {
@@ -32,12 +33,15 @@ namespace Core.Network.Web
 	{
 		private System.Text.Encoding m_encoding;
 
-		public IDeviceManager m_deviceManager;
+		private IDeviceManager m_deviceManager;
+
+		private IR2Serialization m_serialization;
 
 		public WebFactory (string id, IDeviceManager deviceManager, System.Text.Encoding encoding = null) : base (id) {
 		
 			m_deviceManager = deviceManager;
 			m_encoding = encoding ?? HttpServer.DefaultEncoding;
+			m_serialization = new R2DynamicJsonSerialization (m_encoding);
 
 		}
 
@@ -101,7 +105,7 @@ namespace Core.Network.Web
 		/// <param name="receiver">Receiver.</param>
 		public IWebEndpoint CreateJsonEndpoint(string uriPath, IWebObjectReceiver receiver) {
 
-			return new WebJsonEndpoint (uriPath, receiver);
+			return new WebJsonEndpoint (uriPath, receiver, m_serialization);
 
 		}
 

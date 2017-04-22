@@ -33,6 +33,12 @@ namespace Core.Data
 			m_encoding = encoding ?? System.Text.Encoding.UTF8;
 			m_converter = new ExpandoObjectConverter();
 
+			JsonConvert.DefaultSettings =  delegate() { return new JsonSerializerSettings {
+					NullValueHandling = NullValueHandling.Ignore,
+					MissingMemberHandling = MissingMemberHandling.Ignore
+				};
+			};
+
 		}
 
 		public System.Text.Encoding Encoding { get { return m_encoding; } }
