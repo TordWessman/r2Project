@@ -21,6 +21,7 @@ using NUnit.Framework;
 using Core.Network.Web;
 using Core.Data;
 using System.Collections.Generic;
+using Core.Device;
 
 namespace Core.Tests
 {
@@ -47,20 +48,26 @@ namespace Core.Tests
 		public int Bar = 42;
 	}
 
+
+
 	[TestFixture]
 	public class NetworkTests: TestBase
 	{
 		private IR2Serialization serialization;
 
-		public NetworkTests ()
-		{
-		}
+		private WebFactory factory;
+
 
 		[TestFixtureSetUp]
 		public override void Setup() {
 		
 			base.Setup ();
-			serialization = new R2DynamicJsonSerialization ();
+			serialization = m_dataFactory.CreateSerialization ("serializer", HttpServer.DefaultEncoding);
+			factory = new WebFactory ("wf", m_deviceManager, serialization);
+
+			DummyDevice d = new DummyDevice ("dummy_device");
+			m_deviceManager.Add (d);
+
 		}
 
 		[Test]
@@ -73,7 +80,7 @@ namespace Core.Tests
 			DummyReceiver receiver = new DummyReceiver ();
 			receiver.Response = response;
 
-			WebJsonEndpoint ep = new WebJsonEndpoint ("", receiver, serialization);
+			IWebEndpoint ep = factory.CreateJsonEndpoint ("", receiver);
 
 			DummyInput inputObject = new DummyInput ();
 
@@ -88,6 +95,71 @@ namespace Core.Tests
 
 			Assert.AreEqual(response.Data.Foo, output.Foo);
 			ep.Metadata ["Baz"] = "FooBar";
+
+		}
+
+		[Test]
+		public void TestDeviceRouterInvoke() {
+		
+			dynamic dummyObject = m_deviceManager.Get ("dummy_device");
+			dummyObject.Bar = "XYZ";
+
+			IWebObjectReceiver rec = factory.CreateDeviceObjectReceiver ();
+			string jsonString = 
+				"{ " +
+
+				"\"Token\": \"no_token\"," +
+					" \"Params\": [ \"Foo\", 42 ]," +
+					" \"ActionType\": 2, " +
+				" \"Action\": \"GiveMeFooAnd42\", " +
+					" \"Identifier\": \"dummy_device\"" +
+				" }";
+
+			byte[] serialized = serialization.Encoding.GetBytes(jsonString);
+			dynamic deserialized = serialization.Deserialize(serialized);
+			Assert.AreEqual("dummy_device", deserialized.Identifier);
+
+			IWebIntermediate result = rec.OnReceive (deserialized, null);
+
+			// Make sure the identifiers are the same.
+			Assert.AreEqual (deserialized.Identifier, result.Data.Object.Identifier);
+
+			// This is what the function should return
+			Assert.AreEqual (12.34f, result.Data.ActionResponse);
+
+			// The dummy object should now have been changed.
+			Assert.AreEqual ("Foo", dummyObject.Bar);
+
+		}
+
+		[Test]
+		public void TestDeviceRouterSet() {
+
+			dynamic dummyObject = m_deviceManager.Get ("dummy_device");
+			dummyObject.HAHA = 0;
+
+			IWebObjectReceiver rec = factory.CreateDeviceObjectReceiver ();
+			string jsonString = 
+				"{ " +
+
+				"\"Token\": \"no_token\"," +
+				" \"Params\": [ 42.1 ]," +
+				" \"ActionType\": 1, " +
+				" \"Action\": \"HAHA\", " +
+				" \"Identifier\": \"dummy_device\"" +
+				" }";
+
+			byte[] serialized = serialization.Encoding.GetBytes(jsonString);
+			dynamic deserialized = serialization.Deserialize(serialized);
+			Assert.AreEqual("dummy_device", deserialized.Identifier);
+
+			IWebIntermediate result = rec.OnReceive (deserialized, null);
+
+			// Make sure the identifiers are the same.
+			Assert.AreEqual (deserialized.Identifier, result.Data.Object.Identifier);
+
+			// The dummy object should now have been changed.
+			Assert.AreEqual (42.1f, dummyObject.HAHA);
 
 		}
 	}

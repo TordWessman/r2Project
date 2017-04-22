@@ -17,17 +17,35 @@
 //
 //
 using System;
+using Core.Device;
+using NUnit.Framework;
 
-namespace Core.Data
+namespace Core.Tests
 {
-	/// <summary>
-	/// Capable of serializing from any type and deserializing objects into a dynamic type.
-	/// </summary>
-	public interface IR2Serialization
+	public class DummyDevice: DeviceBase
 	{
-		byte[] Serialize (dynamic data);
-		dynamic Deserialize (byte[] data);
-		System.Text.Encoding Encoding { get; }
+		private int m_val = 99;
+		private string m_bar = "";
+
+		public DummyDevice (string id): base(id)
+		{
+		}
+
+		public int Value {get{return m_val;}set{m_val = value;}}
+		public string Bar {get{return m_bar;}set{m_bar = value;}}
+
+		public float HAHA;
+
+		public float GiveMeFooAnd42(string foo, int _42) {
+		
+			m_bar = foo;
+			Assert.AreEqual ("Foo", foo);
+			Assert.AreEqual (42, _42);
+
+			return 12.34f;
+
+		}
+
 	}
 }
 

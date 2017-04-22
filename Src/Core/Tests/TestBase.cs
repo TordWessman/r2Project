@@ -21,6 +21,7 @@ using Core.Device;
 using Core.Network;
 using NUnit.Framework;
 using Core.Memory;
+using Core.Data;
 
 namespace Core.Tests
 {
@@ -31,6 +32,7 @@ namespace Core.Tests
 		protected ITaskMonitor m_dummyTaskMonitor;
 		protected IMessageLogger console;
 		protected DeviceFactory m_deviceFactory;
+		protected DataFactory m_dataFactory;
 
 		[TestFixtureSetUp]
 		public virtual void Setup() {
@@ -64,6 +66,8 @@ namespace Core.Tests
 				m_deviceManager.Add (Log.Instance);
 
 				m_deviceFactory = new DeviceFactory ("device_factory", m_deviceManager, new TemporaryMemorySource("ms"));
+
+				m_dataFactory = new DataFactory("f", new System.Collections.Generic.List<string>() {Settings.Paths.TestData()});
 
 			} catch (Exception ex) {
 			

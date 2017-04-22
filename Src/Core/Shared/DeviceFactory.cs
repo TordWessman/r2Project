@@ -60,9 +60,9 @@ namespace Core
 		
 		}
 
-		public WebFactory CreateWebFactory(string id) {
+		public WebFactory CreateWebFactory(string id, IR2Serialization serializer) {
 		
-			return new WebFactory (id, m_deviceManager);
+			return new WebFactory (id, m_deviceManager, serializer);
 
 		}
 
@@ -78,7 +78,7 @@ namespace Core
 
 		}
 
-		public DataFactory CreateDataSetFactory(string id, IEnumerable<string> searchPaths) {
+		public DataFactory CreateDataFactory(string id, IEnumerable<string> searchPaths) {
 		
 			return new DataFactory(id, searchPaths);
 

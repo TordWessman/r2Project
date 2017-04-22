@@ -24,6 +24,7 @@ using Newtonsoft.Json;
 using System.Linq;
 using System.Security;
 using System.Dynamic;
+using System.Reflection;
 
 namespace Core.Network.Web
 {
@@ -43,16 +44,7 @@ namespace Core.Network.Web
 	///  - Example of a request structure:
 	/// {
 	/// 	Token: "optional password",
-	/// 	Params [ 
-	/// 		{
-	/// 			Type: 0
-	/// 			RawValue: 42
-	/// 		},
-	/// 		{
-	/// 			Type: 2
-	/// 			RawValue: "foo"
-	/// 		} 
-	/// 	],
+	/// 	Params [ 42, "foo" ],
 	/// 	ActionType: 2,
 	/// 	Action: "UpdateNumberAndString",
 	/// 	Identifier: "device_with_a_number_and_a_string"
@@ -101,7 +93,7 @@ namespace Core.Network.Web
 
 			if (m_security?.IsValid(message.Token) == false) {
 			
-				throw new SecurityException ("Invalid credentials for message.");
+				throw new SecurityException ("Invalid credentials for message. Bad Token.");
 
 			}
 
@@ -109,7 +101,7 @@ namespace Core.Network.Web
 
 			if (device == null) {
 
-				throw new DeviceException ("Device with id: " + message.Id + " not found.");
+				throw new DeviceException ($"Device with id: {message.Id} not found.");
 			
 			}
 
@@ -119,36 +111,61 @@ namespace Core.Network.Web
 
 			}
 
-			IList<dynamic> parameterList = null;
-
-			if (message.Params?.Count > 0) {
-
-				// Only add parameters if Params object array is present.
-
-				parameterList = new List<dynamic> ();
-
-				foreach (dynamic parameter in message.Params) {
-				
-					parameterList.Add (JsonObjectRequest.Param.ParseValue (parameter));
-
-				}
-
-			}
-			 
-			object[] p = parameterList?.ToArray();
+			// Input parameters for methods and setters
+			//object[] p = message.Params?.ToArray();
 
 			JsonObjectResponse response = new JsonObjectResponse ();
 				
-			if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Invoke) {
+			if (Convert.ToInt32(message.ActionType) == (int)JsonObjectRequest.ActionType.Invoke) {
 
-				response.ActionResponse = device.GetType ().GetMethod (message.Action).Invoke (device, p);
+				ParameterInfo[] paramsInfo = device.GetType ().GetMethod (message.Action).GetParameters ();
+
+				if (paramsInfo.Length != (int)(message.Params?.Count ?? 0)) {
+				
+					throw new ArgumentException ($"Wrong number of arguments for {message.Action} in {device.Identifier}. {message.Params?.Count} provided but {paramsInfo.Length} are required.");
+
+				}
+
+				IList<object> p = new List<object> ();
+
+				for (int i = 0; i < paramsInfo.Length; i++) {
+
+					//Convert the dynamic parameter to the type required by the method.
+					p.Add(Convert.ChangeType(message.Params[i], paramsInfo[i].ParameterType));
+
+				}
+
+				response.ActionResponse = device.GetType ().GetMethod (message.Action).Invoke (device, p.ToArray());
 				response.Action = message.Action;
 
-			} else if (Convert.ToInt32(message.Type) == (int)JsonObjectRequest.ActionType.Set) {
+			} else if (Convert.ToInt32(message.ActionType) == (int)JsonObjectRequest.ActionType.Set) {
+				
+				PropertyInfo propertyInfo = device.GetType().GetProperty(message.Action);
 
-				System.Reflection.PropertyInfo propertyInfo = device.GetType().GetProperty(message.Action);
-				propertyInfo.SetValue(device, Convert.ChangeType(p[0], propertyInfo.PropertyType), null);
-				response.Action = propertyInfo.Name;
+				if (propertyInfo == null) {
+
+					MemberInfo[] members = device.GetType ().GetMember (message.Action);
+
+					if (members.Length == 0) { 
+					
+						throw new ArgumentException ("Property '{message.Action}' not found in device '{device.Identifier}'.");
+
+					} else if (!(members [0] is FieldInfo)) {
+					
+						throw new ArgumentException ("Unable to access property '{message.Action}' in device '{device.Identifier}'.");
+
+					}
+
+					FieldInfo fieldInfo = (members [0] as FieldInfo);
+					fieldInfo.SetValue (device, Convert.ChangeType (message.Params [0], fieldInfo.FieldType));
+					response.Action = fieldInfo.Name;
+
+				} else {
+				
+					propertyInfo.SetValue(device, Convert.ChangeType (message.Params [0], propertyInfo.PropertyType), null);
+					response.Action = propertyInfo.Name;
+				}
+
 
 			}
 

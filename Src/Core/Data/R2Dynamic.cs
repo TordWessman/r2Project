@@ -38,9 +38,8 @@ namespace Core.Data
 			m_members = new Dictionary<TKey, TValue> ();
 
 			foreach (KeyValuePair<TKey, Object> kvp in (expandoObject as IDictionary<TKey, Object>)) {
-
-				var obj = kvp.Value is ExpandoObject ? new R2Dynamic (kvp.Value as ExpandoObject) : kvp.Value;
-				m_members [kvp.Key] = obj;
+				
+				m_members [kvp.Key] = kvp.Value is ExpandoObject ? new R2Dynamic (kvp.Value as ExpandoObject) : kvp.Value;
 
 			}
 

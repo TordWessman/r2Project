@@ -10,15 +10,15 @@ namespace Core.Tests
 	[TestFixture]
 	public class DataTests: TestBase
 	{
-		private DataFactory m_factory;
-	
+		
+		private IR2Serialization serializer;
+
 		[TestFixtureSetUp]
 		public override void Setup() {
 		
 			base.Setup ();
 
-			m_factory = new DataFactory("f", new System.Collections.Generic.List<string>() {Settings.Paths.TestData()});
-				
+			serializer = m_dataFactory.CreateSerialization ("serializer", System.Text.Encoding.UTF8);
 
 		}
 		public DataTests ()
@@ -28,7 +28,7 @@ namespace Core.Tests
 		[Test]
 		public void TestLinearDataSet() {
 		
-			ILinearDataSet<double> dataSet = m_factory.CreateDataSet ("test_device.csv");
+			ILinearDataSet<double> dataSet = m_dataFactory.CreateDataSet ("test_device.csv");
 
 			Assert.AreEqual (dataSet.Points.Keys.ElementAt (0), 1.0d);
 			Assert.AreEqual (dataSet.Points.Values.ElementAt (0), 10.0d);
@@ -59,7 +59,7 @@ namespace Core.Tests
 			t.Foo = "bar";
 			t.Bar = 42;
 
-			IR2Serialization serializer = new R2DynamicJsonSerialization ();
+
 
 			byte[] serialized = serializer.Serialize (t);
 
@@ -68,6 +68,20 @@ namespace Core.Tests
 			Assert.AreEqual ("bar", r.Foo);
 			Assert.AreEqual (42, r.Bar);
 
+		}
+
+		[Test]
+		public void TestStringSerialization() {
+
+			string jsonString = "{ \"Value\": 42, \"Params\": [1,2,\"Hund\"] }";
+			byte[] jsonBytes = serializer.Encoding.GetBytes (jsonString);
+
+			dynamic o = serializer.Deserialize (jsonBytes);
+
+			Assert.AreEqual (42, o.Value);
+			Assert.AreEqual (1, o.Params[0]);
+			Assert.AreEqual (2, o.Params[1]);
+			Assert.AreEqual ("Hund", o.Params[2]);
 		}
 	}
 }

@@ -52,9 +52,7 @@ namespace Core
 		private IDatabase m_db;
 		private IScriptFactory<RubyScript> m_scriptFactory;
 		private IRunLoop m_runLoop;
-		
-		private Serializer m_serializer;
-		
+
 		private bool m_shouldRun;
 
 		/// <summary>
@@ -113,15 +111,12 @@ namespace Core
 			Log.Instance.AddLogger (consoleLogger);
 			Log.Instance.AddLogger (new FileLogger("file_logger", "test_output.txt"));
 
-			//Check if the file is in an absoulute path. If not create/open the database in the database-base folder.
-			string dbPath = dbFile.Contains(Path.DirectorySeparatorChar) ? 
-				dbFile : Settings.Paths.Databases() + Path.DirectorySeparatorChar + dbFile;
+			// Creating a device factory used for the creation of yet uncategorized devices...
+			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices, m_memory);
 
 			m_server = new Server (Settings.Identifiers.Server(), tcpPort == -1 ? Settings.Consts.DefaultRpcPort() : tcpPort);
 			m_taskMonitor = new SimpleTaskMonitor (Settings.Identifiers.TaskMonitor());
 
-			m_serializer = new Serializer (Settings.Identifiers.Serializer());
-		
 			// Set up a very simple network security handler
 			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity ("base_security", Settings.Consts.DefaultPassword());
 
@@ -166,22 +161,21 @@ namespace Core
 
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
 			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoop (), runLoopInterpreter, consoleLogger);
+			var dataFactory = m_deviceFactory.CreateDataFactory ("data_factory", new List<string> () {Settings.Paths.Databases()});
+			var serializer = dataFactory.CreateSerialization ("data_serializer", System.Text.Encoding.UTF8);
 
 			// Set up database and memory
-			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbPath);
+			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbFile);
 			m_memory = new SharedMemorySource (Settings.Identifiers.Memory(), m_devices, m_db);
 
-			// Creating a device factory used for the creation of yet uncategorized devices...
-			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices, m_memory);
-
 			// Creating a web factory used to create http/websocket related endpoints etc.
-			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory());
+			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory(), serializer);
 
 			// Add devices to device manager
 			m_devices.Add (runLoopScript);
 			m_devices.Add (m_runLoop);
 			m_devices.Add (httpFactory);
-			m_devices.Add (m_serializer);
+			m_devices.Add (dataFactory);
 			m_devices.Add (m_memory);
 			m_devices.Add (m_db);
 			m_devices.Add (m_server);

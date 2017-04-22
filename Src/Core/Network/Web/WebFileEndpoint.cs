@@ -116,6 +116,7 @@ namespace Core.Network.Web
 				headers.Add ("Content-Type", m_contentType + "/" + m_lastRequestedFileExtension);
 
 				return headers;
+
 			}
 
 		}

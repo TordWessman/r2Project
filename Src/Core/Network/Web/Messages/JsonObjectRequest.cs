@@ -46,7 +46,7 @@ namespace Core.Network.Web {
 	/// <summary>
 	/// Message used to invoke and retrieve data from objects.
 	/// </summary>
-	public class JsonObjectRequest
+	internal class JsonObjectRequest
 	{
 
 		/// <summary>
@@ -71,49 +71,6 @@ namespace Core.Network.Web {
 
 		}
 
-		public enum ParamType {
-		
-			Null = -1, // Interpreted as null
-			Int = 0, // regular int32
-			Float = 1, // interpreted as float
-			String = 2,
-			Double = 3
-		}
-
-		/// <summary>
-		/// Parameter container for method invocation.
-		/// </summary>
-		public class Param {
-		
-			public dynamic RawValue;
-			public ParamType Type;
-
-			public static dynamic ParseValue(dynamic paramContainer) {
-
-				if (paramContainer.Type == (int)ParamType.Float) {
-					
-					return (float) paramContainer.RawValue;
-				
-				} else if (paramContainer.Type == (int)ParamType.Double) {
-
-					return (double) paramContainer.RawValue;
-
-				} else if (paramContainer.Type == (int)ParamType.Int) {
-				
-					return (int) paramContainer.RawValue;
-				
-				} else if (paramContainer.Type == (int)ParamType.String) {
-				
-					return (string) paramContainer.RawValue;
-				
-				} 
-					
-				return null;
-			
-			}
-
-		}
-
 		/// <summary>
 		/// Containing an identifier for the object.
 		/// </summary>
@@ -132,7 +89,7 @@ namespace Core.Network.Web {
 		/// <summary>
 		/// Containing a list of parameters used while setting values and invoking methods.
 		/// </summary>
-		public Param[] Params;
+		public object[] Params;
 
 		/// <summary>
 		/// Optional use for puny security.

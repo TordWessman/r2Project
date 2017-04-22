@@ -37,11 +37,10 @@ namespace Core.Network.Web
 
 		private IR2Serialization m_serialization;
 
-		public WebFactory (string id, IDeviceManager deviceManager, System.Text.Encoding encoding = null) : base (id) {
+		public WebFactory (string id, IDeviceManager deviceManager, IR2Serialization serialization) : base (id) {
 		
 			m_deviceManager = deviceManager;
-			m_encoding = encoding ?? HttpServer.DefaultEncoding;
-			m_serialization = new R2DynamicJsonSerialization (m_encoding);
+			m_serialization = serialization;
 
 		}
 

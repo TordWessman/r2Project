@@ -20,15 +20,16 @@ using System;
 using Newtonsoft.Json;
 using System.Dynamic;
 using Newtonsoft.Json.Converters;
+using Core.Device;
 
 namespace Core.Data
 {
-	public class R2DynamicJsonSerialization: IR2Serialization {
+	public class R2DynamicJsonSerialization: DeviceBase, IR2Serialization {
 
 		private System.Text.Encoding m_encoding;
 		private ExpandoObjectConverter m_converter;
 
-		public R2DynamicJsonSerialization(System.Text.Encoding encoding = null) {
+		public R2DynamicJsonSerialization(string id, System.Text.Encoding encoding = null): base(id) {
 
 			m_encoding = encoding ?? System.Text.Encoding.UTF8;
 			m_converter = new ExpandoObjectConverter();

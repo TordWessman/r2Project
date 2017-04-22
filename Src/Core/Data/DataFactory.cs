@@ -12,15 +12,26 @@ namespace Core.Data
 	/// </summary>
 	public class DataFactory: DeviceBase
 	{
-		IEnumerable<string> m_searhPaths;
+		IEnumerable<string> m_searchPaths;
 
 		public DataFactory (string id, IEnumerable<string> searchPaths = null) : base(id)
 		{
 			
-			m_searhPaths = searchPaths ?? new List<string> ();
+			m_searchPaths = searchPaths ?? new List<string> ();
 
 		}
 
+		/// <summary>
+		/// Creates a dynamic seralizer/deserializer
+		/// </summary>
+		/// <returns>The serialization.</returns>
+		/// <param name="id">Identifier.</param>
+		/// <param name="encoding">Encoding.</param>
+		public IR2Serialization CreateSerialization(string id, System.Text.Encoding encoding) {
+		
+			return new R2DynamicJsonSerialization (id, encoding);
+
+		}
 
 		/// <summary>
 		/// Loads a data set from the specified file. The file format should be of a simple CSV type containing x/y coordinates.
@@ -68,7 +79,7 @@ namespace Core.Data
 
 		public IDatabase CreateSqlDatabase(string id, string fileName) {
 		
-			return new SqliteDatabase (id, fileName);
+			return new SqliteDatabase (id, GetFilePath (fileName));
 
 		}
 
@@ -87,7 +98,7 @@ namespace Core.Data
 		
 			if (!File.Exists (fileName)) {
 
-				foreach (string path in m_searhPaths) {
+				foreach (string path in m_searchPaths) {
 				
 					string evaluatedPath = path.EndsWith (Path.DirectorySeparatorChar.ToString ()) ? path + fileName : path + Path.DirectorySeparatorChar + fileName;
 
