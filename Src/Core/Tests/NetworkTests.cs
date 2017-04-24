@@ -99,6 +99,19 @@ namespace Core.Tests
 		}
 
 		[Test]
+		public void TestInvoker() {
+		
+			ObjectInvoker invoker = new ObjectInvoker ("Heeek");
+
+			DummyDevice d = new DummyDevice ("duuumm");
+			dynamic res = invoker.Invoke (d, "NoParamsNoNothing", null);
+			dynamic ros = invoker.Invoke (d, "OneParam", new List<dynamic>() {9999} );
+
+			Assert.IsNull (res);
+			Assert.IsNull (ros);
+		}
+
+		[Test]
 		public void TestDeviceRouterInvoke() {
 		
 			dynamic dummyObject = m_deviceManager.Get ("dummy_device");
@@ -109,17 +122,22 @@ namespace Core.Tests
 				"{ " +
 
 				"\"Token\": \"no_token\"," +
-					" \"Params\": [ \"Foo\", 42 ]," +
+				" \"Params\": [ \"Foo\", 42, {\"Cat\": \"Dog\"} ]," +
 					" \"ActionType\": 2, " +
-				" \"Action\": \"GiveMeFooAnd42\", " +
+				" \"Action\": \"GiveMeFooAnd42AndAnObject\", " +
 					" \"Identifier\": \"dummy_device\"" +
 				" }";
 
 			byte[] serialized = serialization.Encoding.GetBytes(jsonString);
 			dynamic deserialized = serialization.Deserialize(serialized);
-			Assert.AreEqual("dummy_device", deserialized.Identifier);
 
-			IWebIntermediate result = rec.OnReceive (deserialized, null);
+			Assert.AreEqual("dummy_device", deserialized.Identifier);
+			Assert.NotNull (deserialized.Params[2]);
+			Assert.AreEqual ("Dog", deserialized.Params [2].Cat);
+
+			var metadata = new Dictionary<string, object> ();
+
+			IWebIntermediate result = rec.OnReceive (deserialized, metadata);
 
 			// Make sure the identifiers are the same.
 			Assert.AreEqual (deserialized.Identifier, result.Data.Object.Identifier);

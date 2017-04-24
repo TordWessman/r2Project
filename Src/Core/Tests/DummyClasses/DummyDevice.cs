@@ -36,14 +36,22 @@ namespace Core.Tests
 
 		public float HAHA;
 
-		public float GiveMeFooAnd42(string foo, int _42) {
+		public float GiveMeFooAnd42AndAnObject(string foo, int _42, dynamic anObject) {
 		
 			m_bar = foo;
 			Assert.AreEqual ("Foo", foo);
 			Assert.AreEqual (42, _42);
-
+			Assert.AreEqual ("Dog", anObject.Cat);
 			return 12.34f;
 
+		}
+
+
+		public void NoParamsNoNothing() {
+		}
+
+		public void OneParam(int param) {
+		
 		}
 
 	}
