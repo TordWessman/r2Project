@@ -24,6 +24,9 @@ using Core.Device;
 
 namespace Core.Data
 {
+	/// <summary>
+	/// Allows serialization of (generic) non-primitive data types.
+	/// </summary>
 	public class R2DynamicJsonSerialization: DeviceBase, IR2Serialization {
 
 		private System.Text.Encoding m_encoding;
@@ -44,11 +47,11 @@ namespace Core.Data
 
 		public System.Text.Encoding Encoding { get { return m_encoding; } }
 
-		public byte[] Serialize (dynamic data) {
+		public byte[] Serialize (dynamic obj) {
 
 			// Data will be serialized to a JSON object string defore transformed into raw byte data.
 
-			string outputString = Convert.ToString (JsonConvert.SerializeObject (data));
+			string outputString = Convert.ToString (JsonConvert.SerializeObject (obj));
 			return m_encoding.GetBytes(outputString) ?? new byte[0];
 
 		}

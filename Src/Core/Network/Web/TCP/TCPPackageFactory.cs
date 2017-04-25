@@ -21,34 +21,81 @@ using System.Collections.Generic;
 using System.Dynamic;
 using Core.Device;
 using Core.Data;
+using System.Linq;
 
 namespace Core.Network.Web
 {
 	public class TCPPackageFactory: DeviceBase
 	{
 		private IR2Serialization m_serialization;
-		private INetworkSecurity m_security;
 
-		public TCPPackageFactory (string id, IR2Serialization serialization, INetworkSecurity security = null): base(id) {
-		
-			m_security = security;
+		public TCPPackageFactory (string id, IR2Serialization serialization): base(id) {
+
 			m_serialization = serialization;
 
 		}
 
-		public byte[] CreateRaw(TCPPackage package) {
+		public byte[] CreateData(TCPPackage package) {
 		
 			byte[] headerData = m_serialization.Serialize (package.Headers);
 			byte[] bodyData = m_serialization.Serialize (package.Payload);
-			byte[] path = m_serialization.Serialize (package.Path);
+			byte[] path = m_serialization.Encoding.GetBytes (package.Path);
+			 
+			byte[] pathSize = new Int32Converter (path.Length).Bytes; 
+			byte[] bodySize = new Int32Converter (bodyData.Length).Bytes;
+			byte[] headerSize = new Int32Converter (headerData.Length).Bytes;
 
-			throw new NotImplementedException ();
+			return CreateRawPackage (pathSize, headerSize, bodySize, path, headerData, bodyData);
 		
 		}
 
 		public TCPPackage CreatePackage(byte [] rawData) {
 		
-			throw new NotImplementedException ();
+			int position = 0;
+			int pathSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
+			position += Int32Converter.ValueSize;
+			int headerSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
+			position += Int32Converter.ValueSize;
+			int bodySize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
+			position += Int32Converter.ValueSize;
+
+			byte[] path = rawData.Skip (position).Take (pathSize).ToArray();
+			position += pathSize;
+
+			byte[] headers = rawData.Skip (position).Take (headerSize).ToArray();
+			position += headerSize;
+
+			byte[] payload = rawData.Skip (position).Take (bodySize).ToArray();
+
+			return new TCPPackage (
+				m_serialization.Encoding.GetString (path),
+				m_serialization.Deserialize (headers),
+				m_serialization.Deserialize (payload));
+
+		}
+
+		/// <summary>
+		/// Concatinates the byte arrays into a slingle byte[] (using parameter order).
+		/// </summary>
+		/// <returns>The raw package.</returns>
+		/// <param name="datasets">Datasets.</param>
+		private byte[] CreateRawPackage(params byte[][] datasets) {
+
+			int size = 0;
+			foreach (byte[] dataset in datasets) { size += dataset.Length; }
+
+			byte[] data = new byte[size];
+
+			int position = 0;
+
+			foreach (byte[] dataset in datasets) {
+
+				Array.Copy (dataset, 0, data, position, dataset.Length);
+				position += dataset.Length;
+
+			}
+
+			return data;
 
 		}
 	}

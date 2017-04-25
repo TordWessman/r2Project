@@ -260,6 +260,7 @@
     <Compile Include="Tests\NetworkTests.cs" />
     <Compile Include="Tests\DummyClasses\DummyDevice.cs" />
     <Compile Include="Shared\ObjectInvoker.cs" />
+    <Compile Include="Data\Int32Converter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

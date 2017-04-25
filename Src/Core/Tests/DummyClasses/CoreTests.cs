@@ -18,9 +18,10 @@
 //
 using System;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Core.Tests
-{/*
+{
 	[TestFixture]
 	public class CoreTests: TestBase
 	{
@@ -28,14 +29,29 @@ namespace Core.Tests
 		{
 		}
 
+		/*
 		[Test]
 		public void TestFileLogger() {
-
 
 			Log.Instance.Write (new LogMessage ("lol", LogType.Message));
 			Log.d ("HEJ");
 
+		}*/
+	
+		[Test]
+		public void TestInvoker() {
+
+			ObjectInvoker invoker = new ObjectInvoker ();
+
+			DummyDevice d = new DummyDevice ("duuumm");
+			dynamic res = invoker.Invoke (d, "NoParamsNoNothing", null);
+			dynamic ros = invoker.Invoke (d, "OneParam", new List<dynamic>() {9999} );
+
+			Assert.IsNull (res);
+			Assert.IsNull (ros);
 		}
-	}*/
+
+	}
+
 }
 

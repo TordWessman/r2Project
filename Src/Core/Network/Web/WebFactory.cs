@@ -115,6 +115,12 @@ namespace Core.Network.Web
 		}
 
 
+		public TCPPackageFactory CreateTCPPackageFactory(string id) {
+
+			return new TCPPackageFactory (id, m_serialization);
+		}
+
+
 	}
 
 }

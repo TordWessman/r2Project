@@ -88,7 +88,7 @@ namespace Core.Network.Web
 			m_deviceManager = deviceManager;
 			m_security = security;
 			m_registeredDevices = new List<string> ();
-			m_invoker = new ObjectInvoker ("object_invoker");
+			m_invoker = new ObjectInvoker ();
 
 		}
 

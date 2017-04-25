@@ -24,6 +24,24 @@ namespace Core.Tests
 		public DataTests ()
 		{
 		}
+		[Test]
+		public void TestInt32Converter() {
+		
+			Int32Converter converter = new Int32Converter (256 * 256 * 20 + 256 * 10 + 42);
+
+			Assert.AreEqual (42, converter[0]);
+			Assert.AreEqual (10, converter[1]);
+			Assert.AreEqual (20, converter[2]);
+			Assert.AreEqual (3, converter.Length);
+
+			byte[] bytes = { 42, 10, 20 };
+
+			Int32Converter converter2 = new Int32Converter (bytes);
+
+			Assert.AreEqual (converter2.Value, converter.Value);
+			Assert.AreEqual (converter2.Length, converter.Length);
+
+		}
 
 		[Test]
 		public void TestLinearDataSet() {

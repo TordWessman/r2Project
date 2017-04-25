@@ -17,7 +17,6 @@
 //
 //
 using System;
-using Core.Device;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
@@ -27,9 +26,9 @@ namespace Core
 	/// <summary>
 	/// Capable of invoking methods, properties and members of objects.
 	/// </summary>
-	public class ObjectInvoker: DeviceBase
+	public class ObjectInvoker
 	{
-		public ObjectInvoker (string id) : base (id)
+		public ObjectInvoker ()
 		{
 			
 		}
@@ -40,7 +39,7 @@ namespace Core
 		/// <param name="target">Target.</param>
 		/// <param name="method">Method.</param>
 		/// <param name="parameters">Parameters.</param>
-		public dynamic Invoke(object target, string method, IList<object> parameters = null) {
+		public dynamic Invoke(object target, string method, ICollection<object> parameters = null) {
 
 			MethodInfo methodInfo = target.GetType ().GetMethod (method);
 
@@ -66,11 +65,11 @@ namespace Core
 				if (paramsInfo [i].ParameterType != typeof(System.Object)) {
 
 					// Primitive type
-					p.Add (Convert.ChangeType (parameters [i], paramsInfo [i].ParameterType));
+					p.Add (Convert.ChangeType (parameters.ToArray() [i], paramsInfo [i].ParameterType));
 
 				} else {
 
-					p.Add (parameters [i]);
+					p.Add (parameters.ToArray() [i]);
 
 				}
 

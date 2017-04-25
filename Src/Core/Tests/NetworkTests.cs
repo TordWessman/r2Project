@@ -99,19 +99,6 @@ namespace Core.Tests
 		}
 
 		[Test]
-		public void TestInvoker() {
-		
-			ObjectInvoker invoker = new ObjectInvoker ("Heeek");
-
-			DummyDevice d = new DummyDevice ("duuumm");
-			dynamic res = invoker.Invoke (d, "NoParamsNoNothing", null);
-			dynamic ros = invoker.Invoke (d, "OneParam", new List<dynamic>() {9999} );
-
-			Assert.IsNull (res);
-			Assert.IsNull (ros);
-		}
-
-		[Test]
 		public void TestDeviceRouterInvoke() {
 		
 			dynamic dummyObject = m_deviceManager.Get ("dummy_device");
@@ -180,6 +167,33 @@ namespace Core.Tests
 			Assert.AreEqual (42.1f, dummyObject.HAHA);
 
 		}
-	}
-}
 
+		[Test]
+		public void TestPackageFactory() {
+		
+			var packageFactory = factory.CreateTCPPackageFactory ("factorrrr");
+
+			DummyDevice d = new DummyDevice ("dummyXYZ");
+			d.HAHA = 42.25f;
+
+			IDictionary<string, object> headers = new Dictionary<string, object>();
+		
+			headers ["Dog"] = "Mouse";
+
+			TCPPackage p = new TCPPackage ("dummy_path", headers, d);
+
+			byte[] raw = packageFactory.CreateData (p);
+
+			TCPPackage punwrapped = packageFactory.CreatePackage (raw);
+
+			Assert.AreEqual ("Mouse", punwrapped.Headers ["Dog"]);
+
+			Assert.AreEqual (42.25f, punwrapped.Payload.HAHA);
+
+			Assert.AreEqual ("dummyXYZ", punwrapped.Payload.Identifier);
+
+		}
+
+	}
+
+}
