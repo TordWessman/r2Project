@@ -114,13 +114,13 @@ namespace Core.Network.Web
 
 			}
 
-			JsonObjectResponse response = new JsonObjectResponse ();
+			WebObjectResponse response = new WebObjectResponse ();
 				
-			if (Convert.ToInt32(message.ActionType) == (int)JsonObjectRequest.ActionType.Invoke) {
+			if (Convert.ToInt32(message.ActionType) == (int)WebObjectRequest.ObjectActionType.Invoke) {
 
 				response.ActionResponse = m_invoker.Invoke (device, message.Action, message.Params);
 
-			} else if (Convert.ToInt32(message.ActionType) == (int)JsonObjectRequest.ActionType.Set) {
+			} else if (Convert.ToInt32(message.ActionType) == (int)WebObjectRequest.ObjectActionType.Set) {
 				
 				m_invoker.Set (device, message.Action, message.Params? [0]);
 
@@ -148,7 +148,7 @@ namespace Core.Network.Web
 			
 				// Send device through sender to nofie connected clients about the change.
 
-				JsonObjectResponse response = new JsonObjectResponse ();
+				WebObjectResponse response = new WebObjectResponse ();
 				response.Action = notification.Action;
 				response.ActionResponse = notification.NewValue;
 				response.Object = device;

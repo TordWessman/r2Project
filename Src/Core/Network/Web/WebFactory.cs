@@ -31,8 +31,7 @@ namespace Core.Network.Web
 	/// </summary>
 	public class WebFactory : DeviceBase
 	{
-		private System.Text.Encoding m_encoding;
-
+		
 		private IDeviceManager m_deviceManager;
 
 		private IR2Serialization m_serialization;
@@ -46,13 +45,13 @@ namespace Core.Network.Web
 
 		public IWebServer CreateHttpServer (string id, int port) {
 
-			return new HttpServer (id, port);
+			return new HttpServer (id, port, m_serialization);
 
 		}
 
 		public IWebSocketServer CreateWebSocketServer(string id, int port) {
 		
-			return new WebSocketServer (id, port, m_encoding);
+			return new WebSocketServer (id, port, m_serialization.Encoding);
 
 		}
 
@@ -110,14 +109,15 @@ namespace Core.Network.Web
 
 		public IWebSocketSender CreateWebSocketSender(string id, string uriPath) {
 		
-			return new WebSocketSender (id, uriPath);
+			return new WebSocketSender (id, uriPath, m_serialization);
 
 		}
 
 
-		public TCPPackageFactory CreateTCPPackageFactory(string id) {
+		public TCPPackageFactory CreatePackageFactory() {
 
-			return new TCPPackageFactory (id, m_serialization);
+			return new TCPPackageFactory (m_serialization);
+
 		}
 
 

@@ -20,20 +20,20 @@ using System;
 using Core.Device;
 using Core.Scripting;
 using Newtonsoft.Json;
+using Core.Data;
 
 namespace Core.Network.Web
 {
 	public class WebSocketSender: DeviceBase, IWebSocketSender
 	{
 		private string m_uriPath;
-		private System.Text.Encoding m_encoding;
 		private IWebSocketSenderDelegate m_delegate;
+		private IR2Serialization m_serialization;
 
-		public WebSocketSender (string id, string uriPath, System.Text.Encoding encoding = null) : base (id)
+		public WebSocketSender (string id, string uriPath, IR2Serialization serialization) : base (id)
 		{
 			m_uriPath = uriPath;
-			m_encoding = encoding ?? HttpServer.DefaultEncoding;
-
+			m_serialization = serialization;
 		}
 
 		public IWebSocketSenderDelegate Delegate {
@@ -44,7 +44,7 @@ namespace Core.Network.Web
 		public void Send(dynamic outputObject) {
 		
 			string outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject)) ?? "";
-			byte[] outputData = m_encoding.GetBytes (outputString);
+			byte[] outputData = m_serialization.Encoding.GetBytes (outputString);
 
 			if (outputData.Length > 0) {
 			

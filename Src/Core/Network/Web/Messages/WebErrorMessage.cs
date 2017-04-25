@@ -17,25 +17,19 @@
 //
 //
 using System;
-using Core.Network.Data;
-using System.Collections.Generic;
 
 namespace Core.Network.Web
 {
-	public struct TCPPackage 
+	public struct WebErrorMessage
 	{
 		public WebStatusCode Code;
-		public string Path;
-		public IDictionary<string, object> Headers;
-		public dynamic Payload;
+		public string Message;
 
-		public TCPPackage (string path, IDictionary<string, object> headers, dynamic payload, WebStatusCode code = WebStatusCode.NotDefined) {
-		
-			Code = code;
-			Path = path;
-			Headers = headers;
-			Payload = payload;
-				
+		public WebErrorMessage (WebStatusCode code, string message) {
+
+			Code = code; 
+			Message = message;
+
 		}
 
 	}

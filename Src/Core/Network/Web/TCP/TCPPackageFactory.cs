@@ -25,33 +25,42 @@ using System.Linq;
 
 namespace Core.Network.Web
 {
-	public class TCPPackageFactory: DeviceBase
+	public class TCPPackageFactory
 	{
 		private IR2Serialization m_serialization;
 
-		public TCPPackageFactory (string id, IR2Serialization serialization): base(id) {
+		public TCPPackageFactory (IR2Serialization serialization) {
 
 			m_serialization = serialization;
 
 		}
 
-		public byte[] CreateData(TCPPackage package) {
+		public byte[] SerializePayload(dynamic payload) {
 		
+			return m_serialization.Serialize (payload);
+
+		}
+
+		public byte[] CreateTCPData(TCPPackage package) {
+		
+			byte[] code = new Int32Converter ((int)package.Code).Bytes.Take (2).ToArray();
+			byte[] path = m_serialization.Encoding.GetBytes (package.Path);
 			byte[] headerData = m_serialization.Serialize (package.Headers);
 			byte[] bodyData = m_serialization.Serialize (package.Payload);
-			byte[] path = m_serialization.Encoding.GetBytes (package.Path);
 			 
 			byte[] pathSize = new Int32Converter (path.Length).Bytes; 
 			byte[] bodySize = new Int32Converter (bodyData.Length).Bytes;
 			byte[] headerSize = new Int32Converter (headerData.Length).Bytes;
 
-			return CreateRawPackage (pathSize, headerSize, bodySize, path, headerData, bodyData);
+			return CreateRawPackage (code, pathSize, headerSize, bodySize, path, headerData, bodyData);
 		
 		}
 
-		public TCPPackage CreatePackage(byte [] rawData) {
+		public TCPPackage CreateTCPPackage(byte [] rawData) {
 		
 			int position = 0;
+			int code = new Int32Converter (rawData.Skip (position).Take (2)).Value;
+			position += 2;
 			int pathSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
 			position += Int32Converter.ValueSize;
 			int headerSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
@@ -70,7 +79,8 @@ namespace Core.Network.Web
 			return new TCPPackage (
 				m_serialization.Encoding.GetString (path),
 				m_serialization.Deserialize (headers),
-				m_serialization.Deserialize (payload));
+				payload,
+				(WebStatusCode) code);
 
 		}
 

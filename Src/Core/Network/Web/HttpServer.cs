@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Specialized;
 using System.Web;
+using Core.Data;
 
 namespace Core.Network.Web
 {
@@ -44,19 +45,17 @@ namespace Core.Network.Web
 		private int m_port;
 		private IDictionary<string,IWebEndpoint> m_endpoints;
 		private Task m_task;
-		private System.Text.Encoding m_encoding;
+		private IR2Serialization m_serialization;
 
-		public readonly static System.Text.Encoding DefaultEncoding = System.Text.Encoding.UTF8; 
-
-		public HttpServer (string id, int port, System.Text.Encoding encoding = null) :  base (id)
+		public HttpServer (string id, int port, IR2Serialization serialization) :  base (id)
 		{
 			m_port = port;
 			m_endpoints = new Dictionary<string,IWebEndpoint> ();
-			m_encoding = encoding ?? DefaultEncoding;
+			m_serialization = serialization;
 
 		}
 
-		private void RunLoop() {
+		private void Service() {
 
 			m_listener.Start ();
 
@@ -72,8 +71,10 @@ namespace Core.Network.Web
 					if (!m_endpoints.ContainsKey (request.Url.AbsolutePath)) {
 
 						Log.w ("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
-						response.StatusCode = 404;
+						response.StatusCode = (int) WebStatusCode.NotFound;
 
+						Write (response,  m_serialization.Serialize(new WebErrorMessage(WebStatusCode.Error, $"Path not found: {request.Url.AbsolutePath}") ));
+					
 					} else {
 					
 						Interpret (request, response);
@@ -107,7 +108,7 @@ namespace Core.Network.Web
 			m_listener = new HttpListener ();
 			m_listener.Prefixes.Add(String.Format("http://*:{0}/", m_port));
 
-			m_task = Task.Factory.StartNew(RunLoop);
+			m_task = Task.Factory.StartNew(Service);
 
 			Log.d ("HTTP server running with state: " +  m_task.Status);
 
@@ -115,9 +116,10 @@ namespace Core.Network.Web
 		}
 
 		public override void Stop() {
+			
 			m_shouldrun = false;
-
 			m_listener.Stop ();
+		
 		}
 
 		public void AddEndpoint(IWebEndpoint interpreter) {
@@ -128,7 +130,7 @@ namespace Core.Network.Web
 
 		private void Interpret(HttpListenerRequest request, HttpListenerResponse response) {
 		
-			using (StreamReader reader = new StreamReader(request.InputStream, m_encoding))
+			using (StreamReader reader = new StreamReader(request.InputStream, m_serialization.Encoding))
 			{
 
 				byte[] responseBody;
@@ -158,21 +160,27 @@ namespace Core.Network.Web
 					Log.x (ex);
 
 					#if DEBUG
-					responseBody = ("{ error:\"" + ex.Message + "\"}").ToByteArray (m_encoding);
+					responseBody = m_serialization.Serialize(new WebErrorMessage(WebStatusCode.Error, ex.Message) );
 					#else
 					responseBuffer = "ERROR".ToByteArray(m_encoding);
 					#endif
 
-					response.StatusCode = 500;
+					response.StatusCode = (int) WebStatusCode.Error;
 
 				}
 
-				response.ContentLength64 = responseBody.Length;
-				System.IO.Stream output = response.OutputStream;
-				output.Write(responseBody,0,responseBody.Length);
-				output.Close();
+				Write (response, responseBody);
 
 			}
+
+		}
+
+		private void Write(HttpListenerResponse response, byte[] data) {
+		
+			response.ContentLength64 = data.Length;
+			System.IO.Stream output = response.OutputStream;
+			output.Write(data,0,data.Length);
+			output.Close();
 		}
 
 		/// <summary>

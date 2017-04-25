@@ -88,19 +88,6 @@ namespace Core.Tests
 
 		}
 
-		[Test]
-		public void TestStringSerialization() {
-
-			string jsonString = "{ \"Value\": 42, \"Params\": [1,2,\"Hund\"] }";
-			byte[] jsonBytes = serializer.Encoding.GetBytes (jsonString);
-
-			dynamic o = serializer.Deserialize (jsonBytes);
-
-			Assert.AreEqual (42, o.Value);
-			Assert.AreEqual (1, o.Params[0]);
-			Assert.AreEqual (2, o.Params[1]);
-			Assert.AreEqual ("Hund", o.Params[2]);
-		}
 	}
-}
 
+}

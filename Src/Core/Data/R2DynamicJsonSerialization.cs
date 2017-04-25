@@ -29,6 +29,24 @@ namespace Core.Data
 	/// </summary>
 	public class R2DynamicJsonSerialization: DeviceBase, IR2Serialization {
 
+		/// <summary>
+		/// Packages with this header is considered to be serialized using this serialization engine.
+		/// </summary>
+		private readonly byte[] R2DynamicHeaderDefenition = new byte[4] {0,0xFF,0,0xFE};
+
+		private enum R2SerializationType: byte {
+		
+			// Complex object
+			Dynamic = 0,
+
+			//CLR string
+			String = 1,
+	
+			// Raw byte array
+			Bytes = 2
+				
+		}
+
 		private System.Text.Encoding m_encoding;
 		private ExpandoObjectConverter m_converter;
 
@@ -49,24 +67,80 @@ namespace Core.Data
 
 		public byte[] Serialize (dynamic obj) {
 
-			// Data will be serialized to a JSON object string defore transformed into raw byte data.
+			//TODO: fix generic serialization of numeric values.
+			byte type = 0;
+			byte[] data;
 
-			string outputString = Convert.ToString (JsonConvert.SerializeObject (obj));
-			return m_encoding.GetBytes(outputString) ?? new byte[0];
+			if (obj is string) {
+
+				type = (byte) R2SerializationType.String;
+				data = m_encoding.GetBytes (obj);
+
+			} else if (obj is byte[]) {
+
+				type = (byte) R2SerializationType.Bytes;
+				data = obj;
+
+			} else {
+			
+				// Data will be serialized to a JSON object string defore transformed into raw byte data.
+				type = (byte) R2SerializationType.Dynamic;
+				string outputString = Convert.ToString (JsonConvert.SerializeObject (obj));
+				data = m_encoding.GetBytes(outputString) ?? new byte[0];
+
+			}
+
+			byte[] serialized = new byte[1 + R2DynamicHeaderDefenition.Length + data.Length];
+			serialized [R2DynamicHeaderDefenition.Length] = type;
+			Array.Copy (data, 0, serialized, 1 + R2DynamicHeaderDefenition.Length, data.Length);
+			Array.Copy (R2DynamicHeaderDefenition, 0, serialized, 0, R2DynamicHeaderDefenition.Length);
+
+			return serialized;
+
+		}
+
+		private bool IsR2DynamicSerialized (byte[] data) {
+		
+			if (data.Length < R2DynamicHeaderDefenition.Length) { return false; }
+
+			for (int i = 0; i < R2DynamicHeaderDefenition.Length; i++) {
+			
+				if (data[i] != R2DynamicHeaderDefenition[i]) { return false; }
+			
+			}
+
+			return true;
 
 		}
 
 		public dynamic Deserialize (byte[] data) {
 
-			string inputJson = m_encoding.GetString (data);
 
-			if (inputJson.Length > 0) {
+			if (IsR2DynamicSerialized(data)) {
 
-				return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(inputJson, m_converter));
+				byte[] payload = new byte[data.Length - 1 - R2DynamicHeaderDefenition.Length];
+				Array.Copy (data, 1 + R2DynamicHeaderDefenition.Length, payload, 0, payload.Length);
+
+				if (data [0] == (byte)R2SerializationType.Bytes) {
+				
+					return payload;
+
+				} else if (data [0] == (byte)R2SerializationType.String) {
+
+					return m_encoding.GetString (payload);
+
+				} else {
+
+					//Deserialize complex object
+					return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(m_encoding.GetString (payload), m_converter));
+
+				}
 
 			} 
 
-			return new R2Dynamic ();
+			//No header found. Try to deserialize as a complex object
+			return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(m_encoding.GetString (data), m_converter));
+
 
 		}
 

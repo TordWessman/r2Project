@@ -24,7 +24,7 @@ namespace Core.Network.Web {
 	/// <summary>
 	/// Response for object requests.
 	/// </summary>
-	public class JsonObjectResponse {
+	public struct WebObjectResponse {
 
 		/// <summary>
 		/// Containing the object to be invoked.
@@ -46,13 +46,13 @@ namespace Core.Network.Web {
 	/// <summary>
 	/// Message used to invoke and retrieve data from objects.
 	/// </summary>
-	internal class JsonObjectRequest
+	internal struct WebObjectRequest
 	{
 
 		/// <summary>
 		/// Actions to perform on a requested object.
 		/// </summary>
-		public enum ActionType 
+		public enum ObjectActionType 
 		{
 			/// <summary>
 			/// Will only request the object data to be returned
@@ -74,12 +74,12 @@ namespace Core.Network.Web {
 		/// <summary>
 		/// Containing an identifier for the object.
 		/// </summary>
-		public dynamic Id;
+		public dynamic Identifier;
 
 		/// <summary>
 		/// Type of action to be performed (ignored if ActionType is Get).
 		/// </summary>
-		public ActionType Type;
+		public ObjectActionType ActionType;
 
 		/// <summary>
 		/// Name of the method or property which will be invoked (ignored if ActionType is Get).
@@ -98,7 +98,4 @@ namespace Core.Network.Web {
 
 	}
 
-
-
 }
-

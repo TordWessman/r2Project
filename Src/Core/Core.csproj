@@ -82,26 +82,17 @@
     <Compile Include="Log\Log.cs" />
     <Compile Include="Network\Data\IDataPackage.cs" />
     <Compile Include="Network\Data\DataPackage.cs" />
-    <Compile Include="Network\Server.cs" />
-    <Compile Include="Network\ClientConnection.cs" />
     <Compile Include="Network\NetworkConnection.cs" />
-    <Compile Include="Network\IDataReceived.cs" />
-    <Compile Include="Network\RawPackageFactory.cs" />
     <Compile Include="Network\Data\IDataPackageHeader.cs" />
     <Compile Include="Network\Data\DataPackageHeader.cs" />
     <Compile Include="Network\Data\IDataPackageFactory.cs" />
     <Compile Include="Network\Data\DataPackageFactory.cs" />
-    <Compile Include="Network\NetworkUtils.cs" />
     <Compile Include="Network\RPCManager.cs" />
-    <Compile Include="Network\HostManager.cs" />
-    <Compile Include="Network\IHostManager.cs" />
     <Compile Include="Network\IBasicServer.cs" />
-    <Compile Include="Network\IClientConnection.cs" />
     <Compile Include="Tests\PackageTest.cs" />
     <Compile Include="Device\DeviceManager.cs" />
     <Compile Include="Device\IDeviceManager.cs" />
     <Compile Include="Device\DeviceException.cs" />
-    <Compile Include="Network\IHostManagerObserver.cs" />
     <Compile Include="Memory\MemorySource.cs" />
     <Compile Include="Memory\IMemoryDBAdapter.cs" />
     <Compile Include="Memory\MemoryFactory.cs" />
@@ -110,7 +101,6 @@
     <Compile Include="Memory\MemoryBus.cs" />
     <Compile Include="Memory\IMemoryBus.cs" />
     <Compile Include="Memory\IAssociationsDBAdapter.cs" />
-    <Compile Include="Network\NetworkPackageFactory.cs" />
     <Compile Include="Memory\MemoryPackageFactory.cs" />
     <Compile Include="Memory\Memory.cs" />
     <Compile Include="Memory\IMemory.cs" />
@@ -157,7 +147,6 @@
     <Compile Include="Device\Interfaces\IServo.cs" />
     <Compile Include="Device\RemoteDevices\RemoteServo.cs" />
     <Compile Include="Device\RemoteDevices.cs" />
-    <Compile Include="Network\IClientMessageObserver.cs" />
     <Compile Include="Device\Interfaces\ICommandExecutor.cs" />
     <Compile Include="Device\RemoteDevices\RemoteCommandExecutor.cs" />
     <Compile Include="Shared\CvRect.cs" />
@@ -177,7 +166,6 @@
     <Compile Include="Device\RemoteDeviceReference.cs" />
     <Compile Include="Network\INetworkSecurity.cs" />
     <Compile Include="Network\SimpleNetworkSecurity.cs" />
-    <Compile Include="Network\INetworkPackageFactory.cs" />
     <Compile Include="Log\SimpleConsoleLogger.cs" />
     <Compile Include="Shared\DeviceFactory.cs" />
     <Compile Include="Shared\Gstream.cs" />
@@ -192,9 +180,7 @@
     <Compile Include="Shared\Serializer.cs" />
     <Compile Include="Shared\SimpleTaskMonitor.cs" />
     <Compile Include="Network\Web\Messages\JsonRegisterMessage.cs" />
-    <Compile Include="Network\Web\JsonClient.cs" />
     <Compile Include="Network\Web\Messages\JsonMessageFactory.cs" />
-    <Compile Include="Network\Web\IJsonClient.cs" />
     <Compile Include="Network\Web\Messages\JsonBaseMessage.cs" />
     <Compile Include="Network\Web\Messages\JsonAddRecordMessage.cs" />
     <Compile Include="Network\Web\HttpServer.cs" />
@@ -215,7 +201,6 @@
     <Compile Include="Network\Web\WebSockets\WebSocketSender.cs" />
     <Compile Include="Scripting\Ruby\RubyProc.cs" />
     <Compile Include="Network\Web\Messages\JsonObjectIntermediate.cs" />
-    <Compile Include="Network\Web\Messages\JsonObjectRequest.cs" />
     <Compile Include="Extensions\ExpandoObjectExtensions.cs" />
     <Compile Include="Shared\IRunLoop.cs" />
     <Compile Include="Shared\InterpreterRunLoop.cs" />
@@ -261,6 +246,23 @@
     <Compile Include="Tests\DummyClasses\DummyDevice.cs" />
     <Compile Include="Shared\ObjectInvoker.cs" />
     <Compile Include="Data\Int32Converter.cs" />
+    <Compile Include="Network\Web\Messages\WebErrorMessage.cs" />
+    <Compile Include="Network\Web\WebStatusCode.cs" />
+    <Compile Include="Network\Web\Messages\WebObjectRequest.cs" />
+    <Compile Include="Network\Web\Legacy\IJsonClient.cs" />
+    <Compile Include="Network\Web\Legacy\JsonClient.cs" />
+    <Compile Include="Network\Web\Legacy\ClientConnection.cs" />
+    <Compile Include="Network\Web\Legacy\HostManager.cs" />
+    <Compile Include="Network\Web\Legacy\IClientConnection.cs" />
+    <Compile Include="Network\Web\Legacy\IClientMessageObserver.cs" />
+    <Compile Include="Network\Web\Legacy\IDataReceived.cs" />
+    <Compile Include="Network\Web\Legacy\IHostManager.cs" />
+    <Compile Include="Network\Web\Legacy\IHostManagerObserver.cs" />
+    <Compile Include="Network\Web\Legacy\INetworkPackageFactory.cs" />
+    <Compile Include="Network\Web\Legacy\NetworkPackageFactory.cs" />
+    <Compile Include="Network\Web\Legacy\NetworkUtils.cs" />
+    <Compile Include="Network\Web\Legacy\RawPackageFactory.cs" />
+    <Compile Include="Network\Web\Legacy\Server.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -286,6 +288,7 @@
     <Folder Include="Tests\DummyClasses\Networking\" />
     <Folder Include="Data\" />
     <Folder Include="Tests\DummyClasses\Memory\" />
+    <Folder Include="Network\Web\Legacy\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

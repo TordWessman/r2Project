@@ -62,7 +62,7 @@ namespace Core.Tests
 		public override void Setup() {
 		
 			base.Setup ();
-			serialization = m_dataFactory.CreateSerialization ("serializer", HttpServer.DefaultEncoding);
+			serialization = m_dataFactory.CreateSerialization ("serializer", System.Text.Encoding.UTF8);
 			factory = new WebFactory ("wf", m_deviceManager, serialization);
 
 			DummyDevice d = new DummyDevice ("dummy_device");
@@ -105,17 +105,15 @@ namespace Core.Tests
 			dummyObject.Bar = "XYZ";
 
 			IWebObjectReceiver rec = factory.CreateDeviceObjectReceiver ();
-			string jsonString = 
-				"{ " +
 
-				"\"Token\": \"no_token\"," +
-				" \"Params\": [ \"Foo\", 42, {\"Cat\": \"Dog\"} ]," +
-					" \"ActionType\": 2, " +
-				" \"Action\": \"GiveMeFooAnd42AndAnObject\", " +
-					" \"Identifier\": \"dummy_device\"" +
-				" }";
-
-			byte[] serialized = serialization.Encoding.GetBytes(jsonString);
+			var request = new WebObjectRequest() {
+				Token = "no_token", 
+				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
+				ActionType =  WebObjectRequest.ObjectActionType.Invoke,
+				Action = "GiveMeFooAnd42AndAnObject",
+				Identifier = "dummy_device"};
+			
+			byte[] serialized = serialization.Serialize(request);
 			dynamic deserialized = serialization.Deserialize(serialized);
 
 			Assert.AreEqual("dummy_device", deserialized.Identifier);
@@ -171,7 +169,7 @@ namespace Core.Tests
 		[Test]
 		public void TestPackageFactory() {
 		
-			var packageFactory = factory.CreateTCPPackageFactory ("factorrrr");
+			var packageFactory = factory.CreatePackageFactory ();
 
 			DummyDevice d = new DummyDevice ("dummyXYZ");
 			d.HAHA = 42.25f;
@@ -182,15 +180,17 @@ namespace Core.Tests
 
 			TCPPackage p = new TCPPackage ("dummy_path", headers, d);
 
-			byte[] raw = packageFactory.CreateData (p);
+			byte[] raw = packageFactory.CreateTCPData (p);
 
-			TCPPackage punwrapped = packageFactory.CreatePackage (raw);
+			TCPPackage punwrapped = packageFactory.CreateTCPPackage (raw);
 
 			Assert.AreEqual ("Mouse", punwrapped.Headers ["Dog"]);
 
-			Assert.AreEqual (42.25f, punwrapped.Payload.HAHA);
+			dynamic payload = serialization.Deserialize (punwrapped.Payload);
 
-			Assert.AreEqual ("dummyXYZ", punwrapped.Payload.Identifier);
+			Assert.AreEqual (42.25f, payload.HAHA);
+
+			Assert.AreEqual ("dummyXYZ", payload.Identifier);
 
 		}
 

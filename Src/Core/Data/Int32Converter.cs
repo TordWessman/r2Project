@@ -25,7 +25,7 @@ namespace Core.Data
 {
 
 	/// <summary>
-	/// Conversion between int32 and byte arrays. Original code by Christ Taylor (http://stackoverflow.com/users/314028/chris-taylor)
+	/// Conversion between int values and byte arrays. Original code by Christ Taylor (http://stackoverflow.com/users/314028/chris-taylor)
 	/// </summary>
 	[StructLayout(LayoutKind.Explicit)]
 	struct Int32Converter

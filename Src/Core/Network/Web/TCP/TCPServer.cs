@@ -21,6 +21,9 @@ using Core.Device;
 using System.Net.Sockets;
 using System.Net;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using Core.Data;
 
 namespace Core.Network.Web
 {
@@ -31,12 +34,19 @@ namespace Core.Network.Web
 		private Socket m_socket;
 		private TcpListener m_listener;
 		private bool m_shouldRun;
+		private TCPPackageFactory m_packageFactory;
+		private Task m_serviceTask;
+		private IDictionary<string,IWebEndpoint> m_endpoints;
+		private IR2Serialization m_serialization;
 
-		public TCPServer (string id, int port) : base (id)
+		public TCPServer (string id, int port, IR2Serialization serialization) : base(id)
 		{
 
 			m_port = port;
 			m_listener = new TcpListener (IPAddress.Any, m_port);
+			m_packageFactory = new TCPPackageFactory (serialization);
+			m_serviceTask = new Task (Service);
+			m_endpoints = new Dictionary<string, IWebEndpoint> ();
 
 		}
 
@@ -53,28 +63,60 @@ namespace Core.Network.Web
 		}
 
 		public void AddEndpoint(IWebEndpoint interpreter) {
-		
+
+			m_endpoints.Add (interpreter.UriPath, interpreter);
+
 		}
 
-		public override void Start ()
-		{
-			m_shouldRun = true;
+		private void Service() {
+		
 			while (m_shouldRun) {
 
 				try {
 
-					//using(TcpClient client = m_listener.AcceptSocket()) {
-					
+					using(m_socket = m_listener.AcceptSocket()) {
 
-					//}
+						m_socket.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+
+						NetworkConnection con = new NetworkConnection(new NetworkStream(m_socket));
+						byte [] input = con.ReadData();
+
+						if (con.Status == NetworkConnectionStatus.OK) {
+
+							TCPPackage request = m_packageFactory.CreateTCPPackage(input);
+
+							if (m_endpoints.ContainsKey(request.Path)) {
+
+								con.WriteData(m_endpoints[request.Path].Interpret(request.Payload, request.Headers), true);
+
+							} else {
+							
+								con.WriteData(m_packageFactory.SerializePayload(new WebErrorMessage(WebStatusCode.NotFound, $"Path not found: {request.Path}")), true);
+
+							}
+
+						} else {
+
+							throw new WebException($"Got bad response during connection: {con.Status}.");
+
+						}
+					}
 
 				} catch (Exception ex) {
-				
+
 					Log.x (ex);
 
 				}
 
 			}
+
+		}
+
+		public override void Start ()
+		{
+			m_shouldRun = true;
+
+			m_serviceTask.Start ();
 
 		}
 

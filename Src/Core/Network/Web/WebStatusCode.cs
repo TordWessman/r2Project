@@ -17,27 +17,16 @@
 //
 //
 using System;
-using Core.Network.Data;
-using System.Collections.Generic;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
-	public struct TCPPackage 
+	public enum WebStatusCode: int
 	{
-		public WebStatusCode Code;
-		public string Path;
-		public IDictionary<string, object> Headers;
-		public dynamic Payload;
-
-		public TCPPackage (string path, IDictionary<string, object> headers, dynamic payload, WebStatusCode code = WebStatusCode.NotDefined) {
-		
-			Code = code;
-			Path = path;
-			Headers = headers;
-			Payload = payload;
-				
-		}
+		NotDefined = 0,
+		Ok = 200,
+		NotFound = 404,
+		Error = 500
 
 	}
-
 }
+
