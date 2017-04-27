@@ -63,7 +63,22 @@ namespace Core.Data
 
 		public int Length { get { return m_lenght; } }
 
+		//Returns all 4 bytes.
 		public byte[] Bytes { get { return new byte[] { Byte1, Byte2, Byte3, Byte4 }; } }
+
+		/// <summary>
+		/// Returns only the bytes being used to contain the value.
+		/// </summary>
+		/// <returns>The bytes.</returns>
+		public byte[] GetContainedBytes(int? size = null) {
+
+			IList<byte> byteArray = new List<byte> ();
+
+			for (int i = 0; i < (size ?? Length); i++) { byteArray.Add (this [i]); }
+
+			return byteArray.ToArray ();
+
+		}
 
 		public byte this [int key] {
 			

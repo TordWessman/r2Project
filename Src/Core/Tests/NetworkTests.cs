@@ -178,6 +178,8 @@ namespace Core.Tests
 		
 			headers ["Dog"] = "Mouse";
 
+			// Test dynamic serialization
+
 			TCPPackage p = new TCPPackage ("dummy_path", headers, d);
 
 			byte[] raw = packageFactory.CreateTCPData (p);
@@ -186,11 +188,45 @@ namespace Core.Tests
 
 			Assert.AreEqual ("Mouse", punwrapped.Headers ["Dog"]);
 
-			dynamic payload = serialization.Deserialize (punwrapped.Payload);
+			Assert.AreEqual (42.25f, punwrapped.Payload.HAHA);
 
-			Assert.AreEqual (42.25f, payload.HAHA);
+			Assert.AreEqual ("dummyXYZ", punwrapped.Payload.Identifier);
 
-			Assert.AreEqual ("dummyXYZ", payload.Identifier);
+			// Test string serialization
+
+			p = new TCPPackage ("path", headers, "StringValue");
+
+			raw = packageFactory.CreateTCPData (p);
+
+			punwrapped = packageFactory.CreateTCPPackage (raw);
+
+			Assert.AreEqual ("StringValue", punwrapped.Payload);
+
+			// Test byte arrayr seralization
+
+			byte[] byteArray = { 0, 1, 2, 3, 4, 5, 6, 255 };
+
+			p = new TCPPackage ("path", null, byteArray);
+
+			raw = packageFactory.CreateTCPData (p);
+
+			punwrapped = packageFactory.CreateTCPPackage (raw);
+
+			Assert.IsTrue (punwrapped.Payload is byte[]);
+
+			for (int i = 0; i < byteArray.Length; i++) {
+			
+				Assert.AreEqual (byteArray [i], punwrapped.Payload [i]);
+
+			}
+
+			// Test null-payload
+			p = new TCPPackage ("path", headers, null);
+
+			raw = packageFactory.CreateTCPData (p);
+			punwrapped = packageFactory.CreateTCPPackage (raw);
+
+			Assert.IsNull (punwrapped.Payload);
 
 		}
 

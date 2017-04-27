@@ -75,9 +75,6 @@ namespace Core.Network.Web
 			
 			R2Dynamic inputObject = m_serialization.Deserialize(input);
 
-			// Add metadata to input object.
-			//metaData?.ToList ().ForEach (kvp => inputObject[kvp.Key] = kvp.Value);
-
 			// Let reciver parse response.
 			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject, metadata);
 
@@ -85,12 +82,16 @@ namespace Core.Network.Web
 			outputObject.Metadata?.ToList ().ForEach (kvp => m_extraHeaders[kvp.Key] = kvp.Value.ToString ());
 
 			if (outputObject.Data is byte[]) {
+
+				//Data was returned in raw format.
+
+				return outputObject.Data;
+
+			} else if (outputObject.Data is string) {
 			
-				byte [] opd = outputObject.Data as byte[];
+				// Data was a string.
 
-				//Data was returned in raw format. Return imediately.
-
-				return opd;
+				return m_serialization.Encoding.GetBytes (outputObject.Data);
 
 			} else {
 

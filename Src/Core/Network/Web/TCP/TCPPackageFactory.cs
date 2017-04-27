@@ -27,6 +27,22 @@ namespace Core.Network.Web
 {
 	public class TCPPackageFactory
 	{
+		/// <summary>
+		/// Defines the data types which are transmittable
+		/// </summary>
+		private enum PayloadType: int {
+
+			// Complex object
+			Dynamic = 1,
+
+			//CLR string
+			String = 2,
+
+			// Raw byte array
+			Bytes = 3
+
+		}
+
 		private IR2Serialization m_serialization;
 
 		public TCPPackageFactory (IR2Serialization serialization) {
@@ -43,16 +59,38 @@ namespace Core.Network.Web
 
 		public byte[] CreateTCPData(TCPPackage package) {
 		
-			byte[] code = new Int32Converter ((int)package.Code).Bytes.Take (2).ToArray();
+			byte[] code = new Int32Converter ((int)package.Code).GetContainedBytes(2);
 			byte[] path = m_serialization.Encoding.GetBytes (package.Path);
-			byte[] headerData = m_serialization.Serialize (package.Headers);
-			byte[] bodyData = m_serialization.Serialize (package.Payload);
-			 
+			byte[] headerData = package.Headers != null ? m_serialization.Serialize (package.Headers) : new byte[0];
+			byte[] payloadData = new byte[0];
+			byte[] payloadDataType = new byte[0];
+
+			if (package.Payload != null) {
+			
+				if (package.Payload is byte[]) {
+
+					payloadData = package.Payload as byte[];
+					payloadDataType = new Int32Converter ((int)PayloadType.Bytes).GetContainedBytes (2);
+
+				} else if (package.Payload is string) {
+
+					payloadData = m_serialization.Encoding.GetBytes (package.Payload);
+					payloadDataType = new Int32Converter ((int)PayloadType.String).GetContainedBytes (2);
+
+				} else {
+
+					payloadData = m_serialization.Serialize (package.Payload);
+					payloadDataType = new Int32Converter ((int)PayloadType.Dynamic).GetContainedBytes (2);
+
+				}
+
+			}
+
 			byte[] pathSize = new Int32Converter (path.Length).Bytes; 
-			byte[] bodySize = new Int32Converter (bodyData.Length).Bytes;
+			byte[] payloadSize = new Int32Converter (payloadData.Length).Bytes;
 			byte[] headerSize = new Int32Converter (headerData.Length).Bytes;
 
-			return CreateRawPackage (code, pathSize, headerSize, bodySize, path, headerData, bodyData);
+			return CreateRawPackage (code, pathSize, headerSize, payloadSize, path, headerData, payloadDataType, payloadData);
 		
 		}
 
@@ -65,16 +103,41 @@ namespace Core.Network.Web
 			position += Int32Converter.ValueSize;
 			int headerSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
 			position += Int32Converter.ValueSize;
-			int bodySize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
+			int payloadSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
 			position += Int32Converter.ValueSize;
 
 			byte[] path = rawData.Skip (position).Take (pathSize).ToArray();
 			position += pathSize;
-
 			byte[] headers = rawData.Skip (position).Take (headerSize).ToArray();
 			position += headerSize;
 
-			byte[] payload = rawData.Skip (position).Take (bodySize).ToArray();
+			dynamic payload = null;
+
+			if (payloadSize > 0) {
+
+				PayloadType payloadType = (PayloadType) (new Int32Converter (rawData.Skip (position).Take (2)).Value);
+				position += 2;
+				byte[] payloadData = rawData.Skip (position).Take (payloadSize).ToArray();
+
+				if (payloadType == PayloadType.String) {
+
+					payload = m_serialization.Encoding.GetString (payloadData);
+
+				} else if (payloadType == PayloadType.Dynamic) {
+
+					payload = m_serialization.Deserialize (payloadData);
+
+				} else if (payloadType == PayloadType.Bytes) {
+
+					payload = payloadData;
+
+				} else {
+
+					throw new NotImplementedException ($"Packaging of payload type: {payloadType} not yet implemented.");
+
+				}
+
+			}
 
 			return new TCPPackage (
 				m_serialization.Encoding.GetString (path),
@@ -100,8 +163,12 @@ namespace Core.Network.Web
 
 			foreach (byte[] dataset in datasets) {
 
-				Array.Copy (dataset, 0, data, position, dataset.Length);
-				position += dataset.Length;
+				if (dataset != null) {
+				
+					Array.Copy (dataset, 0, data, position, dataset.Length);
+					position += dataset.Length;
+
+				}
 
 			}
 

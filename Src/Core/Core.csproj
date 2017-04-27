@@ -183,7 +183,6 @@
     <Compile Include="Network\Web\Messages\JsonMessageFactory.cs" />
     <Compile Include="Network\Web\Messages\JsonBaseMessage.cs" />
     <Compile Include="Network\Web\Messages\JsonAddRecordMessage.cs" />
-    <Compile Include="Network\Web\HttpServer.cs" />
     <Compile Include="Network\Web\Scripting\ScriptObjectReceiver.cs" />
     <Compile Include="Network\Web\JsonExportObject.cs" />
     <Compile Include="Network\Web\IWebServer.cs" />
@@ -224,7 +223,6 @@
     <Compile Include="Tests\DummyClasses\DummyTaskMonitor.cs" />
     <Compile Include="Tests\TestBase.cs" />
     <Compile Include="Log\FileLogger.cs" />
-    <Compile Include="Tests\DummyClasses\CoreTests.cs" />
     <Compile Include="Scripting\ScriptBase.cs" />
     <Compile Include="Data\ILinearDataSet.cs" />
     <Compile Include="Data\LinearDataSet.cs" />
@@ -263,6 +261,9 @@
     <Compile Include="Network\Web\Legacy\NetworkUtils.cs" />
     <Compile Include="Network\Web\Legacy\RawPackageFactory.cs" />
     <Compile Include="Network\Web\Legacy\Server.cs" />
+    <Compile Include="Network\Web\Http\HttpServer.cs" />
+    <Compile Include="Tests\CoreTests.cs" />
+    <Compile Include="Network\Web\Http\HttpClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

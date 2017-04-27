@@ -54,4 +54,23 @@ namespace Core.Network.Web
 
 	}
 
+	public static class IWebIntermediateExtension {
+	
+		public static bool IsPrimitive(this IWebIntermediate self) {
+		
+			return self.Data is sbyte
+				|| self.Data is byte
+				|| self.Data is short
+				|| self.Data is ushort
+				|| self.Data is int
+				|| self.Data is uint
+				|| self.Data is long
+				|| self.Data is ulong
+				|| self.Data is float
+				|| self.Data is double
+				|| self.Data is decimal
+				|| self.Data is string;
+
+		}
+	}
 }
