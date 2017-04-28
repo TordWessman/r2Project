@@ -24,6 +24,7 @@ using Core.Device;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using Core.Data;
 
 namespace Core.Network.Web
 {
@@ -31,14 +32,14 @@ namespace Core.Network.Web
 	
 		private IWebEndpoint m_endpoint;
 		private IEnumerable<IWebSocketSender> m_senders;
-		private System.Text.Encoding m_encoding;
+		private ISerialization m_serialization;
 
 		public string UriPath { get { return m_endpoint?.UriPath; } }
 
-		public WebSocketHandler(IEnumerable<IWebSocketSender> senders, IWebEndpoint endpoint, System.Text.Encoding encoding) {
+		public WebSocketHandler(IEnumerable<IWebSocketSender> senders, IWebEndpoint endpoint, ISerialization serialization) {
 			
 			m_senders = senders;
-			m_encoding = encoding;
+			m_serialization = serialization;
 
 			if (m_senders != null) {
 			
@@ -69,13 +70,12 @@ namespace Core.Network.Web
 
 		protected override void OnMessage (MessageEventArgs e)
 		{
-
-
+			
 			if (m_endpoint != null) {
 
 				try {
 
-					byte[] request = m_encoding.GetBytes(e.Data);
+					byte[] request = m_serialization.Encoding.GetBytes(e.Data);
 
 					//Interpret response. No metadata is provided (and thus null).
 					byte[] response = m_endpoint.Interpret (request, null);
@@ -130,11 +130,11 @@ namespace Core.Network.Web
 		//private IDictionary<string,WebSocketHandler> m_handlers;
 		private IDictionary<string, IWebEndpoint> m_endpoints;
 		private IDictionary<string, IList<IWebSocketSender>> m_senders;
-		System.Text.Encoding m_encoding;
+		private ISerialization m_serialization;
 
-		public WebSocketServer (string id, int port, System.Text.Encoding encoding) : base (id) {
+		public WebSocketServer (string id, int port, ISerialization serialization) : base (id) {
 
-			m_encoding = encoding;
+			m_serialization = serialization;
 			m_server = new WebSocketSharp.Server.WebSocketServer (port);
 
 			m_server.KeepClean = true;
@@ -165,7 +165,9 @@ namespace Core.Network.Web
 
 			IWebEndpoint endpoints = m_endpoints.Where(e => e.Key == uriPath).FirstOrDefault().Value;
 			IEnumerable<IWebSocketSender> senders = m_senders.Where(s => s.Key == uriPath).FirstOrDefault().Value;
-			return new WebSocketHandler(senders, endpoints, m_encoding); 
+			m_server.Log.Level = LogLevel.Fatal;
+
+			return new WebSocketHandler(senders, endpoints, m_serialization); 
 		}
 
 		public void AddEndpoint(IWebEndpoint interpreter) {

@@ -53,7 +53,7 @@ namespace Core.Tests
 	[TestFixture]
 	public class NetworkTests: TestBase
 	{
-		private IR2Serialization serialization;
+		private ISerialization serialization;
 
 		private WebFactory factory;
 

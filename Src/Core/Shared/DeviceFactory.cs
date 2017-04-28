@@ -60,7 +60,7 @@ namespace Core
 		
 		}
 
-		public WebFactory CreateWebFactory(string id, IR2Serialization serializer) {
+		public WebFactory CreateWebFactory(string id, ISerialization serializer) {
 		
 			return new WebFactory (id, m_deviceManager, serializer);
 

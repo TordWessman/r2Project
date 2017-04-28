@@ -41,7 +41,7 @@ namespace Core.Network.Web
 		private IWebObjectReceiver m_receiver;
 		private string m_responsePath;
 		private IDictionary<string, object> m_extraHeaders;
-		private IR2Serialization m_serialization;
+		private ISerialization m_serialization;
 
 		/// <summary>
 		/// Parsing the input as a dictionary.
@@ -51,7 +51,7 @@ namespace Core.Network.Web
 		/// <param name="responsePath">Response path.</param>
 		/// <param name="responsePath">receiver</param>
 
-		public WebJsonEndpoint (string responseURIPath, IWebObjectReceiver receiver, IR2Serialization serialization)
+		public WebJsonEndpoint (string responseURIPath, IWebObjectReceiver receiver, ISerialization serialization)
 		{
 			
 			m_receiver = receiver;

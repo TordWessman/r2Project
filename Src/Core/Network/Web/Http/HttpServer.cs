@@ -45,9 +45,9 @@ namespace Core.Network.Web
 		private int m_port;
 		private IDictionary<string,IWebEndpoint> m_endpoints;
 		private Task m_task;
-		private IR2Serialization m_serialization;
+		private ISerialization m_serialization;
 
-		public HttpServer (string id, int port, IR2Serialization serialization) :  base (id)
+		public HttpServer (string id, int port, ISerialization serialization) :  base (id)
 		{
 			m_port = port;
 			m_endpoints = new Dictionary<string,IWebEndpoint> ();

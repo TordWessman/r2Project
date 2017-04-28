@@ -37,9 +37,9 @@ namespace Core.Network.Web
 		private TCPPackageFactory m_packageFactory;
 		private Task m_serviceTask;
 		private IDictionary<string,IWebEndpoint> m_endpoints;
-		private IR2Serialization m_serialization;
+		private ISerialization m_serialization;
 
-		public TCPServer (string id, int port, IR2Serialization serialization) : base(id)
+		public TCPServer (string id, int port, ISerialization serialization) : base(id)
 		{
 
 			m_port = port;

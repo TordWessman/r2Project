@@ -11,7 +11,7 @@ namespace Core.Tests
 	public class DataTests: TestBase
 	{
 		
-		private IR2Serialization serializer;
+		private ISerialization serializer;
 
 		[TestFixtureSetUp]
 		public override void Setup() {
@@ -76,8 +76,6 @@ namespace Core.Tests
 
 			t.Foo = "bar";
 			t.Bar = 42;
-
-
 
 			byte[] serialized = serializer.Serialize (t);
 

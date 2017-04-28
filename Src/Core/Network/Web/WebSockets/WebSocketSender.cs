@@ -28,9 +28,9 @@ namespace Core.Network.Web
 	{
 		private string m_uriPath;
 		private IWebSocketSenderDelegate m_delegate;
-		private IR2Serialization m_serialization;
+		private ISerialization m_serialization;
 
-		public WebSocketSender (string id, string uriPath, IR2Serialization serialization) : base (id)
+		public WebSocketSender (string id, string uriPath, ISerialization serialization) : base (id)
 		{
 			m_uriPath = uriPath;
 			m_serialization = serialization;

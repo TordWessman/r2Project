@@ -27,12 +27,12 @@ namespace Core.Data
 	/// <summary>
 	/// Allows serialization of (generic) non-primitive data types.
 	/// </summary>
-	public class R2DynamicJsonSerialization: DeviceBase, IR2Serialization {
+	public class JsonSerialization: DeviceBase, ISerialization {
 
 		private System.Text.Encoding m_encoding;
 		private ExpandoObjectConverter m_converter;
 
-		public R2DynamicJsonSerialization(string id, System.Text.Encoding encoding = null): base(id) {
+		public JsonSerialization(string id, System.Text.Encoding encoding = null): base(id) {
 
 			m_encoding = encoding ?? System.Text.Encoding.UTF8;
 			m_converter = new ExpandoObjectConverter();
@@ -48,7 +48,17 @@ namespace Core.Data
 		public System.Text.Encoding Encoding { get { return m_encoding; } }
 
 		public byte[] Serialize (dynamic obj) {
+			
+			if (obj is string) {
 
+				return m_encoding.GetBytes (obj);
+
+			} else if (obj is byte[]) {
+
+				return obj;
+
+			}
+		
 			// Data will be serialized to a JSON object string defore transformed into raw byte data.
 
 			string outputString = Convert.ToString (JsonConvert.SerializeObject (obj));

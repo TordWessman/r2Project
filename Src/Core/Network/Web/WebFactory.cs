@@ -34,9 +34,9 @@ namespace Core.Network.Web
 		
 		private IDeviceManager m_deviceManager;
 
-		private IR2Serialization m_serialization;
+		private ISerialization m_serialization;
 
-		public WebFactory (string id, IDeviceManager deviceManager, IR2Serialization serialization) : base (id) {
+		public WebFactory (string id, IDeviceManager deviceManager, ISerialization serialization) : base (id) {
 		
 			m_deviceManager = deviceManager;
 			m_serialization = serialization;
@@ -51,7 +51,7 @@ namespace Core.Network.Web
 
 		public IWebSocketServer CreateWebSocketServer(string id, int port) {
 		
-			return new WebSocketServer (id, port, m_serialization.Encoding);
+			return new WebSocketServer (id, port, m_serialization);
 
 		}
 
@@ -89,9 +89,9 @@ namespace Core.Network.Web
 		/// <param name="localPath">Local path.</param>
 		/// <param name="uriPath">URI path.</param>
 		/// <param name="contentType">Content type.</param>
-		public IWebEndpoint CreateFileEndpoint (string localPath, string uriPath, string contentType = "image") {
+		public IWebEndpoint CreateFileEndpoint (string localPath, string uriPath) {
 
-			return new WebFileEndpoint (localPath, uriPath, contentType);
+			return new WebFileEndpoint (localPath, uriPath);
 
 		}
 

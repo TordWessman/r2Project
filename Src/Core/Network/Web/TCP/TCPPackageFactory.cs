@@ -43,9 +43,9 @@ namespace Core.Network.Web
 
 		}
 
-		private IR2Serialization m_serialization;
+		private ISerialization m_serialization;
 
-		public TCPPackageFactory (IR2Serialization serialization) {
+		public TCPPackageFactory (ISerialization serialization) {
 
 			m_serialization = serialization;
 

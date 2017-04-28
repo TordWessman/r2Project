@@ -238,8 +238,6 @@
     <Compile Include="Data\R2Dynamic.cs" />
     <Compile Include="Device\RemoteDevice.cs" />
     <Compile Include="Network\Web\TCP\TCPPackageFactory.cs" />
-    <Compile Include="Data\IR2Serialization.cs" />
-    <Compile Include="Data\R2DynamicJsonSerialization.cs" />
     <Compile Include="Tests\NetworkTests.cs" />
     <Compile Include="Tests\DummyClasses\DummyDevice.cs" />
     <Compile Include="Shared\ObjectInvoker.cs" />
@@ -264,6 +262,9 @@
     <Compile Include="Network\Web\Http\HttpServer.cs" />
     <Compile Include="Tests\CoreTests.cs" />
     <Compile Include="Network\Web\Http\HttpClient.cs" />
+    <Compile Include="Data\ISerialization.cs" />
+    <Compile Include="Data\JsonSerialization.cs" />
+    <Compile Include="Network\Web\Http\HttpRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

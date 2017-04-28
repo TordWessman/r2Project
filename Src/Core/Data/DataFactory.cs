@@ -27,9 +27,9 @@ namespace Core.Data
 		/// <returns>The serialization.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="encoding">Encoding.</param>
-		public IR2Serialization CreateSerialization(string id, System.Text.Encoding encoding) {
+		public ISerialization CreateSerialization(string id, System.Text.Encoding encoding) {
 		
-			return new R2DynamicJsonSerialization (id, encoding);
+			return new JsonSerialization (id, encoding);
 
 		}
 
