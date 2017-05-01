@@ -266,6 +266,7 @@
     <Compile Include="Data\JsonSerialization.cs" />
     <Compile Include="Network\Web\Http\HttpRequest.cs" />
     <Compile Include="Network\Web\Http\IHttpClient.cs" />
+    <Compile Include="Network\Web\TCP\TCPClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

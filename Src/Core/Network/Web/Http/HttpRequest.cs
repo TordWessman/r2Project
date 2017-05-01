@@ -26,13 +26,13 @@ namespace Core.Network.Web
 	{
 		public static readonly string DefaultContentType = @"application/json";
 
-		public dynamic Body;
+		public object Body;
 		public string Method;
 		public string Url;
 		public IDictionary<string, object> Headers;
 		public string ContentType;
 
-		public HttpRequest (string url, string method = "POST", dynamic body = null, IDictionary<string, object> headers = null) {
+		public HttpRequest (string url, string method = "POST", object body = null, IDictionary<string, object> headers = null) {
 
 			ContentType = DefaultContentType;
 

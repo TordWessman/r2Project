@@ -72,7 +72,7 @@ namespace Core.Network.Web
 
 			request.Method = message.Method ?? DefaultHttpMethod;
 
-			byte[] requestData = message.Body != null ? m_serializer.Serialize(message.Body): new byte[0];
+			byte[] requestData = message.Body?.GetType().IsValueType == true || message.Body != null ? m_serializer.Serialize(message.Body): new byte[0];
 
 			request.ContentLength = requestData.Length;
 			request.ContentType = message.ContentType;

@@ -76,7 +76,7 @@ namespace Core.Network.Web
 			R2Dynamic inputObject = m_serialization.Deserialize(input);
 
 			// Let reciver parse response.
-			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject, metadata);
+			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject, "", metadata);
 
 			// Let Metadata be the extra headers.
 			outputObject.Metadata?.ToList ().ForEach (kvp => m_extraHeaders[kvp.Key] = kvp.Value.ToString ());

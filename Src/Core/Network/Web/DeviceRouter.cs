@@ -92,7 +92,7 @@ namespace Core.Network.Web
 
 		}
 
-		public IWebIntermediate OnReceive (dynamic message, IDictionary<string, object> metadata = null) {
+		public IWebIntermediate OnReceive (dynamic message, string path, IDictionary<string, object> metadata = null) {
 
 			if (m_security?.IsValid(message.Token) == false) {
 			

@@ -29,7 +29,7 @@ using System.Collections.Generic;
 namespace Core.Network.Web
 {
 	/// <summary>
-	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(dynamic inputObject, IDictionary<string, object> metadata, IWebIntermediate outputObject).</para>
+	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(dynamic inputObject, string path, IDictionary<string, object> metadata, IWebIntermediate outputObject).</para>
 	/// <para>The type T must be an IWebIntermediate implementation used to transcibe data from script to sub system.</para>
 	/// The outputObject is required for the script implementation to know how to return a data type compatible with a serializer.
 	/// </summary>
@@ -46,9 +46,9 @@ namespace Core.Network.Web
 		
 		}
 
-		public IWebIntermediate OnReceive (dynamic input, IDictionary<string, object> metadata) {
+		public IWebIntermediate OnReceive (dynamic input, string path, IDictionary<string, object> metadata) {
 			
-			T response = m_script.Invoke(ON_RECEIVE_METHOD_NAME, input, metadata, new T());
+			T response = m_script.Invoke(ON_RECEIVE_METHOD_NAME, input, path, metadata, new T());
 
 			response.CLRConvert ();
 
