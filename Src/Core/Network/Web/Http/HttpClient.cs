@@ -27,8 +27,10 @@ using System.Threading.Tasks;
 
 namespace Core.Network.Web
 {
-	public class HttpClient: DeviceBase
+	public class HttpClient: DeviceBase, IHttpClient
 	{
+		public static string DefaultHttpMethod = "POST";
+
 		private ISerialization m_serializer;
 
 		public HttpClient (string id, ISerialization serializer) : base (id) {
@@ -50,6 +52,8 @@ namespace Core.Network.Web
 				
 					HttpResponse response = _Send(message);
 
+					responseDelegate.DynamicInvoke(response);
+
 				} catch (Exception ex) {
 				
 					responseDelegate.DynamicInvoke(new HttpResponse() { Error = new HttpError() { Message = ex.Message } });
@@ -66,7 +70,7 @@ namespace Core.Network.Web
 
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(message.Url);
 
-			request.Method = message.Method;
+			request.Method = message.Method ?? DefaultHttpMethod;
 
 			byte[] requestData = message.Body != null ? m_serializer.Serialize(message.Body): new byte[0];
 
@@ -75,30 +79,38 @@ namespace Core.Network.Web
 			request.ReadWriteTimeout = 30000;
 			request.Timeout = 30000;
 
-			using (Stream dataStream = request.GetRequestStream()) {
-				
-				dataStream.Write(requestData, 0, requestData.Length);
-				dataStream.Close ();
+			if (requestData.Length > 0) {
+			
+				using (Stream dataStream = request.GetRequestStream()) {
+
+					dataStream.Write(requestData, 0, requestData.Length);
+					dataStream.Close ();
+
+				}
 
 			}
 
 			HttpWebResponse response = null;
+			byte[] responseData = null;
 
 			try {
 				
 				response = (HttpWebResponse) request.GetResponse();
 			
+				using (Stream responseStream = response.GetResponseStream ()) {
+					
+					MemoryStream ms = new MemoryStream ();
+					responseStream.CopyTo (ms);
+					responseData = ms.ToArray ();
+
+				}
+
 			} catch (System.Net.WebException ex) {
 				
 				Log.w ( $"Connection failed: {request.RequestUri.ToString()} exception: '{ex.Message}'");
 					
-				using (Stream responseStream = ex.Response.GetResponseStream ()) {
-					
-					StreamReader reader = new StreamReader (responseStream, m_serializer.Encoding);
-					responseObject.Error = new HttpError() { Message = reader.ReadToEnd () };
-				}
-
-				responseObject.Code = (ex.Response as HttpWebResponse).StatusCode;
+				responseObject.Error = new HttpError() { Message = ex.Message };
+				responseObject.Code = ex.Response != null ? (ex.Response as HttpWebResponse).StatusCode : HttpStatusCode.InternalServerError;
 
 				return responseObject;
 				 
@@ -114,10 +126,6 @@ namespace Core.Network.Web
 
 			if (response.StatusCode == HttpStatusCode.OK) {
 				
-				using (Stream responseStream = response.GetResponseStream ()) {
-
-					byte[] responseData = ReadToEnd (responseStream);
-
 					if (response.ContentType.ToLower().Contains ("text")) {
 					
 						responseObject.Body = m_serializer.Encoding.GetString (responseData);
@@ -132,7 +140,6 @@ namespace Core.Network.Web
 
 					}
 
-				}
 
 			} else {
 			

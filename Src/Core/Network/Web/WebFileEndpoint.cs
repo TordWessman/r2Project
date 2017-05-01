@@ -33,7 +33,7 @@ namespace Core.Network.Web
 		private string m_responsePath;
 		private string m_contentType;
 
-		private const string FileMatchRegexp = @"[A-Za-z0-9\.\-\_]+$";
+		private const string FileMatchRegexp = @"[A-Za-z0-9_\.\-]+$";
 		private const string ExtensionMatchRegexp = @"[A-Za-z]+$";
 
 		/// <summary>
@@ -52,22 +52,21 @@ namespace Core.Network.Web
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (byte[] input, IDictionary<string, object> metadata = null)
+		public byte[] Interpret (byte[] input, string url, IDictionary<string, object> metadata = null)
 		{
-			Uri uri = metadata != null && metadata.ContainsKey (HttpServer.URI_KEY) && metadata [HttpServer.URI_KEY] is Uri  ? metadata [HttpServer.URI_KEY] as Uri : null;
-
-			if (uri == null) {
 			
-				throw new MissingFieldException ("Unable to process request. Uri was null");
+			if (url == null) {
+			
+				throw new MissingFieldException ("Unable to process request. Uri was null.");
 
 			}
 
-			Match fileNameMatch = new Regex (FileMatchRegexp).Match (uri.AbsolutePath);
+			Match fileNameMatch = Regex.Match (url, FileMatchRegexp);
 			string imageName = fileNameMatch?.Value;
 
 			if (string.IsNullOrEmpty(imageName)) {
 
-				throw new InvalidDataException ("Unable to retrieve file name. Using regexp: " + FileMatchRegexp + " to match uri: " + uri.AbsolutePath);
+				throw new InvalidDataException ($"Unable to retrieve file name. Using regexp: '{FileMatchRegexp}' to match url '{url}'.");
 
 			}
 
@@ -75,7 +74,7 @@ namespace Core.Network.Web
 
 			if (!File.Exists (fileName)) {
 			
-				throw new IOException ("File: " + fileName + " not found.");
+				throw new IOException ($"File '{fileName}' not found.");
 
 			}
 

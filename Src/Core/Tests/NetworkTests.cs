@@ -22,6 +22,8 @@ using Core.Network.Web;
 using Core.Data;
 using System.Collections.Generic;
 using Core.Device;
+using System.Threading;
+using System.Net;
 
 namespace Core.Tests
 {
@@ -80,7 +82,7 @@ namespace Core.Tests
 			DummyReceiver receiver = new DummyReceiver ();
 			receiver.Response = response;
 
-			IWebEndpoint ep = factory.CreateJsonEndpoint ("", receiver);
+			IWebEndpoint ep = factory.CreateJsonEndpoint ("/json", receiver);
 
 			DummyInput inputObject = new DummyInput ();
 
@@ -89,7 +91,7 @@ namespace Core.Tests
 
 			byte[] input = serialization.Serialize (inputObject);
 
-			byte[]r = ep.Interpret(input, headers);
+			byte[]r = ep.Interpret(input, "/json", headers);
 
 			dynamic output = serialization.Deserialize (r);
 
@@ -227,6 +229,44 @@ namespace Core.Tests
 			punwrapped = packageFactory.CreateTCPPackage (raw);
 
 			Assert.IsNull (punwrapped.Payload);
+
+		}
+
+		[Test]
+		public void HttpTests() {
+		
+			var webServer = factory.CreateHttpServer ("test_server", 9999);
+
+			var fileEndpoint = factory.CreateFileEndpoint (Settings.Paths.TestData (), @"/test/[A-Za-z0-9\.]+");
+
+			webServer.AddEndpoint (fileEndpoint);
+
+			webServer.Start ();
+
+			Thread.Sleep (100);
+
+			var client = factory.CreateHttpClient ("client");
+
+			// Test json-message:
+
+			var message = factory.CreateHttpMessage ("http://localhost:9999/test/test.json");
+
+			Core.Network.Web.HttpResponse response = client.Send (message);
+			Assert.AreEqual (HttpStatusCode.OK, response.Code);
+			Assert.Null (response.Error);
+			Assert.AreEqual ("Bar", response.Body.Foo);
+
+			// Test binary message:
+
+			message = factory.CreateHttpMessage ("http://localhost:9999/test/test.bin");
+
+			response = client.Send (message);
+			Assert.AreEqual (HttpStatusCode.OK, response.Code);
+			Assert.Null (response.Error);
+			Assert.AreEqual (6, response.Body.Length);
+
+			Assert.AreEqual ('d', response.Body [0]);
+			Assert.AreEqual ('h', response.Body [4]);
 
 		}
 

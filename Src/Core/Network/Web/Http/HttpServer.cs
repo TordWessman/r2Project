@@ -27,6 +27,7 @@ using System.Linq;
 using System.Collections.Specialized;
 using System.Web;
 using Core.Data;
+using System.Text.RegularExpressions;
 
 namespace Core.Network.Web
 {
@@ -38,19 +39,18 @@ namespace Core.Network.Web
 	{
 		public static readonly string HEADERS_KEY = "_headers";
 		public static readonly string HTTP_METHOD_KEY = "_httpMethod";
-		public static readonly string URI_KEY = "_uri";
 
 		private HttpListener m_listener;
 		private bool m_shouldrun;
 		private int m_port;
-		private IDictionary<string,IWebEndpoint> m_endpoints;
+		private IList<IWebEndpoint> m_endpoints;
 		private Task m_task;
 		private ISerialization m_serialization;
 
 		public HttpServer (string id, int port, ISerialization serialization) :  base (id)
 		{
 			m_port = port;
-			m_endpoints = new Dictionary<string,IWebEndpoint> ();
+			m_endpoints = new List<IWebEndpoint> ();
 			m_serialization = serialization;
 
 		}
@@ -68,18 +68,28 @@ namespace Core.Network.Web
 					HttpListenerRequest request = context.Request;
 					HttpListenerResponse response = context.Response;
 
-					if (!m_endpoints.ContainsKey (request.Url.AbsolutePath)) {
+					bool match = false;
+
+					foreach (IWebEndpoint endpoint in m_endpoints) {
+					
+						if (Regex.IsMatch (request.Url.AbsolutePath, endpoint.UriPath)) {
+
+							Interpret (request, response, endpoint);
+							match = true;
+							break;
+
+						}
+
+					}
+
+					if (!match) {
 
 						Log.w ("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
 						response.StatusCode = (int) WebStatusCode.NotFound;
 
 						Write (response,  m_serialization.Serialize(new WebErrorMessage(WebStatusCode.Error, $"Path not found: {request.Url.AbsolutePath}") ));
 					
-					} else {
-					
-						Interpret (request, response);
-
-					}
+					} 
 
 				}
 
@@ -124,11 +134,11 @@ namespace Core.Network.Web
 
 		public void AddEndpoint(IWebEndpoint interpreter) {
 
-			m_endpoints.Add (interpreter.UriPath, interpreter);
+			m_endpoints.Add (interpreter);
 
 		}
 
-		private void Interpret(HttpListenerRequest request, HttpListenerResponse response) {
+		private void Interpret(HttpListenerRequest request, HttpListenerResponse response, IWebEndpoint endpoint) {
 		
 			using (StreamReader reader = new StreamReader(request.InputStream, m_serialization.Encoding))
 			{
@@ -137,9 +147,7 @@ namespace Core.Network.Web
 				byte[] requestBody = default(byte[]);
 
 				try {
-
-					IWebEndpoint interpreter = m_endpoints[request.Url.AbsolutePath];
-
+					
 					// Read body
 					using (var memstream = new MemoryStream())
 					{
@@ -150,10 +158,10 @@ namespace Core.Network.Web
 					}
 
 					// Parse request and create response body.
-					responseBody = interpreter.Interpret (requestBody, CreateMetadata(request));
+					responseBody = endpoint.Interpret (requestBody, request.Url.AbsolutePath, CreateMetadata(request));
 
 					// Add header fields from metadata
-					interpreter.Metadata.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
+					endpoint.Metadata.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
 
 				} catch (Exception ex) {
 
@@ -179,8 +187,9 @@ namespace Core.Network.Web
 		
 			response.ContentLength64 = data.Length;
 			System.IO.Stream output = response.OutputStream;
-			output.Write(data,0,data.Length);
+			output.Write(data, 0, data.Length);
 			output.Close();
+
 		}
 
 		/// <summary>
@@ -203,7 +212,6 @@ namespace Core.Network.Web
 
 			metadata[HEADERS_KEY] = request.Headers;
 			metadata[HTTP_METHOD_KEY] = request.HttpMethod;
-			metadata[URI_KEY] = request.Url;
 
 			return metadata;
 

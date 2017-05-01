@@ -17,28 +17,25 @@
 //
 //
 using System;
-using Core.Device;
-using System.Collections.Specialized;
-using System.Collections.Generic;
 
 namespace Core.Network.Web
 {
-	/// <summary>
-	/// An interpreter which never returns any data.
-	/// </summary>
-	public class WebDummyEndpoint: DeviceBase, IWebEndpoint
+	public interface IHttpClient
 	{
-		string m_path;
 
-		public WebDummyEndpoint (string id, string path) : base(id)
-		{
-			m_path = path;
-		}
+		/// <summary>
+		/// Synchronous http communication.
+		/// </summary>
+		/// <param name="message">Message.</param>
+		Core.Network.Web.HttpResponse Send (Core.Network.Web.HttpRequest message);
 
-		public byte[] Interpret(byte[] inputData, string url, IDictionary<string, object> metadata) { return new byte[0]; }
-		public string UriPath { get { return m_path; } }
-		public IDictionary<string, object> Metadata { get { return new Dictionary<string, object>(); } }
-	
+		/// <summary>
+		/// Asynchronous communication. The action delegate will have to take a Core.Network.Web.HttpResponse parameter. 
+		/// </summary>
+		/// <param name="message">Message.</param>
+		/// <param name="responseDelegate">Response delegate.</param>
+		void SendAsync(Core.Network.Web.HttpRequest message, Action responseDelegate);
+
 	}
 
 }

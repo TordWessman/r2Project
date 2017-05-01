@@ -87,7 +87,7 @@ namespace Core.Network.Web
 
 							if (m_endpoints.ContainsKey(request.Path)) {
 
-								con.WriteData(m_endpoints[request.Path].Interpret(request.Payload, request.Headers), true);
+								con.WriteData(m_endpoints[request.Path].Interpret(request.Payload, request.Path, request.Headers), true);
 
 							} else {
 							

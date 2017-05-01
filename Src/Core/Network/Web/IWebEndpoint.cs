@@ -31,8 +31,9 @@ namespace Core.Network.Web
 		/// Interprets inputData and returns byte array of response data.
 		/// </summary>
 		/// <param name="inputData">Input data.</param>
+		/// <param name="url">Request url.</param>
 		/// <param name="metadata">metadata.</param>
-		byte[] Interpret(byte[] inputData, IDictionary<string, object> metadata);
+		byte[] Interpret(byte[] inputData, string url, IDictionary<string, object> metadata);
 
 		/// <summary>
 		/// The uri path on which this interprener is listening.

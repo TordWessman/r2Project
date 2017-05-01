@@ -55,9 +55,15 @@ namespace Core.Network.Web
 
 		}
 
-		public IJsonClient CreateJsonClient(string id, string serverUrl) {
+		public IHttpClient CreateHttpClient(string id) {
 
-			return new JsonClient (id, serverUrl);
+			return new HttpClient(id, m_serialization);
+
+		}
+
+		public Core.Network.Web.HttpRequest CreateHttpMessage(string url) {
+		
+			return new Core.Network.Web.HttpRequest () { Url = url };
 
 		}
 

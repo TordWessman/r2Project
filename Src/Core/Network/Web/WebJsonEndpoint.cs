@@ -35,7 +35,7 @@ namespace Core.Network.Web
 	/// <summary>
 	/// A JsonEndpoint is intended to represent a HttpServer endpoint mapped to a specified URI path.
 	/// </summary>
-	public class WebJsonEndpoint : IWebEndpoint
+	public class WebJsonEndpoint: IWebEndpoint
 	{
 
 		private IWebObjectReceiver m_receiver;
@@ -71,7 +71,7 @@ namespace Core.Network.Web
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (byte[] input, IDictionary<string, object> metadata = null) {
+		public byte[] Interpret (byte[] input, string url, IDictionary<string, object> metadata = null) {
 			
 			R2Dynamic inputObject = m_serialization.Deserialize(input);
 

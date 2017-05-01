@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace Core
+namespace Core.Network.Web
 {
 	public struct HttpRequest
 	{

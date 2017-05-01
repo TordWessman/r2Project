@@ -77,8 +77,10 @@ namespace Core.Network.Web
 
 					byte[] request = m_serialization.Encoding.GetBytes(e.Data);
 
+					//TODO: Fix Web socket server. Should use packetization (Requests should be serialized with headers, uri etc). 
+
 					//Interpret response. No metadata is provided (and thus null).
-					byte[] response = m_endpoint.Interpret (request, null);
+					byte[] response = m_endpoint.Interpret (request, null, null);
 
 					if (response != null && response.Length > 0) {
 
