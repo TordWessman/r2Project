@@ -38,25 +38,25 @@ namespace Core.Network.Web
 			m_serializer = serializer;
 		}
 
-		public HttpResponse Send(HttpRequest message) {
+		public HttpMessage Send(HttpMessage message) {
 		
 			return _Send (message);
 
 		}
 
-		public void SendAsync(HttpRequest message, Action responseDelegate) {
+		public void SendAsync(HttpMessage message, Action<HttpMessage> responseDelegate) {
 		
 			Task.Factory.StartNew ( () => {
 			
 				try {
 				
-					HttpResponse response = _Send(message);
+					HttpMessage response = _Send(message);
 
-					responseDelegate.DynamicInvoke(response);
+					responseDelegate(response); //.DynamicInvoke(response);
 
 				} catch (Exception ex) {
 				
-					responseDelegate.DynamicInvoke(new HttpResponse() { Error = new HttpError() { Message = ex.Message } });
+					responseDelegate(new HttpMessage( new HttpError() { Message = ex.Message }, (int) WebStatusCode.NetworkError));
 
 				}
 
@@ -64,15 +64,15 @@ namespace Core.Network.Web
 
 		}
 
-		private HttpResponse _Send (HttpRequest message) {
+		private HttpMessage _Send (HttpMessage message) {
 		
-			HttpResponse responseObject = new HttpResponse () { Headers = new Dictionary<string, object> ()};
+			HttpMessage responseObject = new HttpMessage () { Headers = new Dictionary<string, object> ()};
 
-			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(message.Url);
+			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(message.Destination ?? "");
 
 			request.Method = message.Method ?? DefaultHttpMethod;
 
-			byte[] requestData = message.Body?.GetType().IsValueType == true || message.Body != null ? m_serializer.Serialize(message.Body): new byte[0];
+			byte[] requestData = message.Payload?.GetType().IsValueType == true || message.Payload != null ? m_serializer.Serialize(message.Payload): new byte[0];
 
 			request.ContentLength = requestData.Length;
 			request.ContentType = message.ContentType;
@@ -109,8 +109,8 @@ namespace Core.Network.Web
 				
 				Log.w ( $"Connection failed: {request.RequestUri.ToString()} exception: '{ex.Message}'");
 					
-				responseObject.Error = new HttpError() { Message = ex.Message };
-				responseObject.Code = ex.Response != null ? (ex.Response as HttpWebResponse).StatusCode : HttpStatusCode.InternalServerError;
+				responseObject.Payload = new HttpError() { Message = ex.Message };
+				responseObject.Code = (int) WebStatusCode.NetworkError; 
 
 				return responseObject;
 				 
@@ -120,32 +120,35 @@ namespace Core.Network.Web
 
 			}
 
-			responseObject.Code = response?.StatusCode;
+			//responseObject.Code = response?.StatusCode;
 
 			response?.Headers?.AllKeys.ToList().ForEach( key => responseObject.Headers[key] = response.Headers[key]);
 
 			if (response.StatusCode == HttpStatusCode.OK) {
-				
-					if (response.ContentType.ToLower().Contains ("text")) {
+
+				responseObject.Code = (int) WebStatusCode.Ok;
+
+				if (response.ContentType.ToLower().Contains ("text")) {
 					
-						responseObject.Body = m_serializer.Encoding.GetString (responseData);
+					responseObject.Payload = m_serializer.Encoding.GetString (responseData);
 
-					} if (response.ContentType.ToLower().Contains ("json")) {
+				} if (response.ContentType.ToLower().Contains ("json")) {
 					
-						responseObject.Body = m_serializer.Deserialize (responseData);
+					responseObject.Payload = m_serializer.Deserialize (responseData);
 
-					} else {
+				} else {
 					
-						responseObject.Body = responseData;
+					responseObject.Payload = responseData;
 
-					}
-
+				}
 
 			} else {
 			
-				string error = $"HttpRequest got bad http status code {response.StatusCode}";
+				string error = $"HttpRequest got bad http status code: {response.StatusCode}.";
 
-				responseObject.Error = new HttpError () {Message = error};
+				responseObject.Payload = new HttpError () {Message = error};
+				responseObject.Code = (int) response.StatusCode;
+
 				Log.w (error);
 
 			}

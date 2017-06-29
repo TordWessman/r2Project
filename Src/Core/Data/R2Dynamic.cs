@@ -67,7 +67,7 @@ namespace Core.Data
 
 		public override bool TryGetMember (GetMemberBinder binder, out TValue result) {
 
-			result = m_members.ContainsKey (binder.Name) ? m_members [binder.Name] : null;
+			result = m_members.ContainsKey (binder.Name) ? m_members [binder.Name] : default(TValue);
 			return true;
 
 		}

@@ -22,26 +22,45 @@ using System.Net;
 
 namespace Core.Network.Web
 {
-	public struct HttpRequest
+
+	public struct HttpMessage
 	{
 		public static readonly string DefaultContentType = @"application/json";
 
-		public object Body;
-		public string Method;
-		public string Url;
+		public int? Code;
+		public dynamic Payload;
+		public string Destination;
 		public IDictionary<string, object> Headers;
+
+		public string Method;
 		public string ContentType;
 
-		public HttpRequest (string url, string method = "POST", object body = null, IDictionary<string, object> headers = null) {
+
+		public HttpMessage (string url, string method = "POST", object body = null, IDictionary<string, object> headers = null) {
 
 			ContentType = DefaultContentType;
 
-			Url = url;
+			Destination = url;
 			Method = method;
-			Body = body;
+			Payload = body;
+			Headers = headers;
+
+			Code = null;
+
+		}
+
+		public HttpMessage(HttpError error, int code, IDictionary<string, object> headers = null) {
+
+			ContentType = DefaultContentType;
+
+			Destination = Method = null;
+
+			Payload = error;
+			Code = code;
 			Headers = headers;
 
 		}
+
 
 	}
 
@@ -49,14 +68,11 @@ namespace Core.Network.Web
 	
 		public string Message;
 
-	}
+		public HttpError (string message) {
+		
+			Message = message;
 
-	public struct HttpResponse {
-	
-		public HttpStatusCode? Code;
-		public dynamic Body;
-		public HttpError? Error;
-		public IDictionary<string, object> Headers;
+		}
 
 	}
 

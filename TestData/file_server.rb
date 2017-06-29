@@ -26,24 +26,31 @@ class MainClass < ScriptBase
 	end
 
 	def on_receive (msg, path, headers, outputObject)
-# ex	{System.IO.FileNotFoundException: No such file or directory - /home/olga/workspace/r2/./r2Project/Tes…}	System.IO.FileNotFoundException
-		#outputObject.add_metadata "Content-Type", "text/html"
-		#	outputObject.data = "hello"
-		#	return outputObject
-		if msg.file_name != nil
-			name = msg.file_name
 
-			outputObject.add_metadata "Content-Type", get_content_type(name)
-			#outputObject.data = "hello"
-			#return outputObject
-			outputObject.data = open(name, "rb") {|io| io.read }
-			
+		if msg.FlName != nil
 
-			cdp = 'attachment; filename="' + name + '"'
-			outputObject.add_metadata "Content-Disposition",cdp
-			#'Content-Disposition: inline; filename="July Report.pdf"'
+			name = msg.FlName
+
+			if File.file?(name)
+
+				outputObject.add_metadata "Content-Type", get_content_type(name)
+				outputObject.data = open(name, "rb") {|io| io.read }
+
+				cdp = 'attachment; filename="' + name + '"'
+				outputObject.add_metadata "Content-Disposition",cdp
+
+			else
+
+				outputObject.add_metadata "Content-Type", "text/plain"
+				outputObject.data = "file: '" + name + "' not found."
+
+			end
+		else
+
+			outputObject.add_metadata "Content-Type", "text/plain"
+			outputObject.data = "No file_name specified."
+					
 		end
-		
 
 		return outputObject
 

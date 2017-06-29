@@ -27,14 +27,14 @@ namespace Core.Network.Web
 		/// Synchronous http communication.
 		/// </summary>
 		/// <param name="message">Message.</param>
-		Core.Network.Web.HttpResponse Send (Core.Network.Web.HttpRequest message);
+		HttpMessage Send (HttpMessage message);
 
 		/// <summary>
 		/// Asynchronous communication. The action delegate will have to take a Core.Network.Web.HttpResponse parameter. 
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		void SendAsync(Core.Network.Web.HttpRequest message, Action responseDelegate);
+		void SendAsync(HttpMessage message, Action<HttpMessage> responseDelegate);
 
 	}
 

@@ -20,13 +20,16 @@ using System;
 
 namespace Core.Network
 {
+	
 	public enum WebStatusCode: int
 	{
 		NotDefined = 0,
 		Ok = 200,
 		NotFound = 404,
-		Error = 500
+		ServerError = 500,
+		NetworkError = -1
 
 	}
+
 }
 

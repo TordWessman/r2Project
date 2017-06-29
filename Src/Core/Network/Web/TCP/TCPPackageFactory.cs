@@ -60,7 +60,7 @@ namespace Core.Network.Web
 		public byte[] CreateTCPData(TCPPackage package) {
 		
 			byte[] code = new Int32Converter ((int)package.Code).GetContainedBytes(2);
-			byte[] path = m_serialization.Encoding.GetBytes (package.Path);
+			byte[] path = m_serialization.Encoding.GetBytes (package.Destination);
 			byte[] headerData = package.Headers != null ? m_serialization.Serialize (package.Headers) : new byte[0];
 			byte[] payloadData = new byte[0];
 			byte[] payloadDataType = new byte[0];
@@ -143,7 +143,7 @@ namespace Core.Network.Web
 				m_serialization.Encoding.GetString (path),
 				m_serialization.Deserialize (headers),
 				payload,
-				(WebStatusCode) code);
+				code);
 
 		}
 

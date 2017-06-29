@@ -25,6 +25,7 @@ using Core.Device;
 using System.Threading;
 using System.Net;
 using Core.Scripting;
+using Core.Network;
 
 namespace Core.Tests
 {
@@ -236,10 +237,51 @@ namespace Core.Tests
 
 		public struct JsonMessage {
 
-			public string file_name;
+			public string FlName;
 
 		};
 
+
+		[Test]
+		public void HttpBinaryMessageAndScriptServerTests() {
+		
+			var webServer = factory.CreateHttpServer ("test_server", 9999);
+
+
+			var scriptFactory = new RubyScriptFactory ("sf", new List<string>() { Settings.Paths.RubyLib(),
+				Settings.Paths.Common()}, m_deviceManager, m_dummyTaskMonitor);
+
+			scriptFactory.AddSourcePath (Settings.Paths.TestData ());
+
+			var script = scriptFactory.CreateScript("file_server");
+			var receiver = factory.CreateRubyScriptObjectReceiver (script);
+			var jsonEndpoint = factory.CreateJsonEndpoint (@"/test2", receiver);
+
+			webServer.AddEndpoint (jsonEndpoint);
+			webServer.Start ();
+
+			Thread.Sleep (100);
+		
+			var client = factory.CreateHttpClient ("client");
+
+			var message = factory.CreateHttpMessage ("http://localhost:9999/test2");
+
+			// Test binary message:
+
+			var msgBody = new JsonMessage ();
+			msgBody.FlName = Settings.Paths.TestData ("test.bin");
+			message.Payload = msgBody;
+
+			var response = client.Send (message);
+			Assert.AreEqual (200, response.Code);
+			Assert.AreEqual (6, (response.Payload as byte[]).Length);
+
+			Assert.AreEqual ('d', (response.Payload as byte[]) [0]);
+			Assert.AreEqual ('h', (response.Payload as byte[]) [4]);
+
+			webServer.Stop ();
+
+		}
 
 		[Test]
 		public void HttpTests() {
@@ -248,16 +290,7 @@ namespace Core.Tests
 
 			var fileEndpoint = factory.CreateFileEndpoint (Settings.Paths.TestData (), @"/test/[A-Za-z0-9\.]+");
 
-			var scriptFactory = new RubyScriptFactory ("sf", new List<string>() { Settings.Paths.RubyLib(),
-				Settings.Paths.Common()}, m_deviceManager, m_dummyTaskMonitor);
-			scriptFactory.AddSourcePath (Settings.Paths.TestData ());
-				
-			var script = scriptFactory.CreateScript("file_server");
-			var receiver = factory.CreateRubyScriptObjectReceiver (script);
-			var jsonEndpoint = factory.CreateJsonEndpoint (@"/test2", receiver);
-
 			webServer.AddEndpoint (fileEndpoint);
-			webServer.AddEndpoint (jsonEndpoint);
 
 			webServer.Start ();
 
@@ -269,30 +302,15 @@ namespace Core.Tests
 
 			var message = factory.CreateHttpMessage ("http://localhost:9999/test/test.json");
 
-			Core.Network.Web.HttpResponse response = client.Send (message);
-			Assert.AreEqual (HttpStatusCode.OK, response.Code);
-			Assert.Null (response.Error);
-			Assert.AreEqual ("Bar", response.Body.Foo);
-
-			// Test binary message:
-
-			message = factory.CreateHttpMessage ("http://localhost:9999/test2");
-		
-			var msgBody = new JsonMessage ();
-			msgBody.file_name = Settings.Paths.TestData ("test.bin");
-			message.Body = msgBody;
-
-			response = client.Send (message);
-			Assert.AreEqual (HttpStatusCode.OK, response.Code);
-			Assert.Null (response.Error);
-			Assert.AreEqual (6, response.Body.Length);
-
-			Assert.AreEqual ('d', response.Body [0]);
-			Assert.AreEqual ('h', response.Body [4]);
+			var response = client.Send (message);
+			Assert.AreEqual (200, response.Code);
+			Assert.NotNull (response.Payload);
+			Assert.AreEqual ("Bar", response.Payload.Foo);
 
 			webServer.Stop ();
-
 		}
+
+
 
 	}
 

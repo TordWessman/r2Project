@@ -264,9 +264,9 @@
     <Compile Include="Network\Web\Http\HttpClient.cs" />
     <Compile Include="Data\ISerialization.cs" />
     <Compile Include="Data\JsonSerialization.cs" />
-    <Compile Include="Network\Web\Http\HttpRequest.cs" />
     <Compile Include="Network\Web\Http\IHttpClient.cs" />
     <Compile Include="Network\Web\TCP\TCPClient.cs" />
+    <Compile Include="Network\Web\Http\HttpMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

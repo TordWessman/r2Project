@@ -22,10 +22,10 @@ namespace Core.Network.Web
 {
 	public struct WebErrorMessage
 	{
-		public WebStatusCode Code;
+		public int Code;
 		public string Message;
 
-		public WebErrorMessage (WebStatusCode code, string message) {
+		public WebErrorMessage (int code, string message) {
 
 			Code = code; 
 			Message = message;

@@ -85,9 +85,9 @@ namespace Core.Network.Web
 					if (!match) {
 
 						Log.w ("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
-						response.StatusCode = (int) WebStatusCode.NotFound;
+						response.StatusCode = 404;
 
-						Write (response,  m_serialization.Serialize(new WebErrorMessage(WebStatusCode.Error, $"Path not found: {request.Url.AbsolutePath}") ));
+						Write (response,  m_serialization.Serialize(new WebErrorMessage(404, $"Path not found: {request.Url.AbsolutePath}") ));
 					
 					} 
 
@@ -163,17 +163,19 @@ namespace Core.Network.Web
 					// Add header fields from metadata
 					endpoint.Metadata.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
 
+					response.StatusCode = (int) WebStatusCode.Ok;
+
 				} catch (Exception ex) {
 
 					Log.x (ex);
 
+					response.StatusCode = (int) WebStatusCode.ServerError;
+
 					#if DEBUG
-					responseBody = m_serialization.Serialize(new WebErrorMessage(WebStatusCode.Error, ex.Message) );
+					responseBody = m_serialization.Serialize(new HttpMessage(new HttpError(ex.Message), response.StatusCode) );
 					#else
 					responseBuffer = "ERROR".ToByteArray(m_encoding);
 					#endif
-
-					response.StatusCode = (int) WebStatusCode.Error;
 
 				}
 
@@ -193,7 +195,7 @@ namespace Core.Network.Web
 		}
 
 		/// <summary>
-		/// Creates meta data (headers, HTTP method, uri etc)  retreived from the request
+		/// Creates meta data (headers, HTTP method, uri etc)  retreived from the request.
 		/// </summary>
 		/// <returns>The meta data.</returns>
 		/// <param name="request">Request.</param>

@@ -61,9 +61,9 @@ namespace Core.Network.Web
 
 		}
 
-		public Core.Network.Web.HttpRequest CreateHttpMessage(string url) {
+		public Core.Network.Web.HttpMessage CreateHttpMessage(string url) {
 		
-			return new Core.Network.Web.HttpRequest () { Url = url };
+			return new Core.Network.Web.HttpMessage () { Destination = url };
 
 		}
 

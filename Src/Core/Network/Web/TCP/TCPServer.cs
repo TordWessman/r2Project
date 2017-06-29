@@ -85,13 +85,14 @@ namespace Core.Network.Web
 
 							TCPPackage request = m_packageFactory.CreateTCPPackage(input);
 
-							if (m_endpoints.ContainsKey(request.Path)) {
+							if (m_endpoints.ContainsKey(request.Destination)) {
 
-								con.WriteData(m_endpoints[request.Path].Interpret(request.Payload, request.Path, request.Headers), true);
+								con.WriteData(m_endpoints[request.Destination].Interpret(request.Payload, request.Destination, request.Headers), true);
 
 							} else {
 							
-								con.WriteData(m_packageFactory.SerializePayload(new WebErrorMessage(WebStatusCode.NotFound, $"Path not found: {request.Path}")), true);
+								throw new NotImplementedException("How to send error messages over TCP?");
+								//con.WriteData(m_packageFactory.SerializePayload(new WebErrorMessage(WebStatusCode.NotFound, $"Path not found: {request.Path}")), true);
 
 							}
 

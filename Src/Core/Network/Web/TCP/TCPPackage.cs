@@ -24,15 +24,15 @@ namespace Core.Network.Web
 {
 	public struct TCPPackage 
 	{
-		public WebStatusCode Code;
-		public string Path;
+		public int? Code;
+		public string Destination;
 		public IDictionary<string, object> Headers;
 		public dynamic Payload;
 
-		public TCPPackage (string path, IDictionary<string, object> headers, dynamic payload, WebStatusCode code = WebStatusCode.NotDefined) {
+		public TCPPackage (string path, IDictionary<string, object> headers, dynamic payload, int code = 0) {
 		
 			Code = code;
-			Path = path;
+			Destination = path;
 			Headers = headers;
 			Payload = payload;
 				
