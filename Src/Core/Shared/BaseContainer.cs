@@ -101,6 +101,13 @@ namespace Core
 		public BaseContainer (string dbFile, int tcpPort = -1) : base (Settings.Identifiers.Core())
 		{
 
+			m_taskMonitor = new SimpleTaskMonitor (Settings.Identifiers.TaskMonitor());
+
+			// Set up a very simple network security handler
+			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity ("base_security", Settings.Consts.DefaultPassword());
+
+			m_networkPackageFactory = new NetworkPackageFactory (simpleSecurity);
+
 			m_shouldRun = true;
 
 			//Set up logging
@@ -111,16 +118,7 @@ namespace Core
 			Log.Instance.AddLogger (consoleLogger);
 			Log.Instance.AddLogger (new FileLogger("file_logger", "test_output.txt"));
 
-			// Creating a device factory used for the creation of yet uncategorized devices...
-			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices, m_memory);
-
 			m_server = new Server (Settings.Identifiers.Server(), tcpPort == -1 ? Settings.Consts.DefaultRpcPort() : tcpPort);
-			m_taskMonitor = new SimpleTaskMonitor (Settings.Identifiers.TaskMonitor());
-
-			// Set up a very simple network security handler
-			INetworkSecurity simpleSecurity = new SimpleNetworkSecurity ("base_security", Settings.Consts.DefaultPassword());
-
-			m_networkPackageFactory = new NetworkPackageFactory (simpleSecurity);
 
 			m_hostManager = new HostManager (
 				Settings.Identifiers.HostManager(), 
@@ -134,6 +132,12 @@ namespace Core
 
 			// contains and manages all devices
 			m_devices = new DeviceManager (Settings.Identifiers.DeviceManager (), m_hostManager, m_rpcManager, m_networkPackageFactory);
+
+			// Creating a device factory used for the creation of yet uncategorized devices...
+			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices, m_memory);
+
+
+
 
 			m_devices.Add (simpleSecurity);
 			m_devices.Add (m_taskMonitor);

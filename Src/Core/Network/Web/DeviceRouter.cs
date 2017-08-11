@@ -100,6 +100,13 @@ namespace Core.Network.Web
 
 			}
 
+			Log.t ("msCCQQQ: " + message.Identifier);
+
+			if (m_deviceManager == null) {
+			
+				throw new NullReferenceException ("Set device manager ffs!!!)=FCHE");
+
+			}
 			IDevice device = m_deviceManager.Get (message.Identifier);
 
 			if (device == null) {

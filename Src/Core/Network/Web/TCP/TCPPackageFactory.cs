@@ -57,7 +57,7 @@ namespace Core.Network.Web
 
 		}
 
-		public byte[] CreateTCPData(TCPPackage package) {
+		public byte[] CreateTCPData(TCPMessage package) {
 		
 			byte[] code = new Int32Converter ((int)package.Code).GetContainedBytes(2);
 			byte[] path = m_serialization.Encoding.GetBytes (package.Destination);
@@ -94,7 +94,7 @@ namespace Core.Network.Web
 		
 		}
 
-		public TCPPackage CreateTCPPackage(byte [] rawData) {
+		public TCPMessage CreateTCPPackage(byte [] rawData) {
 		
 			int position = 0;
 			int code = new Int32Converter (rawData.Skip (position).Take (2)).Value;
@@ -139,7 +139,7 @@ namespace Core.Network.Web
 
 			}
 
-			return new TCPPackage (
+			return new TCPMessage (
 				m_serialization.Encoding.GetString (path),
 				m_serialization.Deserialize (headers),
 				payload,

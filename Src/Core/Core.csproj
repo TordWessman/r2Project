@@ -215,7 +215,6 @@
     <Compile Include="Scripting\IScriptInterpreter.cs" />
     <Compile Include="Scripting\Ruby\RubySrlptInterpreter.cs" />
     <Compile Include="Network\Web\TCP\TCPServer.cs" />
-    <Compile Include="Network\Web\TCP\TCPPackage.cs" />
     <Compile Include="Scripting\Lua\LuaScript.cs" />
     <Compile Include="Scripting\Lua\LuaScriptFactory.cs" />
     <Compile Include="Tests\DummyClasses\Networking\DummyHostManager.cs" />
@@ -267,6 +266,7 @@
     <Compile Include="Network\Web\Http\IHttpClient.cs" />
     <Compile Include="Network\Web\TCP\TCPClient.cs" />
     <Compile Include="Network\Web\Http\HttpMessage.cs" />
+    <Compile Include="Network\Web\TCP\TCPMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

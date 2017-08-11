@@ -36,6 +36,7 @@ namespace GPIO
 			if (status < 0) {
 			
 				throw new System.IO.IOException ($"Unable to open I2C bus {bus} and port {port}. Status: {status}.");
+
 			}
 
 		}

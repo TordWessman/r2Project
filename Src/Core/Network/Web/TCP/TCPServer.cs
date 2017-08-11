@@ -37,7 +37,7 @@ namespace Core.Network.Web
 		private TCPPackageFactory m_packageFactory;
 		private Task m_serviceTask;
 		private IDictionary<string,IWebEndpoint> m_endpoints;
-		private ISerialization m_serialization;
+		//private IList<IWebEndpoint> m_endpoints;
 
 		public TCPServer (string id, int port, ISerialization serialization) : base(id)
 		{
@@ -83,7 +83,7 @@ namespace Core.Network.Web
 
 						if (con.Status == NetworkConnectionStatus.OK) {
 
-							TCPPackage request = m_packageFactory.CreateTCPPackage(input);
+							TCPMessage request = m_packageFactory.CreateTCPPackage(input);
 
 							if (m_endpoints.ContainsKey(request.Destination)) {
 

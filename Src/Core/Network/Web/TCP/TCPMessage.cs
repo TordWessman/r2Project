@@ -22,14 +22,14 @@ using System.Collections.Generic;
 
 namespace Core.Network.Web
 {
-	public struct TCPPackage 
+	public struct TCPMessage 
 	{
 		public int? Code;
 		public string Destination;
 		public IDictionary<string, object> Headers;
 		public dynamic Payload;
 
-		public TCPPackage (string path, IDictionary<string, object> headers, dynamic payload, int code = 0) {
+		public TCPMessage (string path, IDictionary<string, object> headers, dynamic payload, int code = 0) {
 		
 			Code = code;
 			Destination = path;

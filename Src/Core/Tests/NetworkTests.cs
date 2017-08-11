@@ -184,11 +184,11 @@ namespace Core.Tests
 
 			// Test dynamic serialization
 
-			TCPPackage p = new TCPPackage ("dummy_path", headers, d);
+			TCPMessage p = new TCPMessage ("dummy_path", headers, d);
 
 			byte[] raw = packageFactory.CreateTCPData (p);
 
-			TCPPackage punwrapped = packageFactory.CreateTCPPackage (raw);
+			TCPMessage punwrapped = packageFactory.CreateTCPPackage (raw);
 
 			Assert.AreEqual ("Mouse", punwrapped.Headers ["Dog"]);
 
@@ -198,7 +198,7 @@ namespace Core.Tests
 
 			// Test string serialization
 
-			p = new TCPPackage ("path", headers, "StringValue");
+			p = new TCPMessage ("path", headers, "StringValue");
 
 			raw = packageFactory.CreateTCPData (p);
 
@@ -210,7 +210,7 @@ namespace Core.Tests
 
 			byte[] byteArray = { 0, 1, 2, 3, 4, 5, 6, 255 };
 
-			p = new TCPPackage ("path", null, byteArray);
+			p = new TCPMessage ("path", null, byteArray);
 
 			raw = packageFactory.CreateTCPData (p);
 
@@ -225,7 +225,7 @@ namespace Core.Tests
 			}
 
 			// Test null-payload
-			p = new TCPPackage ("path", headers, null);
+			p = new TCPMessage ("path", headers, null);
 
 			raw = packageFactory.CreateTCPData (p);
 			punwrapped = packageFactory.CreateTCPPackage (raw);
