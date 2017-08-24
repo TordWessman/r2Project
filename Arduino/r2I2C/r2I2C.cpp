@@ -19,6 +19,7 @@
     static unsigned int output_size = 0;
     
     static int send_count = 0;
+
     // Set to true when the the response us reaady to be transmitted.
     static bool response_ready = false;
     static bool ready_to_send_flag_sent = false;
@@ -33,7 +34,6 @@ R2I2CCom :: R2I2CCom() {
 
 void R2I2CCom :: initialize(int slave_address, void (*onProcess)(byte*, int)) {
 
-	Serial.println("ahaha");
 	_initialize(slave_address, onProcess);
 	
 }
@@ -115,6 +115,7 @@ void _sendData() {
   
 }
 
+// Prepare response data
 void _setResponse(byte* data, int data_size) {
 
   output_size = data_size;
@@ -129,6 +130,7 @@ void _setResponse(byte* data, int data_size) {
   
 }
 
+// Prepare for next incomming transmission
 void _transmissionCleanup() {
 
     ready_to_send_flag_sent = false;

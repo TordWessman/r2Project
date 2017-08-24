@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-// Used as first byte in transmission to the master information that I'm ready to reply.
+// Used as first byte in retransmission to the master, informing that slave is ready to reply.
 #define READY_TO_SEND_FLAG 0xFF
 
 class R2I2CCom {
