@@ -1,0 +1,48 @@
+  
+  if (!createDevice(1, DEVICE_TYPE_DIGITAL_OUTPUT, 8)) {
+    error = true;
+    Serial.println("Aet bajs");
+  }
+  
+  createDevice(42, DEVICE_TYPE_DIGITAL_INPUT, 2);
+ 
+ createDevice(40, DEVICE_TYPE_ANALOGUE_INPUT, A0);
+ 
+
+int servo_created = false;
+int r = true;
+void loop() {
+  
+  
+  Device *lamp = getDevice(1);
+  Device *button = getDevice(42);
+  int val = getValue(button);
+  if (val == LOW) {
+    
+    setValue(lamp,1);
+    if (!servo_created) {
+    
+       createDevice(9, DEVICE_TYPE_SERVO, 11);
+       servo_created = true;
+    }
+    
+  } else {
+  
+    setValue(lamp,0);
+  }
+ 
+ Device *sun = getDevice(40);
+ //Serial.println(getValue(sun));
+ 
+  if (servo_created && val == LOW) {
+ 
+    Device *servo = getDevice(9);   
+    setValue(servo, (getValue(sun) - 300) / 3);
+    
+  }
+  
+  delay(100);
+  r = !r;
+
+}
+

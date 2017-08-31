@@ -1,77 +1,22 @@
 #include <Wire.h> // Must be included
 #include <r2I2C.h>
-#include <stdbool.h>
 #include <Servo.h> 
-
-typedef int DEVICE_TYPE;
-
-typedef struct Devices {
-
-  // Unique id of the perephial (device).
-  int id;
-  
-  // Type of the device (i e DEVICE_TYPE_DIGITAL_INPUT).
-  DEVICE_TYPE type;
-  
-  // What I/O port is used for the device.
-  int IOPort;
-  
-  // The host containing this device (0x0 if device is local).
-  long host;
-  
-  // Object specific data.
-  void* object;
-  
-} Device;
-
-// Available device types.
-#define DEVICE_TYPE_DIGITAL_INPUT 1
-#define DEVICE_TYPE_DIGITAL_OUTPUT 2
-#define DEVICE_TYPE_ANALOGUE_INPUT 3
-#define DEVICE_TYPE_SERVO 4
-
-#define MAX_DEVICES 100
+#include "r2I2CDeviceRouter.h"
 
 // --- Variables
 Device devices[MAX_DEVICES];
-const char* errMsg;
-
-// --- Methods
-
-// Creates and stores a Device using the specified parameters.
-bool createDevice(int id, DEVICE_TYPE type, int IOPort);
-Device* getDevice(int id);
-bool setValue(Device* device, int value);
-int getValue(Device* device);
 
 void err (const char* msg);
-
+const char* errMsg;
 bool error = false;
 
-void setup() {
-
-  Serial.begin(9600);
-  errMsg = NULL;
-  
-  if (!createDevice(1, DEVICE_TYPE_DIGITAL_OUTPUT, 8)) {
-    error = true;
-    Serial.println("Aet bajs");
-  }
-  
-  createDevice(18, DEVICE_TYPE_DIGITAL_INPUT, 2);
-  createDevice(42, DEVICE_TYPE_DIGITAL_INPUT, 10);
-  //R2I2C.initialize(0x04, pData);
-  Serial.println("Ready!");
-  
-}
-
-Device* getDevice(int id) {
+Device* getDevice(byte id) {
 
   return &devices[id];
   
 }
 
-bool createDevice(int id, DEVICE_TYPE type, int IOPort) {
+bool createDevice(byte id, DEVICE_TYPE type, byte IOPort) {
 
   if (id >= MAX_DEVICES) {
   
@@ -81,13 +26,15 @@ bool createDevice(int id, DEVICE_TYPE type, int IOPort) {
   }
   
   Device device;
-  device.id = 42;
+  device.id = id;
   device.type = type;
   device.IOPort = IOPort;
   
   switch (device.type) {
   
     case DEVICE_TYPE_ANALOGUE_INPUT:
+      break;
+      
     case DEVICE_TYPE_DIGITAL_INPUT:
       pinMode(device.IOPort, INPUT);
       break;
@@ -97,8 +44,8 @@ bool createDevice(int id, DEVICE_TYPE type, int IOPort) {
       break;
       
   case DEVICE_TYPE_SERVO:
-       {
-         Servo *servo = (Servo *) malloc(sizeof(Servo));
+       { 
+         Servo *servo =  new Servo();
          servo->attach(device.IOPort);
          device.object = (void *)servo;
        }
@@ -120,10 +67,12 @@ bool createDevice(int id, DEVICE_TYPE type, int IOPort) {
 int getValue(Device* device) {
 
   switch (device->type) {
-  case DEVICE_TYPE_DIGITAL_INPUT:
-    return digitalRead(device->IOPort);
+    
+    case DEVICE_TYPE_DIGITAL_INPUT:
+      return digitalRead(device->IOPort);
+      
    case DEVICE_TYPE_ANALOGUE_INPUT:
-   return analogRead(device->IOPort);
+     return analogRead(device->IOPort);
   }
   
   err("Unable to read from device.");
@@ -138,6 +87,7 @@ bool setValue(Device* device, int value) {
   case DEVICE_TYPE_DIGITAL_OUTPUT:
       digitalWrite(device->IOPort, value > 0 ? HIGH : LOW);
       break;
+      
   case DEVICE_TYPE_SERVO:
       ((Servo *) device->object)->write(value);
       break;
@@ -145,6 +95,7 @@ bool setValue(Device* device, int value) {
   default:
     err("Unable to set setDevice (set device value). Specified device does not exist or is of a read-only DEVICE_TYPE.");
     return false;
+    
   }
   
   return true;
@@ -153,30 +104,107 @@ bool setValue(Device* device, int value) {
 
 void err (const char* msg) {
 
-    Serial.println(msg);
+    if (Serial) { Serial.println(msg); }
     errMsg = msg;
+    
 }
+
+int toInt16(byte *bytes) { return bytes[0] + (bytes[1] << 8);  }
+
+byte* asInt16(int value) { byte* bytes = (byte *) malloc(2 * sizeof(byte)); bytes[0] = value; bytes[1] = value >> 8; return bytes; }
+
+ResponsePackage parsePackage(RequestPackage *request) {
+
+  ResponsePackage response;
+  
+   response.id = request->id;
+   response.action = request->action;
+   response.host = request->host;
+   
+  switch(request->action) {
+  
+    case ACTION_CREATE_DEVICE:
+      
+      if (!createDevice(request->id, request->args[REQUEST_ARG_CREATE_TYPE_POSITION], request->args[REQUEST_ARG_CREATE_PORT_POSITION])) {
+        
+        response.action = ACTION_ERROR;
+        
+      }
+      
+      break;
+      
+    case ACTION_SET_DEVICE:
+      {
+        Device *device = getDevice(request->id);
+  
+        if (!device || !setValue(device, toInt16 ( request->args ))) {
+          
+          response.action = ACTION_ERROR;
+          
+        } 
+        
+      }
+      
+      break;
+      
+      case ACTION_GET_DEVICE:
+      
+      {
+        Device *device = getDevice(request->id);
+  
+        if (!device) {
+          
+          response.action = ACTION_ERROR;
+          
+        }
+        
+        response.contentSize = 2;
+        response.content = asInt16(getValue(device));
+        
+      }
+      break;
+    
+     default:
+     
+        err("Unknown action sent to device router.");
+        response.action = ACTION_ERROR;
+     
+  }
+  
+  
+  return response;
+  
+}
+
+
+void setup() {
+
+  Serial.begin(9600);
+  errMsg = NULL;
+
+  Serial.println("Starting...");
+  delay(1000);
+  byte port = 8;
+  byte id = 0xA;
+  byte tst[] = {DEVICE_HOST_LOCAL, ACTION_CREATE_DEVICE , id, DEVICE_TYPE_DIGITAL_OUTPUT, port};
+  
+  RequestPackage *inp = (RequestPackage*) &tst;
+  
+  Serial.println(inp->id);
+  Serial.println(inp->action);
+  Serial.println(inp->args[REQUEST_ARG_CREATE_PORT_POSITION]);
+
+  //R2I2C.initialize(0x04, pData);
+  Serial.println("Ready!");
+  
+}
+
 
 void loop() {
   
-  Device *lamp = getDevice(1);
-  Device *button = getDevice(18);
-  int val = getValue(button);
-  if (val == HIGH) {
-    
-    setValue(lamp,1);
-    
-  } else {
-  
-    setValue(lamp,0);
-  }
-  
-  delay(100);
+  delay(10000);
 
 }
-
-
-
 
 void pData(byte* data, int data_size) {
 
