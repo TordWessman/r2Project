@@ -22,12 +22,12 @@ using System.Net;
 namespace Core.Device
 {
 	/// <summary>
-	/// Base implementation for remotly accissble devices. RemotlyAccessableDeviceBase sub classes is supposed to mirror a concrete local IDevice implementation
+	/// Base implementation for remotly accissble devices. RemotlyAccessibleDeviceBase sub classes is supposed to mirror a concrete local IDevice implementation
 	/// </summary>
-	public abstract class RemotlyAccessableDeviceBase : DeviceBase, IRemotlyAccessable
+	public abstract class RemotlyAccessibleDeviceBase : DeviceBase, IRemotlyAccessable
 	{
 
-		public RemotlyAccessableDeviceBase (string id) : base (id)
+		public RemotlyAccessibleDeviceBase (string id) : base (id)
 		{
 
 		}
@@ -95,7 +95,7 @@ namespace Core.Device
 			}
 			
 			throw new NotImplementedException ("Method: " + methodName + " is not implemented" +
-				"as a StandardRemoteDeviceMethod. Please uppdate RemotlyAccessableDeviceBase.");
+				"as a StandardRemoteDeviceMethod. Please uppdate RemotlyAccessibleDeviceBase.");
 		
 		}
 		

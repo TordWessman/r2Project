@@ -28,7 +28,7 @@ using System.Linq;
 namespace Audio
 {
 
-	public class Mp3Player : RemotlyAccessableDeviceBase, IAudioPlayer
+	public class Mp3Player : RemotlyAccessibleDeviceBase, IAudioPlayer
 	{
 	
 		private const string dllPath = "libr2mp3.so";

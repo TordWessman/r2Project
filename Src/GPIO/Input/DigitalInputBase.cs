@@ -1,77 +1,23 @@
 ﻿using System;
 using Core.Device;
-using Raspberry.IO.GeneralPurpose;
 using System.Threading;
 using Core;
 
 namespace GPIO
 {
-	public class InputPort2: RemotlyAccessibleDeviceBase, IInputPort
+	public abstract class DigitalInputBase: RemotlyAccessibleDeviceBase, IInputPort
 	{
-		// GPIO values:
-		private ProcessorPin m_pin;
-		private IGpioConnectionDriver m_driver;
+		public DigitalInputBase (string id) : base (id)
+		{
+		}
 
-		// Trigger values
+		public virtual bool Value { get;}
 
 		private Func<object> m_triggerFunc;
 		private Timer m_timer;
 		private AutoResetEvent m_release;
 		private bool m_timerDisposed;
 		private bool m_pullUp;
-
-		public InputPort2 (string id, ConnectorPin pin, IGpioConnectionDriver driver = null) : base(id)
-		{
-		
-			m_pin = pin.ToProcessor();
-			m_driver = driver ?? GpioConnectionSettings.DefaultDriver;
-			m_driver.Allocate(m_pin, PinDirection.Input);
-
-		}
-
-		#region IRemotlyAccessable implementation
-
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-
-			} else if (methodName == RemoteInputPort.GET_VALUE_FUNCTION_NAME) {
-
-				return mgr.RPCReply<bool> (Guid, methodName, Value);
-
-			} else
-
-				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-
-			return RemoteDevices.InputPort;
-
-		}
-
-		#endregion
-
-		#region IInputPort implementation
-
-		public bool Value {
-
-			get {
-
-				return m_driver.Read (m_pin);
-
-			}
-
-		}
-
-
-		#endregion
-
-		#region Timer/trigger stuff
-
 
 		// Used to make sure the trigger function is not executed concurrently (will ignore calls while the trigger function is running).
 		private bool m_threadUnsafeTriggerFunctionIsExecuting;
@@ -140,9 +86,6 @@ namespace GPIO
 			}
 
 		}
-
-		#endregion
-
 	}
 }
 

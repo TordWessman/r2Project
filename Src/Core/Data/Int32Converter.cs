@@ -24,13 +24,34 @@ using System.Collections.Generic;
 namespace Core.Data
 {
 
+	public static class IntConversionExtensions {
+	
+		public static byte[]ToBytes(this int self, int size = Int32Converter.ValueSize) {
+		
+			return new Int32Converter(self).GetContainedBytes (size);
+
+		}
+
+	}
+
+	public static class ByteArrayConversionExtension {
+	
+		public static int ToInt(this byte[] self, int offset = 0, int length = Int32Converter.ValueSize) {
+		
+			return new Int32Converter (self.Skip (offset).Take (length)).Value;
+
+		}
+
+	}
+
 	/// <summary>
 	/// Conversion between int values and byte arrays. Original code by Christ Taylor (http://stackoverflow.com/users/314028/chris-taylor)
 	/// </summary>
 	[StructLayout(LayoutKind.Explicit)]
 	struct Int32Converter
 	{
-		public static readonly int ValueSize = 4;
+		
+		public const int ValueSize = 4;
 
 		[FieldOffset(0)] public int Value;
 		[FieldOffset(0)] public byte Byte1;
@@ -60,6 +81,16 @@ namespace Core.Data
 
 		}
 
+		public Int32Converter(IEnumerable<byte> bytes) {
+
+			Value = 0;
+			Byte1 = Byte2 = Byte3 = Byte4 = 0;
+
+			m_lenght = 0;
+
+			foreach (byte b in bytes) { this [m_lenght++] = b; }
+
+		}
 
 		public int Length { get { return m_lenght; } }
 
@@ -121,17 +152,6 @@ namespace Core.Data
 					throw new IndexOutOfRangeException ();
 				}
 			}
-		}
-
-		public Int32Converter(IEnumerable<byte> bytes) {
-
-			Value = 0;
-			Byte1 = Byte2 = Byte3 = Byte4 = 0;
-
-			m_lenght = 0;
-
-			foreach (byte b in bytes) { this [m_lenght++] = b; }
-			
 		}
 
 		public static implicit operator Int32(Int32Converter value) {

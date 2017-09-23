@@ -27,7 +27,7 @@ namespace Core.Scripting
 	/// <summary>
 	/// Remotly accessible implementation of a IScriptExecutorFactory. Use the Create on a remote ScriptExecutorFactory in order to create a (remotly accessible) script on a remote machine.
 	/// </summary>
-	public class ScriptExecutorFactory<T> : RemotlyAccessableDeviceBase, IScriptExecutorFactory where T : IScript
+	public class ScriptExecutorFactory<T> : RemotlyAccessibleDeviceBase, IScriptExecutorFactory where T : IScript
 	{
 		private IDeviceManager m_deviceManager;
 		private ITaskMonitor m_taskMonitor;
@@ -73,7 +73,7 @@ namespace Core.Scripting
 		}
 		#endregion
 
-		#region implemented abstract members of Core.Device.RemotlyAccessableDeviceBase
+		#region implemented abstract members of Core.Device.RemotlyAccessibleDeviceBase
 		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
 		{
 			if (IsBaseMethod (methodName)) {

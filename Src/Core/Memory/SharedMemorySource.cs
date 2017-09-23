@@ -28,7 +28,7 @@ namespace Core.Memory
 	/// <summary>
 	/// Shared memory source is a possibly inter connected memory source (can be chained and combined with other sources). Deletions, updates etc will affect linked sources.
 	/// </summary>
-	public class SharedMemorySource : RemotlyAccessableDeviceBase, IMemorySource, IDeviceManagerObserver
+	public class SharedMemorySource : RemotlyAccessibleDeviceBase, IMemorySource, IDeviceManagerObserver
 	{
 
 		public const string F_GetAssociations = "GetAssociations";
@@ -316,7 +316,7 @@ namespace Core.Memory
 
 		#endregion
 
-		#region RemotlyAccessableDeviceBase
+		#region RemotlyAccessibleDeviceBase
 
 		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
 		{

@@ -23,7 +23,7 @@ using Core;
 
 namespace GPIO
 {
-	public abstract class ServoBase : RemotlyAccessableDeviceBase, ILocalServo
+	public abstract class ServoBase : RemotlyAccessibleDeviceBase, ILocalServo
 	{
 		public float DEFAULT_MIN_VALUE = 2;
 		public float DEFAULT_MAX_VALUE = 177f;
@@ -63,7 +63,7 @@ namespace GPIO
 			}
 		}
 		
-		#region implemented abstract members of Core.Device.RemotlyAccessableDeviceBase
+		#region implemented abstract members of Core.Device.RemotlyAccessibleDeviceBase
 		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
 		{
 			if (IsBaseMethod (methodName)) {

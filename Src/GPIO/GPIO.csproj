@@ -61,6 +61,7 @@
     <Reference Include="nunit.framework">
       <HintPath>..\..\3rdParty\nunit\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -84,10 +85,20 @@
     <Compile Include="Input\IDHT11.cs" />
     <Compile Include="Input\DHT11.cs" />
     <Compile Include="Input\DHT11Sensor.cs" />
-    <Compile Include="Communication\II2CMaster.cs" />
     <Compile Include="Communication\R2I2CMaster.cs" />
     <Compile Include="Input\AnalogInput.cs" />
     <Compile Include="Tests\GPIOTests.cs" />
+    <Compile Include="Communication\ISerialConnection.cs" />
+    <Compile Include="Communication\ArduinoSerialPackageFactory.cs" />
+    <Compile Include="Communication\ISerialPackageFactory.cs" />
+    <Compile Include="Communication\ArduinoGPIOFactory.cs" />
+    <Compile Include="Communication\SerialDevicePackages.cs" />
+    <Compile Include="Input\SerialAnalogInput.cs" />
+    <Compile Include="Output\SerialDigitalOutput.cs" />
+    <Compile Include="Input\SerialDigitalInput.cs" />
+    <Compile Include="Input\DigitalInputBase.cs" />
+    <Compile Include="Output\SerialServo.cs" />
+    <Compile Include="Communication\ArduinoSerialConnector.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

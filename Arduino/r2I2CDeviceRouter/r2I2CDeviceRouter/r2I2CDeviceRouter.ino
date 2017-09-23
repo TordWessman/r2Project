@@ -1,18 +1,45 @@
 #include <Wire.h> // Must be included
 #include <r2I2C.h>
-#include <Servo.h> 
+#include <Servo.h>
+#include <string.h>
 #include "r2I2CDeviceRouter.h"
 
 // --- Variables
 Device devices[MAX_DEVICES];
+byte readBuffer[MAX_RECEIZE_SIZE];
 
 void err (const char* msg);
 const char* errMsg;
 bool error = false;
 
+// read input sizesize
+int rs = 0;
+
+// read input counter
+int rx = 0;
+
+// Flag telling that the header ("checksum") was received
+bool headerReceived = false;
+// Header read counter
+int rh;
+
+// Response/Request header
+byte messageHeader[] = PACKAGE_HEADER_IDENTIFIER;
+
+// Size of header
+int headerLength = (sizeof(messageHeader)/sizeof(messageHeader[0]));
+
 Device* getDevice(byte id) {
 
-  return &devices[id];
+  if (id >= 0 && id < MAX_DEVICES && devices[id].type != DEVICE_TYPE_UNDEFINED) {
+  
+    return &devices[id];
+  
+  }
+  
+  err("No device found");
+  
+  return NULL;
   
 }
 
@@ -23,12 +50,17 @@ bool createDevice(byte id, DEVICE_TYPE type, byte IOPort) {
     err("Id > MAX_DEVICES");
     return false;
     
+  } else if (devices[id].type != DEVICE_TYPE_UNDEFINED && devices[id].object != NULL) {
+  
+    free (devices[id].object);
+    
   }
   
   Device device;
   device.id = id;
   device.type = type;
   device.IOPort = IOPort;
+  device.object = NULL;
   
   switch (device.type) {
   
@@ -104,7 +136,10 @@ bool setValue(Device* device, int value) {
 
 void err (const char* msg) {
 
+#ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
     if (Serial) { Serial.println(msg); }
+#endif
+
     errMsg = msg;
     
 }
@@ -113,13 +148,14 @@ int toInt16(byte *bytes) { return bytes[0] + (bytes[1] << 8);  }
 
 byte* asInt16(int value) { byte* bytes = (byte *) malloc(2 * sizeof(byte)); bytes[0] = value; bytes[1] = value >> 8; return bytes; }
 
-ResponsePackage parsePackage(RequestPackage *request) {
+ResponsePackage execute(RequestPackage *request) {
 
   ResponsePackage response;
   
    response.id = request->id;
    response.action = request->action;
    response.host = request->host;
+   response.contentSize = 0;
    
   switch(request->action) {
   
@@ -129,7 +165,7 @@ ResponsePackage parsePackage(RequestPackage *request) {
         
         response.action = ACTION_ERROR;
         
-      }
+      } 
       
       break;
       
@@ -148,18 +184,23 @@ ResponsePackage parsePackage(RequestPackage *request) {
       break;
       
       case ACTION_GET_DEVICE:
-      
       {
         Device *device = getDevice(request->id);
   
-        if (!device) {
+        if (device) {
+      
+          response.contentSize = sizeof(int);
+          byte *result = asInt16(getValue(device));
           
+          for (int i = 0; i < response.contentSize; i++) { response.content[i] = result[i]; }
+          
+          free (result);
+          
+        } else {
+        
           response.action = ACTION_ERROR;
           
         }
-        
-        response.contentSize = 2;
-        response.content = asInt16(getValue(device));
         
       }
       break;
@@ -167,57 +208,122 @@ ResponsePackage parsePackage(RequestPackage *request) {
      default:
      
         err("Unknown action sent to device router.");
-        response.action = ACTION_ERROR;
-     
+      
   }
   
+  if (errMsg != NULL) {
+  
+    response.action = ACTION_ERROR;
+          
+  }
   
   return response;
   
 }
 
 
-void setup() {
+ResponsePackage interpret(byte* input) {
 
-  Serial.begin(9600);
+  RequestPackage *request = (RequestPackage*) input;
+
+  ResponsePackage out = execute(request);
+
+  if (out.action == ACTION_ERROR) {
+  
+    out.contentSize = strlen(errMsg);
+    
+    for (int i = 0; i < out.contentSize; i++) { out.content[i] = ((byte*) errMsg)[i]; }
+    
+  }
+  
   errMsg = NULL;
 
-  Serial.println("Starting...");
-  delay(1000);
-  byte port = 8;
-  byte id = 0xA;
-  byte tst[] = {DEVICE_HOST_LOCAL, ACTION_CREATE_DEVICE , id, DEVICE_TYPE_DIGITAL_OUTPUT, port};
-  
-  RequestPackage *inp = (RequestPackage*) &tst;
-  
-  Serial.println(inp->id);
-  Serial.println(inp->action);
-  Serial.println(inp->args[REQUEST_ARG_CREATE_PORT_POSITION]);
-
-  //R2I2C.initialize(0x04, pData);
-  Serial.println("Ready!");
+  return out;
   
 }
 
+void setup() {
+
+  
+#ifdef USE_SERIAL
+  Serial.begin(9600);
+#else
+  R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
+#endif
+
+  errMsg = NULL;
+
+  for (int i = 0; i < MAX_DEVICES; i++) { devices[i].type = DEVICE_TYPE_UNDEFINED; }
+ 
+}
 
 void loop() {
   
-  delay(10000);
+  if (Serial.available() > 0) {
 
-}
-
-void pData(byte* data, int data_size) {
-
-  Serial.println(data_size);
+    if (!headerReceived) {
+      
+      rs = rx = 0;
+      
+      if ((byte) Serial.read() == messageHeader[rh]) {
+       
+        rh++;
+       
+       if (rh == headerLength) {
+        
+         rh = 0;
+         headerReceived = true;
+        
+       }
+       
+      } else {
+        
+        rh = 0;
+        
+      }
+      
+    } else if (rs == 0) {
+    
+      rx = 0;
+      rs = Serial.read();
+      
+    } else if (rx < rs - 1) {
+    
+      readBuffer[rx++] = Serial.read();
+      
+    } else if (rx == rs - 1) {
   
-  byte test_output[data_size];
+      readBuffer[rx] = Serial.read();
+      
+      headerReceived = false;
+      
+      rs = rx = 0;
+      
+      ResponsePackage out = interpret(readBuffer); 
+      byte *outputBuffer = (byte *)&out;
+      int outputSize = PACKAGE_SIZE + out.contentSize;
   
-  for (int i = 0; i < data_size; i++) {
-  
-    test_output[i] = data[i] + 1;
-     
+      // Header
+      for (byte i = 0; i < headerLength; i++) {Serial.write(messageHeader[i]); } 
+      
+      // Size
+      Serial.write((byte) outputSize);
+      
+      // Content
+      for (int i = 0; i < outputSize; i++) { Serial.write(outputBuffer[i]); }
+      
+    }
+    
   }
   
-  //R2I2C.setResponse(test_output, data_size);
+}
+
+void i2cReceive(byte* data, int data_size) {
+
+  ResponsePackage out = interpret(data); 
+  byte *response = (byte *)&out;
+  int responseSize = sizeof(ResponsePackage) - MAX_CONTENT_SIZE + out.contentSize;
+  
+  R2I2C.setResponse(response, responseSize);
   
 }

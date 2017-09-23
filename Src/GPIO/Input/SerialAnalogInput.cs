@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -15,15 +15,36 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
 using System;
 using Core.Device;
 
-namespace Core.Device
+namespace GPIO
 {
-	public interface IServo : IDevice
+	public class SerialAnalogInput: DeviceBase, IInputMeter<double>
 	{
-		float Value {get; set;}
+		//The identifier used by the serial slave device.
+		private byte m_slaveId;
+
+		private ISerialConnection m_connection;
+		private ISerialPackageFactory m_packageFactory;
+
+		public SerialAnalogInput (string id, byte slaveId, ISerialConnection connection, ISerialPackageFactory packageFactory): base(id) {
+		
+			m_slaveId = slaveId;
+			m_packageFactory = packageFactory;
+			m_connection = connection;
+
+		}
+
+		public double Value {
+		
+			get {
+			
+				return (double) new DeviceResponsePackage (m_connection.Send (m_packageFactory.GetDevice (m_slaveId).ToBytes())).Value;
+			
+			}
+		
+		}
+	
 	}
 }
-

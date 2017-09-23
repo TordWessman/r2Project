@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GPIO
 {
-	public class R2I2CMaster: DeviceBase, II2CMaster
+	public class R2I2CMaster: DeviceBase, ISerialConnection
 	{
 
 		private const string dllPath = "libr2I2C.so";
@@ -17,7 +17,10 @@ namespace GPIO
 		private static extern int r2I2C_send(byte[] data, int data_size);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		private static extern int r2I2C_receive(int data_size);
+		private static extern int r2I2C_receive();
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		private static extern byte r2I2C_get_response_size();
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		private static extern  byte[] r2I2C_get_response();
@@ -41,7 +44,7 @@ namespace GPIO
 
 		}
 
-		public byte [] Send (byte []data, int responseSize = 0) {
+		public byte [] Send (byte []data) {
 		
 			int status = r2I2C_send(data, data.Length);
 
@@ -49,25 +52,15 @@ namespace GPIO
 
 				throw new System.IO.IOException ($"Unable to send to I2C bus {m_bus} and port {m_port}. Status: {status}.");
 
-			} else if (responseSize > 0) {
+			} 
 			
-				status = r2I2C_receive (responseSize);
-
-				if (status < 0) {
-
-					throw new System.IO.IOException ($"Unable to receive from I2C bus {m_bus} and port {m_port}. Status: {status}.");
-
-				}
-
-			}
-
-			return r2I2C_get_response ().Take (responseSize).ToArray();
+			return Read ();
 
 		}
 
-		public byte [] Read(int responseSize) {
+		public byte [] Read() {
 		
-			int status = r2I2C_receive (responseSize);
+			int status = r2I2C_receive ();
 
 			if (status < 0) {
 
@@ -75,7 +68,7 @@ namespace GPIO
 
 			}
 
-			return r2I2C_get_response ().Take (responseSize).ToArray();
+			return r2I2C_get_response ().Take (r2I2C_get_response_size()).ToArray();
 
 		}
 

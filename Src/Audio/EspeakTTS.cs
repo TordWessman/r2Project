@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace Audio.TTS
 {
-	public class EspeakTTS : RemotlyAccessableDeviceBase, ITTS
+	public class EspeakTTS : RemotlyAccessibleDeviceBase, ITTS
 	{
 		private const string dllPath = "libr2espeak.so";
 		

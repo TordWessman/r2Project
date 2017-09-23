@@ -4,10 +4,12 @@
 #include <../Wire/Wire.h>
 #include <stdbool.h>
 
-#define DEFAULT_SLAVE_ADDRESS 0x04
+// Used as first byte in retransmission to the master, informing that slave is ready to reply.
+#define READY_TO_SEND_FLAG 0xFF
 
+// The maximum size of the output buffer.
+#define MAX_OUTPUT_SIZE 0xFF
 
-    
     void _transmissionCleanup();
     void _receiveData(int data_size);
     void _sendData();
@@ -15,15 +17,13 @@
     void _setResponse(byte* data, int data_size);
 
     static int state = 0;
-    static byte output_data[0xFF];
-    static unsigned int output_size = 0;
-    
-    static int send_count = 0;
+    static byte output_data[MAX_OUTPUT_SIZE];
+    static byte output_size = 0;
 
     // Set to true when the the response us reaady to be transmitted.
     static bool response_ready = false;
     static bool ready_to_send_flag_sent = false;
-    static int _slave_address = DEFAULT_SLAVE_ADDRESS;
+    static int _slave_address = DEFAULT_I2C_ADDRESS;
     void (*onProcessI2C)(byte*, int);
 
 R2I2CCom :: R2I2CCom() {
@@ -87,28 +87,22 @@ void _sendData() {
   
     if (!ready_to_send_flag_sent) {
       
+	// Sending the first READY_TO_SEND_FLAG which will initiate a read at the master. 
         ready_to_send_flag_sent = true;
         Wire.write(READY_TO_SEND_FLAG);
          
          
     } else {
-
+	
+	// Send the actual response buffer.
 	Wire.write(output_data, output_size);
 	_transmissionCleanup();
-    /*
-      Wire.write(output_data[send_count]);
-      send_count++;
-      
-      if (send_count == output_size) {
-        
-          _transmissionCleanup();
-      
-      }*/
       
     }
      
   } else {
   
+     // No response set. Waiting for it...
      Wire.write(0);
    
   }
@@ -116,11 +110,14 @@ void _sendData() {
 }
 
 // Prepare response data
-void _setResponse(byte* data, int data_size) {
+void _setResponse(byte* data, byte data_size) {
 
-  output_size = data_size;
-  
-  for (int i = 0; i < data_size; i++) {
+  output_size = data_size + 1;
+
+  // The first byte in the transaction has the size value.  
+  output_data[0] = data_size;
+
+  for (byte i = 1; i < output_size; i++) {
   
     output_data[i] = data[i];
      
@@ -135,7 +132,6 @@ void _transmissionCleanup() {
 
     ready_to_send_flag_sent = false;
     response_ready = false;
-    send_count = 0;
     output_size = 0;
     
 }

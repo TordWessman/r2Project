@@ -3,7 +3,7 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class DHT11Sensor: RemotlyAccessableDeviceBase, IInputMeter<int>
+	public class DHT11Sensor: RemotlyAccessibleDeviceBase, IInputMeter<int>
 	{
 		private IDHT11 m_dht;
 		private DHT11ValueType m_type;

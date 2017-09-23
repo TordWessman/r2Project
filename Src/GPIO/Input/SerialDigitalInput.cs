@@ -14,79 +14,70 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
-// using System;
-
-using Core.Device;
-using Raspberry.IO.GeneralPurpose;
-using Core;
+// 
 using System;
-using System.Threading;
+using Core.Device;
 
 namespace GPIO
 {
-	public class OutputPort2 : RemotlyAccessibleDeviceBase, IOutputPort
+	public class SerialDigitalInput :DigitalInputBase
 	{
-		// GPIO values:
-		private ProcessorPin m_pin;
-		private IGpioConnectionDriver m_driver;
 
-		public OutputPort2 (string id, ConnectorPin pin, IGpioConnectionDriver driver = null) : base(id)
+		//The identifier used by the serial slave device.
+		private byte m_slaveId;
+
+		private ISerialConnection m_connection;
+		private ISerialPackageFactory m_packageFactory;
+
+		public SerialDigitalInput (string id, byte slaveId, ISerialConnection connection, ISerialPackageFactory packageFactory): base(id)
 		{
-			
-			m_pin = pin.ToProcessor();
-			m_driver = driver ?? GpioConnectionSettings.DefaultDriver;
-			m_driver.Allocate(m_pin, PinDirection.Output);
-
+			m_slaveId = slaveId;
+			m_packageFactory = packageFactory;
+			m_connection = connection;
 		}
 
-		public bool Value  {
+		#region IInputPort implementation
 
-			set {
+		public override bool Value {
 
-				throw new NotImplementedException();
+			get {
 
+				return (double) new DeviceResponsePackage (m_connection.Send (m_packageFactory.GetDevice (m_slaveId).ToBytes())).Value == 1;
+			
 			}
 
-			get { throw new NotImplementedException(); }
-
 		}
 
-		public void Set(bool value) {
-		
-			m_driver.Write (m_pin, value);
 
-		}
+		#endregion
 
 		#region IRemotlyAccessable implementation
 
 		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
 		{
 			if (IsBaseMethod (methodName)) {
-				
+
 				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			
-			} else if (methodName == RemoteOutputPort.SET_VALUE_FUNCTION_NAME) {
-			
-				Set (mgr.ParsePackage<bool> (rawData));
-				return null;
-			
-			} else {
-			
+
+			} else if (methodName == RemoteInputPort.GET_VALUE_FUNCTION_NAME) {
+
+				return mgr.RPCReply<bool> (Guid, methodName, Value);
+
+			} else
+
 				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
-
-			}
-
 		}
 
 		public override RemoteDevices GetTypeId ()
 		{
-			return RemoteDevices.OutputPort;
+
+			return RemoteDevices.InputPort;
+
 		}
 
 		#endregion
 
 
 	}
-
 }
 

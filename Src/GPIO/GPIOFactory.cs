@@ -153,7 +153,7 @@ namespace GPIO
 
 		}
 
-		public II2CMaster CreateI2C(string id, int bus, int port) {
+		public ISerialConnection CreateI2C(string id, int bus, int port) {
 		
 			return new R2I2CMaster (id, bus, port);
 

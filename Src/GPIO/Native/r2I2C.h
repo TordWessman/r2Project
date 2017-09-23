@@ -44,8 +44,11 @@
 // Initializes the bus and address variables. Will return the status of the bus request operation.
 int r2I2C_init (int bus, int address);
 
-// Requests ´data_size´ bytes from slave. Returns 0 if successful. Will block until R2I2C_READY_TO_READ_FLAG has been received from slave.
-int r2I2C_receive(int data_size);
+// Requests data from slave. Returns 0 if successful. Will block until R2I2C_READY_TO_READ_FLAG has been received from slave.
+int r2I2C_receive();
+
+// Returns the size of the last successfull transmission.
+uint8_t r2I2C_get_response_size();
 
 // Sends ´data_size´ bytes of ´data´ to slave. Returns 0 if successful.
 int r2I2C_send(uint8_t data[], int data_size);

@@ -30,7 +30,8 @@
 static int _r2I2C_i2caddr;
 static int _r2I2C_i2cbus;
 static char _r2I2C_busfile[64];
-static uint8_t _r2I2C_dataBuffer[R2I2C_MAX_BUFFER_SIZE];
+static uint8_t _r2I2C_responseBuffer[R2I2C_MAX_BUFFER_SIZE];
+static uint8_t _r2I2C_responseSize;
 static bool _r2I2C_should_run = true;
 static bool _r2I2C_is_busy = false;
 static bool _r2I2C_is_initialized = false;
@@ -78,7 +79,7 @@ int r2I2C_open_bus () {
 	return fd;
 }
 
-int r2I2C_receive(int data_size) {
+int r2I2C_receive() {
 
 	if (!_r2I2C_should_run) { 
 		
@@ -94,6 +95,7 @@ int r2I2C_receive(int data_size) {
 
 	_r2I2C_is_reading = true;
 	_r2I2C_is_busy = true;
+	_r2I2C_responseSize = 0;
 
 	uint8_t read_buff[1];
 
@@ -109,62 +111,61 @@ int r2I2C_receive(int data_size) {
 		return R2I2C_BUS_ERROR;
 	} 
 
-	if (data_size > R2I2C_MAX_BUFFER_SIZE) {
+	// Wait for the R2I2C_READY_TO_READ_FLAG from slave prior to data fetching.
 
-		// Caller requests too many bytes.
+	read_buff[0] = 0x0;
+	bool transmission_failed = false;
 
-		printf("Maximum response size exceeded: %d bytes requested. Max: %d.\n", data_size, R2I2C_MAX_BUFFER_SIZE);
-		status = R2I2C_READ_ERROR;
+	if (R2I2C_USE_READY_FLAG) {
 
-	} else { 
+		do { 
 
-		// Wait for the R2I2C_READY_TO_READ_FLAG from slave prior to data fetching.
-
-		read_buff[0] = 0x0;
-		bool transmission_failed = false;
-
-		if (R2I2C_USE_READY_FLAG) {
-
-			do { 
-
-				if (read(fd, read_buff, 1) != 1) { transmission_failed = true; break; }
-			
-				if (!_r2I2C_should_run) { break; }
-
-				usleep(10 * 1000); 
-
-			} while (read_buff[0] != R2I2C_READY_TO_READ_FLAG);
-
-		}
-
-		int i = 0;
-		if (!transmission_failed) {
-
-			if (read(fd, _r2I2C_dataBuffer, data_size) != data_size) { transmission_failed = true; }
-			else { i = data_size; }
-		}
-	
-		if (!_r2I2C_should_run) {
+			if (read(fd, read_buff, 1) != 1) { transmission_failed = true; break; }
 		
-			// Operation canceled.
-			for (i = 0; i < data_size; i++) {
+			if (!_r2I2C_should_run) { break; }
 
-				_r2I2C_dataBuffer[i] = 0;
+			usleep(10 * 1000); 
 
-			}
-			
-			status = R2I2C_OPERATION_CANCELED;
-
-		} else if (transmission_failed || i != data_size) {
-
-			// An error occured
-			printf ("Could not read from I2C slave 0x%x. Error: %d. Expected %d bytes. Got %d bytes.\n", _r2I2C_i2caddr, errno, data_size, i);
-			status = R2I2C_READ_ERROR;
-
-		} 
+		} while (read_buff[0] != R2I2C_READY_TO_READ_FLAG);
 
 	}
 
+	int i = 0;
+	if (!transmission_failed) {
+
+		uint8_t response_size[1] = {0x0};
+		
+		// Read the size of the incomming data, which must be the first byte of the transaction.
+		if (read(fd, response_size, 1) != 1) { transmission_failed = true; }
+		else {
+		
+			_r2I2C_responseSize = response_size[0];
+
+			//Read the rest of the data
+			i = read(fd, _r2I2C_responseBuffer, _r2I2C_responseSize);
+			if (i != _r2I2C_responseSize) { transmission_failed = true; }
+
+		}
+	}
+
+	if (!_r2I2C_should_run) {
+	
+		// Operation canceled.
+		for (i = 0; i < _r2I2C_responseSize; i++) {
+
+			_r2I2C_responseBuffer[i] = 0;
+
+		}
+		
+		status = R2I2C_OPERATION_CANCELED;
+
+	} else if (transmission_failed || i != _r2I2C_responseSize) {
+
+		// An error occured
+		printf ("Could not read from I2C slave 0x%x. Error: %d. Got %d bytes. Expected: %d bytes.\n", _r2I2C_i2caddr, errno, i, _r2I2C_responseSize);
+		status = R2I2C_READ_ERROR;
+
+	} 
 
 	close (fd);
 
@@ -220,9 +221,15 @@ int r2I2C_send(uint8_t data[], int data_size) {
 
 }
 
+uint8_t r2I2C_get_response_size() {
+
+	return _r2I2C_responseSize;
+
+}
+
 uint8_t* r2I2C_get_response() {
 
-	return _r2I2C_dataBuffer;
+	return _r2I2C_rBuffer;
 
 }
 
@@ -250,92 +257,24 @@ int main(void)
 	buff[3] = 45;
 	//buff[2] = 44;
 	
-	int status = r2I2C_send(buff, 4);
+	int status = r2I2C_send(buff);
 
-	int r_size = 4;
-	
 	if (status == 0) {
 		
-		status = r2I2C_receive(r_size);
+		status = r2I2C_receive();
 
 		if (status == 0) {
 			int i = 0;
 			uint8_t* r = r2I2C_get_response();
-			for (i = 0; i < r_size; i++) {
+			for (i = 0; i < r2I2C_get_response_size(); i++) {
 				printf("Got response: %d\n", r[i]);			
 			} 
 			
 		
 		}
-		//uint8_t[receive_size] resp = r2I2C_get_response();
-		
-		//
 
 	}
 
 	return status;
 
 }
-
-/*
-#include <linux/i2c-dev.h>
-#include <linux/i2c.h>
-
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <errno.h>
-#include <string.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <asm/ioctl.h>
-
-int main( void )
-{
-	printf( "Raspberry Pi i2C test program\n" );
- 	
-
-  int file;
-  int adapter_nr = 1; // probably dynamically determined 
-  char filename[20];
-  
-  snprintf(filename, 19, "/dev/i2c-%d", adapter_nr);
-  file = open(filename, O_RDWR);
-  if (file < 0) {
-	printf ("ARGH!");
-    // ERROR HANDLING; you can check errno to see what went wrong
-    exit(1);
-  }
- 
-
-__u8 reg = 0x40; // Device register to access 
-  __s32 res;
-  char buf[10];
-
-  // Using SMBus commands 
-  res = i2c_smbus_read_word_data(file, reg);
-  if (res < 0) {
-    printf (" ERROR HANDLING: i2c transaction failed");
-  } else {
-    // res contains the read word 
-  }
-
-  // Using I2C Write, equivalent of 
-     i2c_smbus_write_word_data(file, reg, 0x6543) 
-  buf[0] = reg;
-  buf[1] = 0x43;
-  buf[2] = 0x65;
-  if (write(file, buf, 3) != 3) {
-    printf (" ERROR HANDLING: i2c transaction failed");
-  }
-
-  // Using I2C Read, equivalent of i2c_smbus_read_byte(file) 
-  if (read(file, buf, 1) != 1) {
-    printf ("ERROR HANDLING: i2c transaction failed 2");
-  } else {
-    // buf[0] contains the read byte 
-  }
-	return(0);
-}
-*/

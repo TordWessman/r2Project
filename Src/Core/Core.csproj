@@ -110,7 +110,6 @@
     <Compile Include="Device\IRemotlyAccessable.cs" />
     <Compile Include="Scripting\IScript.cs" />
     <Compile Include="Scripting\IScriptFactory.cs" />
-    <Compile Include="Device\RemotlyAccessableDeviceBase.cs" />
     <Compile Include="Scripting\ICommandScript.cs" />
     <Compile Include="Scripting\Ruby\RubyScript.cs" />
     <Compile Include="Scripting\IScriptProcess.cs" />
@@ -267,6 +266,7 @@
     <Compile Include="Network\Web\TCP\TCPClient.cs" />
     <Compile Include="Network\Web\Http\HttpMessage.cs" />
     <Compile Include="Network\Web\TCP\TCPMessage.cs" />
+    <Compile Include="Device\RemotlyAccessibleDeviceBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

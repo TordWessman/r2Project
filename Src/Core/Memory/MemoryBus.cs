@@ -27,7 +27,7 @@ using Core.Device;
 
 namespace Core.Memory
 {
-	public class MemoryBus : RemotlyAccessableDeviceBase, IMemoryBus
+	public class MemoryBus : RemotlyAccessibleDeviceBase, IMemoryBus
 	{
 		public const string F_AddMemories = "AddMemories";
 		public const string F_AddAssociation = "AddAssociation";

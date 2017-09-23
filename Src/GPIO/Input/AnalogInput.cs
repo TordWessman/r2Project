@@ -24,7 +24,7 @@ using Core.Data;
 
 namespace GPIO
 {
-	public class AnalogInput: RemotlyAccessableDeviceBase, IInputMeter<double>
+	public class AnalogInput: RemotlyAccessibleDeviceBase, IInputMeter<double>
 	{
 		private MCP3008 m_ad;
 		private ILinearDataSet<double> m_dataSet;

@@ -26,7 +26,7 @@ namespace Core.Scripting
 	/// <summary>
 	/// Implementation of an IScriptExecutor. Remotely accissble (which allows communication with scripts created on other instances).
 	/// </summary>
-	public class ScriptExecutor<T> : RemotlyAccessableDeviceBase, IScriptExecutor, IScriptObserver where T: IScript
+	public class ScriptExecutor<T> : RemotlyAccessibleDeviceBase, IScriptExecutor, IScriptObserver where T: IScript
 	{
 		
 		private IDictionary<string, IScriptProcess> m_scripts;
@@ -117,7 +117,7 @@ namespace Core.Scripting
 		
 		}
 		
-		#region implemented abstract members of Core.Device.RemotlyAccessableDeviceBase
+		#region implemented abstract members of Core.Device.RemotlyAccessibleDeviceBase
 
 		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
 		{

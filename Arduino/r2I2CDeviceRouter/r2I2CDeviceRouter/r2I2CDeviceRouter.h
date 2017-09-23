@@ -1,5 +1,8 @@
 #include <stdbool.h>
 
+// If defined, serial communication (not I2C) will be used for master/slave communication. 
+#define USE_SERIAL
+
 typedef byte DEVICE_TYPE;
 
 typedef struct Devices {
@@ -21,15 +24,16 @@ typedef struct Devices {
   
 } Device;
 
-#define DEVICE_HOST_LOCAL 0x0
+#define DEVICE_HOST_LOCAL 0xFF
 
 // Available device types.
+#define DEVICE_TYPE_UNDEFINED 0
 #define DEVICE_TYPE_DIGITAL_INPUT 1
 #define DEVICE_TYPE_DIGITAL_OUTPUT 2
 #define DEVICE_TYPE_ANALOGUE_INPUT 3
 #define DEVICE_TYPE_SERVO 4
 
-#define MAX_DEVICES 100
+#define MAX_DEVICES 20
 
 // Creates and stores a Device using the specified parameters.
 bool createDevice(byte id, DEVICE_TYPE type, byte IOPort);
@@ -43,8 +47,22 @@ bool setValue(Device* device, int value);
 // Returns the value of a device
 int getValue(Device* device);
 
-
 // REQUEST PARSING: ---------------------------
+
+// Maximum buffer for input packages
+#define MAX_RECEIZE_SIZE 100
+
+// The maximum size (in bytes) for package content;
+#define MAX_CONTENT_SIZE 100
+
+// The base size of response packages (without additional output stored in "content").
+#define PACKAGE_SIZE sizeof(ResponsePackage) - MAX_CONTENT_SIZE
+
+// Use with caution. If defined, serial errors will be printed through serial port.
+//#define PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
+
+// Package "checksum" headers. Shuld initially be sent in the beginning of every transaction. 
+#define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
 
 // Type of action to invoke durng requests
 typedef byte ACTION_TYPE;
@@ -67,30 +85,30 @@ struct ResponsePackage {
     ACTION_TYPE action;
     byte id;
     byte contentSize;
-    byte *content;
+    byte content[MAX_CONTENT_SIZE];
     
 } __attribute__((__packed__));
 
 typedef struct ResponsePackage ResponsePackage;
 
 // Request data from host.
-
-
 struct RequestPackage {
 
     byte host;
     ACTION_TYPE action;
     byte id;
-    byte *args;
+    byte args[MAX_CONTENT_SIZE];
     
 } __attribute__((__packed__));
 
 typedef struct RequestPackage RequestPackage;
 
-ResponsePackage parsePackage(RequestPackage *request);
+// Performs the actions requested by the request.
+ResponsePackage execute(RequestPackage *request);
 
-// 16-bit-Int-to-byte-array-conversions
+// Converts a big endian 16-bit int contained in a byte array.
 int toInt16(byte *bytes);
 
-// Don't forget to free the result! 
+// 16-bit-Int-to-byte-array-conversions (Don't forget to free the result!)
 byte *asInt16(int value);
+

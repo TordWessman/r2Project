@@ -27,7 +27,7 @@ namespace Core
 	/// <summary>
 	/// Represent a gstreamer pipeline object. Use this object to create a simple gstreamer pipline. 
 	/// </summary>
-	public class Gstream : RemotlyAccessableDeviceBase, IGstream, ITaskMonitored
+	public class Gstream : RemotlyAccessibleDeviceBase, IGstream, ITaskMonitored
 	{
 		private static readonly int START_LOCK_TIMEOUT_MS = 5000;
 

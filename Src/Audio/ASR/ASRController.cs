@@ -23,7 +23,7 @@ using Core.Device;
 namespace Audio.ASR
 {
 
-	public class ASRController : RemotlyAccessableDeviceBase, IASRController
+	public class ASRController : RemotlyAccessibleDeviceBase, IASRController
 	{
 		private IASR m_asr;
 		
@@ -37,7 +37,7 @@ namespace Audio.ASR
 			m_asr.Active = active;
 		}
 		
-		#region implemented abstract members of Core.Device.RemotlyAccessableDeviceBase
+		#region implemented abstract members of Core.Device.RemotlyAccessibleDeviceBase
 		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
 		{
 			
