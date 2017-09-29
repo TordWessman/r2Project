@@ -19,7 +19,6 @@
 using System;
 using Core.Device;
 using TrackerPtr = System.IntPtr;
-using Core.Shared;
 using System.Collections.Generic;
 using Core;
 using Video.Camera;

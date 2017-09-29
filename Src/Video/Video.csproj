@@ -37,40 +37,46 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Vision.cs" />
-    <Compile Include="ImageStorage.cs" />
     <Compile Include="Haar\HaarCascade.cs" />
     <Compile Include="Haar\CaptureObject.cs" />
     <Compile Include="Haar\HaarOperations.cs" />
-    <Compile Include="Dump.cs" />
-    <Compile Include="ImageTypes.cs" />
-    <Compile Include="IImagePointerManager.cs" />
-    <Compile Include="IImageStorage.cs" />
-    <Compile Include="FaceRecognition\IFaceRecognizer.cs" />
-    <Compile Include="FaceRecognition\FaceRecognizer.cs" />
-    <Compile Include="FaceRecognition\FaceRecognitionMemoryTypes.cs" />
-    <Compile Include="VideoFactory.cs" />
-    <Compile Include="Experiment.cs" />
     <Compile Include="Haar\CaptureObjectsContainer.cs" />
-    <Compile Include="Tracking\PointsTracker.cs" />
-    <Compile Include="Tracking\IPointsTracker.cs" />
-    <Compile Include="Tracking\PtTracker.cs" />
-    <Compile Include="Tracking\TrackerFactory.cs" />
-    <Compile Include="Tracking\ITrackerFactory.cs" />
-    <Compile Include="Camera\VideoRouter.cs" />
-    <Compile Include="Camera\IFrameSource.cs" />
-    <Compile Include="IplImage.cs" />
-    <Compile Include="Camera\WebCam.cs" />
     <Compile Include="VideoConfigurationTemplate.cs">
       <DependentUpon>VideoConfigurationTemplate.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CvPoint.cs" />
+    <Compile Include="Models\CvRect.cs" />
+    <Compile Include="Models\CvSize.cs" />
+    <Compile Include="OldAndUntested\Camera\IFrameSource.cs" />
+    <Compile Include="OldAndUntested\Camera\VideoRouter.cs" />
+    <Compile Include="OldAndUntested\Camera\WebCam.cs" />
+    <Compile Include="OldAndUntested\FaceRecognition\FaceRecognitionMemoryTypes.cs" />
+    <Compile Include="OldAndUntested\FaceRecognition\FaceRecognizer.cs" />
+    <Compile Include="OldAndUntested\FaceRecognition\IFaceRecognizer.cs" />
+    <Compile Include="OldAndUntested\Tracking\IPointsTracker.cs" />
+    <Compile Include="OldAndUntested\Tracking\ITrackerFactory.cs" />
+    <Compile Include="OldAndUntested\Tracking\PointsTracker.cs" />
+    <Compile Include="OldAndUntested\Tracking\PtTracker.cs" />
+    <Compile Include="OldAndUntested\Tracking\TrackerFactory.cs" />
+    <Compile Include="OldAndUntested\Experiment.cs" />
+    <Compile Include="OldAndUntested\IImagePointerManager.cs" />
+    <Compile Include="OldAndUntested\IImageStorage.cs" />
+    <Compile Include="OldAndUntested\ImageStorage.cs" />
+    <Compile Include="OldAndUntested\ImageTypes.cs" />
+    <Compile Include="OldAndUntested\Vision.cs" />
+    <Compile Include="OldAndUntested\VideoFactoryOld.cs" />
+    <Compile Include="Models\IplImage.cs" />
+    <Compile Include="VideoFactory.cs" />
+    <Compile Include="CvCamera.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Haar\" />
-    <Folder Include="FaceRecognition\" />
-    <Folder Include="Tracking\" />
-    <Folder Include="Camera\" />
+    <Folder Include="Models\" />
+    <Folder Include="OldAndUntested\" />
+    <Folder Include="OldAndUntested\Camera\" />
+    <Folder Include="OldAndUntested\FaceRecognition\" />
+    <Folder Include="OldAndUntested\Tracking\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">

@@ -24,7 +24,7 @@ namespace Video
 {
 	public interface ITrackerFactory : IDevice
 	{
-		PtTracker CreatePointTracker (string id, IFrameSource frame, Core.Shared.CvRect roi);
+		PtTracker CreatePointTracker (string id, IFrameSource frame, CvRect roi);
 	}
 }
 

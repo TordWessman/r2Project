@@ -17,27 +17,20 @@
 // 
 
 using System;
-using TrackerPtr = System.IntPtr;
-using IplImage = System.IntPtr;
-using Core.Shared;
+using Video;
 using Core.Device;
-using Video.Camera;
 
-namespace Video
+namespace Video.Camera
 {
-	public interface IPointsTracker
+	public interface IFrameSource : IDevice
 	{
-		TrackerPtr CreateTracker (IFrameSource video, CvRect roi);
-		TrackerPtr CreateTracker (IFrameSource video);
-		TrackerPtr CreateTracker (IplImage frame, CvRect roi);
-		TrackerPtr CreateTracker (IplImage frame);
-		CvPoint GetPoint (TrackerPtr tracker, int pointNumber);
-		void ReleaseTracker (TrackerPtr tracker);
-		int UpdateTracker (IplImage frame, TrackerPtr tracker);
-		int UpdateTracker (IFrameSource video, TrackerPtr tracker);
-		int CountPoints(TrackerPtr tracker);
 		
-		
+		IplImage CurrentFrame { get ;}
+		void PauseFrameFetching ();
+		void ResumeFrameFetching ();
+		int Width { get;}
+		int Height { get;}
+		CvSize Size{get;}
 	}
 }
 

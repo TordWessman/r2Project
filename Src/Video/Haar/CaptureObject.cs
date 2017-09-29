@@ -18,7 +18,6 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Core.Shared;
 
 namespace Video
 {

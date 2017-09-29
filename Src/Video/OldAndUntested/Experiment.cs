@@ -28,7 +28,7 @@ namespace Video
 {
 	public class Experiment : DeviceBase, IDevice
 	{
-		private const string dllPath = "OpenCvModule.so";
+		private const string dllPath = "libr2opencv.so";
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		private static extern short  _ext_sharpnes (System.IntPtr image);

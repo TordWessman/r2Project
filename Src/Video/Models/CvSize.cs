@@ -17,21 +17,28 @@
 // 
 
 using System;
-using Core.Shared;
-using Video;
-using Core.Device;
+using System.Runtime.InteropServices;
 
-namespace Video.Camera
+namespace Video
 {
-	public interface IFrameSource : IDevice
+	
+	[System.Runtime.InteropServices.StructLayout(LayoutKind.Explicit, Size=8), Serializable]
+	public struct CvSize
 	{
 		
-		IplImage CurrentFrame { get ;}
-		void PauseFrameFetching ();
-		void ResumeFrameFetching ();
-		int Width { get;}
-		int Height { get;}
-		CvSize Size{get;}
-	}
-}
+		public CvSize (int width, int height) {
 
+			if (width < 0 || height < 0) { throw new ArgumentException ($"width and height must be > 0 width: {width} height: {height}"); }
+			
+			this.width = width;
+			this.height = height;
+		}
+		
+		[System.Runtime.InteropServices.FieldOffset(0)]
+		public int width;
+		[System.Runtime.InteropServices.FieldOffset(4)]
+		public int height;
+
+	}
+
+}

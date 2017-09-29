@@ -38,13 +38,14 @@ bool try_detect_object (IplImage* input_image, CaptureObjectsContainer *capture_
 	if (!input_image) {
 		fprintf(stderr, "no frame detected when capturing for object");
 		return false;
-	} else if (input_image->width > 640 || input_image->height > 480) {
+	} /*else if (input_image->width > 640 || input_image->height > 480) {
 		fprintf(stderr, "Bad input image width (%i) or height (%i). These values are currently hardcoded and required to be less than 640x480.", input_image->width, input_image->height);
 		return false;
-	}
+	}*/
 	
-	IplImage* image =  cvCreateImage(cvSize(input_image->width,input_image->height), input_image->depth, input_image->nChannels);
-	cvCopy (input_image, image);
+	IplImage* image =  cvCreateImage(cvGetSize(input_image), IPL_DEPTH_8U, 1);
+	
+	cvCvtColor(input_image, image, CV_RGB2GRAY);
 
 	//TODO: test input image size before scaling
 	int scale = image->width * image->height > SCALE_DELIMITER ? 2 : 1;

@@ -21,32 +21,75 @@ using System.Runtime.InteropServices;
 using Core;
 using System.Collections.Generic;
 using Core.Device;
-using Core.Shared;
 using Video.Camera;
 
 namespace Video
 {
 	public class HaarOperations : DeviceBase
 	{
-		
-		//public const string FACE = "haarcascade_frontalface_alt.xml";
-		
+		private const string dllPath = "libr2opencv.so";
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern int _ext_get_image_width (System.IntPtr image);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern int _ext_get_image_height (System.IntPtr image);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern HaarCascade _ext_create_haar_cascade(string filename, int tag);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern bool _ext_haar_capture (
+			System.IntPtr image, 
+			ref CaptureObjectsContainer array);
+
+		//		protected static extern CaptureObjectArray _ext_haar_capture (
+		//			System.IntPtr image, 
+		//			HaarCascade cascade,
+		//			bool saveImage, 
+		//			CvRect roi);
+
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern void _ext_release_haar_cascade (ref HaarCascade cascade);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern void _ext_release_capture_object_array(ref CaptureObjectsContainer array);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern void _ext_release_ipl_image(System.IntPtr image);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern CaptureObject _ext_get_capture_object(ref CaptureObjectsContainer array, int index);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern void _ext_hej(ref CaptureObjectsContainer array);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern System.IntPtr _ext_img_ptr (ref CaptureObject obj);
+
 		private static readonly object m_lock = new object();
 		
 		private IDictionary<int,HaarCascade> m_haarCascades;
 		private ICollection<IplImage> m_capturedImages;
 		private string m_haarPath;
 	
-		
-		public HaarOperations (string id, string basePath) : base (id)
+		/// <summary>
+		/// Initializes a new instance of the <see cref="Video.HaarOperations"/> class. 'basePath' is the default path where the haar cascade files are located. 
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="basePath">Base path.</param>
+		public HaarOperations (string id, string basePath = null) : base (id)
 		{
+			
 			m_haarPath = basePath;	
 			m_haarCascades = new Dictionary<int, HaarCascade> ();
 			m_capturedImages = new List<IplImage> ();
+		
 		}
 		
-		~HaarOperations ()
-		{
+		~HaarOperations () {
+		
 			Log.w ("HAAR OPERATION WILL NOW REMOVE ALL IMAGES!");
 			
 			foreach (HaarCascade cascade in m_haarCascades.Values) {
@@ -59,108 +102,44 @@ namespace Video
 				//CaptureObjectArray clone = array;
 				//ReleaseCaptureObeject (clone);
 			}
+
 		}
 
-		private const string dllPath = "OpenCvModule.so";
-		
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_get_image_width (System.IntPtr image);
-		
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_get_image_height (System.IntPtr image);
-		
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern HaarCascade _ext_create_haar_cascade(string filename, int tag);
-
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern bool _ext_haar_capture (
-			System.IntPtr image, 
-			ref CaptureObjectsContainer array);
-		
-//		protected static extern CaptureObjectArray _ext_haar_capture (
-//			System.IntPtr image, 
-//			HaarCascade cascade,
-//			bool saveImage, 
-//			CvRect roi);
-		
+		public HaarCascade CreateHaarCascade (string fileName) {
 			
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_release_haar_cascade (ref HaarCascade cascade);
-		
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_release_capture_object_array(ref CaptureObjectsContainer array);
-		
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_release_ipl_image(System.IntPtr image);
-		
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern CaptureObject _ext_get_capture_object(ref CaptureObjectsContainer array, int index);
-	
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_hej(ref CaptureObjectsContainer array);
-		
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern System.IntPtr _ext_img_ptr (ref CaptureObject obj);
-		
-		public HaarCascade CreateHaar (string fileName)
-		{
-			fileName = m_haarPath + 
-				System.IO.Path.DirectorySeparatorChar + 
-				fileName;
+			fileName = m_haarPath == null ? fileName : System.IO.File.Exists (fileName) ? fileName : m_haarPath + System.IO.Path.DirectorySeparatorChar + fileName;
 			
-			if (!System.IO.File.Exists (fileName)) {
-				throw new System.IO.FileNotFoundException ("File not found. Unable to load haar file: " + fileName);
-			}
+			if (!System.IO.File.Exists (fileName)) { throw new System.IO.FileNotFoundException ($"Haar file not found: '{fileName}'."); }
 			
 			int tag = new Random ().Next (0, Int32.MaxValue);
 			HaarCascade cascade = _ext_create_haar_cascade (fileName, tag);
 			m_haarCascades.Add (tag, cascade);
 			return cascade;
+
 		}
 		
-		public IplImage GetImage (CaptureObject obj)
-		{
+		public IplImage GetImage (CaptureObject obj) {
+			
 			return new IplImage(_ext_img_ptr (ref obj));
+		
 		}
 		
-		public void ReleaseCaptureObeject (CaptureObjectsContainer objectArray)
-		{
+		public void ReleaseCaptureObeject (CaptureObjectsContainer objectArray) {
 			
 			_ext_release_capture_object_array (ref objectArray);
+
 		}
-		
-		public CvRect CreateRect (int x, int y, int width, int height)
-		{
-			if (x < 0 || y < 0 || width < 0 || height < 0) {
-				throw new ArgumentException ("Bad arguments (must be > 0) : " +
-				                             " x: " + x + 
-				                             " y: " + y + 
-				                             " width: " + width + 
-				                             " height: " + height ); 
-			}
-			CvRect rect;
-			rect.x = x;
-			rect.y = y;
-			rect.width = width;
-			rect.height = height;
-			return rect;
-		}
-		
-		public CaptureObjectsContainer CreateCapture (HaarCascade haar, bool saveImage = true)
-		{
-			return CreateCapture (haar, saveImage, CreateRect (0, 0, 0, 0));
-		}
-		
-		public CaptureObjectsContainer CreateCapture (HaarCascade haar, bool saveImage, CvRect roi)
-		{
-		
-			CaptureObjectsContainer objArray = new CaptureObjectsContainer ();
-			objArray.size = 0;
-			objArray.saveImage = saveImage;
-			objArray.roi = roi;
-			objArray.cascade = haar;
+
+		public CaptureObjectsContainer CreateCapture (HaarCascade haar, bool saveImage = true) {
 			
-			return objArray;
+			return CreateCapture (haar, saveImage, new CvRect{x = 0, y = 0, width = 0, height = 0});
+		
+		}
+		
+		public CaptureObjectsContainer CreateCapture (HaarCascade haar, bool saveImage, CvRect roi) {
+
+			return new CaptureObjectsContainer () {size = 0, saveImage = saveImage, roi = roi, cascade = haar};
+		
 		}
 		
 		public CaptureObjectsContainer HaarCapture (IplImage image, ref CaptureObjectsContainer array)
@@ -172,28 +151,30 @@ namespace Video
 				int height = _ext_get_image_height (image.Ptr);
 				
 				if (array.roi.width + array.roi.x > width) {
-					Log.e ("Bad ROI: roi.width:" + array.roi.width + " roi.x: " +
-						array.roi.x + " image width: " + width
-					);
+					
+					Log.e ("Bad ROI: roi.width:" + array.roi.width + " roi.x: " + array.roi.x + " image width: " + width);
 					
 					array.size = 0;
 					return array;
 					
 				} else if (array.roi.height + array.roi.y > height) {
-					Log.e ("Bad ROI: roi.heigtn:" + array.roi.height + " roi.y: " +
-						array.roi.y + " image height: " + height
-					);
+					
+					Log.e ("Bad ROI: roi.heigtn:" + array.roi.height + " roi.y: " + array.roi.y + " image height: " + height);
 					
 					array.size = 0;
 					return array;
+
 				}
 				
 				_ext_haar_capture (image.Ptr, ref array);
-				for (int i = 0; i < array.size; i++) {
-					CaptureObject obj = GetCaptureObject (array, i);
+
+				//for (int i = 0; i < array.size; i++) {
+				//	CaptureObject obj = GetCaptureObject (array, i);
 //					Console.WriteLine ("Image Pointer: {0:X}", obj.captured_image);
-				}
+				//}
+
 				return array;
+
 				//return array;
 //				if (saveImage) {
 //					for (int i = 0; i < array.size; i++) {
@@ -207,9 +188,10 @@ namespace Video
 			}
 		}
 		
-		public CaptureObjectsContainer FrameCapture (IFrameSource source, ref CaptureObjectsContainer array)
-		{
-			
+		public CaptureObjectsContainer FrameCapture (IFrameSource source, ref CaptureObjectsContainer array) {
+
+			if (true) throw new NotImplementedException ("This will probably not work");
+
 			source.PauseFrameFetching ();
 			//bool success = 
 			HaarCapture (source.CurrentFrame, ref array);

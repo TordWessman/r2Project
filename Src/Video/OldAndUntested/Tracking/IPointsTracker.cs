@@ -17,28 +17,26 @@
 // 
 
 using System;
-using System.Runtime.InteropServices;
+using TrackerPtr = System.IntPtr;
+using IplImage = System.IntPtr;
+using Core.Device;
+using Video.Camera;
 
 namespace Video
 {
-	
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto), Serializable]
-	//[System.Runtime.InteropServices.StructLayout(LayoutKind.Explicit), Serializable]
-	public struct CaptureObjectsContainer {
-		//[System.Runtime.InteropServices.FieldOffset(0)]
-		public int size;
-		//[System.Runtime.InteropServices.FieldOffset(4)]
-		public bool saveImage; 
-		//[System.Runtime.InteropServices.FieldOffset(8)]
-		public CvRect roi;
-		//[System.Runtime.InteropServices.FieldOffset(8 + 16)]
-		public HaarCascade cascade;
-		//[MarshalAs(UnmanagedType.SafeArray)] 
-		//public CaptureObject[] objects;
+	public interface IPointsTracker
+	{
+		TrackerPtr CreateTracker (IFrameSource video, CvRect roi);
+		TrackerPtr CreateTracker (IFrameSource video);
+		TrackerPtr CreateTracker (IplImage frame, CvRect roi);
+		TrackerPtr CreateTracker (IplImage frame);
+		CvPoint GetPoint (TrackerPtr tracker, int pointNumber);
+		void ReleaseTracker (TrackerPtr tracker);
+		int UpdateTracker (IplImage frame, TrackerPtr tracker);
+		int UpdateTracker (IFrameSource video, TrackerPtr tracker);
+		int CountPoints(TrackerPtr tracker);
 		
-		//unsafe public CaptureObject* data;
-		public IntPtr objects;
-
+		
 	}
 }
 

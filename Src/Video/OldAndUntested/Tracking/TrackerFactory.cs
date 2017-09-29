@@ -16,23 +16,27 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
+using System;
+using Core.Device;
+using Video.Camera;
 
 namespace Video
 {
-	/// <summary>
-	/// Object representation of the raw opencv Ipl Image 
-	/// </summary>
-	public class IplImage
+	public class TrackerFactory : DeviceBase, ITrackerFactory
 	{
-		private System.IntPtr m_ptr;
-
-		public System.IntPtr Ptr {get { return m_ptr; }}
-
-		public IplImage (System.IntPtr ptr)
+		private IPointsTracker m_pointsTracker;
+		
+		public TrackerFactory (string id) : base (id)
 		{
-			m_ptr = ptr;
+			m_pointsTracker = new PointsTracker ();		
 		}
+		
+		public PtTracker CreatePointTracker (string id, IFrameSource frame, CvRect roi) {
+			
+			return new PtTracker(id, m_pointsTracker,frame,roi);
+		
+		}
+		
 	}
 }
 

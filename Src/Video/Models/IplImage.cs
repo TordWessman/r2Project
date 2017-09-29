@@ -16,29 +16,38 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 
 namespace Video
 {
-	
-	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto), Serializable]
-	//[System.Runtime.InteropServices.StructLayout(LayoutKind.Explicit), Serializable]
-	public struct CaptureObjectsContainer {
-		//[System.Runtime.InteropServices.FieldOffset(0)]
-		public int size;
-		//[System.Runtime.InteropServices.FieldOffset(4)]
-		public bool saveImage; 
-		//[System.Runtime.InteropServices.FieldOffset(8)]
-		public CvRect roi;
-		//[System.Runtime.InteropServices.FieldOffset(8 + 16)]
-		public HaarCascade cascade;
-		//[MarshalAs(UnmanagedType.SafeArray)] 
-		//public CaptureObject[] objects;
+	/// <summary>
+	/// Object representation of the raw opencv Ipl Image 
+	/// </summary>
+	public class IplImage
+	{
+
+		private const string dllPath = "libr2opencv.so";
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern void _ext_create_dump(string filename, System.IntPtr image);
+
+		private System.IntPtr m_ptr;
+
+		public System.IntPtr Ptr {get { return m_ptr; }}
+
+		public IplImage (System.IntPtr ptr) {
+			
+			m_ptr = ptr;
+
+		}
+
+		public void Save(string filename) {
 		
-		//unsafe public CaptureObject* data;
-		public IntPtr objects;
+			_ext_create_dump (filename, m_ptr);
+
+		}
 
 	}
-}
 
+}

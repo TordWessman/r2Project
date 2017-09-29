@@ -18,7 +18,6 @@
 
 using System;
 using TrackerPtr = System.IntPtr;
-using Core.Shared;
 using Core.Device;
 using System.Runtime.InteropServices;
 using Core;
@@ -46,7 +45,8 @@ namespace Video
 		
 		public PointsTracker ()
 		{
-			
+
+			throw new NotImplementedException ("This will probably not work.");
 		}
 
 		#region IPointsTracker implementation
@@ -70,7 +70,6 @@ namespace Video
 		
 		public TrackerPtr CreateTracker (IplImage frame, CvRect roi)
 		{
-			Log.d ("NEW TRACKER: " + roi.ClientSerialize ());
 			return _ext_create_tracker_roi (frame.Ptr, roi);
 		}
 
