@@ -32,6 +32,7 @@ namespace GPIO
 		private SerialPort m_serialPort;
 		public byte[] PackageHeader = { 0xF0, 0x0F, 0xF1 };
 		private const int DEFAULT_BAUD_RATE = 9600;
+		private const int DEFAULT_TIMOUT_MS = 1000;
 
 		/// <summary>
 		/// portIdentifier is either an explicit name of the port (i.e. /dev/ttyACM0) or a regexp pattern (i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
@@ -51,13 +52,16 @@ namespace GPIO
 			m_serialPort = new SerialPort (portName);
 			m_serialPort.DtrEnable = true;
 			m_serialPort.BaudRate = baudRate;
+			m_serialPort.ReadTimeout = DEFAULT_TIMOUT_MS;
+			m_serialPort.WriteTimeout = DEFAULT_TIMOUT_MS;
+
 
 		}
 
 		private string GetSerialPort(string portIdentifier) {
 
 			return SerialPort.GetPortNames ().Where (p => p == portIdentifier).FirstOrDefault() ??
-				SerialPort.GetPortNames().First(p => new Regex(portIdentifier).IsMatch(p));
+				SerialPort.GetPortNames().FirstOrDefault(p => new Regex(portIdentifier).IsMatch(p));
 
 		}
 

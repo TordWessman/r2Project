@@ -22,14 +22,21 @@ using Core.Data;
 
 namespace GPIO
 {
+	/// <summary>
+	/// Device types defined in r2I2CDeviceRouter.h
+	/// </summary>
 	public enum DeviceType: byte
 	{
 		DigitalInput = 0x1,
 		DigitalOutput = 0x2,
 		AnalogueInput = 0x3,
-		Servo = 0x4
+		Servo = 0x4,
+		Sonar_HCSR04 = 0x5
 	}
 
+	/// <summary>
+	/// Actions defined in r2I2CDeviceRouter.h
+	/// </summary>
 	public enum ActionType: byte {
 		Unknown = 0x0,
 		Create = 0x1,

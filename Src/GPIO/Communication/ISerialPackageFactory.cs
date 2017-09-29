@@ -32,7 +32,7 @@ namespace GPIO
 		/// <param name="remoteDeviceId">Remote device identifier.</param>
 		/// <param name="type">Type.</param>
 		/// <param name="port">Port.</param>
-		DeviceRequestPackage CreateDevice(byte remoteDeviceId, DeviceType type, byte port);
+		DeviceRequestPackage CreateDevice(byte remoteDeviceId, DeviceType type, byte[] ports);
 
 		/// <summary>
 		/// Creates a "Set device package" used to set the value of a device (previously created through a CreateDevice package call).

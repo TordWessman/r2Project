@@ -28,6 +28,9 @@ namespace GPIO
 		private const string SERIAL_CONNECTOR_ID_POSTFIX = "_serial_connector";
 		private const int DEFAULT_BAUD_RATE = 9600;
 
+		// port identifier for ISerialConnection
+		private string m_portIdentifier;
+
 		public ArduinoGPIOFactory (string id, ISerialConnection connection) : base (id) {
 
 			m_connection = connection;
@@ -38,7 +41,7 @@ namespace GPIO
 
 		public ArduinoGPIOFactory (string id, string portIdentifier, int baudRate = DEFAULT_BAUD_RATE) : base (id) {
 
-			m_connection = new ArduinoSerialConnector(id + SERIAL_CONNECTOR_ID_POSTFIX, portIdentifier);
+			m_portIdentifier = portIdentifier;
 			m_packageFactory = new ArduinoSerialPackageFactory ();
 			m_deviceCount = 0;
 
@@ -46,7 +49,13 @@ namespace GPIO
 
 		public override void Start () {
 
-			if (!m_connection.Ready) {
+			if (m_connection == null) {
+			
+				m_connection = new ArduinoSerialConnector(Identifier + SERIAL_CONNECTOR_ID_POSTFIX, m_portIdentifier);
+
+			}
+
+			if (!m_connection?.Ready == true) {
 		
 				m_connection.Start ();
 
@@ -56,9 +65,9 @@ namespace GPIO
 
 		public override void Stop () {
 
-			if (!m_connection.Ready) {
+			if (m_connection?.Ready == true) {
 
-				m_connection.Start ();
+				m_connection.Stop ();
 
 			}
 
@@ -66,58 +75,53 @@ namespace GPIO
 
 		public override bool Ready { get { return m_connection.Ready; } }
 
-		public IInputMeter<double> CreateAnalogInput (string id, int adcPort) {
+		/// <summary>
+		/// Sends a create request to slave and return the slaves device id.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="adcPort">Adc port.</param>
+		/// <param name="type">Type.</param>
+		private byte Create(string id, DeviceType type, params byte[] ports) {
+
+			if (!Ready) {
+
+				throw new System.IO.IOException ("Communication not started.");
+			}
+
+			DeviceResponsePackage response = new DeviceResponsePackage (m_connection.Send (m_packageFactory.CreateDevice (m_deviceCount++, type, ports).ToBytes ()));
+
+			if (response.IsError) {
+
+				throw new System.IO.IOException ($"Unable to create device: {response.Value}");
+			}
+
+			return response.Id;
+		}
+
+		public IInputMeter<double> CreateAnalogInput (string id, int port) {
+
+			return new SerialAnalogInput (id, Create(id, DeviceType.AnalogueInput, (byte)port), m_connection, m_packageFactory);
+
+		}
+
+		public IInputPort CreateInputPort (string id, int port) {
+		
+			return new SerialDigitalInput (id, Create(id, DeviceType.DigitalInput, (byte)port), m_connection, m_packageFactory);
+		}
+
+
+		public IOutputPort CreateOutputPort (string id, int port) {
 			
-			DeviceResponsePackage response = new DeviceResponsePackage (m_connection.Send (m_packageFactory.CreateDevice (m_deviceCount++, DeviceType.AnalogueInput, (byte) adcPort).ToBytes ()));
+			return new SerialDigitalOutput (id, Create(id, DeviceType.DigitalOutput, (byte)port), m_connection, m_packageFactory);
 
-			if (response.IsError) {
+		}
+
+		public IServo CreateServo (string id, int port) {
 			
-				throw new System.IO.IOException ("Unable to create device: {response.Value}");
-			}
-
-			return new SerialAnalogInput (id, response.Id, m_connection, m_packageFactory);
-
-		}
-
-		public IInputPort CreateInputPort (string id, int adcPort) {
-		
-			DeviceResponsePackage response = new DeviceResponsePackage (m_connection.Send (m_packageFactory.CreateDevice (m_deviceCount++, DeviceType.DigitalInput, (byte) adcPort).ToBytes ()));
-
-			if (response.IsError) {
-
-				throw new System.IO.IOException ("Unable to create device: {response.Value}");
-			}
-
-			return new SerialDigitalInput (id, response.Id, m_connection, m_packageFactory);
-		}
-
-
-		public IOutputPort CreateOutputPort (string id, int adcPort) {
-		
-			DeviceResponsePackage response = new DeviceResponsePackage (m_connection.Send (m_packageFactory.CreateDevice (m_deviceCount++, DeviceType.DigitalOutput, (byte) adcPort).ToBytes ()));
-
-			if (response.IsError) {
-
-				throw new System.IO.IOException ("Unable to create device: {response.Value}");
-			}
-
-			return new SerialDigitalOutput (id, response.Id, m_connection, m_packageFactory);
-
-		}
-
-		public IServo CreateServo (string id, int adcPort) {
-		
-			DeviceResponsePackage response = new DeviceResponsePackage (m_connection.Send (m_packageFactory.CreateDevice (m_deviceCount++, DeviceType.Servo, (byte) adcPort).ToBytes ()));
-
-			if (response.IsError) {
-
-				throw new System.IO.IOException ("Unable to create device: {response.Value}");
-			}
-
-			return new SerialServo (id, response.Id, m_connection, m_packageFactory);
+			return new SerialServo (id, Create(id, DeviceType.Servo, (byte)port), m_connection, m_packageFactory);
 
 		}
 
 	}
-}
 
+}

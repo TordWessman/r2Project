@@ -30,14 +30,16 @@ namespace GPIO
 
 		readonly byte[] VALID_ANALOGUE_PORTS_ON_ARDUINO = { 14, 15, 16, 17, 18, 19 };
 
-		public DeviceRequestPackage CreateDevice(byte remoteDeviceId, DeviceType type, byte port) {
+		public DeviceRequestPackage CreateDevice(byte remoteDeviceId, DeviceType type, byte[] ports) {
 
-			// Slave expects <device type><IOPort>.
-			byte[] content = { (byte) type , port };
+			// Slave expects <device type><IOPort1><IOPort2> ...
+			byte[] content = new byte[1 + ports.Length];
+			content [0] = (byte)type;
+			Array.Copy (ports, 0, content, 1, ports.Length);
 
-			if (type == DeviceType.AnalogueInput && !(VALID_ANALOGUE_PORTS_ON_ARDUINO.Contains(port))) {
+			if (type == DeviceType.AnalogueInput && !(VALID_ANALOGUE_PORTS_ON_ARDUINO.Contains(ports[0]))) {
 
-				throw new System.IO.IOException ($"Not a valid analogue port: '{port}'. Use: {string.Concat (VALID_ANALOGUE_PORTS_ON_ARDUINO.Select (b => b.ToString () + ' '))}");
+				throw new System.IO.IOException ($"Not a valid analogue port: '{ports[0]}'. Use: {string.Concat (VALID_ANALOGUE_PORTS_ON_ARDUINO.Select (b => b.ToString () + ' '))}");
 
 			}
 
