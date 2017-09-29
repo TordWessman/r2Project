@@ -148,9 +148,6 @@
     <Compile Include="Device\RemoteDevices.cs" />
     <Compile Include="Device\Interfaces\ICommandExecutor.cs" />
     <Compile Include="Device\RemoteDevices\RemoteCommandExecutor.cs" />
-    <Compile Include="Shared\CvRect.cs" />
-    <Compile Include="Shared\CvPoint.cs" />
-    <Compile Include="Shared\CvSize.cs" />
     <Compile Include="Device\Interfaces\IAudioPlayer.cs" />
     <Compile Include="Device\RemoteDevices\RemoteAudioPlayer.cs" />
     <Compile Include="Settings\CoreConfigurationTemplate.cs">
@@ -169,14 +166,12 @@
     <Compile Include="Shared\DeviceFactory.cs" />
     <Compile Include="Shared\Gstream.cs" />
     <Compile Include="Shared\BaseContainer.cs" />
-    <Compile Include="Shared\IClientSerialize.cs" />
     <Compile Include="Shared\IGstream.cs" />
     <Compile Include="Shared\IStartable.cs" />
     <Compile Include="Shared\IStopable.cs" />
     <Compile Include="Shared\ITaskMonitor.cs" />
     <Compile Include="Shared\ITaskMonitored.cs" />
     <Compile Include="Shared\RecurringTimer.cs" />
-    <Compile Include="Shared\Serializer.cs" />
     <Compile Include="Shared\SimpleTaskMonitor.cs" />
     <Compile Include="Network\Web\Messages\JsonRegisterMessage.cs" />
     <Compile Include="Network\Web\Messages\JsonMessageFactory.cs" />
