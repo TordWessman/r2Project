@@ -15,6 +15,7 @@
 #*.dll
 *.Po
 *.Po
+*.pdb
 
 # Packages #
 ############
