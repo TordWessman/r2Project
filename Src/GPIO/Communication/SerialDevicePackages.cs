@@ -27,21 +27,25 @@ namespace GPIO
 	/// </summary>
 	public enum DeviceType: byte
 	{
-		DigitalInput = 0x1,
-		DigitalOutput = 0x2,
-		AnalogueInput = 0x3,
-		Servo = 0x4,
-		Sonar_HCSR04 = 0x5
+		
+		DigitalInput = 0x1,		// Simple digital input
+		DigitalOutput = 0x2,	// Simple digital output
+		AnalogueInput = 0x3,	// Uses slave's AD converter to read a value
+		Servo = 0x4,			// PWM Servo
+		Sonar_HCSR04 = 0x5		// HC-SR04 Sonar implementation
+			
 	}
 
 	/// <summary>
 	/// Actions defined in r2I2CDeviceRouter.h
 	/// </summary>
 	public enum ActionType: byte {
-		Unknown = 0x0,
-		Create = 0x1,
-		Set = 0x2,
-		Get = 0x3
+		
+		Unknown = 0x0,	// Hmm... This must be an error 
+		Create = 0x1,	// Tell the slave to create a device
+		Set = 0x2,		// Set the value of a device on slave
+		Get = 0x3		// Return the value of a device
+			
 	}
 
 	public struct DeviceResponsePackage {
@@ -68,8 +72,16 @@ namespace GPIO
 
 		}
 
+		/// <summary>
+		/// If true, the request to slave generated an error.
+		/// </summary>
+		/// <value><c>true</c> if this instance is error; otherwise, <c>false</c>.</value>
 		public bool IsError { get { return Action == (byte)ActionType.Unknown; } }
 
+		/// <summary>
+		/// Contains the response. Normally it's an int16 containing some requested response data, but it can also conains a string (error message).
+		/// </summary>
+		/// <value>The value.</value>
 		public dynamic Value {
 		
 			get {
@@ -92,6 +104,9 @@ namespace GPIO
 
 	}
 
+	/// <summary>
+	/// Represents a request sent to slave (for creating a device, getting a value etc).
+	/// </summary>
 	[StructLayout(LayoutKind.Sequential, Pack=1)]
 	public struct DeviceRequestPackage
 	{
@@ -107,6 +122,10 @@ namespace GPIO
 		// Additional data sent to slave.
 		public byte[] Content;
 
+		/// <summary>
+		/// Converts the package to a byte array before transmission.
+		/// </summary>
+		/// <returns>The bytes.</returns>
 		public byte[] ToBytes()
 		{  
 

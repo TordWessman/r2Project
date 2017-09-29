@@ -1,18 +1,26 @@
+#ifndef USE_SERIAL
 #include <Wire.h> // Must be included
 #include <r2I2C.h>
-#include <Servo.h>
-#include <string.h>
+#endif
+
 #include "r2I2CDeviceRouter.h"
 
-// --- Variables
-Device devices[MAX_DEVICES];
+#include <Servo.h>
+#include <string.h>
+
+// -- Private method declarations
+
+// Decides what to do with the incoming data. Preferably call "execute".
+ResponsePackage interpret(byte* input);
+
+// Performs the actions requested by the RequestPackage.
+ResponsePackage execute(RequestPackage *request);
+
+// -- Variables
+
 byte readBuffer[MAX_RECEIZE_SIZE];
 
-void err (const char* msg);
-const char* errMsg;
-bool error = false;
-
-// read input sizesize
+// read input size
 int rs = 0;
 
 // read input counter
@@ -29,125 +37,6 @@ byte messageHeader[] = PACKAGE_HEADER_IDENTIFIER;
 // Size of header
 int headerLength = (sizeof(messageHeader)/sizeof(messageHeader[0]));
 
-Device* getDevice(byte id) {
-
-  if (id >= 0 && id < MAX_DEVICES && devices[id].type != DEVICE_TYPE_UNDEFINED) {
-  
-    return &devices[id];
-  
-  }
-  
-  err("No device found");
-  
-  return NULL;
-  
-}
-
-bool createDevice(byte id, DEVICE_TYPE type, byte IOPort) {
-
-  if (id >= MAX_DEVICES) {
-  
-    err("Id > MAX_DEVICES");
-    return false;
-    
-  } else if (devices[id].type != DEVICE_TYPE_UNDEFINED && devices[id].object != NULL) {
-  
-    free (devices[id].object);
-    
-  }
-  
-  Device device;
-  device.id = id;
-  device.type = type;
-  device.IOPort = IOPort;
-  device.object = NULL;
-  
-  switch (device.type) {
-  
-    case DEVICE_TYPE_ANALOGUE_INPUT:
-      break;
-      
-    case DEVICE_TYPE_DIGITAL_INPUT:
-      pinMode(device.IOPort, INPUT);
-      break;
-      
-  case DEVICE_TYPE_DIGITAL_OUTPUT:
-      pinMode(device.IOPort, OUTPUT);
-      break;
-      
-  case DEVICE_TYPE_SERVO:
-       { 
-         Servo *servo =  new Servo();
-         servo->attach(device.IOPort);
-         device.object = (void *)servo;
-       }
-       break;
-       
-  default:
-  
-    err("Unable to create device. Device type not found.");
-    return false;
-  
-  }
-  
-  devices[id] = device;
-  
-  return true;
-  
-}
-
-int getValue(Device* device) {
-
-  switch (device->type) {
-    
-    case DEVICE_TYPE_DIGITAL_INPUT:
-      return digitalRead(device->IOPort);
-      
-   case DEVICE_TYPE_ANALOGUE_INPUT:
-     return analogRead(device->IOPort);
-  }
-  
-  err("Unable to read from device.");
-  return 0;
-  
-}
-
-bool setValue(Device* device, int value) {
-
-  switch (device->type) {
-
-  case DEVICE_TYPE_DIGITAL_OUTPUT:
-      digitalWrite(device->IOPort, value > 0 ? HIGH : LOW);
-      break;
-      
-  case DEVICE_TYPE_SERVO:
-      ((Servo *) device->object)->write(value);
-      break;
-      
-  default:
-    err("Unable to set setDevice (set device value). Specified device does not exist or is of a read-only DEVICE_TYPE.");
-    return false;
-    
-  }
-  
-  return true;
-  
-}
-
-void err (const char* msg) {
-
-#ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
-    if (Serial) { Serial.println(msg); }
-#endif
-
-    errMsg = msg;
-    
-}
-
-int toInt16(byte *bytes) { return bytes[0] + (bytes[1] << 8);  }
-
-byte* asInt16(int value) { byte* bytes = (byte *) malloc(2 * sizeof(byte)); bytes[0] = value; bytes[1] = value >> 8; return bytes; }
-
 ResponsePackage execute(RequestPackage *request) {
 
   ResponsePackage response;
@@ -161,7 +50,7 @@ ResponsePackage execute(RequestPackage *request) {
   
     case ACTION_CREATE_DEVICE:
       
-      if (!createDevice(request->id, request->args[REQUEST_ARG_CREATE_TYPE_POSITION], request->args[REQUEST_ARG_CREATE_PORT_POSITION])) {
+      if (!createDevice(request->id, request->args[REQUEST_ARG_CREATE_TYPE_POSITION], &request->args[REQUEST_ARG_CREATE_PORT_POSITION])) {
         
         response.action = ACTION_ERROR;
         
@@ -211,7 +100,7 @@ ResponsePackage execute(RequestPackage *request) {
       
   }
   
-  if (errMsg != NULL) {
+  if (getError()) {
   
     response.action = ACTION_ERROR;
           
@@ -230,20 +119,20 @@ ResponsePackage interpret(byte* input) {
 
   if (out.action == ACTION_ERROR) {
   
-    out.contentSize = strlen(errMsg);
+    out.contentSize = strlen(getError());
     
-    for (int i = 0; i < out.contentSize; i++) { out.content[i] = ((byte*) errMsg)[i]; }
+    for (int i = 0; i < out.contentSize; i++) { out.content[i] = ((byte*) getError())[i]; }
     
   }
   
-  errMsg = NULL;
+  // Reset error state
+  err(NULL);
 
   return out;
   
 }
 
 void setup() {
-
   
 #ifdef USE_SERIAL
   Serial.begin(9600);
@@ -251,13 +140,39 @@ void setup() {
   R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
 #endif
 
-  errMsg = NULL;
+  err(NULL);
 
-  for (int i = 0; i < MAX_DEVICES; i++) { devices[i].type = DEVICE_TYPE_UNDEFINED; }
+  for (int i = 0; i < MAX_DEVICES; i++) { void deleteDevice(byte i); }
  
 }
 
 void loop() {
+  
+  #ifdef USE_SERIAL
+  serialCommunicate();
+  #else
+  delay(1000);
+  #endif
+  
+}
+
+#ifndef USE_SERIAL
+
+// Delegate method for I2C event communication.
+void i2cReceive(byte* data, int data_size) {
+
+  ResponsePackage out = interpret(data); 
+  byte *response = (byte *)&out;
+  int responseSize = sizeof(ResponsePackage) - MAX_CONTENT_SIZE + out.contentSize;
+  
+  R2I2C.setResponse(response, responseSize);
+  
+}
+
+#else
+
+// Handles the serial read/write operations. Prefarbly used in run loop.
+void serialCommunicate() {
   
   if (Serial.available() > 0) {
 
@@ -306,7 +221,7 @@ void loop() {
       // Header
       for (byte i = 0; i < headerLength; i++) {Serial.write(messageHeader[i]); } 
       
-      // Size
+      // Size of response
       Serial.write((byte) outputSize);
       
       // Content
@@ -315,15 +230,6 @@ void loop() {
     }
     
   }
-  
 }
 
-void i2cReceive(byte* data, int data_size) {
-
-  ResponsePackage out = interpret(data); 
-  byte *response = (byte *)&out;
-  int responseSize = sizeof(ResponsePackage) - MAX_CONTENT_SIZE + out.contentSize;
-  
-  R2I2C.setResponse(response, responseSize);
-  
-}
+#endif

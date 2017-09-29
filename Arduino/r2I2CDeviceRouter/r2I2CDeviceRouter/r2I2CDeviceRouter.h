@@ -1,4 +1,8 @@
 #include <stdbool.h>
+#include <Arduino.h>
+
+#ifndef R2I2C_DEVICE_ROUTER_H
+#define R2I2C_DEVICE_ROUTER_H
 
 // If defined, serial communication (not I2C) will be used for master/slave communication. 
 #define USE_SERIAL
@@ -13,8 +17,8 @@ typedef struct Devices {
   // Type of the device (i e DEVICE_TYPE_DIGITAL_INPUT).
   DEVICE_TYPE type;
   
-  // What I/O port is used for the device.
-  byte IOPort;
+  // What I/O ports is used for the device. (max 4)
+  byte IOPorts[4];
   
   // The host containing this device (DEVICE_HOST_LOCAL if not remote).
   byte host;
@@ -32,11 +36,17 @@ typedef struct Devices {
 #define DEVICE_TYPE_DIGITAL_OUTPUT 2
 #define DEVICE_TYPE_ANALOGUE_INPUT 3
 #define DEVICE_TYPE_SERVO 4
-
+#define DEVICE_TYPE_HCSR04_SONAR 5
 #define MAX_DEVICES 20
 
+// Removes a device from list and free resources
+void deleteDevice(byte id);
+
 // Creates and stores a Device using the specified parameters.
-bool createDevice(byte id, DEVICE_TYPE type, byte IOPort);
+bool createDevice(byte id, DEVICE_TYPE type, byte* input);
+
+// Tries to reserve the IO-Port. if reserved: return false and sets the error flag.
+bool reservePort(byte IOPort);
 
 // Returns a pointer to a device with the specified id
 Device* getDevice(byte id);
@@ -75,8 +85,14 @@ typedef byte ACTION_TYPE;
 #define ACTION_SET_DEVICE 0x2
 #define ACTION_GET_DEVICE 0x3
 
-#define REQUEST_ARG_CREATE_TYPE_POSITION 0x0
-#define REQUEST_ARG_CREATE_PORT_POSITION 0x1
+// Used by the create request.
+#define REQUEST_ARG_CREATE_TYPE_POSITION 0x0 // Position of the type to create.
+#define REQUEST_ARG_CREATE_PORT_POSITION 0x1 // Position of port information.
+
+// Telling which position in the argument byte array for REQUEST_ARG_CREATE_PORT_POSITION the HC-SR04 will use as trigger port/echo port.
+#define HCSR04_SONAR_TRIG_PORT 0x0
+#define HCSR04_SONAR_ECHO_PORT 0x1
+#define HCSR04_SONAR_DISTANCE_DENOMIATOR 58 // I found this number somewhere
 
 // Containing data which should be returned to host after a request.
 struct ResponsePackage {
@@ -103,8 +119,7 @@ struct RequestPackage {
 
 typedef struct RequestPackage RequestPackage;
 
-// Performs the actions requested by the request.
-ResponsePackage execute(RequestPackage *request);
+// -- Various "helper" methods.
 
 // Converts a big endian 16-bit int contained in a byte array.
 int toInt16(byte *bytes);
@@ -112,3 +127,10 @@ int toInt16(byte *bytes);
 // 16-bit-Int-to-byte-array-conversions (Don't forget to free the result!)
 byte *asInt16(int value);
 
+// Set error state with a message.
+void err (const char* msg);
+
+// Returns the current error message.
+const char* getError();
+
+#endif

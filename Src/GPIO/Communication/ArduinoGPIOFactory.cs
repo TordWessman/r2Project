@@ -122,6 +122,12 @@ namespace GPIO
 
 		}
 
+		public IInputMeter<int> CreateSonar (string id, int triggerPort, int echoPort ) {
+
+			return new HCSR04Sonar (id, Create(id, DeviceType.Sonar_HCSR04, (byte)triggerPort, (byte)echoPort), m_connection, m_packageFactory);
+
+		}
+
 	}
 
 }
