@@ -249,7 +249,7 @@ namespace Core.Tests
 
 
 			var scriptFactory = new RubyScriptFactory ("sf", new List<string>() { Settings.Paths.RubyLib(),
-				Settings.Paths.Common()}, m_deviceManager, m_dummyTaskMonitor);
+				Settings.Paths.Common()}, m_deviceManager);
 
 			scriptFactory.AddSourcePath (Settings.Paths.TestData ());
 
