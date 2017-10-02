@@ -40,14 +40,6 @@ namespace Core.Scripting
 		void AddSourcePath (string path);
 
 		/// <summary>
-		/// Creates a looping process conforming to structural requirements (i.e. naming, composition) of the implemented language. If script is null, a script will be created for this IScriptProcess.
-		/// </summary>
-		/// <returns>The process.</returns>
-		/// <param name="id">Identifier.</param>
-		/// <param name="script">Script.</param>
-		IScriptProcess CreateProcess (string id, T script = default(T));
-
-		/// <summary>
 		/// Executes a script once.
 		/// </summary>
 		/// <returns>The command.</returns>

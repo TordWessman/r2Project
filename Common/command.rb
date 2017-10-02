@@ -121,7 +121,7 @@ class MainClass < ScriptBase
 		end
 
 		factory = @go.robot.get("script_factory")
-		script = factory.create_process script_name, script_name + ".rb"
+		script = factory.create_script script_name, script_name + ".rb"
 		@go.robot.get("core").add_script script
 
 		return script

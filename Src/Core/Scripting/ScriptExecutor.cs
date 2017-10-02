@@ -29,7 +29,7 @@ namespace Core.Scripting
 	public class ScriptExecutor<T> : RemotlyAccessibleDeviceBase, IScriptExecutor, IScriptObserver where T: IScript
 	{
 		
-		private IDictionary<string, IScriptProcess> m_scripts;
+		private IDictionary<string, IScript> m_scripts;
 		private IDeviceManager m_deviceManager;
 		private ITaskMonitor m_taskMonitor;
 		private IScriptFactory<T> m_scriptFactory;
@@ -50,7 +50,7 @@ namespace Core.Scripting
 			m_scriptId = scriptId;
 			
 			m_random = new Random ();
-			m_scripts = new Dictionary<string, IScriptProcess> ();
+			m_scripts = new Dictionary<string, IScript> ();
 			
 			CreateScript ();
 						
@@ -74,7 +74,7 @@ namespace Core.Scripting
 		public override void Start ()
 		{
 			
-			IScriptProcess script = m_scripts [m_currentScriptId];
+			IScript script = m_scripts [m_currentScriptId];
 			
 			m_deviceManager.Add (script);
 			
@@ -103,7 +103,7 @@ namespace Core.Scripting
 		
 		public override void Stop ()
 		{
-			foreach (IScriptProcess process in m_scripts.Values) {
+			foreach (IScript process in m_scripts.Values) {
 
 				if (process.IsRunning) {
 				
@@ -113,7 +113,7 @@ namespace Core.Scripting
 			
 			}
 			
-			//m_scripts = new Dictionary<string, IScriptProcess> ();
+			//m_scripts = new Dictionary<string, IScript> ();
 		
 		}
 		
@@ -190,11 +190,11 @@ namespace Core.Scripting
 		public void Set (string handle, dynamic value)
 		{
 
-			foreach (IScriptProcess process in m_scripts.Values) {
+			foreach (IScript process in m_scripts.Values) {
 
 				if (process.Ready) {
 				
-					process.Script.Set (handle, value);
+					process.Set (handle, value);
 			
 				}
 			
@@ -205,11 +205,11 @@ namespace Core.Scripting
 		public dynamic Get (string handle)
 		{
 
-			foreach (IScriptProcess process in m_scripts.Values) {
+			foreach (IScript process in m_scripts.Values) {
 
 				if (process.Ready) {
 				
-					return process.Script.Get (handle);
+					return process.Get (handle);
 				
 				}
 			
@@ -223,7 +223,7 @@ namespace Core.Scripting
 			
 			get {
 				
-				foreach (IScriptProcess process in m_scripts.Values) {
+				foreach (IScript process in m_scripts.Values) {
 
 					if (process.IsRunning) {
 					

@@ -42,7 +42,6 @@ namespace Core.Scripting
 		#pragma warning restore 0169
 
 		private IDeviceManager m_deviceManager;
-		private ITaskMonitor m_taskMonitor;
 		private ScriptEngine m_engine;
 
 		/// <summary>
@@ -55,11 +54,8 @@ namespace Core.Scripting
 		/// <param name="taskMonitor">Task monitor.</param>
 		public RubyScriptFactory (string id, 
 		                      	ICollection<string> paths,
-		                      	IDeviceManager deviceManager,
-		                      	ITaskMonitor taskMonitor) : base (id)
+		                      	IDeviceManager deviceManager) : base (id)
 		{
-
-			m_taskMonitor = taskMonitor;
 
 			m_deviceManager = deviceManager;
 			m_engine = Ruby.CreateEngine ();
@@ -77,27 +73,12 @@ namespace Core.Scripting
 			return new RubyCommandScript (id, script);
 
 		}
-
-		public override IScriptProcess CreateProcess (string id, RubyScript script = null) {
-		
-			script = script ?? CreateScript (id);
-
-			IScriptProcess process = new RubyProc (id, script);
-
-			foreach (Task task in process.GetTasksToObserve().Values) {
-
-				m_taskMonitor.AddTask(script.Identifier, task);
-
-			}
-
-			return process;
-
-		}
 			
 		public override RubyScript CreateScript (string id) {
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
 
+			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
 			RubyScript script = new RubyScript (id,

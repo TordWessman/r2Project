@@ -64,10 +64,6 @@ namespace Core.Scripting
 
 		}
 
-		public override void Start () {
-			
-		}
-
 		public override void Reload() {
 
 			m_state.LoadCLRPackage ();

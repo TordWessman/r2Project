@@ -22,7 +22,7 @@ using Core.Device;
 namespace Core.Scripting
 {
 	/// <summary>
-	/// Object representation of a IScriptProcess. Contains methods for communicating with the script.
+	/// Object representation of a IScript. Contains methods for communicating with the script.
 	/// </summary>
 	public interface IScriptExecutor: IDevice
 	{

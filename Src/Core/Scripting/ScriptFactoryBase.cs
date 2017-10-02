@@ -69,7 +69,6 @@ namespace Core.Scripting
 		}
 
 		public abstract T CreateScript (string id);
-		public abstract IScriptProcess CreateProcess (string id, T script = default(T));
 		public abstract ICommandScript CreateCommand (string id);
 		public abstract IScriptInterpreter CreateInterpreter(T script);
 

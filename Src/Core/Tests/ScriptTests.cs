@@ -38,7 +38,7 @@ namespace Core.Tests
 
 			base.Setup ();
 
-			m_rubyScriptFactory = new RubyScriptFactory ("rf", BaseContainer.DEFAULT_RUBY_PATHS, m_deviceManager, m_dummyTaskMonitor);
+			m_rubyScriptFactory = new RubyScriptFactory ("rf", BaseContainer.DEFAULT_RUBY_PATHS, m_deviceManager);
 			m_rubyScriptFactory.AddSourcePath (Settings.Paths.TestData ());
 
 			m_luaScriptFactory = new LuaScriptFactory ("ls");

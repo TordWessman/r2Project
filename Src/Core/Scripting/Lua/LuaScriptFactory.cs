@@ -40,13 +40,6 @@ namespace Core.Scripting
 
 		}
 
-
-		public override IScriptProcess CreateProcess (string id, LuaScript script = null) {
-
-			throw new NotImplementedException ();
-
-		}
-
 		public override ICommandScript CreateCommand (string id) {
 
 			throw new NotImplementedException ();

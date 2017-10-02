@@ -149,8 +149,7 @@ namespace Core
 			m_scriptFactory = new RubyScriptFactory (
 				Settings.Identifiers.ScriptFactory(),
 			    DEFAULT_RUBY_PATHS,
-			    m_devices,
-			    m_taskMonitor);
+			    m_devices);
 
 			// Point to the defauult ruby script files resides.
 			m_scriptFactory.AddSourcePath (Settings.Paths.Ruby ());
@@ -189,10 +188,11 @@ namespace Core
 
 			m_taskMonitor.AddMonitorable (m_server);
 			m_taskMonitor.AddMonitorable (m_hostManager);
+			m_taskMonitor.AddMonitorable (runLoopScript);
 	
 		}
 
-		public void RemoveScript (IScriptProcess script)
+		public void RemoveScript (IScript script)
 		{
 
 			if (m_devices.Has (script.Identifier)) {

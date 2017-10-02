@@ -25,6 +25,7 @@ using System.IO;
 using System.Linq;
 using IronRuby.Builtins;
 using System.Dynamic;
+using System.Threading.Tasks;
 
 namespace Core.Scripting
 {
@@ -33,19 +34,15 @@ namespace Core.Scripting
 	/// </summary>
 	public class RubyScript: ScriptBase, IScript
 	{
-		/// <summary>
-		/// The required name of the main class in each ruby script
-		/// </summary>
-		public const string HANDLE_MAIN_CLASS = "main_class";
-
-		/// <summary>
-		/// Will be called upon script initialization. This method must be defined in the MainClass. Defined in scriptbase.rb
-		/// </summary>
-		public const string HANDLE_INIT_FUNCTION = "r2_init";
 
 		protected ScriptEngine m_engine;
 		protected ScriptScope m_scope;
 		protected ScriptSource m_source;
+
+		/// <summary>
+		/// The required name of the main class in each ruby script
+		/// </summary>
+		public const string HANDLE_MAIN_CLASS = "main_class";
 
 		// The name of the ruby script file being executed
 		protected string m_fileName;
@@ -94,22 +91,9 @@ namespace Core.Scripting
 
 				m_source.Execute (m_scope);
 			
-			} catch (IronRuby.Builtins.SyntaxError ex) {
-			
-				HandleSyntaxException (ex);
-				return;
-			
-			} catch (Microsoft.Scripting.SyntaxErrorException ex) {
-			
-				HandleSyntaxException (ex);
-				return;
-			
-			} catch (System.ArgumentNullException ex) {
-
-				HandleSyntaxException (ex);
-				return;
-
-			}
+			} catch (IronRuby.Builtins.SyntaxError ex) { HandleSyntaxException (ex); return; 
+			} catch (Microsoft.Scripting.SyntaxErrorException ex) { HandleSyntaxException (ex); return; 
+			} catch (System.ArgumentNullException ex) { HandleSyntaxException (ex); return; }
 
 			System.Runtime.Remoting.ObjectHandle tmp;
 
@@ -143,7 +127,7 @@ namespace Core.Scripting
 
 			if (!m_engine.Operations.ContainsMember (m_mainClass, handle)) {
 			
-				throw new ArgumentException ($"Error in script: {m_fileName}. Handle '{handle}' was not declared in {HANDLE_MAIN_CLASS}.");
+				return null;
 
 			}
 

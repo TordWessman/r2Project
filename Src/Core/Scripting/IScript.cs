@@ -26,7 +26,7 @@ namespace Core.Scripting
 	/// <summary>
 	/// Base interface for scripting 
 	/// </summary>
-	public interface IScript : IDevice
+	public interface IScript: IDevice, ITaskMonitored
 	{
 		
 		/// <summary>
@@ -52,6 +52,19 @@ namespace Core.Scripting
 		/// </summary>
 		/// <param name="args">Arguments.</param>
 		dynamic Invoke (string handle, params dynamic[] args);
+
+		/// <summary>
+		/// Adds the observe which will be notified upon script changes.
+		/// </summary>
+		/// <param name="observer">Observer.</param>
+		void AddObserver (IScriptObserver observer);
+
+		/// <summary>
+		/// Returns true if the process is in it's main loop.
+		/// </summary>
+		/// <value><c>true</c> if this instance is running; otherwise, <c>false</c>.</value>
+		bool IsRunning { get; } 
+
 
 	}
 

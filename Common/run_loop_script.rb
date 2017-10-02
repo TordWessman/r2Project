@@ -8,8 +8,7 @@ class MainClass < ScriptBase
 	def setup
 
 		@vars = Array.new
-		@task_monitor = @device_manager.get(@settings.i.task_monitor)
-
+		
 	end
 
 	def interpret (line)
@@ -42,32 +41,12 @@ class MainClass < ScriptBase
 	# Execptues a custom, static command:
 	def command (line)
 
+		@task_monitor = @device_manager.get(@settings.i.task_monitor)
+
 		command_name = line.split(" ").first
 
-		if (command_name == "restart" || 
-		    command_name == "start" || 
-			command_name == "stop")
-			device_name = line.split(" ").last
-			device = @device_manager.get(device_name)
-			if (device != nil)
-				if (command_name == "restart")
-					OP::msg " -- restarting: #{device_name}" 
-					device.stop
-					device.start
-				elsif (command_name == "start")
-					OP::msg " -- starting: #{device_name}"
-					device.start
-				elsif (command_name == "stop")
-					OP::msg " -- stopping: #{device_name}"
-					device.stop
-				end
-			else
-				OP::msg " -- No device named: #{device_name}"
-			end
-
-			return true
-
-		elsif (command_name == "load")
+		# loadp = load script process, loads = load script
+		if (command_name == "load")
 
 			line_split = line.split(" ")
 
@@ -85,15 +64,17 @@ class MainClass < ScriptBase
 			end
 
 			if @device_manager.has(script_name)
-
+				
 				script =  @device_manager.get(script_name)
-
+				
 				if script.ready
+
+					@task_monitor.remove_monitorable script
 					script.stop
+
 				end
 
-				@device_manager.remove script
-				@task_monitor.remove_monitorable script
+				@device_manager.remove(script_name)	
 
 			end
 
@@ -106,12 +87,14 @@ class MainClass < ScriptBase
 	end
 	
 	def load_script (script_name, args)
-
+	
 			#args not yet implemented
 			factory = @device_manager.get("script_factory")
-			script = factory.create_process script_name
-			@device_manager.add script
+
+			script = factory.create_script script_name
 			@task_monitor.add_monitorable script
+			@device_manager.add script
+			
 	end
 
 	#TODO: make assign work...
@@ -155,12 +138,20 @@ class MainClass < ScriptBase
 
 		if !@device_manager.has(device_name)
 
+			puts "ARGH!!"
 			return false
 
 		end
 
 		device = @device_manager.get(device_name)
 		
+		if line.split(".").length == 1
+
+			#just print the device type
+			OP::msg device.to_s + " [" + device.guid.to_s + "]"
+			return true
+		end
+
 		begin
 			
 			if (device != nil)

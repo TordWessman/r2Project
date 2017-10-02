@@ -112,7 +112,6 @@
     <Compile Include="Scripting\IScriptFactory.cs" />
     <Compile Include="Scripting\ICommandScript.cs" />
     <Compile Include="Scripting\Ruby\RubyScript.cs" />
-    <Compile Include="Scripting\IScriptProcess.cs" />
     <Compile Include="Scripting\Ruby\RubyCommandScript.cs" />
     <Compile Include="Network\IRPCManager.cs" />
     <Compile Include="Device\Interfaces\IDummy.cs" />
@@ -192,7 +191,6 @@
     <Compile Include="Network\Web\WebSockets\IWebSocketServer.cs" />
     <Compile Include="Network\Web\WebDummyEndpoint.cs" />
     <Compile Include="Network\Web\WebSockets\WebSocketSender.cs" />
-    <Compile Include="Scripting\Ruby\RubyProc.cs" />
     <Compile Include="Network\Web\Messages\JsonObjectIntermediate.cs" />
     <Compile Include="Extensions\ExpandoObjectExtensions.cs" />
     <Compile Include="Shared\IRunLoop.cs" />
