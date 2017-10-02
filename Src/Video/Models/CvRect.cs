@@ -26,19 +26,19 @@ namespace Video
 	public struct CvRect {
 		
 		[System.Runtime.InteropServices.FieldOffset(0)]
-		public int x;
+		public int X;
 		[System.Runtime.InteropServices.FieldOffset(4)]
-		public int y;
+		public int Y;
 		[System.Runtime.InteropServices.FieldOffset(8)]
-		public int width;
+		public int Width;
 		[System.Runtime.InteropServices.FieldOffset(12)]
-		public int height;
+		public int Height;
 		
-		public CvPoint Center { get { return new CvPoint(x + width / 2, y + height / 2); }}
+		public CvPoint Center { get { return new CvPoint(X + Width / 2, Y + Height / 2); }}
 		
 		public CvRect (string[]vals) {
 			
-			this = new CvRect () {x = int.Parse (vals [1]), y = int.Parse (vals [2]), width = int.Parse (vals [3]), height =  int.Parse (vals [4])};
+			this = new CvRect () {X = int.Parse (vals [1]), Y = int.Parse (vals [2]), Width = int.Parse (vals [3]), Height =  int.Parse (vals [4])};
 
 		}
 
@@ -48,25 +48,25 @@ namespace Video
 			
 			if (width < 0 || height < 0) { throw new ArgumentException ($"width and height must be > 0 width: {width} height: {height}"); }
 
-			this.x = x;
-			this.y = y;
-			this.width = width;
-			this.height = height;
+			this.X = x;
+			this.Y = y;
+			this.Width = width;
+			this.Height = height;
 
 		}
 		
-		public CvSize Size { get { return new CvSize (width, height); } }
+		public CvSize Size { get { return new CvSize (Width, Height); } }
 		
-		public CvPoint Position { get { return new CvPoint (x,y); } }
+		public CvPoint Position { get { return new CvPoint (X, Y); } }
 		
-		public bool IsEmpty { get { return !(x == 0 && y == 0 && width == 0 && height == 0); } }
+		public bool IsEmpty { get { return !(X == 0 && Y == 0 && Width == 0 && Height == 0); } }
 
 		public void BindTo (int maxWidth, int maxHeight) {
 
-			x = x < 0 ? x : x > maxWidth ? x = maxWidth : x;
-			y = y < 0 ? y : y > maxHeight ? y = maxHeight : y;
-			width = x + width > maxWidth ? maxWidth + x : width;
-			height = y + height > maxHeight ? maxHeight - y : height;
+			X = X < 0 ? X : X > maxWidth ? X = maxWidth : X;
+			Y = Y < 0 ? Y : Y > maxHeight ? Y = maxHeight : Y;
+			Width = X + Width > maxWidth ? maxWidth + X : Width;
+			Height = Y + Height > maxHeight ? maxHeight - Y : Height;
 
 		}
 

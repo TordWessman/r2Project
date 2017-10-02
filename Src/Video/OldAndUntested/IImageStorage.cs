@@ -20,7 +20,6 @@ using System;
 using Core.Device;
 using Core.Memory;
 using System.Drawing;
-using Video.Camera;
 
 namespace Video
 {

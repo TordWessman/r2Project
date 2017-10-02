@@ -20,16 +20,31 @@ using System;
 using Video;
 using Core.Device;
 
-namespace Video.Camera
+namespace Video
 {
 	public interface IFrameSource : IDevice
 	{
-		
+
+		/// <summary>
+		/// Returns the latest frame from the stream buffer
+		/// </summary>
+		/// <value>The current frame.</value>
 		IplImage CurrentFrame { get ;}
-		void PauseFrameFetching ();
-		void ResumeFrameFetching ();
-		int Width { get;}
-		int Height { get;}
+
+		/// <summary>
+		/// Pause frame fetching
+		/// </summary>
+		void Pause ();
+
+		/// <summary>
+		/// Resumes frame fetching.
+		/// </summary>
+		void Resume ();
+
+		/// <summary>
+		/// Returns media size.
+		/// </summary>
+		/// <value>The size.</value>
 		CvSize Size{get;}
 	}
 }

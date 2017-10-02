@@ -35,8 +35,6 @@ extern "C" {
 	int _ext_get_image_height (IplImage *image);
 	IplImage* _ext_create_32_bit_image (IplImage* image);
 
-	// Captures a frame from webcam
-	IplImage* _ext_capture_camera(int device);
 }
 
 short GetSharpness(IplImage* in);

@@ -30,14 +30,14 @@ namespace Video
 
 			if (width < 0 || height < 0) { throw new ArgumentException ($"width and height must be > 0 width: {width} height: {height}"); }
 			
-			this.width = width;
-			this.height = height;
+			this.Width = width;
+			this.Height = height;
 		}
 		
 		[System.Runtime.InteropServices.FieldOffset(0)]
-		public int width;
+		public int Width;
 		[System.Runtime.InteropServices.FieldOffset(4)]
-		public int height;
+		public int Height;
 
 	}
 

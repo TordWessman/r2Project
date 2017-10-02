@@ -21,7 +21,6 @@ using System.Runtime.InteropServices;
 using Core;
 using System.Collections.Generic;
 using Core.Device;
-using Video.Camera;
 
 namespace Video
 {
@@ -132,7 +131,7 @@ namespace Video
 
 		public CaptureObjectsContainer CreateCapture (HaarCascade haar, bool saveImage = true) {
 			
-			return CreateCapture (haar, saveImage, new CvRect{x = 0, y = 0, width = 0, height = 0});
+			return CreateCapture (haar, saveImage, new CvRect{X = 0, Y = 0, Width = 0, Height = 0});
 		
 		}
 		
@@ -150,16 +149,16 @@ namespace Video
 				int width = _ext_get_image_width (image.Ptr);
 				int height = _ext_get_image_height (image.Ptr);
 				
-				if (array.roi.width + array.roi.x > width) {
+				if (array.roi.Width + array.roi.X > width) {
 					
-					Log.e ("Bad ROI: roi.width:" + array.roi.width + " roi.x: " + array.roi.x + " image width: " + width);
+					Log.e ("Bad ROI: roi.width:" + array.roi.Width + " roi.x: " + array.roi.X + " image width: " + width);
 					
 					array.size = 0;
 					return array;
 					
-				} else if (array.roi.height + array.roi.y > height) {
+				} else if (array.roi.Height + array.roi.Y > height) {
 					
-					Log.e ("Bad ROI: roi.heigtn:" + array.roi.height + " roi.y: " + array.roi.y + " image height: " + height);
+					Log.e ("Bad ROI: roi.heigtn:" + array.roi.Height + " roi.y: " + array.roi.Y + " image height: " + height);
 					
 					array.size = 0;
 					return array;
@@ -189,13 +188,10 @@ namespace Video
 		}
 		
 		public CaptureObjectsContainer FrameCapture (IFrameSource source, ref CaptureObjectsContainer array) {
-
-			if (true) throw new NotImplementedException ("This will probably not work");
-
-			source.PauseFrameFetching ();
-			//bool success = 
+			//Not tested...
+			source.Pause ();
 			HaarCapture (source.CurrentFrame, ref array);
-			source.ResumeFrameFetching ();
+			source.Resume ();
 			
 			return array;
 			

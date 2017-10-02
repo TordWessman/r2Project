@@ -30,7 +30,12 @@ namespace Video
 
 		public CvRect CreateRect (int x, int y, int width, int height) {
 
-			return new CvRect () { x = x, y = y, width = width, height = height };
+			return new CvRect () { X = x, Y = y, Width = width, Height = height };
+
+		}
+		public CvSize CreateSize (int width, int height) {
+
+			return new CvSize () {Width = width, Height = height };
 
 		}
 
@@ -40,9 +45,9 @@ namespace Video
 
 		}
 
-		public CvCamera CreateCamera(string id, int cameraId = 0) {
+		public CvCamera CreateCamera(string id,int width = 0, int height = 0, int cameraId = 0, int skipFrames = CvCamera.SkipFrames) {
 		
-			return new CvCamera (id, cameraId);
+			return new CvCamera (id, width, height, cameraId, skipFrames);
 
 		}
 

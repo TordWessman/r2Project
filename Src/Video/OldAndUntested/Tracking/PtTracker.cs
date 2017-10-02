@@ -21,7 +21,6 @@ using Core.Device;
 using TrackerPtr = System.IntPtr;
 using System.Collections.Generic;
 using Core;
-using Video.Camera;
 
 namespace Video
 {
@@ -77,20 +76,20 @@ namespace Video
 				
 				foreach (CvPoint point in Points) {
 					
-					if (point.x < x1) {
-						x1 = point.x;
+					if (point.X < x1) {
+						x1 = point.X;
 					}
 					
-					if (point.x > x2) {
-						x2 = point.x;
+					if (point.X > x2) {
+						x2 = point.X;
 					}
 					
-					if (point.y < y1) {
-						y1 = point.y;
+					if (point.Y < y1) {
+						y1 = point.Y;
 					}
 					
-					if (point.y > y2) {
-						y2 = point.y;
+					if (point.Y > y2) {
+						y2 = point.Y;
 					}
 				}
 				
@@ -101,13 +100,14 @@ namespace Video
 				if (y1 < 0) {
 					y1 = 0;
 				}
-				
-				if (x2 > m_source.Width) {
-					x2 = m_source.Width;
+
+				CvSize size = m_source.Size;
+				if (x2 > size.Width) {
+					x2 = size.Width;
 				}
 				
-				if (y2 > m_source.Height) {
-					y2 = m_source.Height;
+				if (y2 > size.Height) {
+					y2 = size.Height;
 				}
 				
 				return new CvRect (x1, y1, x2 - x1, y2 - y1);
@@ -166,19 +166,16 @@ namespace Video
 				return 0;
 			}
 			//m_tracker.ReleaseTracker (m_ptr);
-			int x = m_center.x - m_roiSize.width / 2;
-			int y = m_center.y = m_roiSize.height / 2;
-			int width = m_roiSize.width;
-			int height = m_roiSize.height;
-			
-			if (x < 0)
-				x = 0;
-			if (y < 0)
-				y = 0;
-			if (x + width > source.Width) 
-				width = source.Width - x;
-			if (y + height > source.Height)
-				height = source.Height - y;
+			int x = m_center.X - m_roiSize.Width / 2;
+			int y = m_center.Y = m_roiSize.Height / 2;
+			int width = m_roiSize.Width;
+			int height = m_roiSize.Height;
+			CvSize size = source.Size;
+
+			if (x < 0) { x = 0; } 
+			if (y < 0) { y = 0; }
+			if (x + width > size.Width) { width = size.Width - x; }
+			if (y + height > size.Height) { height = size.Height - y; }
 			
 			CvRect roi = new CvRect (
 				x,
@@ -186,7 +183,7 @@ namespace Video
 				width,
 				height);
 			
-			roi.BindTo (source.Width, source.Height);
+			roi.BindTo (size.Width, size.Height);
 				
 			m_ptr = m_tracker.CreateTracker (source, roi);
 			m_roiSize = roi.Size;

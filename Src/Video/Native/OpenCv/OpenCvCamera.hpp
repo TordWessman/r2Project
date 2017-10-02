@@ -16,14 +16,16 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
-using Core.Device;
+#include <opencv/cv.h>
+#include <stdio.h>
 
-namespace Video
-{
-	public interface ITrackerFactory : IDevice
-	{
-		PtTracker CreatePointTracker (string id, IFrameSource frame, CvRect roi);
-	}
+extern "C" {
+
+	// Captures a frame from webcam. skipFrames determines how many frames to discard from the video buffer (v4l issues..)
+	IplImage* _ext_capture_camera(int deviceId);
+	CvSize _ext_get_video_size(int deviceId);
+	void _ext_stop_capture(int deviceId);
+	bool _ext_start_capture(int deviceId, CvSize size, int skipFrames);
+	bool _ext_is_running_capture(int deviceId);
+
 }
-

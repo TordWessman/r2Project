@@ -24,13 +24,13 @@ using System.Runtime.InteropServices;
 using Core;
 using System.Threading.Tasks;
 
-namespace Video.Camera
+namespace Video
 {
-	public class WebCam: DeviceBase, IFrameSource
+	public class GstWebCam: DeviceBase, IFrameSource
 	{
 		//private const string dllPath = "Test.so";
 
-		private const string dllPath = "WebCam.so";
+		private const string dllPath = "r2webcam.so";
 
 		protected delegate void ErrorCallBack(int errorType, string message);
 		protected delegate void EOSCallBack();
@@ -87,7 +87,7 @@ namespace Video.Camera
 		private ICameraController m_camera;
 		private static readonly object m_lock = new object();
 
-		public WebCam (string id, int width, int height) 
+		public GstWebCam (string id, int width, int height) 
 			: base (id)
 		{
 			_ext_set_input_vars (width.ToString(), height.ToString());
@@ -100,21 +100,9 @@ namespace Video.Camera
 
 				_ext_set_callbacks (m_errorCb, m_eosCb);
 			} else {
-				throw new DeviceException("Unable to initialize video server module.");
+				throw new InvalidOperationException("Unable to initialize video server module.");
 			}
 
-		}
-
-		public int Width {
-			get {
-				return _ext_get_video_width ();
-			}
-		}
-
-		public int Height {
-			get {
-				return _ext_get_video_height ();
-			}
 		}
 
 		public void SetCamera (ICameraController camera)
@@ -155,7 +143,7 @@ namespace Video.Camera
 		public override void Start ()
 		{
 			if (_ext_is_running () == 1) {
-				throw new DeviceException ("Unable to start video server. Device is already running.");
+				throw new InvalidOperationException ("Unable to start video server. Device is already running.");
 			}
 
 			_serverTask = Task.Factory.StartNew (() => {
@@ -195,18 +183,18 @@ namespace Video.Camera
 			}
 		}
 
-		public void PauseFrameFetching ()
+		public void Pause ()
 		{
 			_ext_pause_frame_fetching ();
 		}
 
-		public void ResumeFrameFetching ()
+		public void Resume ()
 		{
 			_ext_resume_frame_fetching ();
 		}
 
 		public CvSize Size{ get {
-				return new CvSize (Width, Height);
+				return new CvSize (_ext_get_video_width(), _ext_get_video_height());
 			}
 		}
 	}

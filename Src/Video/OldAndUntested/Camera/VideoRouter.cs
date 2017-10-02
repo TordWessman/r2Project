@@ -23,7 +23,7 @@ using Core;
 using System.Threading;
 using Video;
 
-namespace Video.Camera
+namespace Video
 {
 	/// <summary>
 	/// Represents a remote video source using the VideoServer native components (using a gstreamer pipe)
@@ -113,18 +113,6 @@ namespace Video.Camera
 
 		}
 		
-		public int Width {
-			get {
-				return _ext_get_video_width ();
-			}
-		}
-		
-		public int Height {
-			get {
-				return _ext_get_video_height ();
-			}
-		}
-		
 		public void SetCamera (ICameraController camera)
 		{
 			m_camera = camera;
@@ -202,20 +190,20 @@ namespace Video.Camera
 			}
 		}
 		
-		public void PauseFrameFetching ()
+		public void Pause ()
 		{
 			_ext_pause_frame_fetching ();
 		}
 		
-		public void ResumeFrameFetching ()
+		public void Resume ()
 		{
 			_ext_resume_frame_fetching ();
 		}
 		
 		public CvSize Size{ get {
-				return new CvSize (Width, Height);
+				return new CvSize (_ext_get_video_width(), _ext_get_video_height());
 			}
-			}
+		}
 	}
 }
 

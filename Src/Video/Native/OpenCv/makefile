@@ -9,5 +9,5 @@ all:
 	cp $(OPENCV_LIB) $(R2_LIB_DIR)
 
 base:
-	$(CC) OpenCvBase.cpp OpenCvObjDetect.cpp -o $(OPENCV_LIB) $(CFLAGS)
+	$(CC) OpenCvBase.cpp OpenCvCamera.cpp OpenCvObjDetect.cpp -o $(OPENCV_LIB) $(CFLAGS)
 	cp $(OPENCV_LIB) $(R2_LIB_DIR)

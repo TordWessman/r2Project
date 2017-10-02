@@ -26,25 +26,27 @@ namespace Video
 	[System.Runtime.InteropServices.StructLayout(LayoutKind.Explicit, Size=8), Serializable]
 	public struct CvPoint
 	{
+
+		[System.Runtime.InteropServices.FieldOffset(0)]
+		public int X;
+		[System.Runtime.InteropServices.FieldOffset(4)]
+		public int Y;
+
 		public CvPoint (int x, int y) {
 			if (x < 0 || y < 0) { throw new ArgumentException ($"x and y must be > 0 x: {x} y: {y}"); }
 
-			this.x = x;
-			this.y = y;
+			X = x;
+			Y = y;
 
 		}
 		
 		public CvPoint (string[] vals) {
 			
-			this.x = int.Parse (vals [1]);
-			this.y = int.Parse (vals [2]);
+			X = int.Parse (vals [1]);
+			Y = int.Parse (vals [2]);
 
 		}
-		
-		[System.Runtime.InteropServices.FieldOffset(0)]
-		public int x;
-		[System.Runtime.InteropServices.FieldOffset(4)]
-		public int y;
+
 
 	}
 

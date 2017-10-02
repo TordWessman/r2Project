@@ -26,7 +26,6 @@ using Core.Device;
 using System.IO;
 using System.Drawing;
 using System.Threading;
-using Video.Camera;
 
 namespace Video
 {
@@ -146,9 +145,9 @@ namespace Video
 		{
 			IMemory memory = m_memory.Create (ImageTypes.Frame.ToString ().ToLower (), IMAGE_MEMORY_TYPE);	
 			
-			source.PauseFrameFetching ();
+			source.Pause ();
 			_ext_create_dump (GetImageFileName (memory), source.CurrentFrame.Ptr);
-			source.ResumeFrameFetching ();
+			source.Resume ();
 			
 			return memory;
 		}

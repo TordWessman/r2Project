@@ -20,7 +20,6 @@ using System;
 using TrackerPtr = System.IntPtr;
 using IplImage = System.IntPtr;
 using Core.Device;
-using Video.Camera;
 
 namespace Video
 {

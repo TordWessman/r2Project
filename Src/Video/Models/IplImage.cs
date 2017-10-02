@@ -32,6 +32,10 @@ namespace Video
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern void _ext_create_dump(string filename, System.IntPtr image);
 
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern void _ext_release_ipl_image (System.IntPtr image);
+
 		private System.IntPtr m_ptr;
 
 		public System.IntPtr Ptr {get { return m_ptr; }}
@@ -46,6 +50,18 @@ namespace Video
 		
 			_ext_create_dump (filename, m_ptr);
 
+		}
+
+		public void Destroy() {
+		
+			_ext_release_ipl_image (m_ptr);
+			m_ptr = default(System.IntPtr);
+
+		}
+
+		~IplImage() {
+
+			Destroy ();
 		}
 
 	}

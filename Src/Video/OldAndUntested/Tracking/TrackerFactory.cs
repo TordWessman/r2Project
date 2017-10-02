@@ -18,7 +18,6 @@
 
 using System;
 using Core.Device;
-using Video.Camera;
 
 namespace Video
 {

@@ -21,7 +21,6 @@ using TrackerPtr = System.IntPtr;
 using Core.Device;
 using System.Runtime.InteropServices;
 using Core;
-using Video.Camera;
 
 namespace Video
 {
@@ -52,18 +51,18 @@ namespace Video
 		#region IPointsTracker implementation
 		public TrackerPtr CreateTracker (IFrameSource video, CvRect roi)
 		{
-			video.PauseFrameFetching ();
+			video.Pause ();
 			TrackerPtr tracker = CreateTracker (video.CurrentFrame, roi);
-			video.ResumeFrameFetching ();
+			video.Resume ();
 			
 			return tracker;
 		}
 		
 		public TrackerPtr CreateTracker (IFrameSource video)
 		{
-			video.PauseFrameFetching ();
+			video.Pause ();
 			TrackerPtr tracker = CreateTracker (video.CurrentFrame);
-			video.ResumeFrameFetching ();
+			video.Resume ();
 			
 			return tracker;
 		}
@@ -94,9 +93,9 @@ namespace Video
 		}
 		
 		public int UpdateTracker (IFrameSource video, TrackerPtr tracker) {
-			video.PauseFrameFetching ();
+			video.Pause ();
 			int pointsFound = UpdateTracker(video.CurrentFrame,tracker);
-			video.ResumeFrameFetching ();
+			video.Resume ();
 			
 			return pointsFound;
 		}

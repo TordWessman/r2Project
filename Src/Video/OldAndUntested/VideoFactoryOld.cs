@@ -18,7 +18,6 @@
 
 using System;
 using Core.Device;
-using Video.Camera;
 
 namespace Video
 {
@@ -67,7 +66,7 @@ namespace Video
 		*/
 		public CvRect CreateRect (int x, int y, int width, int height) {
 
-			return new CvRect () { x = x, y = y, width = width, height = height };
+			return new CvRect () { X = x, Y = y, Width = width, Height = height };
 
 		}
 

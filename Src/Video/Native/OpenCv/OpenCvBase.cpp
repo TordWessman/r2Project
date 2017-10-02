@@ -148,7 +148,7 @@ int _ext_get_image_width (IplImage *image) {
 
 	if (image) { return image->width; }
 	
-	printf (" ** WARNING - IMAGE WAS NULL (_ext_get_image_width)");
+	printf (" ** WARNING - IMAGE WAS NULL (_ext_get_image_width)\n");
 	return 0;
 	
 }
@@ -157,7 +157,7 @@ int _ext_get_image_height (IplImage *image) {
 
 	if (image) { return image->height; }
 	
-	printf (" ** WARNING - IMAGE WAS NULL (_ext_get_image_height)");
+	printf (" ** WARNING - IMAGE WAS NULL (_ext_get_image_height)\n");
 	return 0;
 	
 }
@@ -166,32 +166,8 @@ int _ext_get_image_bpp (IplImage *image) {
 
 	if (image) { return image->widthStep; }
 	
-	printf (" ** WARNING - IMAGE WAS NULL (_ext_get_image_bpp)");
+	printf (" ** WARNING - IMAGE WAS NULL (_ext_get_image_bpp)\n");
 	return 0;
 
 }
 
-IplImage* _ext_capture_camera(int device) {
-
-	CvCapture* capture = cvCaptureFromCAM(device);
-
-	if ( !capture ) { 
-
-		printf (" ** WARNING - Unable to capture image");
-		return NULL;
-
-	}
-
-
-	IplImage* frame = cvQueryFrame( capture );
-
-        if ( !frame ) {
-		
-		printf (" ** WARNING - Unable to capture frame");
-		return NULL;
-	
-	}
-
-	return frame;
-
-}
