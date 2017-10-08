@@ -16,6 +16,7 @@
 *.Po
 *.Po
 *.pdb
+*.pyc
 
 # Packages #
 ############
