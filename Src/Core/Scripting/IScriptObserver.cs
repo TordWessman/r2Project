@@ -25,14 +25,14 @@ namespace Core.Scripting
 		/// <summary>
 		/// Called whenever a process ran to end without errors.
 		/// </summary>
-		/// <param name="id">Identifier.</param>
-		void ProcessDidFinish (string id);
+		/// <param name="script">Script.</param>
+		void OnScriptFinished (IScript script);
 
 		/// <summary>
 		/// Called upon exception.
 		/// </summary>
-		/// <param name="id">Identifier.</param>
-		void ProcessHadErrors (string id);
+		/// <param name="script">Script.</param>
+		void OnScriptErrors (IScript script);
 
 	}
 }

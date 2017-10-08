@@ -30,7 +30,7 @@ namespace Core.Scripting
 	/// <summary>
 	/// Implementation of a script factory. Used to create ruby scripts.
 	/// </summary>
-	public class RubyScriptFactory : ScriptFactoryBase<RubyScript>
+	public class RubyScriptFactory : ScriptFactoryBase<IronScript>
 	{
 
 		private const string RUBY_FILE_EXTENSION = ".rb";
@@ -64,24 +64,15 @@ namespace Core.Scripting
 		}
 
 		protected override string FileExtension { get { return RUBY_FILE_EXTENSION; } }
-
-		public override ICommandScript CreateCommand (string id)
-		{
 			
-			IScript script = CreateScript (id);
-			
-			return new RubyCommandScript (id, script);
-
-		}
-			
-		public override RubyScript CreateScript (string id) {
+		public override IronScript CreateScript (string id) {
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
 
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
-			RubyScript script = new RubyScript (id,
+			IronScript script = new IronScript (id,
 				GetScriptFilePath(id),
 				m_engine, inputParams);
 			
@@ -89,9 +80,9 @@ namespace Core.Scripting
 
 		}
 	
-		public override IScriptInterpreter CreateInterpreter(RubyScript script) {
+		public override IScriptInterpreter CreateInterpreter(IronScript script) {
 
-			return new RubySrlptInterpreter (script);
+			return new IronScriptInterpreter (script);
 
 		}
 

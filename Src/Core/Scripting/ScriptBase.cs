@@ -70,7 +70,6 @@ namespace Core.Scripting
 			m_guid = Guid.NewGuid ();
 			m_deviceObservers = new List<IDeviceObserver> ();
 			m_scriptObservers = new List<IScriptObserver> ();
-			m_processTask = GetProcessTask ();
 
 		}
 
@@ -93,7 +92,7 @@ namespace Core.Scripting
 
 				try {
 
-					while (false != Get(HANDLE_SHOULD_RUN) && true == Invoke(HANDLE_LOOP)) {
+					while (m_isRunning && (false != Get(HANDLE_SHOULD_RUN)) && (true == Invoke(HANDLE_LOOP))) {
 
 						// In the class' loop function
 
@@ -110,13 +109,11 @@ namespace Core.Scripting
 
 				foreach (IScriptObserver observer in m_scriptObservers) {
 
-					observer?.ProcessDidFinish (m_id);
+					observer?.OnScriptFinished (this);
 
 				}
 
 				Log.d($"Loop did finish for script {Identifier}.");
-
-				Reload ();
 
 			});
 
@@ -126,15 +123,15 @@ namespace Core.Scripting
 
 			if (!Ready) {
 
-				Log.e ($"Unable to start process. The script used to run the process ({Identifier} is not ready.");
-
-				return;
+				throw new ApplicationException ($"Unable to start process. The script used to run the process ({Identifier} is not ready.");
 
 			}
 
 			try {
 
 				m_isRunning = true;
+
+				m_processTask = GetProcessTask ();
 
 				// Run setup method if present
 				if (null != Get (HANDLE_SETUP)) { Invoke (HANDLE_SETUP); }
@@ -145,13 +142,9 @@ namespace Core.Scripting
 
 				m_isRunning = false;
 
-				Log.x (ex);
+				foreach (IScriptObserver observer in m_scriptObservers) { observer?.OnScriptErrors (this); }
 
-				foreach (IScriptObserver observer in m_scriptObservers) {
-
-					observer?.ProcessHadErrors (m_id);
-
-				}
+				throw ex;
 
 			}
 
@@ -161,8 +154,7 @@ namespace Core.Scripting
 
 			if (null != Get (HANDLE_STOP)) { Invoke (HANDLE_STOP); }
 
-			Reload ();
-			m_processTask = GetProcessTask ();
+			m_isRunning = false;
 
 		}
 

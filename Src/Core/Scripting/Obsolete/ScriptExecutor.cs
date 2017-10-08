@@ -168,18 +168,17 @@ namespace Core.Scripting
 
 		#region IScriptObserver implementation
 
-		public void ProcessDidFinish (string id)
+		public void OnScriptFinished (IScript script)
 		{
 		
-			RemoveScript (id);
-			m_scripts.Remove (id);
+			RemoveScript (script.Identifier);
+			m_scripts.Remove (script.Identifier);
 		
 		}
 
-		public void ProcessHadErrors (string id)
-		{
+		public void OnScriptErrors (IScript script) {
 
-			ProcessDidFinish (id);
+			OnScriptFinished (script);
 
 		}
 

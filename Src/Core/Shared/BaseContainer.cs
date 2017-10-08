@@ -50,7 +50,7 @@ namespace Core
 		private DeviceFactory m_deviceFactory;
 		
 		private IDatabase m_db;
-		private IScriptFactory<RubyScript> m_scriptFactory;
+		private IScriptFactory<IronScript> m_scriptFactory;
 		private IRunLoop m_runLoop;
 
 		private bool m_shouldRun;
@@ -147,7 +147,7 @@ namespace Core
 
 			// Point to the defauult ruby script files resides.
 			psf.AddSourcePath (Settings.Paths.Python());
-			// Point to the common folder.	
+			// Point to the common folder.
 			psf.AddSourcePath (Settings.Paths.Common ());
 
 			m_devices.Add (psf);
@@ -163,8 +163,12 @@ namespace Core
 			// Point to the common folder.
 			m_scriptFactory.AddSourcePath (Settings.Paths.Common ());
 
+			// Python modules
+			m_scriptFactory.AddSourcePath ("/usr/lib/python2.7/dist-packages");
+			m_scriptFactory.AddSourcePath ("/usr/lib/python2.7/Lib");
+
 			// The run loop script must meet the method requirements of the InterpreterRunLoop.
-			RubyScript runLoopScript = m_scriptFactory.CreateScript (Settings.Identifiers.RunLoopScript());
+			IronScript runLoopScript = m_scriptFactory.CreateScript (Settings.Identifiers.RunLoopScript());
 
 			IScriptInterpreter runLoopInterpreter = m_scriptFactory.CreateInterpreter (runLoopScript);
 

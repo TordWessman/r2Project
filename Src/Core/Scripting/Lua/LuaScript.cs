@@ -32,6 +32,7 @@ namespace Core.Scripting
 		{
 			
 			m_state = new Lua ();
+
 			m_fileName = fileName;
 
 			if (!System.IO.File.Exists (m_fileName)) {

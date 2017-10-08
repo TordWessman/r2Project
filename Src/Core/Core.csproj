@@ -113,9 +113,6 @@
     <Compile Include="Device\IRemotlyAccessable.cs" />
     <Compile Include="Scripting\IScript.cs" />
     <Compile Include="Scripting\IScriptFactory.cs" />
-    <Compile Include="Scripting\ICommandScript.cs" />
-    <Compile Include="Scripting\Ruby\RubyScript.cs" />
-    <Compile Include="Scripting\Ruby\RubyCommandScript.cs" />
     <Compile Include="Network\IRPCManager.cs" />
     <Compile Include="Device\Interfaces\IDummy.cs" />
     <Compile Include="Device\Interfaces\ITTS.cs" />
@@ -134,12 +131,7 @@
     <Compile Include="Device\RemoteDevices\RemoteInputMeter.cs" />
     <Compile Include="Device\RemoteDevices\RemoteInputPort.cs" />
     <Compile Include="Device\RemoteDevices\RemoteOutputPort.cs" />
-    <Compile Include="Scripting\ScriptExecutor.cs" />
-    <Compile Include="Scripting\IScriptExecutor.cs" />
     <Compile Include="Device\RemoteDevices\RemoteScriptExecutor.cs" />
-    <Compile Include="Scripting\IScriptExecutorFactory.cs" />
-    <Compile Include="Scripting\ScriptExecutorFactory.cs" />
-    <Compile Include="Scripting\Ruby\RubyScriptFactory.cs" />
     <Compile Include="Device\RemoteDevices\RemoteScriptExecutorFactory.cs" />
     <Compile Include="Scripting\IScriptObserver.cs" />
     <Compile Include="Device\Interfaces\IASRController.cs" />
@@ -208,7 +200,6 @@
       <DependentUpon>Shared.tt</DependentUpon>
     </Compile>
     <Compile Include="Scripting\IScriptInterpreter.cs" />
-    <Compile Include="Scripting\Ruby\RubySrlptInterpreter.cs" />
     <Compile Include="Network\Web\TCP\TCPServer.cs" />
     <Compile Include="Scripting\Lua\LuaScript.cs" />
     <Compile Include="Scripting\Lua\LuaScriptFactory.cs" />
@@ -263,8 +254,14 @@
     <Compile Include="Network\Web\Http\HttpMessage.cs" />
     <Compile Include="Network\Web\TCP\TCPMessage.cs" />
     <Compile Include="Device\RemotlyAccessibleDeviceBase.cs" />
-    <Compile Include="Scripting\Python\PythonScript.cs" />
-    <Compile Include="Scripting\Python\PythonScriptFactory.cs" />
+    <Compile Include="Scripting\IronScript\RubyScriptFactory.cs" />
+    <Compile Include="Scripting\IronScript\IronScriptInterpreter.cs" />
+    <Compile Include="Scripting\IronScript\PythonScriptFactory.cs" />
+    <Compile Include="Scripting\IronScript\IronScript.cs" />
+    <Compile Include="Scripting\Obsolete\IScriptExecutor.cs" />
+    <Compile Include="Scripting\Obsolete\IScriptExecutorFactory.cs" />
+    <Compile Include="Scripting\Obsolete\ScriptExecutor.cs" />
+    <Compile Include="Scripting\Obsolete\ScriptExecutorFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -275,7 +272,6 @@
     <Folder Include="Device\" />
     <Folder Include="Memory\" />
     <Folder Include="Scripting\" />
-    <Folder Include="Scripting\Ruby\" />
     <Folder Include="Shared\" />
     <Folder Include="Settings\" />
     <Folder Include="Extensions\" />
@@ -291,7 +287,8 @@
     <Folder Include="Data\" />
     <Folder Include="Tests\DummyClasses\Memory\" />
     <Folder Include="Network\Web\Legacy\" />
-    <Folder Include="Scripting\Python\" />
+    <Folder Include="Scripting\IronScript\" />
+    <Folder Include="Scripting\Obsolete\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

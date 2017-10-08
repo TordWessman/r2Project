@@ -20,31 +20,30 @@ using System;
 
 namespace Core.Scripting
 {
-	public class RubySrlptInterpreter: IScriptInterpreter
+	public class IronScriptInterpreter: IScriptInterpreter
 	{
 		// The interpret method of the script. Takes a string argument containing the command to be interpreted.
-		public static readonly string METHOD_INTERPRET = "interpret"; 
+		public const string METHOD_INTERPRET = "interpret"; 
 
-		// The setup method of the script. will be run before execution.
-		public static readonly string METHOD_SETUP = "setup"; 
-
-		private RubyScript m_rubyScript;
+		private IronScript m_rubyScript;
+		private string m_interpretMethodName;
 
 		/// <summary>
 		/// The IScript must be of type 
 		/// </summary>
 		/// <param name="rubyScript">Ruby script.</param>
-		public RubySrlptInterpreter (RubyScript rubyScript)
+		public IronScriptInterpreter (IronScript rubyScript, string interpretMethodName = METHOD_INTERPRET)
 		{
 
 			m_rubyScript = rubyScript;
-			m_rubyScript.Invoke (METHOD_SETUP);
+			m_rubyScript.Invoke (IronScript.HANDLE_SETUP);
+			m_interpretMethodName = interpretMethodName;
 		
 		}
 
 		public bool Interpret(string expression) {
 
-			return m_rubyScript.Invoke(METHOD_INTERPRET, expression);
+			return m_rubyScript.Invoke(m_interpretMethodName, expression);
 		
 		}
 

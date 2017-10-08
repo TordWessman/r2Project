@@ -14,3 +14,4 @@ class ScriptBase:
 		self.logger = self.device_manager.Get("log")
 
 
+

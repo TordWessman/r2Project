@@ -34,19 +34,18 @@ namespace Core.Scripting
 		T CreateScript (string id);
 
 		/// <summary>
+		/// Creates a script interpreter capable of evaluating string expressions. The requirements of the implementations of the interpreted script is dependent on the IScriptInterpreter implementation.
+		/// </summary>
+		/// <returns>The interpreter.</returns>
+		/// <param name="script">Script.</param>
+		IScriptInterpreter CreateInterpreter(T script);
+
+		/// <summary>
 		/// Adds a search path for script source files.
 		/// </summary>
 		/// <param name="path">Path.</param>
 		void AddSourcePath (string path);
 
-		/// <summary>
-		/// Executes a script once.
-		/// </summary>
-		/// <returns>The command.</returns>
-		/// <param name="id">Identifier.</param>
-		/// <param name="sourceFile">Source file.</param>
-		ICommandScript CreateCommand (string id);
-		
 		/// <summary>
 		/// Gets the default name of the script source file based upon the id.
 		/// </summary>
@@ -58,12 +57,6 @@ namespace Core.Scripting
 		/// </param>
 		string GetScriptFilePath (string id);
 
-		/// <summary>
-		/// Creates a script interpreter capable of evaluating string expressions. The requirements of the implementations of the interpreted script is dependent on the IScriptInterpreter implementation.
-		/// </summary>
-		/// <returns>The interpreter.</returns>
-		/// <param name="script">Script.</param>
-		IScriptInterpreter CreateInterpreter(T script);
 	}
-}
 
+}

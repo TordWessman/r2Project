@@ -24,10 +24,14 @@ using Microsoft.Scripting.Hosting;
 using System.Dynamic;
 using System.Collections.Generic;
 using IronPython.Runtime;
+using System.Linq;
 
 namespace Core.Scripting
 {
-	public class PythonScript: ScriptBase, IScript
+	/// <summary>
+	/// Default script implementation for IronRuby & IronPython
+	/// </summary>
+	public class IronScript: ScriptBase
 	{
 		protected ScriptEngine m_engine;
 		protected ScriptScope m_scope;
@@ -46,7 +50,7 @@ namespace Core.Scripting
 		// Contains a list of input parameters
 		private IDictionary<string, dynamic> m_params;
 
-		public PythonScript(string id, string fileName, ScriptEngine engine, IDictionary<string, dynamic> parameters) : base (id)
+		public IronScript(string id, string fileName, ScriptEngine engine, IDictionary<string, dynamic> parameters) : base (id)
 		{
 
 			m_engine = engine;
@@ -57,6 +61,11 @@ namespace Core.Scripting
 			Reload ();
 		}
 
+		public void AddSearchPath(string searchPath) {
+		
+			m_engine.SetSearchPaths (m_engine.GetSearchPaths ().Concat (new List<string> () { searchPath }).ToList());
+		
+		}
 
 		public override void Reload ()
 		{

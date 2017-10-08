@@ -40,12 +40,6 @@ namespace Core.Scripting
 
 		}
 
-		public override ICommandScript CreateCommand (string id) {
-
-			throw new NotImplementedException ();
-
-		}
-
 		public override IScriptInterpreter CreateInterpreter(LuaScript script) {
 
 			throw new NotImplementedException ();

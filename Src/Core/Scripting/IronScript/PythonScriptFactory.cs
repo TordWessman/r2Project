@@ -25,7 +25,7 @@ using Core.Device;
 
 namespace Core.Scripting
 {
-	public class PythonScriptFactory: ScriptFactoryBase<PythonScript>
+	public class PythonScriptFactory: ScriptFactoryBase<IronScript>
 	{
 		//Make sure the IronRuby.Library.dll are included during compilation.
 		#pragma warning disable 0169
@@ -44,21 +44,24 @@ namespace Core.Scripting
 			m_engine = Python.CreateEngine ();
 		
 			m_engine.SetSearchPaths (paths);
+
 		}
 
-		public override PythonScript CreateScript (string id) {
+		public override IronScript CreateScript (string id) {
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
 
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
-			return new PythonScript (id, GetScriptFilePath (id), m_engine, inputParams);
+			return new IronScript (id, GetScriptFilePath (id), m_engine, inputParams);
 
 		}
-		public override ICommandScript CreateCommand (string id) { throw new NotImplementedException();}
-		public override IScriptInterpreter CreateInterpreter(PythonScript script) {
-			throw new NotImplementedException ();
+
+		public override IScriptInterpreter CreateInterpreter(IronScript script) {
+
+			return new IronScriptInterpreter (script);
+
 		}
 
 		/// <summary>

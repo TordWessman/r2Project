@@ -30,7 +30,7 @@ namespace Core.Tests
 	public class ScriptTests: TestBase
 	{
 		
-		private IScriptFactory<RubyScript> m_rubyScriptFactory;
+		private IScriptFactory<IronScript> m_rubyScriptFactory;
 		private IScriptFactory<LuaScript> m_luaScriptFactory;
 
 		[TestFixtureSetUp]
