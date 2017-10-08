@@ -47,24 +47,6 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="IronRuby">
-      <HintPath>..\..\3rdParty\IronRuby\IronRuby.dll</HintPath>
-    </Reference>
-    <Reference Include="IronRuby.Libraries">
-      <HintPath>..\..\3rdParty\IronRuby\IronRuby.Libraries.dll</HintPath>
-    </Reference>
-    <Reference Include="IronRuby.Libraries.Yaml">
-      <HintPath>..\..\3rdParty\IronRuby\IronRuby.Libraries.Yaml.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\3rdParty\IronRuby\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting">
-      <HintPath>..\..\3rdParty\IronRuby\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>..\..\3rdParty\IronRuby\Microsoft.Scripting.Metadata.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.core">
       <HintPath>..\..\3rdParty\nunit\nunit.core.dll</HintPath>
     </Reference>
@@ -73,6 +55,27 @@
     </Reference>
     <Reference Include="NLua">
       <HintPath>..\..\3rdParty\NLua.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython">
+      <HintPath>..\..\3rdParty\IronLanguages\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Modules">
+      <HintPath>..\..\3rdParty\IronLanguages\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby">
+      <HintPath>..\..\3rdParty\IronLanguages\IronRuby.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby.Libraries">
+      <HintPath>..\..\3rdParty\IronLanguages\IronRuby.Libraries.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="policy.2.7.IronPython.Modules">
+      <HintPath>..\..\3rdParty\IronLanguages\policy.2.7.IronPython.Modules.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -260,6 +263,8 @@
     <Compile Include="Network\Web\Http\HttpMessage.cs" />
     <Compile Include="Network\Web\TCP\TCPMessage.cs" />
     <Compile Include="Device\RemotlyAccessibleDeviceBase.cs" />
+    <Compile Include="Scripting\Python\PythonScript.cs" />
+    <Compile Include="Scripting\Python\PythonScriptFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -286,6 +291,7 @@
     <Folder Include="Data\" />
     <Folder Include="Tests\DummyClasses\Memory\" />
     <Folder Include="Network\Web\Legacy\" />
+    <Folder Include="Scripting\Python\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

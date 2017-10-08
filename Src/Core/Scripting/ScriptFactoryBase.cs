@@ -60,7 +60,7 @@ namespace Core.Scripting
 
 				}
 
-				throw new FileNotFoundException ($"Unable to locate {fileName}. Is there a search path missing?");
+				throw new FileNotFoundException ($"Unable to locate '{fileName}'. Is there a search path missing?");
 
 			}
 

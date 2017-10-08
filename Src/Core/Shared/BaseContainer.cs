@@ -136,15 +136,21 @@ namespace Core
 			// Creating a device factory used for the creation of yet uncategorized devices...
 			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices, m_memory);
 
-
-
-
 			m_devices.Add (simpleSecurity);
 			m_devices.Add (m_taskMonitor);
 			m_devices.Add (Settings.Instance);
 			m_devices.Add (consoleLogger);
 			m_devices.Add (Log.Instance);
 			m_devices.Add (this);
+
+			var psf = new PythonScriptFactory("psf", new List<string> () {Settings.Paths.RubyLib(), Settings.Paths.Common ()}, m_devices);
+
+			// Point to the defauult ruby script files resides.
+			psf.AddSourcePath (Settings.Paths.Python());
+			// Point to the common folder.	
+			psf.AddSourcePath (Settings.Paths.Common ());
+
+			m_devices.Add (psf);
 
 			m_scriptFactory = new RubyScriptFactory (
 				Settings.Identifiers.ScriptFactory(),

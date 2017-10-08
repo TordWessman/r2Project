@@ -137,7 +137,7 @@ namespace Core.Scripting
 				m_isRunning = true;
 
 				// Run setup method if present
-				if (Get (HANDLE_SETUP) != null) { Invoke (HANDLE_SETUP); }
+				if (null != Get (HANDLE_SETUP)) { Invoke (HANDLE_SETUP); }
 
 				m_processTask.Start ();
 
@@ -159,7 +159,8 @@ namespace Core.Scripting
 
 		public void Stop () {
 
-			if (Get (HANDLE_STOP) != null) { Invoke (HANDLE_STOP); }
+			if (null != Get (HANDLE_STOP)) { Invoke (HANDLE_STOP); }
+
 			Reload ();
 			m_processTask = GetProcessTask ();
 
