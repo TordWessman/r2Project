@@ -189,10 +189,9 @@ namespace Video
 		
 		public CaptureObjectsContainer FrameCapture (IFrameSource source, ref CaptureObjectsContainer array) {
 			//Not tested...
-			source.Pause ();
+
 			HaarCapture (source.CurrentFrame, ref array);
-			source.Resume ();
-			
+
 			return array;
 			
 		}

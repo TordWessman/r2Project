@@ -32,11 +32,11 @@ namespace Video
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern void _ext_create_dump(string filename, System.IntPtr image);
 
-
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern void _ext_release_ipl_image (System.IntPtr image);
 
 		private System.IntPtr m_ptr;
+		private bool m_destroyed;
 
 		public System.IntPtr Ptr {get { return m_ptr; }}
 
@@ -48,20 +48,38 @@ namespace Video
 
 		public void Save(string filename) {
 		
+			if (m_destroyed) {
+
+				throw new InvalidOperationException ("Unable to save: Image has been destroyed.");
+			
+			} 
+
 			_ext_create_dump (filename, m_ptr);
 
 		}
 
 		public void Destroy() {
 		
+			if (m_destroyed) {
+
+				throw new InvalidOperationException ("Unable to save: Image has been destroyed.");
+
+			}
+
+			m_destroyed = true;
 			_ext_release_ipl_image (m_ptr);
 			m_ptr = default(System.IntPtr);
 
 		}
 
 		~IplImage() {
+			
+			if (!m_destroyed) {
+			
+				Destroy ();
 
-			Destroy ();
+			}
+
 		}
 
 	}

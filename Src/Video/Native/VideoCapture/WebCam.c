@@ -215,19 +215,12 @@ void _ext_start() {
 	start_gst_loop();
 }
 
-void _ext_pause_frame_fetching() {
-	pause_fetching = true;
-}
-
-void _ext_resume_frame_fetching() {
-	pause_fetching = false;
-}
-
 void* _ext_get_frame() {
 	if (is_processing) {
 		send_report(kERROR_WARNING, "Unable to create dump. Processing in progress.\n");
 	} else {
 		is_processing = true;
+		pause_fetching = true;
 		while (is_reading) {/* "sleep" */ }
 		
 		if (current_frame) {
@@ -249,6 +242,7 @@ void* _ext_get_frame() {
 
 		cvCopy(tmp_frame, current_frame, NULL);
 		is_processing = false;
+		pause_fetching = false;
 		return current_frame;//ptr;
 	}
 

@@ -41,10 +41,6 @@ void _ext_set_input_vars (const char* width, const char* height);
 int _ext_get_video_width();
 int _ext_get_video_height();
 
-//Before fetching frames, make sure to pause the fetching process
-void _ext_pause_frame_fetching();
-void _ext_resume_frame_fetching();
-
 void _ext_dealloc();
 
 void _ext_resume_from_eos();

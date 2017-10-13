@@ -32,16 +32,6 @@ namespace Video
 		IplImage CurrentFrame { get ;}
 
 		/// <summary>
-		/// Pause frame fetching
-		/// </summary>
-		void Pause ();
-
-		/// <summary>
-		/// Resumes frame fetching.
-		/// </summary>
-		void Resume ();
-
-		/// <summary>
 		/// Returns media size.
 		/// </summary>
 		/// <value>The size.</value>

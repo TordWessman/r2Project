@@ -74,10 +74,6 @@ namespace Video
 		/// <value>The current frame.</value>
 		public IplImage CurrentFrame { get { return new IplImage (_ext_capture_camera (m_cameraId)); } }
 
-		public void Pause () { }
-
-		public void Resume () { }
-
 		public override void Stop () {
 		
 			_ext_stop_capture (m_cameraId);

@@ -73,12 +73,6 @@ namespace Video
 		    string width, string height);
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_pause_frame_fetching();
-
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_resume_frame_fetching();
-		
-		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern void _ext_dealloc();
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
@@ -189,17 +183,7 @@ namespace Video
 				}
 			}
 		}
-		
-		public void Pause ()
-		{
-			_ext_pause_frame_fetching ();
-		}
-		
-		public void Resume ()
-		{
-			_ext_resume_frame_fetching ();
-		}
-		
+
 		public CvSize Size{ get {
 				return new CvSize (_ext_get_video_width(), _ext_get_video_height());
 			}

@@ -145,10 +145,8 @@ namespace Video
 		{
 			IMemory memory = m_memory.Create (ImageTypes.Frame.ToString ().ToLower (), IMAGE_MEMORY_TYPE);	
 			
-			source.Pause ();
 			_ext_create_dump (GetImageFileName (memory), source.CurrentFrame.Ptr);
-			source.Resume ();
-			
+
 			return memory;
 		}
 		

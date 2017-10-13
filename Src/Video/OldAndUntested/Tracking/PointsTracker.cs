@@ -51,19 +51,16 @@ namespace Video
 		#region IPointsTracker implementation
 		public TrackerPtr CreateTracker (IFrameSource video, CvRect roi)
 		{
-			video.Pause ();
 			TrackerPtr tracker = CreateTracker (video.CurrentFrame, roi);
-			video.Resume ();
-			
+
 			return tracker;
 		}
 		
 		public TrackerPtr CreateTracker (IFrameSource video)
 		{
-			video.Pause ();
+
 			TrackerPtr tracker = CreateTracker (video.CurrentFrame);
-			video.Resume ();
-			
+
 			return tracker;
 		}
 		
@@ -93,10 +90,9 @@ namespace Video
 		}
 		
 		public int UpdateTracker (IFrameSource video, TrackerPtr tracker) {
-			video.Pause ();
+
 			int pointsFound = UpdateTracker(video.CurrentFrame,tracker);
-			video.Resume ();
-			
+
 			return pointsFound;
 		}
 		
