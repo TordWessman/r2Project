@@ -81,7 +81,17 @@ namespace Core.Scripting
 			}
 
 			m_source = m_engine.CreateScriptSourceFromFile (m_fileName);
-			m_source.Execute (m_scope);
+
+			try {
+
+				m_source.Execute (m_scope);
+
+			} catch (Exception ex) {
+			
+				Log.x (ex);
+				return;
+
+			}
 
 			System.Runtime.Remoting.ObjectHandle tmp;
 
@@ -113,7 +123,7 @@ namespace Core.Scripting
 
 		public override dynamic Get (string handle) {
 
-			if (!m_engine.Operations.ContainsMember (m_mainClass, handle)) {
+			if (!Ready || !m_engine.Operations.ContainsMember (m_mainClass, handle)) {
 
 				return null;
 
