@@ -196,9 +196,6 @@
     <Compile Include="Network\Web\DeviceRouter.cs" />
     <Compile Include="Shared\IConsole.cs" />
     <Compile Include="Log\LogMessage.cs" />
-    <Compile Include="Settings\Shared.cs">
-      <DependentUpon>Shared.tt</DependentUpon>
-    </Compile>
     <Compile Include="Scripting\IScriptInterpreter.cs" />
     <Compile Include="Network\Web\TCP\TCPServer.cs" />
     <Compile Include="Scripting\Lua\LuaScript.cs" />
