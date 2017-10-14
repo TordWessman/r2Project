@@ -44,8 +44,7 @@ namespace GPIO
 
 		public override bool Ready { get { return _ext_dht11_is_running (); } }
 
-		public override void Start ()
-		{
+		public override void Start () {
 			
 			Task.Factory.StartNew (() => {
 
@@ -55,8 +54,7 @@ namespace GPIO
 
 		}
 
-		public override void Stop ()
-		{
+		public override void Stop () {
 			
 			_ext_dht11_stop ();
 		
