@@ -229,7 +229,7 @@ uint8_t r2I2C_get_response_size() {
 
 uint8_t* r2I2C_get_response() {
 
-	return _r2I2C_rBuffer;
+	return _r2I2C_responseBuffer;
 
 }
 
@@ -257,7 +257,7 @@ int main(void)
 	buff[3] = 45;
 	//buff[2] = 44;
 	
-	int status = r2I2C_send(buff);
+	int status = r2I2C_send(buff, 4);
 
 	if (status == 0) {
 		
