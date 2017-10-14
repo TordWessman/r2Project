@@ -24,9 +24,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
 #define MAXTIMINGS	85
 
-void read_dht11_dat();
+void read_dht11_dat(bool debugMode);
 
 int dht11_dat[5] = { 0, 0, 0, 0, 0 };
 
@@ -52,7 +53,7 @@ void _ext_dht11_start() {
 
 	while ( dht11_should_run )
 	{
-		read_dht11_dat();
+		read_dht11_dat(false);
 		delay( 5000 );
 	}
 
@@ -67,7 +68,7 @@ void _ext_dht11_stop() {
 bool _ext_dht11_is_running() { return dht11_is_running; }
 
 
-void read_dht11_dat()
+void read_dht11_dat(bool debugMode)
 {
 	uint8_t laststate	= HIGH;
 	uint8_t counter		= 0;
@@ -124,10 +125,10 @@ void read_dht11_dat()
 		dht11_humidity = dht11_dat[0];
 		dht11_temp = dht11_dat[2];
 
-//		printf( "- Values: temp: %d  humid: %d \n", dht11_dat[2], dht11_dat[0] );
+		if (debugMode)	{ printf( "- Values: temp: %d  humid: %d \n", dht11_dat[2], dht11_dat[0] ); }
 
-	} else  {
-//		printf( "TEMP HUMID: Data not good, skip. temp: %d  humid: %d \n", dht11_dat[2], dht11_dat[0] );
+	} else if (debugMode) {
+		printf( "TEMP HUMID: Data not good, skip. temp: %d  humid: %d \n", dht11_dat[2], dht11_dat[0] );
 	}
 
 }
@@ -142,7 +143,7 @@ int main( void )
  
 	while ( 1 )
 	{
-		read_dht11_dat();
+		read_dht11_dat( true );
 		delay( 1000 ); /* wait 1sec to refresh */
 	}
  
