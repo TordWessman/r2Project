@@ -14,7 +14,6 @@ all: servo dht11 r2I2C
 servo:
 	$(CC) $(SERVO).cpp -o $(SERVO_LIB) $(CFLAGS)
 	cp $(SERVO_LIB) $(R2_LIB_DIR)
-	echo "Make sure to install (i e by symlinking) libraries into /usr/lib."
 	
 dht11:
 	gcc $(DHT11).c -o $(DHT11_LIB) -lwiringPi -Wall -fPIC -I /usr/include -L /usr/lib -shared
@@ -23,6 +22,7 @@ dht11:
 
 r2I2C::
 	gcc $(r2I2C).c -o $(r2I2C_LIB) -Wall -fPIC -I /usr/include -L /usr/lib -shared
+	cp $(r2I2C_LIB) $(R2_LIB_DIR)
 
 clean:
 	rm *.so
