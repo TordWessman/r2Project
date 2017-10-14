@@ -1,5 +1,7 @@
 ** r2Project ** is an experimental framework for building IOT stuff mainly targeting Raspberry Pi.
 
+# THIS IS JUST A TEMPLATE ...
+
 ### Project structure
 
  - **[Application layer (Python/Ruby/Lua)]**
