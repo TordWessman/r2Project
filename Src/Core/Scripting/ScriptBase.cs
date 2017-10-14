@@ -134,7 +134,15 @@ namespace Core.Scripting
 				m_processTask = GetProcessTask ();
 
 				// Run setup method if present
-				if (null != Get (HANDLE_SETUP)) { Invoke (HANDLE_SETUP); }
+				if (null != Get (HANDLE_SETUP)) { 
+
+					Invoke (HANDLE_SETUP); 
+
+				} else { 
+
+					Log.w ($"Warning: Script '{Identifier}' is missing setup method."); 
+				
+				} 
 
 				m_processTask.Start ();
 
