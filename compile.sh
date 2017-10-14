@@ -82,7 +82,7 @@ compileT4 $template_file $implementation_path/$1/$1/$1ConfigurationTemplate.cs
 if [ $? -eq 0 ];
 then
 
-xbuild "$project_file"
+msbuild "$project_file"
 
 fi
 

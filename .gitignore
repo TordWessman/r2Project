@@ -72,6 +72,7 @@ obj/*.txt
 *ConfigurationTemplate.cs
 config.status
 Shared.cs
+**/bin
 
 # binary directories
 Src/Core/bin/Debug/*
