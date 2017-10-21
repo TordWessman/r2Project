@@ -113,7 +113,7 @@ namespace Core.Scripting
 
 		}
 
-		public override bool Ready { get { return m_mainClass != null;} }
+		public override bool Ready { get { return base.Ready && m_mainClass != null;} }
 
 		public override void Set (string handle, dynamic value) {
 
@@ -141,7 +141,17 @@ namespace Core.Scripting
 
 			}
 
-			return m_engine.Operations.InvokeMember (m_mainClass, handle, args);
+			dynamic member = m_engine.Operations.GetMember (m_mainClass, handle);
+
+			if (member is IronPython.Runtime.Method || member is IronRuby.Runtime.Calls.RubyMethodInfo || member is IronRuby.Builtins.RubyMethod) {
+			
+				// Invoke as method
+				return m_engine.Operations.InvokeMember (m_mainClass, handle, args);
+
+			}
+
+			// Treat as property
+			return member;
 
 		}
 
