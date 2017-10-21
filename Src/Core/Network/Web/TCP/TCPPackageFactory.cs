@@ -22,15 +22,34 @@ using System.Dynamic;
 using Core.Device;
 using Core.Data;
 using System.Linq;
+using System.IO;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
-	public class TCPPackageFactory
+	internal static class StreamExtensions {
+	
+		public static byte[] Read(this Stream self, int size) {
+
+			byte[] buff = new byte[size];
+			self.Read (buff, 0, size);
+			return buff;
+
+		}
+
+		public static int ReadInt(this Stream self, int? size = null) {
+		
+			return new Int32Converter( Read (self, size ?? Int32Converter.ValueSize)).Value;
+		
+		}
+
+	}
+
+	public class TCPPackageFactory: ITCPPackageFactory 
 	{
 		/// <summary>
 		/// Defines the data types which are transmittable
 		/// </summary>
-		private enum PayloadType: int {
+		internal enum PayloadType: int {
 
 			// Complex object
 			Dynamic = 1,
@@ -51,35 +70,29 @@ namespace Core.Network.Web
 
 		}
 
-		public byte[] SerializePayload(dynamic payload) {
+		public byte[] SerializeMessage(TCPMessage message) {
 		
-			return m_serialization.Serialize (payload);
-
-		}
-
-		public byte[] CreateTCPData(TCPMessage package) {
-		
-			byte[] code = new Int32Converter ((int)package.Code).GetContainedBytes(2);
-			byte[] path = m_serialization.Encoding.GetBytes (package.Destination);
-			byte[] headerData = package.Headers != null ? m_serialization.Serialize (package.Headers) : new byte[0];
+			byte[] code = new Int32Converter (message.Code).GetContainedBytes(2);
+			byte[] path = m_serialization.Encoding.GetBytes (message.Destination ?? "");
+			byte[] headerData = message.Headers != null ? m_serialization.Serialize (message.Headers) : new byte[0];
 			byte[] payloadData = new byte[0];
 			byte[] payloadDataType = new byte[0];
 
-			if (package.Payload != null) {
+			if (!Object.ReferenceEquals(message.Payload, null)) {
 			
-				if (package.Payload is byte[]) {
+				if (message.Payload is byte[]) {
 
-					payloadData = package.Payload as byte[];
+					payloadData = message.Payload as byte[];
 					payloadDataType = new Int32Converter ((int)PayloadType.Bytes).GetContainedBytes (2);
 
-				} else if (package.Payload is string) {
+				} else if (message.Payload is string) {
 
-					payloadData = m_serialization.Encoding.GetBytes (package.Payload);
+					payloadData = m_serialization.Encoding.GetBytes (message.Payload);
 					payloadDataType = new Int32Converter ((int)PayloadType.String).GetContainedBytes (2);
 
 				} else {
 
-					payloadData = m_serialization.Serialize (package.Payload);
+					payloadData = m_serialization.Serialize (message.Payload);
 					payloadDataType = new Int32Converter ((int)PayloadType.Dynamic).GetContainedBytes (2);
 
 				}
@@ -94,56 +107,40 @@ namespace Core.Network.Web
 		
 		}
 
-		public TCPMessage CreateTCPPackage(byte [] rawData) {
+		public dynamic DeserializePayload(TCPMessage message) {
 		
-			int position = 0;
-			int code = new Int32Converter (rawData.Skip (position).Take (2)).Value;
-			position += 2;
-			int pathSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
-			position += Int32Converter.ValueSize;
-			int headerSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
-			position += Int32Converter.ValueSize;
-			int payloadSize = new Int32Converter (rawData.Skip (position).Take (Int32Converter.ValueSize)).Value;
-			position += Int32Converter.ValueSize;
-
-			byte[] path = rawData.Skip (position).Take (pathSize).ToArray();
-			position += pathSize;
-			byte[] headers = rawData.Skip (position).Take (headerSize).ToArray();
-			position += headerSize;
-
-			dynamic payload = null;
-
-			if (payloadSize > 0) {
-
-				PayloadType payloadType = (PayloadType) (new Int32Converter (rawData.Skip (position).Take (2)).Value);
-				position += 2;
-				byte[] payloadData = rawData.Skip (position).Take (payloadSize).ToArray();
-
-				if (payloadType == PayloadType.String) {
-
-					payload = m_serialization.Encoding.GetString (payloadData);
-
-				} else if (payloadType == PayloadType.Dynamic) {
-
-					payload = m_serialization.Deserialize (payloadData);
-
-				} else if (payloadType == PayloadType.Bytes) {
-
-					payload = payloadData;
-
-				} else {
-
-					throw new NotImplementedException ($"Packaging of payload type: {payloadType} not yet implemented.");
-
-				}
+			if (message.ResponsePayloadType == PayloadType.Dynamic) {
+			
+				return m_serialization.Deserialize (message.Payload);
+					
+			} else if (message.ResponsePayloadType == PayloadType.String) {
+			
+				return m_serialization.Encoding.GetString(message.Payload);
 
 			}
 
-			return new TCPMessage (
-				m_serialization.Encoding.GetString (path),
-				m_serialization.Deserialize (headers),
-				payload,
-				code);
+			return message.Payload;
+
+		}
+
+		public TCPMessage DeserializePackage(Stream stream) {
+			
+			int code = stream.ReadInt (2);
+			int pathSize = stream.ReadInt ();
+			int headerSize = stream.ReadInt ();
+			int payloadSize = stream.ReadInt ();
+			byte[] path = pathSize > 0 ? stream.Read (pathSize) : new byte[0];
+			byte[] headers = headerSize > 0 ? stream.Read (headerSize) : new byte[0];
+			PayloadType payloadType = (PayloadType)stream.ReadInt (2);
+			byte[] payload = stream.Read (payloadSize);
+
+			return new TCPMessage () { 
+				Destination = m_serialization.Encoding.GetString (path),
+				Headers = m_serialization.Deserialize (headers),
+				Payload = payload,
+				Code = code,
+				ResponsePayloadType = payloadType
+			};
 
 		}
 

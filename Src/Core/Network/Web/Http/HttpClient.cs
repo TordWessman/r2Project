@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 
 namespace Core.Network.Web
 {
-	public class HttpClient: DeviceBase, IHttpClient
+	public class HttpClient: DeviceBase, IMessageClient<HttpMessage>
 	{
 		public static string DefaultHttpMethod = "POST";
 
@@ -48,17 +48,19 @@ namespace Core.Network.Web
 		
 			Task.Factory.StartNew ( () => {
 			
+				HttpMessage response;
+
 				try {
 				
-					HttpMessage response = _Send(message);
-
-					responseDelegate(response); //.DynamicInvoke(response);
+					response = _Send(message);
 
 				} catch (Exception ex) {
-				
-					responseDelegate(new HttpMessage( new HttpError() { Message = ex.Message }, (int) WebStatusCode.NetworkError));
+
+					response = new HttpMessage( new HttpError() { Message = ex.Message }, (int) WebStatusCode.NetworkError);
 
 				}
+
+				responseDelegate(response);
 
 			});
 

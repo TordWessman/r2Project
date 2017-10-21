@@ -17,24 +17,29 @@
 //
 //
 using System;
+using Core.Device;
 
 namespace Core.Network.Web
 {
-	public interface IHttpClient
+
+	/// <summary>
+	/// Implementations are capable of transmitting data to a remote host.
+	/// </summary>
+	public interface IMessageClient<MessageType>: IDevice
 	{
 
 		/// <summary>
 		/// Synchronous http communication.
 		/// </summary>
 		/// <param name="message">Message.</param>
-		HttpMessage Send (HttpMessage message);
+		MessageType Send (MessageType message);
 
 		/// <summary>
 		/// Asynchronous communication. The action delegate will have to take a Core.Network.Web.HttpResponse parameter. 
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		void SendAsync(HttpMessage message, Action<HttpMessage> responseDelegate);
+		void SendAsync(MessageType message, Action<MessageType> responseDelegate);
 
 	}
 

@@ -23,6 +23,7 @@ using System.Linq;
 using Core.Scripting;
 using System.Dynamic;
 using Core.Data;
+using System.Collections.Generic;
 
 namespace Core.Network.Web
 {
@@ -55,7 +56,7 @@ namespace Core.Network.Web
 
 		}
 
-		public IHttpClient CreateHttpClient(string id) {
+		public IMessageClient<HttpMessage> CreateHttpClient(string id) {
 
 			return new HttpClient(id, m_serialization);
 
@@ -119,13 +120,35 @@ namespace Core.Network.Web
 
 		}
 
+		public TCPMessage CreateTCPMessage(string path, dynamic payload, IDictionary<string, object> headers = null) {
+		
+			TCPMessage message = new TCPMessage () {
+				Destination = path,
+				Payload = payload,
+				Headers = headers
+			};
 
-		public TCPPackageFactory CreatePackageFactory() {
+			return message;
+
+		}
+
+		public ITCPPackageFactory CreatePackageFactory() {
 
 			return new TCPPackageFactory (m_serialization);
 
 		}
 
+		public IMessageClient<TCPMessage> CreateTCPClient(string id, string host, int port) {
+		
+			return new TCPClient (id, CreatePackageFactory (), host, port);
+
+		}
+
+		public IWebServer CreateTCPServer(string id, int port) {
+		
+			return new TCPServer (id, port, m_serialization);
+
+		}
 
 	}
 

@@ -246,7 +246,6 @@
     <Compile Include="Network\Web\Http\HttpClient.cs" />
     <Compile Include="Data\ISerialization.cs" />
     <Compile Include="Data\JsonSerialization.cs" />
-    <Compile Include="Network\Web\Http\IHttpClient.cs" />
     <Compile Include="Network\Web\TCP\TCPClient.cs" />
     <Compile Include="Network\Web\Http\HttpMessage.cs" />
     <Compile Include="Network\Web\TCP\TCPMessage.cs" />
@@ -259,6 +258,8 @@
     <Compile Include="Scripting\Obsolete\IScriptExecutorFactory.cs" />
     <Compile Include="Scripting\Obsolete\ScriptExecutor.cs" />
     <Compile Include="Scripting\Obsolete\ScriptExecutorFactory.cs" />
+    <Compile Include="Network\Web\TCP\ITCPPackageFactory.cs" />
+    <Compile Include="Network\Web\Http\IMessageClient.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

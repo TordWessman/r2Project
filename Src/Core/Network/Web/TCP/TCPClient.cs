@@ -17,14 +17,91 @@
 //
 //
 using System;
+using Core.Device;
+using System.Net.Sockets;
+using System.Collections.Generic;
+using System.Linq;
+using Core.Network.Web;
 
-namespace Core
+namespace Core.Network
 {
-	public class TCPClient
+	public class TCPClient: DeviceBase, IMessageClient<TCPMessage>
 	{
-		public TCPClient ()
-		{
+		string m_host;
+		int m_port;
+		private TcpClient m_client;
+		ITCPPackageFactory m_serializer;
+
+		public IDictionary<string, object> Headers;
+
+		public TCPClient (string id, ITCPPackageFactory serializer, string host, int port) : base(id) {
+
+			m_host = host;
+			m_port = port;
+			m_client = new TcpClient ();
+			m_serializer = serializer;
+
 		}
+
+		public override bool Ready {
+			get {
+				return m_client.Connected;
+			}
+		}
+
+		public override void Start() {
+		
+			m_client.Connect (m_host, m_port);
+
+		}
+
+		public override void Stop () {
+
+			m_client.Close ();
+
+		}
+
+		public void SendAsync(TCPMessage message, Action<TCPMessage> responseDelegate) {
+
+			System.Threading.Tasks.Task.Factory.StartNew ( () => {
+
+				TCPMessage response;
+
+				try {
+
+					response = Send(message);
+
+				} catch (Exception ex) {
+
+					response = new TCPMessage() { Code = (int) WebStatusCode.NetworkError, Payload = ex.ToString()};
+
+				}
+
+				responseDelegate(response);
+
+			});
+
+		}
+
+
+		public TCPMessage Send(TCPMessage requestMessage) {
+			
+			if (requestMessage.Headers != null && Headers != null) {
+
+				Headers.ToList().ForEach( kvp => requestMessage.Headers.Add(kvp));
+
+			}
+
+			requestMessage.Headers = requestMessage.Headers ?? Headers;
+
+			byte[] request = m_serializer.SerializeMessage (requestMessage);
+
+			m_client.GetStream ().Write (request, 0, request.Length);
+
+			return m_serializer.DeserializePackage (m_client.GetStream ());
+
+		}
+
 	}
 }
 

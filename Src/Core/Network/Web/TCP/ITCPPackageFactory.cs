@@ -17,25 +17,28 @@
 //
 //
 using System;
-using Core.Network.Data;
-using System.Collections.Generic;
 
 namespace Core.Network
 {
-
-	public struct TCPMessage 
+	/// <summary>
+	/// Implementations handles the serialization & deserialization of TCPMessages.
+	/// </summary>
+	public interface ITCPPackageFactory
 	{
-		
-		public int Code;
-		public string Destination;
-		public IDictionary<string, object> Headers;
-		public dynamic Payload;
+		/// <summary>
+		/// Serializes the TCPMessage into a byte array.
+		/// </summary>
+		/// <returns>The package.</returns>
+		/// <param name="package">Package.</param>
+		byte[] SerializeMessage (TCPMessage message);
 
 		/// <summary>
-		/// Determined data type of the payload after deserialization.
+		/// Deserializes the package retrieved from the stream into a TCPMessage.
 		/// </summary>
-		internal TCPPackageFactory.PayloadType ResponsePayloadType;
+		/// <returns>The package.</returns>
+		/// <param name="stream">Stream.</param>
+		TCPMessage DeserializePackage (System.IO.Stream stream);
 
 	}
-
 }
+

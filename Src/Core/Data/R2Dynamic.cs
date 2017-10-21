@@ -26,7 +26,7 @@ using System.Collections;
 namespace Core.Data
 {
 	/// <summary>
-	/// Base implementation of an object with dynamic members.
+	/// Represents a dynamic object which implements IDictionary and whose dynamic properties are exposed through the IDictionary interface..
 	/// </summary>
 	public class R2Dynamic: DynamicObject, IDictionary<TKey, TValue> 
 	{
@@ -51,8 +51,7 @@ namespace Core.Data
 
 		}
 
-		public R2Dynamic ()
-		{
+		public R2Dynamic () {
 
 			m_members = new Dictionary<TKey, TValue> ();
 

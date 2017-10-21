@@ -1,6 +1,5 @@
 require 'output'
 require 'scriptbase'
-#include System::Dynamic
 
 class MainClass < ScriptBase
 

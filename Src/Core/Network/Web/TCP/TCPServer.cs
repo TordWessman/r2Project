@@ -24,28 +24,27 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Core.Data;
+using Core.Network.Web;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	public class TCPServer : DeviceBase, IWebServer
 	{
 		
 		int m_port;
-		private Socket m_socket;
 		private TcpListener m_listener;
 		private bool m_shouldRun;
 		private TCPPackageFactory m_packageFactory;
-		private Task m_serviceTask;
+		private Task m_service;
+		private IDictionary<TcpClient, Task> m_connections;
+
 		private IDictionary<string,IWebEndpoint> m_endpoints;
-		//private IList<IWebEndpoint> m_endpoints;
 
 		public TCPServer (string id, int port, ISerialization serialization) : base(id)
 		{
 
 			m_port = port;
-			m_listener = new TcpListener (IPAddress.Any, m_port);
 			m_packageFactory = new TCPPackageFactory (serialization);
-			m_serviceTask = new Task (Service);
 			m_endpoints = new Dictionary<string, IWebEndpoint> ();
 
 		}
@@ -68,62 +67,128 @@ namespace Core.Network.Web
 
 		}
 
-		private void Service() {
+		/// <summary>
+		/// Represents a single client connection.
+		/// </summary>
+		/// <param name="client">Client.</param>
+		private void Connection(TcpClient client) {
 		
-			while (m_shouldRun) {
+			TCPMessage responseMessage =  new TCPMessage() {Code = (int) WebStatusCode.NotDefined};
 
+			while (m_shouldRun && client.Connected) {
+			
 				try {
+					
+					TCPMessage requestMessage = m_packageFactory.DeserializePackage (client.GetStream ());
+					Log.t($"Server got message for: {requestMessage.Destination}");
+					if (m_endpoints.ContainsKey(requestMessage.Destination)) {
 
-					using(m_socket = m_listener.AcceptSocket()) {
+						responseMessage = new TCPMessage() {
+							Code = (int) WebStatusCode.Ok,
+							Payload = m_endpoints [requestMessage.Destination].Interpret (requestMessage.Payload, requestMessage.Destination, requestMessage.Headers)
+						};
 
-						m_socket.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+					} else {
 
-						NetworkConnection con = new NetworkConnection(new NetworkStream(m_socket));
-						byte [] input = con.ReadData();
+						responseMessage = new TCPMessage() {
+							Code = (int) WebStatusCode.NotFound,
+							Payload =  new WebErrorMessage((int) WebStatusCode.NotFound, $"Path not found: {requestMessage.Destination}")
+						};
 
-						if (con.Status == NetworkConnectionStatus.OK) {
-
-							TCPMessage request = m_packageFactory.CreateTCPPackage(input);
-
-							if (m_endpoints.ContainsKey(request.Destination)) {
-
-								con.WriteData(m_endpoints[request.Destination].Interpret(request.Payload, request.Destination, request.Headers), true);
-
-							} else {
-							
-								throw new NotImplementedException("How to send error messages over TCP?");
-								//con.WriteData(m_packageFactory.SerializePayload(new WebErrorMessage(WebStatusCode.NotFound, $"Path not found: {request.Path}")), true);
-
-							}
-
-						} else {
-
-							throw new WebException($"Got bad response during connection: {con.Status}.");
-
-						}
 					}
 
 				} catch (Exception ex) {
 
-					Log.x (ex);
+					if (m_shouldRun) {
+					
+						Log.x(ex);
+
+						responseMessage = new TCPMessage() {
+							Code = (int) WebStatusCode.ServerError,
+
+							#if DEBUG
+							Payload = ex.ToString()
+							#endif
+
+						};
+
+					}
+
+				}
+
+				if (m_shouldRun && client.Connected) {
+				
+					try {
+
+						byte[] response = m_packageFactory.SerializeMessage(responseMessage);
+						Log.t($"Server will send response now {response.Length}!");
+						client.GetStream ().Write (response, 0, response.Length);
+
+					} catch (Exception ex) {
+					
+						Log.x (ex);
+						client.Close ();
+
+					}
 
 				}
 
 			}
 
+			Log.t($"Now disconnecting client: {client.Client.RemoteEndPoint.ToString()}.");
+
 		}
 
-		public override void Start ()
-		{
+		/// <summary>
+		/// Represents the server side listener.
+		/// </summary>
+		private void Service() {
+		
+			Log.t ($"Starting TCP Server on port {m_port}");
+
+			m_listener = new TcpListener (IPAddress.Any, m_port);
+			m_listener.Start ();
+
+			while (m_shouldRun) {
+
+				try {
+
+					TcpClient client = m_listener.AcceptTcpClient();
+					Log.t($"Got connection from: {client.Client.RemoteEndPoint.ToString()}");
+					client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+					m_connections[client] = Task.Run( () => Connection(client));
+
+				} catch (Exception ex) { Log.x (ex); }
+
+			}
+
+		}
+
+		public override bool Ready {
+			get {
+				return m_listener != null;
+			}
+		}
+
+		public override void Start () {
+			
 			m_shouldRun = true;
-
-			m_serviceTask.Start ();
+			m_connections = new Dictionary<TcpClient, Task> ();
+			m_service = Task.Factory.StartNew (Service);
 
 		}
 
-		public override void Stop ()
-		{
+		public override void Stop () {
+			
 			m_shouldRun = false;
+			m_listener.Stop ();
+			m_listener = null;
+
+			foreach (TcpClient client in m_connections.Keys) {
+			
+				client.Close ();
+
+			}
 
 		}
 	}

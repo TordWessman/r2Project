@@ -85,9 +85,9 @@ namespace Core.Network.Web
 					if (!match) {
 
 						Log.w ("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
-						response.StatusCode = 404;
+						response.StatusCode = (int) WebStatusCode.NotFound;
 
-						Write (response,  m_serialization.Serialize(new WebErrorMessage(404, $"Path not found: {request.Url.AbsolutePath}") ));
+						Write (response,  m_serialization.Serialize(new WebErrorMessage((int) WebStatusCode.NotFound, $"Path not found: {request.Url.AbsolutePath}") ));
 					
 					} 
 
@@ -128,9 +128,15 @@ namespace Core.Network.Web
 		public override void Stop() {
 			
 			m_shouldrun = false;
-			m_listener.Stop ();
-		
+			try {
+			
+				m_listener.Stop ();
+
+			} catch (System.Net.Sockets.SocketException) {}
+
 		}
+
+
 
 		public void AddEndpoint(IWebEndpoint interpreter) {
 
@@ -143,7 +149,7 @@ namespace Core.Network.Web
 			using (StreamReader reader = new StreamReader(request.InputStream, m_serialization.Encoding))
 			{
 
-				byte[] responseBody;
+				byte[] responseBody = new byte[0];
 				byte[] requestBody = default(byte[]);
 
 				try {
@@ -173,8 +179,6 @@ namespace Core.Network.Web
 
 					#if DEBUG
 					responseBody = m_serialization.Serialize(new HttpMessage(new HttpError(ex.Message), response.StatusCode) );
-					#else
-					responseBuffer = "ERROR".ToByteArray(m_encoding);
 					#endif
 
 				}
