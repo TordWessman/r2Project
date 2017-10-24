@@ -9,20 +9,29 @@ class MainClass < ScriptBase
 
 		outputObject.add_metadata "TestHeader", "baz"
 
-		if msg.Text != nil
+		OP::msg "GINININININ"
+		if msg.has "text"
 
-			outputObject.data = msg.Text
+			OP::msg "GINININININ"
+			outputObject.data = msg.text
 
 			if @additional_string != nil
 
 				outputObject.data = outputObject.data + @additional_string
 
-			end 
-					
+			end
+		
+		elsif (msg.has("ob") && msg.ob.has("bar"))
+			
+			outputObject.data = { "foo" => (msg.ob.bar * 42), "bar" => "baz" } 
+		
+		else
+
+			outputObject.data = "ARGH!½!!"
+ 
 		end
 
-
-
+		OP::msg "ARGH"
 		return outputObject
 
 	end

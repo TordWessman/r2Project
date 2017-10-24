@@ -68,6 +68,10 @@ namespace Core.Device
 			
 		}
 
+		public IEnumerable<IDevice> LocalDevices { get { return m_devices.Values.Where (device => !(device is IRemotlyAccessable)); } }
+
+		public IEnumerable<IDevice> Devices { get { return m_devices.Values; } }
+
 		/// <summary>
 		/// Add the device internally
 		/// </summary>

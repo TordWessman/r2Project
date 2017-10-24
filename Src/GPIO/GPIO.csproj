@@ -87,7 +87,6 @@
     <Compile Include="Input\DHT11Sensor.cs" />
     <Compile Include="Communication\R2I2CMaster.cs" />
     <Compile Include="Input\AnalogInput.cs" />
-    <Compile Include="Tests\GPIOTests.cs" />
     <Compile Include="Communication\ISerialConnection.cs" />
     <Compile Include="Communication\ArduinoSerialPackageFactory.cs" />
     <Compile Include="Communication\ISerialPackageFactory.cs" />
@@ -106,7 +105,6 @@
     <Folder Include="Input\" />
     <Folder Include="Output\" />
     <Folder Include="Communication\" />
-    <Folder Include="Tests\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GPIOConfigurationTemplate.tt">

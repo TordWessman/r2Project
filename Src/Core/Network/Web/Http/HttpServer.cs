@@ -164,7 +164,25 @@ namespace Core.Network.Web
 					}
 
 					// Parse request and create response body.
-					responseBody = endpoint.Interpret (requestBody, request.Url.AbsolutePath, CreateMetadata(request));
+					dynamic responseObject = endpoint.Interpret (requestBody, request.Url.AbsolutePath, CreateMetadata(request));
+
+					if (responseObject is byte[]) {
+
+						//Data was returned in raw format.
+
+						return responseBody = responseObject;
+
+					} else if (responseObject is string) {
+
+						// Data was a string.
+						responseBody = m_serialization.Encoding.GetBytes (responseObject);
+
+					} else {
+
+						// Object is considered to be complex and will be transcribed into a json object
+						responseBody = m_serialization.Serialize(responseObject);
+
+					}
 
 					// Add header fields from metadata
 					endpoint.Metadata.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());

@@ -38,13 +38,14 @@ namespace Core
 
 			m_fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite);
 			m_outputStream = new StreamWriter (m_fs);
+			m_outputStream.AutoFlush = true;
 			m_inputStream = new StreamReader (m_fs);
 			m_fileName = path;
 
 		}
 
 		~FileLogger() {
-		
+
 			m_fs.Close();
 
 		}
@@ -53,7 +54,7 @@ namespace Core
 		
 			lock (m_lock) {
 
-				m_outputStream.WriteLine($"[{message.TimeStamp}] {message.Type}: {message.Message}");
+				m_outputStream.WriteLine($"[{message.Type}] [{message.TimeStamp}] : {message.Message} ");
 
 			}
 
@@ -62,6 +63,7 @@ namespace Core
 		public IEnumerable<ILogMessage> History { 
 		
 			get {
+				
 				string line = m_inputStream.ReadLine ();
 				throw new NotImplementedException ();
 

@@ -57,6 +57,17 @@ namespace Core.Data
 
 		}
 
+		/// <summary>
+		/// IronRuby doesn't seem to be able to handle null return values. (Equivalent to this.ContainsKey)
+		/// </summary>
+		/// <returns><c>true</c> if this instance has memberName; otherwise, <c>false</c>.</returns>
+		/// <param name="memberName">Member name.</param>
+		public bool Has(string memberName) {
+
+			return m_members.ContainsKey (memberName) && m_members[memberName] != null;
+
+		}
+
 		public override bool TrySetMember (SetMemberBinder binder, TValue value) {
 
 			m_members [binder.Name] = value;

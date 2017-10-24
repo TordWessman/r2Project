@@ -105,10 +105,11 @@ namespace Core.Tests
 		[Test]
 		public void TestDeviceRouterInvoke() {
 		
-			dynamic dummyObject = m_deviceManager.Get ("dummy_device");
+			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";
 
-			IWebObjectReceiver rec = factory.CreateDeviceObjectReceiver ();
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
+			rec.AddDevice (dummyObject);
 
 			var request = new WebObjectRequest() {
 				Token = "no_token", 
@@ -142,10 +143,12 @@ namespace Core.Tests
 		[Test]
 		public void TestDeviceRouterSet() {
 
-			dynamic dummyObject = m_deviceManager.Get ("dummy_device");
+			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.HAHA = 0;
 
-			IWebObjectReceiver rec = factory.CreateDeviceObjectReceiver ();
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
+			rec.AddDevice (dummyObject);
+
 			string jsonString = 
 				"{ " +
 
@@ -261,7 +264,7 @@ namespace Core.Tests
 			client.Start ();
 			Assert.IsTrue (client.Ready);
 
-			TCPMessage message = new TCPMessage () { Destination = "blah", Payload = "bleh", Code = 42};
+			TCPMessage message = new TCPMessage () { Destination = "blah", Payload = "bleh"};
 			TCPMessage response = client.Send (message);
 			Assert.AreEqual (response.Code, (int)WebStatusCode.NotFound);
 			client.Stop ();
@@ -275,7 +278,8 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServerWithEndpoint() {
 
-			IWebServer s = factory.CreateTCPServer ("s", 4242);
+
+			IWebServer s = factory.CreateTCPServer ("s", 4243);
 			s.Start ();
 			Thread.Sleep (100);
 
@@ -290,11 +294,23 @@ namespace Core.Tests
 
 			// Do the message passing
 			dynamic msg = new R2Dynamic ();
-			msg.Text = "foo";
+			msg.text = "foo";
 
-			IMessageClient<TCPMessage> client = factory.CreateTCPClient ("c", "localhost", 4242);
+			IMessageClient<TCPMessage> client = factory.CreateTCPClient ("c", "localhost", 4243);
 
 			client.Start ();
+
+			dynamic testObject = new R2Dynamic ();
+			testObject.ob = new R2Dynamic ();
+			testObject.ob.bar = 42;
+			testObject.text = null;
+
+			TCPMessage  message2 = new TCPMessage () { Destination = "/test", Payload = testObject};
+
+			TCPMessage response2 = client.Send (message2);
+
+			Assert.AreEqual (TCPPackageFactory.PayloadType.Dynamic, response2.PayloadType);
+			Assert.AreEqual (42 * 10, response2.Payload.foo);
 
 			TCPMessage message = new TCPMessage () { Destination = "/test", Payload = msg};
 			TCPMessage response = client.Send (message);
@@ -304,7 +320,10 @@ namespace Core.Tests
 			Assert.AreEqual ("foo", serialization.Encoding.GetString(response.Payload));
 			script.additional_string = "bar";
 			response = client.Send (message);
+			Assert.AreEqual ((int)WebStatusCode.Ok, response.Code);
 			Assert.AreEqual ("foobar", serialization.Encoding.GetString(response.Payload));
+
+
 		}
 
 		public struct JsonMessage {
@@ -340,7 +359,8 @@ namespace Core.Tests
 
 			// Test binary message:
 
-			var msgBody = new JsonMessage ();
+			//dynamic msgBody = new R2Dynamic ();
+			JsonMessage msgBody = new JsonMessage ();
 			msgBody.FlName = Settings.Paths.TestData ("test.bin");
 			message.Payload = msgBody;
 
@@ -358,7 +378,7 @@ namespace Core.Tests
 		[Test]
 		public void HttpTests() {
 		
-			var webServer = factory.CreateHttpServer ("test_server", 9999);
+			var webServer = factory.CreateHttpServer ("s", 9999);
 
 			var fileEndpoint = factory.CreateFileEndpoint (Settings.Paths.TestData (), @"/test/[A-Za-z0-9\.]+");
 

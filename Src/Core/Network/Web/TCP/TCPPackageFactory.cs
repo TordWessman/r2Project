@@ -49,7 +49,7 @@ namespace Core.Network
 		/// <summary>
 		/// Defines the data types which are transmittable
 		/// </summary>
-		internal enum PayloadType: int {
+		public enum PayloadType: int {
 
 			// Complex object
 			Dynamic = 1,
@@ -109,11 +109,11 @@ namespace Core.Network
 
 		public dynamic DeserializePayload(TCPMessage message) {
 		
-			if (message.ResponsePayloadType == PayloadType.Dynamic) {
+			if (message.PayloadType == PayloadType.Dynamic) {
 			
 				return m_serialization.Deserialize (message.Payload);
 					
-			} else if (message.ResponsePayloadType == PayloadType.String) {
+			} else if (message.PayloadType == PayloadType.String) {
 			
 				return m_serialization.Encoding.GetString(message.Payload);
 
@@ -132,14 +132,30 @@ namespace Core.Network
 			byte[] path = pathSize > 0 ? stream.Read (pathSize) : new byte[0];
 			byte[] headers = headerSize > 0 ? stream.Read (headerSize) : new byte[0];
 			PayloadType payloadType = (PayloadType)stream.ReadInt (2);
-			byte[] payload = stream.Read (payloadSize);
+			byte[] payloadData = stream.Read (payloadSize);
+
+			dynamic payload;
+
+			if (payloadType ==  PayloadType.Bytes) {
+
+				payload = payload;
+
+			} else if (payloadType == PayloadType.String) {
+
+				payload = m_serialization.Encoding.GetString(payloadData);
+
+			} else {
+
+				payload = m_serialization.Deserialize(payloadData);
+
+			}
 
 			return new TCPMessage () { 
 				Destination = m_serialization.Encoding.GetString (path),
 				Headers = m_serialization.Deserialize (headers),
 				Payload = payload,
 				Code = code,
-				ResponsePayloadType = payloadType
+				PayloadType = payloadType
 			};
 
 		}

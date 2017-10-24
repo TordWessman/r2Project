@@ -24,7 +24,7 @@ using System.Collections.Generic;
 namespace Core.Network.Web
 {
 	/// <summary>
-	/// Represents an implementation capable of handdling objects through HTTP requests
+	/// Represents an implementation capable of handdling objects through network requests
 	/// </summary>
 	public interface IWebObjectReceiver
 	{

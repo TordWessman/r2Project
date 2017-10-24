@@ -33,7 +33,7 @@ namespace Core.Network.Web
 		/// <param name="inputData">Input data.</param>
 		/// <param name="url">Request url.</param>
 		/// <param name="metadata">metadata.</param>
-		byte[] Interpret(byte[] inputData, string url, IDictionary<string, object> metadata);
+		dynamic Interpret(byte[] inputData, string url, IDictionary<string, object> metadata);
 
 		/// <summary>
 		/// The uri path on which this interprener is listening.

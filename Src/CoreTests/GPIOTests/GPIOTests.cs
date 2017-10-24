@@ -9,7 +9,7 @@ namespace GPIO
 	[TestFixture]
 	public class GPIOTests : TestBase
 	{
-		private IGPIOFactory m_gpioFactory;
+		//private IGPIOFactory m_gpioFactory;
 
 		public GPIOTests ()
 		{
@@ -25,7 +25,7 @@ namespace GPIO
 
 			try {
 
-				m_gpioFactory = new GPIOFactory ("f", Settings.Paths.TestData ());
+				//m_gpioFactory = new GPIOFactory ("f", Settings.Paths.TestData ());
 
 			} catch (Exception ex) {
 			

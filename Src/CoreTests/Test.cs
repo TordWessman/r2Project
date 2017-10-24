@@ -16,26 +16,19 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
+using NUnit.Framework;
 using System;
-using Core.Network.Data;
-using System.Collections.Generic;
 
-namespace Core.Network
+namespace CoreTests
 {
-
-	public struct TCPMessage 
+	[TestFixture ()]
+	public class Test
 	{
-		
-		public int Code;
-		public string Destination;
-		public IDictionary<string, object> Headers;
-		public dynamic Payload;
+		[Test ()]
+		public void TestCase ()
+		{
 
-		/// <summary>
-		/// Determined data type of the payload
-		/// </summary>
-		public TCPPackageFactory.PayloadType PayloadType;
-
+		}
 	}
-
 }
+

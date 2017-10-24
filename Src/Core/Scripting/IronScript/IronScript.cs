@@ -82,21 +82,12 @@ namespace Core.Scripting
 
 			m_source = m_engine.CreateScriptSourceFromFile (m_fileName);
 
-			try {
-
-				m_source.Execute (m_scope);
-
-			} catch (Exception ex) {
-			
-				Log.x (ex);
-				return;
-
-			}
+			m_source.Execute (m_scope);
 
 			System.Runtime.Remoting.ObjectHandle tmp;
 
 			if (!m_scope.TryGetVariableHandle (HANDLE_MAIN_CLASS, out tmp)) {
-
+				
 				throw new ArgumentNullException ($"Unable to get main class: '{HANDLE_MAIN_CLASS}' from script: '{m_fileName}'" );
 
 			}

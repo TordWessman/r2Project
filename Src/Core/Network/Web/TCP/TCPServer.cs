@@ -75,65 +75,80 @@ namespace Core.Network
 		
 			TCPMessage responseMessage =  new TCPMessage() {Code = (int) WebStatusCode.NotDefined};
 
-			while (m_shouldRun && client.Connected) {
-			
-				try {
-					
-					TCPMessage requestMessage = m_packageFactory.DeserializePackage (client.GetStream ());
-					Log.t($"Server got message for: {requestMessage.Destination}");
-					if (m_endpoints.ContainsKey(requestMessage.Destination)) {
-
-						responseMessage = new TCPMessage() {
-							Code = (int) WebStatusCode.Ok,
-							Payload = m_endpoints [requestMessage.Destination].Interpret (requestMessage.Payload, requestMessage.Destination, requestMessage.Headers)
-						};
-
-					} else {
-
-						responseMessage = new TCPMessage() {
-							Code = (int) WebStatusCode.NotFound,
-							Payload =  new WebErrorMessage((int) WebStatusCode.NotFound, $"Path not found: {requestMessage.Destination}")
-						};
-
-					}
-
-				} catch (Exception ex) {
-
-					if (m_shouldRun) {
-					
-						Log.x(ex);
-
-						responseMessage = new TCPMessage() {
-							Code = (int) WebStatusCode.ServerError,
-
-							#if DEBUG
-							Payload = ex.ToString()
-							#endif
-
-						};
-
-					}
-
-				}
-
-				if (m_shouldRun && client.Connected) {
+			using (client) {
 				
+				while (m_shouldRun && client.Connected) {
+
 					try {
 
-						byte[] response = m_packageFactory.SerializeMessage(responseMessage);
-						Log.t($"Server will send response now {response.Length}!");
-						client.GetStream ().Write (response, 0, response.Length);
+						TCPMessage requestMessage = m_packageFactory.DeserializePackage (client.GetStream ());
+						Log.t($"Server got message for: {requestMessage.Destination}");
+						if (m_endpoints.ContainsKey(requestMessage.Destination)) {
+
+							Log.t($"Will try to interpret.");
+
+							responseMessage = new TCPMessage() {
+								Code = (int) WebStatusCode.Ok,
+								Payload = m_endpoints [requestMessage.Destination].Interpret (requestMessage.Payload, requestMessage.Destination, requestMessage.Headers)
+							};
+
+							Log.t($"... did successfully interpret.");
+
+						} else {
+
+							responseMessage = new TCPMessage() {
+								Code = (int) WebStatusCode.NotFound,
+								Payload =  new WebErrorMessage((int) WebStatusCode.NotFound, $"Path not found: {requestMessage.Destination}")
+							};
+
+						}
 
 					} catch (Exception ex) {
-					
-						Log.x (ex);
-						client.Close ();
+
+						Log.t($"I died {ex.ToString()}.");
+
+						if (m_shouldRun) {
+
+							Log.x(ex);
+
+							responseMessage = new TCPMessage() {
+								Code = (int) WebStatusCode.ServerError,
+
+								#if DEBUG
+								Payload = ex.ToString()
+								#endif
+
+							};
+
+						}
+
+					}
+
+					if (m_shouldRun && client.Connected && responseMessage.Code != (int)WebStatusCode.NotDefined) {
+
+						try {
+
+							byte[] response = m_packageFactory.SerializeMessage (responseMessage);
+							Log.t ($"Server will send response now {response.Length}!");
+							client.GetStream ().Write (response, 0, response.Length);
+
+						} catch (Exception ex) {
+
+							Log.x (ex);
+							if (client.Connected) { client.Close (); } 
+
+						}
+
+					} else if (m_shouldRun) {
+
+						Log.w($"TCPServer not sending reply to client {client.Client.RemoteEndPoint}. Reason: " + (!client.Connected ? "Disconnected" : responseMessage.Code == (int)WebStatusCode.NotDefined ? "Response message not defined" : ""));
 
 					}
 
 				}
-
+			
 			}
+
 
 			Log.t($"Now disconnecting client: {client.Client.RemoteEndPoint.ToString()}.");
 
@@ -158,17 +173,21 @@ namespace Core.Network
 					client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 					m_connections[client] = Task.Run( () => Connection(client));
 
+				} catch (System.Net.Sockets.SocketException ex) {
+
+					if (ex.SocketErrorCode != SocketError.Interrupted) {
+					
+						Log.w ($"Connection failure. Error code: {ex.ErrorCode}. Socket error type: {ex.SocketErrorCode}.");
+
+					}
+
 				} catch (Exception ex) { Log.x (ex); }
 
 			}
 
 		}
 
-		public override bool Ready {
-			get {
-				return m_listener != null;
-			}
-		}
+		public override bool Ready { get { return m_listener != null; } }
 
 		public override void Start () {
 			
@@ -191,6 +210,7 @@ namespace Core.Network
 			}
 
 		}
-	}
-}
 
+	}
+
+}

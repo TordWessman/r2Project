@@ -46,7 +46,7 @@ namespace Core.Network.Web {
 	/// <summary>
 	/// Message used to invoke and retrieve data from objects.
 	/// </summary>
-	internal struct WebObjectRequest
+	public struct WebObjectRequest
 	{
 
 		/// <summary>
