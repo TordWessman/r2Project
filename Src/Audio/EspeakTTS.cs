@@ -73,6 +73,8 @@ namespace Audio.TTS
 		public void Say (string text)
 		{
 
+			if (text == null && text.Trim().Length == 0) { return; }
+
 			if (!m_isStarted) {
 				throw new DeviceException ("Unable to speak: not started!");
 			}
@@ -80,23 +82,28 @@ namespace Audio.TTS
 			m_currentText = text;
 			Log.t ("Speech will start: " + text);
 
-			lock (m_lock) {
+			//lock (m_lock) {
 
-				foreach (ITTSObserver observer in m_observers) {
-				
-					observer.TalkStarted (this);
-				
-				}
+			Task.Factory.StartNew( () => {
 			
+				foreach (ITTSObserver observer in m_observers) {
+
+					observer.TalkStarted (this);
+
+				}
+
 				_ext_speak_espeak (text);
 
 				foreach (ITTSObserver observer in m_observers) {
-				
+
 					observer.TalkEnded (this);
 
 				}
+
+			});
+
 					
-			}
+			//}
 
 			Log.t ("Speech ended: " + text);
 

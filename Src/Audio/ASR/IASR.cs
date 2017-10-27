@@ -30,7 +30,7 @@ namespace Audio.ASR
 		/// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
 		bool Active {get; set;}
 
-		void AddObverver (IASRObserver observer);	
+		void AddObserver (IASRObserver observer);	
 	}
 }
 

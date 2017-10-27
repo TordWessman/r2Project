@@ -20,6 +20,7 @@
 using Audio.TTS;
 using Core.Device;
 using Audio.ASR;
+using Core.Scripting;
 
 namespace Audio
 {
@@ -80,6 +81,12 @@ namespace Audio
 		public IASR CreateMicReceiver(string id, int port, string hostIp) {
 
 			return new SphinxASRServer(id, port, hostIp, null, null, null, true);
+
+		}
+
+		public IASRObserver CreateScriptObserver(string id, IScript script) {
+		
+			return new ScriptASRObserver (id, script);
 
 		}
 

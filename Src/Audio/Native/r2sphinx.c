@@ -79,7 +79,7 @@ static gboolean bus_call(GstBus * bus, GstMessage * msg, gpointer data) {
             g_free(debug);
 
             g_printerr("Error: %s\n", error->message);
-		send_error(ASR_ERROR_GST, error->message);
+		send_error(error->code, error->message);
 
 		turn_off();
             g_error_free(error);
@@ -187,7 +187,7 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 
 	} else {
 		
-		gst_bin_add_many(GST_BIN(pipeline), source, audioconvert , audioresample , decoder, sink, NULL);
+		gst_bin_add_many(GST_BIN(pipeline), source, audioconvert, audioresample, decoder, sink, NULL);
 
 		if (!gst_element_link_filtered( source, audioconvert, asr_create_caps(16000))) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to converter!"); }
 		if (!gst_element_link_many(audioconvert , audioresample , decoder, sink, NULL)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link elements!"); }

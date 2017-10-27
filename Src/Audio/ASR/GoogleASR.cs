@@ -113,7 +113,7 @@ namespace Audio.ASR
 			}
 		}
 		
-		public void AddObverver (IASRObserver observer)
+		public void AddObserver (IASRObserver observer)
 		{
 			if (observer == null) {
 				throw new ArgumentNullException("IASRObserver can not be null!");

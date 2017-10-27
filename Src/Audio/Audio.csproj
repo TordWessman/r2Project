@@ -73,6 +73,7 @@
     <Compile Include="ASR\SphinxModelCreator.cs" />
     <Compile Include="ASR\StaticAnswerMachine.cs" />
     <Compile Include="ASR\UglyLanguageUpdater.cs" />
+    <Compile Include="ASR\ScriptASRObserver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -163,7 +163,11 @@ namespace Audio.ASR
 		public bool Active  { 
 			
 			get { return _ext_asr_get_is_active(); }
-			set { _ext_asr_set_is_active(value); }
+			set { 
+
+				_ext_asr_set_is_active(value); 
+			
+			}
 		
 		}
 		
@@ -243,7 +247,7 @@ namespace Audio.ASR
 			ReloadLanguageModels ();
 		}
 		
-		public void AddObverver (IASRObserver observer)
+		public void AddObserver (IASRObserver observer)
 		{
 			if (observer == null) {
 				throw new ArgumentNullException("IASRObserver can not be null!");
