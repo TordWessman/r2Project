@@ -151,6 +151,8 @@ namespace Core.Scripting
 				m_isRunning = false;
 
 				foreach (IScriptObserver observer in m_scriptObservers) { observer?.OnScriptErrors (this); }
+				Log.x (ex);
+
 
 				throw ex;
 

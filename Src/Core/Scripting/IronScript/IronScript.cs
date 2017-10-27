@@ -89,14 +89,16 @@ namespace Core.Scripting
 			} catch (Exception ex) {
 			
 				Log.x (ex);
-				return;
+
+				throw ex;
 
 			}
+
 
 			System.Runtime.Remoting.ObjectHandle tmp;
 
 			if (!m_scope.TryGetVariableHandle (HANDLE_MAIN_CLASS, out tmp)) {
-
+				
 				throw new ArgumentNullException ($"Unable to get main class: '{HANDLE_MAIN_CLASS}' from script: '{m_fileName}'" );
 
 			}
