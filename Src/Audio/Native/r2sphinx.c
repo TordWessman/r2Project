@@ -23,7 +23,9 @@
 static const char*(*text_received)(const char *message);				//delegate method for sending messages
 static const char*(*report_error)(int type, const char *message);	//delegate method for reporting back error
 
-static bool is_active = true, is_running = false, use_tcp_server = false, should_turn_off = false, dry_run = false;
+static bool _r2Sphinx_is_active = true, _r2Sphinx_is_running = false, use_tcp_server = false, should_turn_off = false, dry_run = false;
+// threshold before emitting audio to sphinx if use_tcp_server = false
+static int _r2Sphinx_threshold = 90;
 static int m_port = 5002, error_count = 0;
 static const char *m_hostIp;
 static GMainLoop *loop;
@@ -137,7 +139,7 @@ GstCaps* asr_create_caps(int rate) {
 
 int init_elements (const char *lm_file, const char *dict_file, const char *hmm_file) {
 
-	GstElement *source, *gdpdepay,  *decoder, *sink, *audioconvert, *audioresample;
+	GstElement *source, *gdpdepay,  *decoder, *sink, *audioconvert, *audioresample, *cutter;
 
 	if (use_tcp_server) {
 
@@ -151,13 +153,16 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 	} else {
 
 		source = gst_element_factory_make("autoaudiosrc", "audiosrc");
+		cutter = gst_element_factory_make("cutter", "cutter");
 	
 	}
 
     	pipeline = gst_pipeline_new("asr_pipeline");
 	audioconvert = gst_element_factory_make("audioconvert", "audioconvert");
 	audioresample = gst_element_factory_make("audioresample", "audioresample");
-
+	
+	g_object_set(G_OBJECT(cutter), "threshold", (float)_r2Sphinx_threshold / 100.0f, NULL);
+	
 	if (dry_run) {
 
 	    	decoder = gst_element_factory_make("queue", "queue");
@@ -187,10 +192,10 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 
 	} else {
 		
-		gst_bin_add_many(GST_BIN(pipeline), source, audioconvert, audioresample, decoder, sink, NULL);
+		gst_bin_add_many(GST_BIN(pipeline), source, cutter, audioconvert , audioresample , decoder, sink, NULL);
 
-		if (!gst_element_link_filtered( source, audioconvert, asr_create_caps(16000))) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to converter!"); }
-		if (!gst_element_link_many(audioconvert , audioresample , decoder, sink, NULL)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link elements!"); }
+		if (!gst_element_link_filtered( source, cutter, asr_create_caps(16000) )) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link to converter!"); }
+		if (!gst_element_link_many(cutter, audioconvert , audioresample , decoder, sink, NULL)) { return send_error(ASR_ERROR_LINK_FAILED, "Unable to link elements!"); }
 		
 	} 
 	
@@ -214,12 +219,12 @@ int init_elements (const char *lm_file, const char *dict_file, const char *hmm_f
 }
 
 int _ext_asr_start () {
-	if (is_running) {
+	if (_r2Sphinx_is_running) {
 		send_error (0, "Unable to start ASR - already running!");
 		return 1;  
 	}
 
-	is_running = true;
+	_r2Sphinx_is_running = true;
 
 	
     loop = g_main_loop_new(NULL, FALSE);
@@ -240,7 +245,7 @@ int _ext_asr_start () {
 
     g_main_loop_run(loop);
 
-	is_running = false;
+	_r2Sphinx_is_running = false;
     	gst_element_set_state(pipeline, GST_STATE_NULL);
 	g_main_loop_unref(loop);
 	//gst_object_unref(GST_OBJECT(pipeline));
@@ -273,7 +278,7 @@ void _ext_asr_set_report_error_callback (const char*(*report_error_callback)(int
 
 int _ext_asr_init (const char*(*text_received_callback)(const char *message ),
 		  const char*(*report_error_callback)(int type, const char *message),
-		  const char *lm_file, const char *dict_file, const char *hmm_file, int port, const char *hostIp, int configuration_flags) {
+		  const char *lm_file, const char *dict_file, const char *hmm_file, int port, const char *hostIp, int configuration_flags, int threshold) {
 
 	_ext_asr_set_text_received_callback(text_received_callback);
 	_ext_asr_set_report_error_callback(report_error_callback);
@@ -285,6 +290,7 @@ int _ext_asr_init (const char*(*text_received_callback)(const char *message ),
 
 	use_tcp_server = !(configuration_flags & ASR_INPUT_LOCAL);
 	dry_run = configuration_flags & ASR_OUTPUT_LOCAL;
+	_r2Sphinx_threshold = threshold;
 
 	m_port = port;
 
@@ -340,14 +346,14 @@ int _ext_asr_init (const char*(*text_received_callback)(const char *message ),
 
 void _ext_asr_set_is_active (bool report_mode) {
 	printf (report_mode ? " ASR is active\n" : " ASR is inactive\n");
-	is_active = report_mode;
+	_r2Sphinx_is_active = report_mode;
 	GstState currentState = GST_STATE(GST_ELEMENT(pipeline));
 
-	if (is_active && currentState == GST_STATE_PAUSED) {
+	if (_r2Sphinx_is_active && currentState == GST_STATE_PAUSED) {
 
 		gst_element_set_state(GST_ELEMENT(pipeline), GST_STATE_PLAYING);	
 
-	} else if (!is_active && currentState== GST_STATE_PLAYING) {
+	} else if (!_r2Sphinx_is_active && currentState== GST_STATE_PLAYING) {
 
 		gst_element_set_state(GST_ELEMENT(pipeline), GST_STATE_PAUSED);
 
@@ -355,9 +361,9 @@ void _ext_asr_set_is_active (bool report_mode) {
 	
 }
 
-bool _ext_asr_get_is_active ()  { return is_active; }
+bool _ext_asr_get_is_active ()  { return _r2Sphinx_is_active; }
 
-bool _ext_asr_get_is_running () { return is_running; }
+bool _ext_asr_get_is_running () { return _r2Sphinx_is_running; }
 
 // Compile without the -shared flag if you want to test-run this locally
 int main (int argc, char *argv[]) {
@@ -372,7 +378,7 @@ int main (int argc, char *argv[]) {
 			0, NULL, ASR_INPUT_LOCAL) == 0) {
 		_ext_asr_start ();
 
-		while (is_running) {
+		while (_r2Sphinx_is_running) {
 			printf ("x");
 			}
 		_ext_asr_start();

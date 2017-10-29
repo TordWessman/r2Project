@@ -52,32 +52,33 @@
     <Compile Include="AudioConfigurationTemplate.cs">
       <DependentUpon>AudioConfigurationTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="ASR\ASRController.cs" />
-    <Compile Include="ASR\ASRInterpreter.cs" />
-    <Compile Include="ASR\AimlToSphinxConverter.cs" />
-    <Compile Include="ASR\CommandInterpreter.cs" />
-    <Compile Include="ASR\ConversationLock.cs" />
-    <Compile Include="ASR\FlacConverter.cs" />
-    <Compile Include="ASR\GoogleASR.cs" />
-    <Compile Include="ASR\GoogleSpeechFacade.cs" />
     <Compile Include="ASR\IASR.cs" />
-    <Compile Include="ASR\IASRInterpreter.cs" />
     <Compile Include="ASR\IASRObserver.cs" />
-    <Compile Include="ASR\IConversationLock.cs" />
-    <Compile Include="ASR\ILanguageUpdated.cs" />
-    <Compile Include="ASR\ILanguageUpdater.cs" />
-    <Compile Include="ASR\IModelCreator.cs" />
-    <Compile Include="ASR\ISpeechInterpreter.cs" />
-    <Compile Include="ASR\ScriptConversationLock.cs" />
     <Compile Include="ASR\SphinxASRServer.cs" />
-    <Compile Include="ASR\SphinxModelCreator.cs" />
-    <Compile Include="ASR\StaticAnswerMachine.cs" />
-    <Compile Include="ASR\UglyLanguageUpdater.cs" />
     <Compile Include="ASR\ScriptASRObserver.cs" />
+    <Compile Include="Experiments\AimlToSphinxConverter.cs" />
+    <Compile Include="Experiments\ASRController.cs" />
+    <Compile Include="Experiments\ASRInterpreter.cs" />
+    <Compile Include="Experiments\CommandInterpreter.cs" />
+    <Compile Include="Experiments\ConversationLock.cs" />
+    <Compile Include="Experiments\FlacConverter.cs" />
+    <Compile Include="Experiments\GoogleASR.cs" />
+    <Compile Include="Experiments\GoogleSpeechFacade.cs" />
+    <Compile Include="Experiments\IASRInterpreter.cs" />
+    <Compile Include="Experiments\IConversationLock.cs" />
+    <Compile Include="Experiments\ILanguageUpdated.cs" />
+    <Compile Include="Experiments\ILanguageUpdater.cs" />
+    <Compile Include="Experiments\IModelCreator.cs" />
+    <Compile Include="Experiments\ISpeechInterpreter.cs" />
+    <Compile Include="Experiments\ScriptConversationLock.cs" />
+    <Compile Include="Experiments\SphinxModelCreator.cs" />
+    <Compile Include="Experiments\StaticAnswerMachine.cs" />
+    <Compile Include="Experiments\UglyLanguageUpdater.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="ASR\" />
+    <Folder Include="Experiments\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">

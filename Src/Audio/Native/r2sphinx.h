@@ -59,10 +59,11 @@ int _ext_asr_start ();
 	*) dictFile: is the path to the dictionary file
 	*) hmmFile: is the path to the file containing the audio vocabulary file
 	*) configuration_flags: Determines how the pipeline will be configured.
+	*) threshold: Controls the volume threshold. 0 = no threshold, 100 = no sound will pass through
 **/
 int _ext_asr_init (const char*(*textReceivedCallback)(const char *message ),
 		  const char*(*reportErrorCallback)(int type, const char *message),
-		  const char *lmFile, const char *dictFile, const char *hmmFile, int port, const char* hostIp, int configuration_flags);
+		  const char *lmFile, const char *dictFile, const char *hmmFile, int port, const char* hostIp, int configuration_flags, int threshold);
 		  
 void _ext_asr_set_text_received_callback(const char*(*text_received_callback)(const char *message ));
 void _ext_asr_set_report_error_callback (const char*(*report_error_callback)(int type, const char *message));
