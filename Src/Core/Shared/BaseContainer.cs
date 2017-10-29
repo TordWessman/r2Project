@@ -143,7 +143,7 @@ namespace Core
 			m_devices.Add (Log.Instance);
 			m_devices.Add (this);
 
-			var psf = new PythonScriptFactory("psf", new List<string> () {Settings.Paths.RubyLib(), Settings.Paths.Common ()}, m_devices);
+			var psf = new PythonScriptFactory(Settings.Identifiers.PSF(), new List<string> () {Settings.Paths.PythonLib(), Settings.Paths.Common ()}, m_devices);
 
 			// Point to the defauult ruby script files resides.
 			psf.AddSourcePath (Settings.Paths.Python());

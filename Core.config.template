@@ -42,7 +42,8 @@
 		<DeviceManager comment="Keeps track of all IDevice implementations. Should not be changed, since scripts are accessing it.">device_manager</DeviceManager>
 		<HostManager comment="Host manager. Keep tracks of/receive hello packages from remote hosts and broadcasts existance.">hostmgr</HostManager>
 		<Server>server</Server>
-		<ScriptFactory comment="Responsible for creating new (iron) scripts">script_factory</ScriptFactory>
+		<ScriptFactory comment="Responsible for creating new ruby scripts">script_factory</ScriptFactory>
+		<PSF comment="Responsible for creating new python scripts">psf</PSF>
 		<Memory comment="Interface for retrieving memories">memory</Memory>
 		<MemoryBus comment="communicates memories">membus</MemoryBus>
 		<Serializer>serializer</Serializer>

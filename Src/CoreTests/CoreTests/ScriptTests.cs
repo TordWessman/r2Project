@@ -22,6 +22,7 @@ using NUnit.Framework;
 using Core.Device;
 using Core.Network;
 using Core.Scripting;
+using System.Collections.Generic;
 
 namespace Core.Tests
 {
@@ -31,6 +32,7 @@ namespace Core.Tests
 	{
 		
 		private IScriptFactory<IronScript> m_rubyScriptFactory;
+		private IScriptFactory<IronScript> m_pythonScriptFactory;
 		private IScriptFactory<LuaScript> m_luaScriptFactory;
 
 		[TestFixtureSetUp]
@@ -40,6 +42,10 @@ namespace Core.Tests
 
 			m_rubyScriptFactory = new RubyScriptFactory ("rf", BaseContainer.DEFAULT_RUBY_PATHS, m_deviceManager);
 			m_rubyScriptFactory.AddSourcePath (Settings.Paths.TestData ());
+
+			m_pythonScriptFactory = new PythonScriptFactory ("rf", new List<string>(){Settings.Paths.PythonLib(),  Settings.Paths.Common ()}, m_deviceManager);
+			m_pythonScriptFactory.AddSourcePath (Settings.Paths.TestData ());
+			m_pythonScriptFactory.AddSourcePath (Settings.Paths.Common ());
 
 			m_luaScriptFactory = new LuaScriptFactory ("ls");
 			m_luaScriptFactory.AddSourcePath (Settings.Paths.TestData ());
@@ -69,6 +75,25 @@ namespace Core.Tests
 		
 			Assert.AreEqual ("fish", lua.str);
 
+		}
+
+		[Test]
+		public void PythonTests() {
+		
+			dynamic python = m_pythonScriptFactory.CreateScript ("PythonTest");
+
+			Assert.AreEqual (142, python.add_42 (100));
+
+			python.katt = 99;
+
+			Assert.AreEqual (99, python.katt);
+
+			Assert.AreEqual (99 * 10 , python.return_katt_times_10());
+
+			python.dog_becomes_value("foo");
+
+			Assert.AreEqual ("foo", python.dog);
+		
 		}
 	
 	}

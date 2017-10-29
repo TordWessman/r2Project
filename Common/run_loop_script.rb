@@ -89,9 +89,13 @@ class MainClass < ScriptBase
 	def load_script (script_name, args)
 	
 			#args not yet implemented
-			factory = @device_manager.get("script_factory")
+			if script_name.end_with?(".py")
+				script = @device_manager.get("psf").create_script script_name.chomp('.py')
+			else
 
-			script = factory.create_script script_name
+				script = @device_manager.get("script_factory").create_script script_name
+			end
+			
 			@task_monitor.add_monitorable script
 			@device_manager.add script
 			

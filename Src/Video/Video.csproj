@@ -47,7 +47,6 @@
     <Compile Include="Models\CvPoint.cs" />
     <Compile Include="Models\CvRect.cs" />
     <Compile Include="Models\CvSize.cs" />
-    <Compile Include="OldAndUntested\Camera\IFrameSource.cs" />
     <Compile Include="OldAndUntested\Camera\VideoRouter.cs" />
     <Compile Include="OldAndUntested\FaceRecognition\FaceRecognitionMemoryTypes.cs" />
     <Compile Include="OldAndUntested\FaceRecognition\FaceRecognizer.cs" />
@@ -68,6 +67,7 @@
     <Compile Include="VideoFactory.cs" />
     <Compile Include="CvCamera.cs" />
     <Compile Include="OldAndUntested\Camera\GstWebCam.cs" />
+    <Compile Include="IFrameSource.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
