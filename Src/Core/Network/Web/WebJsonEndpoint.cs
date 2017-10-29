@@ -71,12 +71,10 @@ namespace Core.Network.Web
 
 		#region IWebEndpoint implementation
 
-		public dynamic Interpret (byte[] input, string url, IDictionary<string, object> metadata = null) {
-			
-			R2Dynamic inputObject = m_serialization.Deserialize(input);
+		public dynamic Interpret (dynamic input, string url, IDictionary<string, object> metadata = null) {
 
 			// Let reciver interpret the response.
-			IWebIntermediate outputObject = m_receiver.OnReceive (inputObject, url, metadata);
+			IWebIntermediate outputObject = m_receiver.OnReceive (input, url, metadata);
 
 			// Let Metadata be the extra headers.
 			outputObject.Metadata?.ToList ().ForEach (kvp => m_extraHeaders[kvp.Key] = kvp.Value.ToString ());

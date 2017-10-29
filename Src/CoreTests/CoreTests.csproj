@@ -54,6 +54,7 @@
     <Compile Include="CoreTests\TestBase.cs" />
     <Compile Include="CoreTests\TestMemory.cs" />
     <Compile Include="GPIOTests\GPIOTests.cs" />
+    <Compile Include="CoreTests\TCPTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

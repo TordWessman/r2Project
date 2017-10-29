@@ -35,7 +35,7 @@ namespace Core.Network.Web
 			m_path = path;
 		}
 
-		public byte[] Interpret(byte[] inputData, string url, IDictionary<string, object> metadata) { return new byte[0]; }
+		public dynamic Interpret(dynamic input, string url, IDictionary<string, object> metadata) { return new byte[0]; }
 		public string UriPath { get { return m_path; } }
 		public IDictionary<string, object> Metadata { get { return new Dictionary<string, object>(); } }
 	

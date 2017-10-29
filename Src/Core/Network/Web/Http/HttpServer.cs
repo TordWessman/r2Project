@@ -151,6 +151,7 @@ namespace Core.Network.Web
 
 				byte[] responseBody = new byte[0];
 				byte[] requestBody = default(byte[]);
+				dynamic requestObject;
 
 				try {
 					
@@ -163,14 +164,30 @@ namespace Core.Network.Web
 
 					}
 
+					if (request.ContentType?.Contains("json") == true) {
+			
+						// Treaded as complex object.
+						requestObject = m_serialization.Deserialize(requestBody);
+					
+					} else if (request.ContentType?.Contains("text") == true) {
+					
+						// Treated as string.
+						requestObject = m_serialization.Encoding.GetString(requestBody);
+
+					} else {
+					
+						// Treated as byte array.
+						requestObject = requestBody;
+
+					}
+
 					// Parse request and create response body.
-					dynamic responseObject = endpoint.Interpret (requestBody, request.Url.AbsolutePath, CreateMetadata(request));
+					dynamic responseObject = endpoint.Interpret (requestObject, request.Url.AbsolutePath, CreateMetadata(request));
 
 					if (responseObject is byte[]) {
 
 						//Data was returned in raw format.
-
-						return responseBody = responseObject;
+						responseBody = responseObject;
 
 					} else if (responseObject is string) {
 
@@ -196,7 +213,7 @@ namespace Core.Network.Web
 					response.StatusCode = (int) WebStatusCode.ServerError;
 
 					#if DEBUG
-					responseBody = m_serialization.Serialize(new HttpMessage(new HttpError(ex.Message), response.StatusCode) );
+					responseBody = m_serialization.Serialize(new HttpMessage() { Payload = new HttpError(ex.Message), Code = response.StatusCode } );
 					#endif
 
 				}

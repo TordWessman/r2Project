@@ -56,7 +56,7 @@ namespace Core.Network.Web
 
 				} catch (Exception ex) {
 
-					response = new HttpMessage( new HttpError() { Message = ex.Message }, (int) WebStatusCode.NetworkError);
+					response = new HttpMessage() { Payload = new HttpError() { Message = ex.Message }, Code = (int) WebStatusCode.NetworkError };
 
 				}
 
@@ -77,9 +77,16 @@ namespace Core.Network.Web
 			byte[] requestData = message.Payload?.GetType().IsValueType == true || message.Payload != null ? m_serializer.Serialize(message.Payload): new byte[0];
 
 			request.ContentLength = requestData.Length;
-			request.ContentType = message.ContentType;
+			((WebRequest)request).ContentType = message.ContentType;
+
 			request.ReadWriteTimeout = 30000;
 			request.Timeout = 30000;
+
+			if (message.Headers != null) {
+				
+				message.Headers.ToList ().ForEach (kvp => request.Headers [kvp.Key] = kvp.Value?.ToString() ?? "");
+
+			}
 
 			if (requestData.Length > 0) {
 			

@@ -91,11 +91,6 @@ namespace Core.Network.Web {
 		/// </summary>
 		public object[] Params;
 
-		/// <summary>
-		/// Optional use for puny security.
-		/// </summary>
-		public string Token;
-
 	}
 
 }

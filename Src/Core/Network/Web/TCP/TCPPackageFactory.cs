@@ -138,7 +138,7 @@ namespace Core.Network
 
 			if (payloadType ==  PayloadType.Bytes) {
 
-				payload = payload;
+				payload = payloadData;
 
 			} else if (payloadType == PayloadType.String) {
 

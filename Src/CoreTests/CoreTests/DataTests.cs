@@ -4,6 +4,7 @@ using Core.Data;
 using Core.Device;
 using System.Linq;
 using System.Dynamic;
+using Core.Network.Web;
 
 namespace Core.Tests
 {
@@ -83,6 +84,27 @@ namespace Core.Tests
 
 			Assert.AreEqual ("bar", r.Foo);
 			Assert.AreEqual (42, r.Bar);
+
+		}
+
+		[Test]
+		public void TestSerializeWithEnum() {
+		
+			WebObjectRequest wob = new WebObjectRequest () { 
+				Identifier = "dummy_device",
+				ActionType = WebObjectRequest.ObjectActionType.Invoke,
+				Action = "MultiplyByTen",
+				Params = new object[] { 42 }
+			};
+
+			byte [] serialized = serializer.Serialize (wob);
+
+			dynamic deserialized = serializer.Deserialize (serialized);
+
+			Assert.AreEqual ("dummy_device", deserialized.Identifier);
+			Assert.AreEqual (deserialized.Action, "MultiplyByTen");
+			Assert.AreEqual (deserialized.ActionType, 2);
+
 
 		}
 

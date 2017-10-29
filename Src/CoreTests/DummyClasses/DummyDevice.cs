@@ -51,7 +51,13 @@ namespace Core.Tests
 		}
 
 		public void OneParam(int param) {
+
+		}
+
+		public int MultiplyByTen(int value) {
 		
+			return value * 10;
+
 		}
 
 	}
