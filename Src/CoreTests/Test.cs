@@ -16,29 +16,19 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
+using NUnit.Framework;
 using System;
-using Core.Device;
-using System.Collections.Specialized;
-using System.Collections.Generic;
 
-namespace Core.Network.Web
+namespace CoreTests
 {
-	/// <summary>
-	/// An interpreter which never returns any data.
-	/// </summary>
-	public class WebDummyEndpoint: DeviceBase, IWebEndpoint
+	[TestFixture ()]
+	public class Test
 	{
-		string m_path;
-
-		public WebDummyEndpoint (string id, string path) : base(id)
+		[Test ()]
+		public void TestCase ()
 		{
-			m_path = path;
+
 		}
-
-		public dynamic Interpret(dynamic input, string url, IDictionary<string, object> metadata) { return new byte[0]; }
-		public string UriPath { get { return m_path; } }
-		public IDictionary<string, object> Metadata { get { return new Dictionary<string, object>(); } }
-	
 	}
-
 }
+

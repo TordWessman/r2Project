@@ -94,7 +94,6 @@ namespace Core.Scripting
 
 			}
 
-
 			System.Runtime.Remoting.ObjectHandle tmp;
 
 			if (!m_scope.TryGetVariableHandle (HANDLE_MAIN_CLASS, out tmp)) {

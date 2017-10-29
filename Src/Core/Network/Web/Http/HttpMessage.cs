@@ -25,7 +25,6 @@ namespace Core.Network.Web
 
 	public struct HttpMessage
 	{
-		public static readonly string DefaultContentType = @"application/json";
 
 		public int? Code;
 		public dynamic Payload;
@@ -34,33 +33,6 @@ namespace Core.Network.Web
 
 		public string Method;
 		public string ContentType;
-
-
-		public HttpMessage (string url, string method = "POST", object body = null, IDictionary<string, object> headers = null) {
-
-			ContentType = DefaultContentType;
-
-			Destination = url;
-			Method = method;
-			Payload = body;
-			Headers = headers;
-
-			Code = null;
-
-		}
-
-		public HttpMessage(HttpError error, int code, IDictionary<string, object> headers = null) {
-
-			ContentType = DefaultContentType;
-
-			Destination = Method = null;
-
-			Payload = error;
-			Code = code;
-			Headers = headers;
-
-		}
-
 
 	}
 

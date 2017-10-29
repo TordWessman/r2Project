@@ -70,9 +70,9 @@ namespace Core.Data
 			
 			if (data.Length > 0) {
 
-					//Deserialize complex object
-					return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(m_encoding.GetString (data), m_converter));
-			
+				//Deserialize complex object
+				return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(m_encoding.GetString (data), m_converter));
+	
 			} 
 
 			return new R2Dynamic();

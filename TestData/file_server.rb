@@ -26,7 +26,7 @@ class MainClass < ScriptBase
 
 	def on_receive (msg, path, headers, outputObject)
 
-		if msg.FlName != nil
+		if msg.has "FlName"
 
 			name = msg.FlName
 

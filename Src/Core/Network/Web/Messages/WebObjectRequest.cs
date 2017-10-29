@@ -46,7 +46,7 @@ namespace Core.Network.Web {
 	/// <summary>
 	/// Message used to invoke and retrieve data from objects.
 	/// </summary>
-	internal struct WebObjectRequest
+	public struct WebObjectRequest
 	{
 
 		/// <summary>
@@ -90,11 +90,6 @@ namespace Core.Network.Web {
 		/// Containing a list of parameters used while setting values and invoking methods.
 		/// </summary>
 		public object[] Params;
-
-		/// <summary>
-		/// Optional use for puny security.
-		/// </summary>
-		public string Token;
 
 	}
 

@@ -32,9 +32,9 @@ namespace Core.Network
 		public dynamic Payload;
 
 		/// <summary>
-		/// Determined data type of the payload after deserialization.
+		/// Determined data type of the payload
 		/// </summary>
-		internal TCPPackageFactory.PayloadType ResponsePayloadType;
+		public TCPPackageFactory.PayloadType PayloadType;
 
 	}
 

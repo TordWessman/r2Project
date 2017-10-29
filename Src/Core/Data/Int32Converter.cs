@@ -48,7 +48,7 @@ namespace Core.Data
 	/// Conversion between int values and byte arrays. Original code by Christ Taylor (http://stackoverflow.com/users/314028/chris-taylor)
 	/// </summary>
 	[StructLayout(LayoutKind.Explicit)]
-	struct Int32Converter
+	public struct Int32Converter
 	{
 		
 		public const int ValueSize = 4;

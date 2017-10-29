@@ -52,7 +52,7 @@ namespace Core.Network.Web
 
 		#region IHttpServerInterpreter implementation
 
-		public byte[] Interpret (byte[] input, string url, IDictionary<string, object> metadata = null)
+		public dynamic Interpret (dynamic input, string url, IDictionary<string, object> metadata = null)
 		{
 			
 			if (url == null) {

@@ -64,61 +64,58 @@ namespace Core.Network.Web
 	/// </summary>
 	public class DeviceRouter: IWebObjectReceiver, IDeviceObserver
 	{
-		private IDeviceManager m_deviceManager;
-
-		// Optional security parameter.
-		private INetworkSecurity m_security;
 
 		// An object which will be used to send changes in devices which has been invoked.
 		private IWebSocketSender m_sender;
 
-		// Contains a list identifiers for all devices being invoked. Used by the IDeviceObserver implementation.
-		private IList<string> m_registeredDevices;
-
 		private ObjectInvoker m_invoker;
+
+		// Contains a list identifiers for all devices available.
+		private IDictionary<string, WeakReference<IDevice>> m_devices;
 
 		/// <summary>
 		/// The token is used as a very simple mean of authentication...
 		/// </summary>
 		/// <param name="deviceManager">Device manager.</param>
 		/// <param name="token">Token.</param>
-		public DeviceRouter (IDeviceManager deviceManager, INetworkSecurity security = null)
+		public DeviceRouter ()
 		{
-			
-			m_deviceManager = deviceManager;
-			m_security = security;
-			m_registeredDevices = new List<string> ();
+
+			m_devices = new Dictionary<string, WeakReference<IDevice>> ();
 			m_invoker = new ObjectInvoker ();
 
 		}
 
+		public void AddDevice(IDevice device) {
+		
+			m_devices [device.Identifier] = new WeakReference<IDevice> (device);
+
+		}
+
+		public void AddDevices(IEnumerable<IDevice> devices) {
+		
+			foreach (IDevice device in devices) {
+			
+				AddDevice (device);
+
+			}
+
+		}
+
 		public IWebIntermediate OnReceive (dynamic message, string path, IDictionary<string, object> metadata = null) {
-
-			if (m_security?.IsValid(message.Token) == false) {
 			
-				throw new SecurityException ("Invalid credentials for message. Bad Token.");
+			IDevice device = null;
+
+			if (m_devices.ContainsKey (message.Identifier)) {
+			
+				m_devices [message.Identifier].TryGetTarget (out device);
 
 			}
-
-			Log.t ("msCCQQQ: " + message.Identifier);
-
-			if (m_deviceManager == null) {
-			
-				throw new NullReferenceException ("Set device manager ffs!!!)=FCHE");
-
-			}
-			IDevice device = m_deviceManager.Get (message.Identifier);
 
 			if (device == null) {
 
-				throw new DeviceException ($"Device with id: {message.Id} not found.");
+				throw new DeviceException ($"Device with id: {message.Identifier} not found.");
 			
-			}
-
-			if (!m_registeredDevices.Contains (device.Identifier)) {
-			
-				m_registeredDevices.Add (device.Identifier);
-
 			}
 
 			WebObjectResponse response = new WebObjectResponse ();
@@ -144,11 +141,14 @@ namespace Core.Network.Web
 			get { return m_sender; }
 			set { m_sender = value; }
 		}
-
+	
 		#region IDeviceObserver
 
 		public void OnValueChanged(IDeviceNotification<object> notification) {
 
+			/*
+			 * 
+			 * //Wait for TCP Duplex implementation
 			IDevice device = m_deviceManager.Get (notification.Identifier);
 
 			if (m_sender != null && device != null && m_registeredDevices.Contains(device.Identifier)) {
@@ -162,7 +162,7 @@ namespace Core.Network.Web
 
 				m_sender.Send (response);
 
-			}
+			}*/
 
 		}
 
