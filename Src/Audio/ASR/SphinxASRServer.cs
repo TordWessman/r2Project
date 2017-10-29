@@ -65,7 +65,8 @@ namespace Audio.ASR
 		    string hmmFile,
 			int port,
 			string hostIp,
-			int configuration_flags);
+			int configuration_flags,
+			int threshold);
 		
 
 		protected bool m_isRunning;
@@ -112,7 +113,7 @@ namespace Audio.ASR
 		}
 
 
-		public void initialize (string hostIp, int port, string lm, string dic, string hmmDir, bool as_tcp_server,  bool dryRun = false)
+		public void initialize (string hostIp, int port, string lm, string dic, string hmmDir, bool as_tcp_server,  bool dryRun = false, int threshold = 90)
 		{
 
 			m_ip = hostIp;
@@ -128,7 +129,9 @@ namespace Audio.ASR
 				while (m_isRunning) {
 					
 					if (_ext_asr_start () != 0) {
-						
+
+						m_isRunning = false;
+
 						throw new ExternalException ("Unable to start ASR!");
 					
 					}
@@ -144,8 +147,8 @@ namespace Audio.ASR
 				    port,
 				    hostIp,
 				(as_tcp_server ? 0 : ASR_INPUT_LOCAL) + 
-				(dryRun ? ASR_OUTPUT_LOCAL : 0)
-
+				(dryRun ? ASR_OUTPUT_LOCAL : 0),
+				threshold
 			    ) != 0) {
 
 				throw new ExternalException ("Unable to initialize ASR engine");

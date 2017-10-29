@@ -375,7 +375,7 @@ int main (int argc, char *argv[]) {
 			NULL, //arpa
 			NULL, //dict
 			NULL, //language model
-			0, NULL, ASR_INPUT_LOCAL) == 0) {
+			0, NULL, ASR_INPUT_LOCAL, 90) == 0) {
 		_ext_asr_start ();
 
 		while (_r2Sphinx_is_running) {
