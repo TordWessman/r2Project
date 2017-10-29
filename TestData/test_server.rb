@@ -23,7 +23,7 @@ class MainClass < ScriptBase
 		
 		elsif (msg.has("ob") && msg.ob.has("bar"))
 			
-			outputObject.data = { "foo" => (msg.ob.bar * 42), "bar" => "baz" } 
+			outputObject.data = { "foo" => (msg.ob.bar * 10), "bar" => "baz" } 
 		
 		else
 
