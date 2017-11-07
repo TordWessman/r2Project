@@ -181,6 +181,7 @@ namespace Core.Tests
 			TCPMessage message = new TCPMessage () { Destination = "/test", Payload = msg};
 			TCPMessage response = client.Send (message);
 
+			Assert.AreEqual (response.Code, (int)WebStatusCode.Ok);
 			Assert.AreEqual ("foo", response.Payload);
 
 			// Now also test the scripts additional_string public property

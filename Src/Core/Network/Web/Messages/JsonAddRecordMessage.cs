@@ -20,7 +20,7 @@
 
 namespace Core.Network.Web
 {
-	public class JsonAddRecordMessage : JsonBaseMessage
+	public struct AddRecordMessage
 	{
 		public string Login;
 		public string Password;
@@ -28,9 +28,6 @@ namespace Core.Network.Web
 		public string Registered;
 		public string Value;
 
-		public JsonAddRecordMessage ()
-		{
-		}
 	}
 }
 

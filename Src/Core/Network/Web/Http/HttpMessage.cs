@@ -23,13 +23,13 @@ using System.Net;
 namespace Core.Network.Web
 {
 
-	public struct HttpMessage
+	public struct HttpMessage: INetworkMessage
 	{
 
-		public int? Code;
-		public dynamic Payload;
-		public string Destination;
-		public IDictionary<string, object> Headers;
+		public int Code { get; set; }
+		public dynamic Payload { get; set; }
+		public string Destination { get; set; }
+		public IDictionary<string, object> Headers { get; set; }
 
 		public string Method;
 		public string ContentType;

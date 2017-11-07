@@ -20,6 +20,7 @@ using System;
 using System.Collections.Specialized;
 using System.Dynamic;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Core.Network.Web
 {
@@ -32,7 +33,7 @@ namespace Core.Network.Web
 		/// Handles the receival of the input object. Output object should contain
 		/// </summary>
 		/// <param name="input">Input.</param>
-		IWebIntermediate OnReceive (dynamic input, string path, IDictionary<string, object> metadata);
+		IWebIntermediate OnReceive (INetworkMessage input, IPEndPoint source);
 
 	}
 }

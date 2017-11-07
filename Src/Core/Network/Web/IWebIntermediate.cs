@@ -26,13 +26,8 @@ namespace Core.Network.Web
 	/// <summary>
 	/// IHttpIntermediate is responsible for containing data during Http communication. Implementations might i.e. be capable of transcribing data between the server and the sub system parser.
 	/// </summary>
-	public interface IWebIntermediate
+	public interface IWebIntermediate : INetworkMessage
 	{
-		/// <summary>
-		/// Returns all data contained in this object.
-		/// </summary>
-		/// <value>The data.</value>
-		dynamic Data { get; set; }
 
 		/// <summary>
 		/// Adds a metadata field to this object.
@@ -42,35 +37,11 @@ namespace Core.Network.Web
 		void AddMetadata(string key, object value);
 
 		/// <summary>
-		/// Returns all metadata fields in this object.
-		/// </summary>
-		/// <value>The headers.</value>
-		IDictionary<string, object> Metadata { get; }
-
-		/// <summary>
 		/// Converts data to CLR typed format.
 		/// </summary>
 		void CLRConvert ();
 
 	}
 
-	public static class IWebIntermediateExtension {
-	
-		public static bool IsPrimitive(this IWebIntermediate self) {
-		
-			return self.Data is sbyte
-				|| self.Data is byte
-				|| self.Data is short
-				|| self.Data is ushort
-				|| self.Data is int
-				|| self.Data is uint
-				|| self.Data is long
-				|| self.Data is ulong
-				|| self.Data is float
-				|| self.Data is double
-				|| self.Data is decimal
-				|| self.Data is string;
 
-		}
-	}
 }

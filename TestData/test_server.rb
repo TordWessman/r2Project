@@ -5,29 +5,29 @@ class MainClass < ScriptBase
 
 	attr_accessor :additional_string
 
-	def on_receive (msg, path, headers, outputObject)
+	def on_receive (msg, outputObject, source)
 
 		outputObject.add_metadata "TestHeader", "baz"
 
 		OP::msg "GINININININ"
-		if msg.has "text"
+		if msg.payload.has "text"
 
 			OP::msg "GINININININ"
-			outputObject.data = msg.text
+			outputObject.payload = msg.payload.text
 
 			if @additional_string != nil
 
-				outputObject.data = outputObject.data + @additional_string
+				outputObject.payload = outputObject.payload + @additional_string
 
 			end
 		
-		elsif (msg.has("ob") && msg.ob.has("bar"))
+		elsif (msg.payload.has("ob") && msg.payload.ob.has("bar"))
 			
-			outputObject.data = { "foo" => (msg.ob.bar * 10), "bar" => "baz" } 
+			outputObject.payload = { "foo" => (msg.payload.ob.bar * 10), "bar" => "baz" } 
 		
 		else
 
-			outputObject.data = "ARGH!½!!"
+			outputObject.payload = "ARGH!½!!"
  
 		end
 

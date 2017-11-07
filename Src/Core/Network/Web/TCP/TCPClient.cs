@@ -61,11 +61,12 @@ namespace Core.Network
 
 		}
 
-		public void SendAsync(TCPMessage message, Action<TCPMessage> responseDelegate) {
+		public System.Threading.Tasks.Task SendAsync(TCPMessage message, Action<TCPMessage> responseDelegate) {
 
-			System.Threading.Tasks.Task.Factory.StartNew ( () => {
+			return System.Threading.Tasks.Task.Factory.StartNew ( () => {
 
 				TCPMessage response;
+				Exception exception = null;
 
 				try {
 
@@ -74,10 +75,12 @@ namespace Core.Network
 				} catch (Exception ex) {
 
 					response = new TCPMessage() { Code = (int) WebStatusCode.NetworkError, Payload = ex.ToString()};
-
+					exception = ex;
 				}
 
 				responseDelegate(response);
+
+				if (exception != null) { throw exception; }
 
 			});
 

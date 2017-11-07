@@ -32,14 +32,14 @@ namespace Core.Network.Web
 	
 		private IWebEndpoint m_endpoint;
 		private IEnumerable<IWebSocketSender> m_senders;
-		private ISerialization m_serialization;
+		private ITCPPackageFactory m_packageFactory;
 
 		public string UriPath { get { return m_endpoint?.UriPath; } }
 
-		public WebSocketHandler(IEnumerable<IWebSocketSender> senders, IWebEndpoint endpoint, ISerialization serialization) {
+		public WebSocketHandler(IEnumerable<IWebSocketSender> senders, IWebEndpoint endpoint, ITCPPackageFactory packageFactory) {
 			
 			m_senders = senders;
-			m_serialization = serialization;
+			m_packageFactory = packageFactory;
 
 			if (m_senders != null) {
 			
@@ -75,12 +75,14 @@ namespace Core.Network.Web
 
 				try {
 
-					byte[] request = m_serialization.Encoding.GetBytes(e.Data);
+					/*
+					INetworkMessage request = m_packageFactory.DeserializePackage(e.RawData);
+				
 
 					//TODO: Fix Web socket server. Should use packetization (Requests should be serialized with headers, uri etc). 
 
 					//Interpret response. No metadata is provided (and thus null).
-					byte[] response = m_endpoint.Interpret (request, null, null);
+					INetworkMessage response = m_endpoint.Interpret (request, e.);
 
 					if (response != null && response.Length > 0) {
 
@@ -90,7 +92,7 @@ namespace Core.Network.Web
 
 						}
 
-					}
+					}*/
 
 				} catch (Exception ex) {
 
@@ -132,11 +134,11 @@ namespace Core.Network.Web
 		//private IDictionary<string,WebSocketHandler> m_handlers;
 		private IDictionary<string, IWebEndpoint> m_endpoints;
 		private IDictionary<string, IList<IWebSocketSender>> m_senders;
-		private ISerialization m_serialization;
+		private ITCPPackageFactory m_packageFactory;
 
-		public WebSocketServer (string id, int port, ISerialization serialization) : base (id) {
+		public WebSocketServer (string id, int port, ITCPPackageFactory packageFactory) : base (id) {
 
-			m_serialization = serialization;
+			m_packageFactory = packageFactory;
 			m_server = new WebSocketSharp.Server.WebSocketServer (port);
 
 			m_server.KeepClean = true;
@@ -169,7 +171,7 @@ namespace Core.Network.Web
 			IEnumerable<IWebSocketSender> senders = m_senders.Where(s => s.Key == uriPath).FirstOrDefault().Value;
 			m_server.Log.Level = LogLevel.Fatal;
 
-			return new WebSocketHandler(senders, endpoints, m_serialization); 
+			return new WebSocketHandler(senders, endpoints, m_packageFactory); 
 		}
 
 		public void AddEndpoint(IWebEndpoint interpreter) {

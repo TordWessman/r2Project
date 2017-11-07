@@ -35,7 +35,7 @@ namespace Core.Network.Web
 			m_path = path;
 		}
 
-		public dynamic Interpret(dynamic input, string url, IDictionary<string, object> metadata) { return new byte[0]; }
+		public INetworkMessage Interpret(INetworkMessage input, System.Net.IPEndPoint source) { return new RubyWebIntermediate(); }
 		public string UriPath { get { return m_path; } }
 		public IDictionary<string, object> Metadata { get { return new Dictionary<string, object>(); } }
 	

@@ -30,6 +30,7 @@ namespace Core.Network.Web
 	public class HttpClient: DeviceBase, IMessageClient<HttpMessage>
 	{
 		public static string DefaultHttpMethod = "POST";
+		public int Timeout = 30000;
 
 		private ISerialization m_serializer;
 
@@ -44,11 +45,12 @@ namespace Core.Network.Web
 
 		}
 
-		public void SendAsync(HttpMessage message, Action<HttpMessage> responseDelegate) {
+		public System.Threading.Tasks.Task SendAsync(HttpMessage message, Action<HttpMessage> responseDelegate) {
 		
-			Task.Factory.StartNew ( () => {
+			return Task.Factory.StartNew ( () => {
 			
 				HttpMessage response;
+				Exception exception = null;
 
 				try {
 				
@@ -57,10 +59,12 @@ namespace Core.Network.Web
 				} catch (Exception ex) {
 
 					response = new HttpMessage() { Payload = new HttpError() { Message = ex.Message }, Code = (int) WebStatusCode.NetworkError };
-
+					exception =  ex;
 				}
 
 				responseDelegate(response);
+
+				if (exception != null) { throw exception; }
 
 			});
 
@@ -79,8 +83,8 @@ namespace Core.Network.Web
 			request.ContentLength = requestData.Length;
 			((WebRequest)request).ContentType = message.ContentType;
 
-			request.ReadWriteTimeout = 30000;
-			request.Timeout = 30000;
+			request.ReadWriteTimeout = Timeout;
+			request.Timeout = Timeout;
 
 			if (message.Headers != null) {
 				
@@ -119,7 +123,17 @@ namespace Core.Network.Web
 				Log.w ( $"Connection failed: {request.RequestUri.ToString()} exception: '{ex.Message}'");
 					
 				responseObject.Payload = new HttpError() { Message = ex.Message };
-				responseObject.Code = (int) WebStatusCode.NetworkError; 
+
+				if (ex.Status == System.Net.WebExceptionStatus.ProtocolError) {
+				
+					responseObject.Code = (int)WebStatusCode.ServerError;
+				 
+				} else {
+				
+					responseObject.Code = (int)WebStatusCode.NetworkError;
+						
+				}
+				 
 
 				return responseObject;
 				 
@@ -128,8 +142,6 @@ namespace Core.Network.Web
 				response?.Close ();
 
 			}
-
-			//responseObject.Code = response?.StatusCode;
 
 			response?.Headers?.AllKeys.ToList().ForEach( key => responseObject.Headers[key] = response.Headers[key]);
 

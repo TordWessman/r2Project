@@ -31,8 +31,8 @@ namespace Core.Network.Web
 			return new JsonRegisterMessage() {Login = login, Password = password, Token = token, ClientPort = clientPort};
 		}
 
-		public JsonAddRecordMessage CreateRecord(string login, string password, string device, string value, string registered) {
-			return new JsonAddRecordMessage() {Login = login, Password = password, Device = device, Registered = registered, Value = value};
+		public AddRecordMessage CreateRecord(string login, string password, string device, string value, string registered) {
+			return new AddRecordMessage() {Login = login, Password = password, Device = device, Registered = registered, Value = value};
 		}
 
 	}

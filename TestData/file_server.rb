@@ -24,16 +24,16 @@ class MainClass < ScriptBase
 
 	end
 
-	def on_receive (msg, path, headers, outputObject)
+	def on_receive (msg, outputObject, source)
 
-		if msg.has "FlName"
+		if msg.payload.has "FlName"
 
-			name = msg.FlName
+			name = msg.payload.FlName
 
 			if File.file?(name)
 
 				outputObject.add_metadata "Content-Type", get_content_type(name)
-				outputObject.data = open(name, "rb") {|io| io.read }
+				outputObject.payload = open(name, "rb") {|io| io.read }
 
 				cdp = 'attachment; filename="' + name + '"'
 				outputObject.add_metadata "Content-Disposition",cdp
@@ -41,13 +41,13 @@ class MainClass < ScriptBase
 			else
 
 				outputObject.add_metadata "Content-Type", "text/plain"
-				outputObject.data = "file: '" + name + "' not found."
+				outputObject.payload = "file: '" + name + "' not found."
 
 			end
 		else
 
 			outputObject.add_metadata "Content-Type", "text/plain"
-			outputObject.data = "No file_name specified."
+			outputObject.payload = "No file_name specified."
 					
 		end
 

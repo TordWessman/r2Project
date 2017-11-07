@@ -25,6 +25,7 @@ using System.Linq;
 using System.Security;
 using System.Dynamic;
 using System.Reflection;
+using System.Net;
 
 namespace Core.Network.Web
 {
@@ -102,35 +103,35 @@ namespace Core.Network.Web
 
 		}
 
-		public IWebIntermediate OnReceive (dynamic message, string path, IDictionary<string, object> metadata = null) {
+		public IWebIntermediate OnReceive (INetworkMessage message, IPEndPoint source) {
 			
 			IDevice device = null;
 
-			if (m_devices.ContainsKey (message.Identifier)) {
+			if (message.Payload?.Identifier != null && m_devices.ContainsKey (message.Payload.Identifier)) {
 			
-				m_devices [message.Identifier].TryGetTarget (out device);
+				m_devices [message.Payload.Identifier].TryGetTarget (out device);
 
 			}
 
 			if (device == null) {
 
-				throw new DeviceException ($"Device with id: {message.Identifier} not found.");
+				throw new DeviceException ($"Device with id: {message.Payload.Identifier} not found.");
 			
 			}
 
 			WebObjectResponse response = new WebObjectResponse ();
 				
-			if (Convert.ToInt32(message.ActionType) == (int)WebObjectRequest.ObjectActionType.Invoke) {
+			if (Convert.ToInt32(message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Invoke) {
 
-				response.ActionResponse = m_invoker.Invoke (device, message.Action, message.Params);
+				response.ActionResponse = m_invoker.Invoke (device, message.Payload.Action, message.Payload.Params);
 
-			} else if (Convert.ToInt32(message.ActionType) == (int)WebObjectRequest.ObjectActionType.Set) {
+			} else if (Convert.ToInt32(message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Set) {
 				
-				m_invoker.Set (device, message.Action, message.Params? [0]);
+				m_invoker.Set (device, message.Payload.Action, message.Payload.Params? [0]);
 
 			}
 
-			response.Action = message.Action;
+			response.Action = message.Payload.Action;
 			response.Object = device;
 
 			return new JsonObjectIntermediate(response);

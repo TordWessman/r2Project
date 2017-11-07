@@ -27,7 +27,7 @@ namespace Core.Network
 		Ok = 200,
 		NotFound = 404,
 		ServerError = 500,
-		NetworkError = -1
+		NetworkError = 503 
 
 	}
 

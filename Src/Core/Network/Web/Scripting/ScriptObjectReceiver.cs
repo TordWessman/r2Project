@@ -25,6 +25,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Dynamic;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Core.Network.Web
 {
@@ -46,9 +47,9 @@ namespace Core.Network.Web
 		
 		}
 
-		public IWebIntermediate OnReceive (dynamic input, string path, IDictionary<string, object> metadata) {
+		public IWebIntermediate OnReceive (INetworkMessage message, IPEndPoint source) {
 			
-			T response = m_script.Invoke(ON_RECEIVE_METHOD_NAME, input, path, metadata, new T());
+			T response = m_script.Invoke(ON_RECEIVE_METHOD_NAME, message, new T(), source);
 
 			response.CLRConvert ();
 

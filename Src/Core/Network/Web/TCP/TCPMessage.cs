@@ -23,13 +23,13 @@ using System.Collections.Generic;
 namespace Core.Network
 {
 
-	public struct TCPMessage 
+	public struct TCPMessage: INetworkMessage
 	{
 		
-		public int Code;
-		public string Destination;
-		public IDictionary<string, object> Headers;
-		public dynamic Payload;
+		public int Code { get; set; }
+		public string Destination { get; set; }
+		public IDictionary<string, object> Headers { get; set; }
+		public dynamic Payload { get; set; }
 
 		/// <summary>
 		/// Determined data type of the payload

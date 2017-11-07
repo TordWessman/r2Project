@@ -42,9 +42,13 @@ namespace Core.Network.Web
 
 		public void AddMetadata(string key, object value) {}
 
-		public dynamic Data { get { return m_data; } set { m_data = value; } }
+		public dynamic Payload { get { return m_data; } set { m_data = value; } }
 
-		public IDictionary<string, object> Metadata { get { return new Dictionary<string, object>(); } }
+		public IDictionary<string, object> Headers { get; set; }
+
+		public int Code  { get; set; }
+
+		public string Destination  { get; set; }
 	}
 }
 

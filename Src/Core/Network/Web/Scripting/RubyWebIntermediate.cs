@@ -34,14 +34,17 @@ namespace Core.Network.Web
 		private dynamic m_data;
 		private IDictionary<string, object> m_metadata;
 
+
 		public RubyWebIntermediate ()
 		{
-			Data = new R2Dynamic ();
+			Payload = new R2Dynamic ();
 			m_metadata = new  Dictionary<string, object>();
 		}
 
-		public dynamic Data { get { return m_data; } set { m_data = value; } }
-		public IDictionary<string, object> Metadata { get { return m_metadata; } } 
+		public dynamic Payload { get { return m_data; } set { m_data = value; } }
+		public IDictionary<string, object> Headers { get { return m_metadata; } set { m_metadata = value; } } 
+		public int Code { get; set; }
+		public string Destination { get; set; }
 
 		public void AddMetadata(string key, object value) {
 
@@ -52,7 +55,7 @@ namespace Core.Network.Web
 
 		public void CLRConvert() {
 		
-			Data = ParseValue (Data);
+			Payload = ParseValue (Payload);
 
 		}
 

@@ -27,11 +27,10 @@ namespace Core.Network.Web
 	/// <summary>
 	/// Uses as a very primitive file server within an IHttpServer.
 	/// </summary>
-	public class WebFileEndpoint : IWebEndpoint
+	public class WebFileEndpoint: IWebEndpoint
 	{
 		private string m_basePath;
 		private string m_responsePath;
-		private string m_contentType;
 
 		private const string FileMatchRegexp = @"[A-Za-z0-9_\.\-]+$";
 		private const string ExtensionMatchRegexp = @"[A-Za-z]+$";
@@ -52,21 +51,21 @@ namespace Core.Network.Web
 
 		#region IHttpServerInterpreter implementation
 
-		public dynamic Interpret (dynamic input, string url, IDictionary<string, object> metadata = null)
+		public INetworkMessage Interpret (INetworkMessage input, System.Net.IPEndPoint endpoint)
 		{
 			
-			if (url == null) {
+			if (input.Destination == null) {
 			
 				throw new MissingFieldException ("Unable to process request. Uri was null.");
 
 			}
 
-			Match fileNameMatch = Regex.Match (url, FileMatchRegexp);
+			Match fileNameMatch = Regex.Match (input.Destination, FileMatchRegexp);
 			string imageName = fileNameMatch?.Value;
 
 			if (string.IsNullOrEmpty(imageName)) {
 
-				throw new InvalidDataException ($"Unable to retrieve file name. Using regexp: '{FileMatchRegexp}' to match url '{url}'.");
+				throw new InvalidDataException ($"Unable to retrieve file name. Using regexp: '{FileMatchRegexp}' to match url '{input.Destination}'.");
 
 			}
 
@@ -80,9 +79,11 @@ namespace Core.Network.Web
 
 			string extension = new Regex (ExtensionMatchRegexp).Match (imageName)?.Value?.ToLower();
 
-			m_contentType = GetMimeType (extension);
-
-			return File.ReadAllBytes (fileName);
+			return new NetworkMessage() {
+				Payload = File.ReadAllBytes (fileName), 
+				Headers = new Dictionary<string, object>() {{"Content-Type", GetMimeType (extension)}},
+				Destination = fileName
+			}; 
 
 		}
 
@@ -91,20 +92,6 @@ namespace Core.Network.Web
 			get {
 
 				return m_responsePath;
-
-			}
-
-		}
-
-		public IDictionary<string, object> Metadata {
-
-			get {
-
-				var headers = new Dictionary<string, object> ();
-
-				headers.Add ("Content-Type", m_contentType);
-
-				return headers;
 
 			}
 

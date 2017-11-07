@@ -35,31 +35,24 @@ namespace Core.Network.Web
 	/// <summary>
 	/// Primitive HTTP server.
 	/// </summary>
-	public class HttpServer : DeviceBase, IWebServer
+	public class HttpServer : ServerBase
 	{
-		public static readonly string HEADERS_KEY = "_headers";
-		public static readonly string HTTP_METHOD_KEY = "_httpMethod";
+
 
 		private HttpListener m_listener;
-		private bool m_shouldrun;
-		private int m_port;
-		private IList<IWebEndpoint> m_endpoints;
-		private Task m_task;
 		private ISerialization m_serialization;
 
-		public HttpServer (string id, int port, ISerialization serialization) :  base (id)
+		public HttpServer (string id, int port, ISerialization serialization) :  base (id, port)
 		{
-			m_port = port;
-			m_endpoints = new List<IWebEndpoint> ();
 			m_serialization = serialization;
 
 		}
 
-		private void Service() {
+		protected override void Service() {
 
 			m_listener.Start ();
 
-			while (m_shouldrun) {
+			while (ShouldRun) {
 
  				HttpListenerContext context = m_listener.GetContext();
 
@@ -68,28 +61,20 @@ namespace Core.Network.Web
 					HttpListenerRequest request = context.Request;
 					HttpListenerResponse response = context.Response;
 
-					bool match = false;
+					IWebEndpoint endpoint = GetEndpoint (request.Url.AbsolutePath);
 
-					foreach (IWebEndpoint endpoint in m_endpoints) {
+					if (endpoint != null) {
 					
-						if (Regex.IsMatch (request.Url.AbsolutePath, endpoint.UriPath)) {
-
-							Interpret (request, response, endpoint);
-							match = true;
-							break;
-
-						}
-
-					}
-
-					if (!match) {
+						Interpret (request, response, endpoint);
+					
+					} else {
 
 						Log.w ("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
 						response.StatusCode = (int) WebStatusCode.NotFound;
 
 						Write (response,  m_serialization.Serialize(new WebErrorMessage((int) WebStatusCode.NotFound, $"Path not found: {request.Url.AbsolutePath}") ));
-					
-					} 
+
+					}
 
 				}
 
@@ -99,48 +84,26 @@ namespace Core.Network.Web
 
 		}
 
-		public string Ip { 
-
-			get {
-
-				return Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault ()?.ToString ();
-			
-			} 
-		
-		}
-		public int Port { get { return m_port; } }
-
-		public override bool Ready { get { return m_shouldrun; }}
+		public override bool Ready { get { return m_listener?.IsListening == true; }}
 
 		public override void Start() {
 
-			m_shouldrun = true;
 			m_listener = new HttpListener ();
-			m_listener.Prefixes.Add(String.Format("http://*:{0}/", m_port));
+			m_listener.Prefixes.Add(String.Format("http://*:{0}/", Port));
 
-			m_task = Task.Factory.StartNew(Service);
-
-			Log.d ("HTTP server running with state: " +  m_task.Status);
-
+			base.Start ();
 
 		}
 
 		public override void Stop() {
-			
-			m_shouldrun = false;
+
+			base.Stop ();
+
 			try {
 			
 				m_listener.Stop ();
 
 			} catch (System.Net.Sockets.SocketException) {}
-
-		}
-
-
-
-		public void AddEndpoint(IWebEndpoint interpreter) {
-
-			m_endpoints.Add (interpreter);
 
 		}
 
@@ -151,7 +114,13 @@ namespace Core.Network.Web
 
 				byte[] responseBody = new byte[0];
 				byte[] requestBody = default(byte[]);
-				dynamic requestObject;
+				HttpMessage requestObject = new HttpMessage () {Destination = request.Url.AbsolutePath, Headers = new Dictionary<string, object> () };
+
+				requestObject.Method = request.HttpMethod;
+
+				// TODO: If one needs querystring parameters 
+				//NameValueCollection queryStringParameters = HttpUtility.ParseQueryString (request.Url.Query);
+				//foreach (string key in  queryStringParameters.AllKeys) { requestObject.Headers[key] = queryStringParameters[key]; }
 
 				try {
 					
@@ -167,43 +136,46 @@ namespace Core.Network.Web
 					if (request.ContentType?.Contains("json") == true) {
 			
 						// Treaded as complex object.
-						requestObject = m_serialization.Deserialize(requestBody);
+						requestObject.Payload = m_serialization.Deserialize(requestBody);
 					
 					} else if (request.ContentType?.Contains("text") == true) {
 					
 						// Treated as string.
-						requestObject = m_serialization.Encoding.GetString(requestBody);
+						requestObject.Payload = m_serialization.Encoding.GetString(requestBody);
 
 					} else {
 					
 						// Treated as byte array.
-						requestObject = requestBody;
+						requestObject.Payload = requestBody;
 
 					}
 
 					// Parse request and create response body.
-					dynamic responseObject = endpoint.Interpret (requestObject, request.Url.AbsolutePath, CreateMetadata(request));
+					INetworkMessage responseObject = endpoint.Interpret (requestObject, request.RemoteEndPoint);
+					string contentType = responseObject.Headers?.ContainsKey("Content-Type") == true ? responseObject.Headers["Content-Type"] as string : null;
 
-					if (responseObject is byte[]) {
+					if (responseObject.Payload is byte[]) {
 
 						//Data was returned in raw format.
-						responseBody = responseObject;
+						responseBody = responseObject.Payload;
+						response.ContentType = contentType ?? "application/octet-stream";
 
-					} else if (responseObject is string) {
+					} else if (responseObject.Payload is string) {
 
 						// Data was a string.
-						responseBody = m_serialization.Encoding.GetBytes (responseObject);
+						responseBody = m_serialization.Encoding.GetBytes (responseObject.Payload);
+						response.ContentType = contentType ?? "text/plain";
 
 					} else {
 
 						// Object is considered to be complex and will be transcribed into a json object
-						responseBody = m_serialization.Serialize(responseObject);
+						responseBody = m_serialization.Serialize(responseObject.Payload);
+						response.ContentType = contentType ?? "application/json";
 
 					}
 
 					// Add header fields from metadata
-					endpoint.Metadata.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
-
+					responseObject.Headers?.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
 					response.StatusCode = (int) WebStatusCode.Ok;
 
 				} catch (Exception ex) {
@@ -230,31 +202,6 @@ namespace Core.Network.Web
 			System.IO.Stream output = response.OutputStream;
 			output.Write(data, 0, data.Length);
 			output.Close();
-
-		}
-
-		/// <summary>
-		/// Creates meta data (headers, HTTP method, uri etc)  retreived from the request.
-		/// </summary>
-		/// <returns>The meta data.</returns>
-		/// <param name="request">Request.</param>
-		private IDictionary<string, object> CreateMetadata(HttpListenerRequest request) {
-
-			IDictionary<string, object> metadata = new Dictionary<string, object> ();
-
-			// Add query string parameters to meta data.
-			if (request.Url != null) {
-
-				NameValueCollection queryStringParameters = HttpUtility.ParseQueryString (request.Url.Query);
-
-				foreach (string key in  queryStringParameters.AllKeys) { metadata[key] = queryStringParameters[key]; }
-
-			}
-
-			metadata[HEADERS_KEY] = request.Headers;
-			metadata[HTTP_METHOD_KEY] = request.HttpMethod;
-
-			return metadata;
 
 		}
 

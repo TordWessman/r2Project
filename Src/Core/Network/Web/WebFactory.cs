@@ -52,7 +52,7 @@ namespace Core.Network.Web
 
 		public IWebSocketServer CreateWebSocketServer(string id, int port) {
 		
-			return new WebSocketServer (id, port, m_serialization);
+			return new WebSocketServer (id, port, new TCPPackageFactory(m_serialization));
 
 		}
 
@@ -146,7 +146,7 @@ namespace Core.Network.Web
 
 		public IWebServer CreateTCPServer(string id, int port) {
 		
-			return new TCPServer (id, port, m_serialization);
+			return new TCPServer (id, port, new TCPPackageFactory (m_serialization));
 
 		}
 

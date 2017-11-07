@@ -17,30 +17,36 @@
 //
 //
 using System;
-using Core.Device;
+using Core.Network.Web;
+using System.Net.Sockets;
+using System.Net;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
-
-	/// <summary>
-	/// Implementations are capable of transmitting data to a remote host.
-	/// </summary>
-	public interface IMessageClient<MessageType>: IDevice
+	public class UDPServer: ServerBase
 	{
 
-		/// <summary>
-		/// Synchronous http communication.
-		/// </summary>
-		/// <param name="message">Message.</param>
-		MessageType Send (MessageType message);
+		private UdpClient m_listener;
+		private IPEndPoint m_groupEndpoint;
+		private ITCPPackageFactory m_packageFactory;
 
-		/// <summary>
-		/// Asynchronous communication. The action delegate will have to take a Core.Network.Web.HttpResponse parameter. 
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="responseDelegate">Response delegate.</param>
-		System.Threading.Tasks.Task SendAsync(MessageType message, Action<MessageType> responseDelegate);
+		public UDPServer (string id, int port, ITCPPackageFactory packageFactory) : base (id, port) {
 
+			m_listener = new UdpClient (Port);
+			m_groupEndpoint = new IPEndPoint(IPAddress.Any, Port);
+			m_packageFactory = packageFactory;
+
+		}
+
+		protected override void Service() {
+		
+			while (ShouldRun) {
+			
+				byte [] bytes = m_listener.Receive (ref m_groupEndpoint);
+
+
+			}
+		}
 	}
-
 }
+
