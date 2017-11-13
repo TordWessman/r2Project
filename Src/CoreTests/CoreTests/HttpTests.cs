@@ -99,7 +99,6 @@ namespace CoreTests
 			// The dummy object should now have been changed.
 			Assert.AreEqual ("Foo", dummyObject.Bar);
 
-
 			int fortytwo = 42;
 			WebObjectRequest wob = new WebObjectRequest () { 
 				Identifier = "dummy_device",

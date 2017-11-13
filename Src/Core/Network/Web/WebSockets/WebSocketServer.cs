@@ -32,11 +32,11 @@ namespace Core.Network.Web
 	
 		private IWebEndpoint m_endpoint;
 		private IEnumerable<IWebSocketSender> m_senders;
-		private ITCPPackageFactory m_packageFactory;
+		private ITCPPackageFactory<TCPMessage> m_packageFactory;
 
 		public string UriPath { get { return m_endpoint?.UriPath; } }
 
-		public WebSocketHandler(IEnumerable<IWebSocketSender> senders, IWebEndpoint endpoint, ITCPPackageFactory packageFactory) {
+		public WebSocketHandler(IEnumerable<IWebSocketSender> senders, IWebEndpoint endpoint, ITCPPackageFactory<TCPMessage> packageFactory) {
 			
 			m_senders = senders;
 			m_packageFactory = packageFactory;
@@ -134,9 +134,9 @@ namespace Core.Network.Web
 		//private IDictionary<string,WebSocketHandler> m_handlers;
 		private IDictionary<string, IWebEndpoint> m_endpoints;
 		private IDictionary<string, IList<IWebSocketSender>> m_senders;
-		private ITCPPackageFactory m_packageFactory;
+		private ITCPPackageFactory<TCPMessage> m_packageFactory;
 
-		public WebSocketServer (string id, int port, ITCPPackageFactory packageFactory) : base (id) {
+		public WebSocketServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base (id) {
 
 			m_packageFactory = packageFactory;
 			m_server = new WebSocketSharp.Server.WebSocketServer (port);

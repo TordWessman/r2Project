@@ -33,17 +33,17 @@ namespace Core.Network
 		
 		private TcpListener m_listener;
 
-		private ITCPPackageFactory m_packageFactory;
+		private ITCPPackageFactory<TCPMessage> m_packageFactory;
 		private IDictionary<TcpClient, Task> m_connections;
 
-		public TCPServer (string id, int port, ITCPPackageFactory packageFactory) : base(id, port)
+		public TCPServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id, port)
 		{
 
 			m_packageFactory = packageFactory;
 
 		}
 
-
+		public override bool Ready { get { return ShouldRun && m_listener != null; } }
 
 		/// <summary>
 		/// Represents a single client connection.
@@ -65,19 +65,7 @@ namespace Core.Network
 
 						if (endpoint != null) {
 							
-							INetworkMessage responseObject = endpoint.Interpret (requestMessage, (IPEndPoint) client.Client.RemoteEndPoint);
-
-							responseMessage = new TCPMessage() {
-								Code = responseObject.Code != 0 ? responseObject.Code : (int) WebStatusCode.Ok,
-								Payload = responseObject.Payload,
-								Headers = responseObject.Headers,
-								Destination = responseObject.Destination
-							};
-
-							// Add headers to the response message
-							responseObject.Headers?.ToList().ForEach( kvp => responseMessage.Headers[kvp.Key] = kvp.Value.ToString());
-
-							Log.t($"... did successfully interpret.");
+							responseMessage = new TCPMessage(endpoint.Interpret (requestMessage, (IPEndPoint) client.Client.RemoteEndPoint));
 
 						} else {
 
@@ -112,7 +100,7 @@ namespace Core.Network
 					if (ShouldRun && client.Connected && responseMessage.Code != (int)WebStatusCode.NotDefined) {
 
 						try {
-
+							
 							byte[] response = m_packageFactory.SerializeMessage (responseMessage);
 							Log.t ($"Server will send response now {response.Length}!");
 							client.GetStream ().Write (response, 0, response.Length);
@@ -172,8 +160,6 @@ namespace Core.Network
 			}
 
 		}
-
-		public override bool Ready { get { return m_listener != null; } }
 
 		public override void Stop () {
 			

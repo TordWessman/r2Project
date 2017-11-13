@@ -17,37 +17,44 @@
 //
 //
 using System;
-using Core.Network.Data;
-using System.Collections.Generic;
 using System.Net;
 
 namespace Core.Network
 {
-
-	public struct TCPMessage: INetworkMessage
+	/// <summary>
+	/// Broadcast message containing Identifier in order for receiver to identify messages. 
+	/// </summary>
+	public class BroadcastMessage : INetworkMessage
 	{
-		
+		public const string BroadcastMessageUniqueIdentifierHeaderKey = "BroadcastMessageUniqueIdentifier";
+
 		public int Code { get; set; }
 		public string Destination { get; set; }
-		public IDictionary<string, object> Headers { get; set; }
+		public System.Collections.Generic.IDictionary<string, object> Headers { get; set; }
 		public dynamic Payload { get; set; }
 
 		/// <summary>
-		/// Determined data type of the payload
+		/// An unique identifier in the payload allowing messages to be tracked back to it's origin.
 		/// </summary>
-		public TCPPackageFactory.PayloadType PayloadType;
+		/// <value>The identifier.</value>
+		public Guid Identifier { get; set; }
 
-		public TCPMessage(INetworkMessage message) {
+		/// <summary>
+		/// The endpoint from where this message was sent.
+		/// </summary>
+		/// <value>The origin.</value>
+		public IPEndPoint Origin { get; set; }
+
+		public BroadcastMessage(INetworkMessage message, IPEndPoint origin) {
 		
-			Code = message.Code != 0 ? message.Code : (int) WebStatusCode.Ok;
+			Code = message.Code;
 			Destination = message.Destination;
 			Headers = message.Headers;
 			Payload = message.Payload;
-
-			PayloadType = TCPPackageFactory.GetPayloadType (message);
+			Origin = origin;
 
 		}
 
 	}
-
 }
+

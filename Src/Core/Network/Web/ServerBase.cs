@@ -62,18 +62,6 @@ namespace Core.Network
 		protected IWebEndpoint GetEndpoint(string path) {
 		
 			return m_endpoints.Where (endpoint => System.Text.RegularExpressions.Regex.IsMatch (path, endpoint.UriPath)).FirstOrDefault ();
-			/*
-			foreach (IWebEndpoint endpoint in m_endpoints) {
-
-				if (System.Text.RegularExpressions.Regex.IsMatch (path, endpoint.UriPath)) {
-
-					return endpoint;
-
-				}
-
-			}
-
-			return null;*/
 
 		}
 
@@ -97,6 +85,7 @@ namespace Core.Network
 		
 		}
 
+		public override bool Ready { get { return ShouldRun; } }
 
 	}
 }

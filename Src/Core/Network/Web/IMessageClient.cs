@@ -19,7 +19,7 @@
 using System;
 using Core.Device;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 
 	/// <summary>

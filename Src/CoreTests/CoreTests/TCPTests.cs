@@ -42,7 +42,7 @@ namespace Core.Tests
 		[Test]
 		public void TestPackageFactory() {
 
-			var packageFactory = factory.CreatePackageFactory ();
+			var packageFactory = factory.CreateTCPPackageFactory ();
 
 			DummyDevice d = new DummyDevice ("dummyXYZ");
 			d.HAHA = 42.25f;
@@ -119,12 +119,11 @@ namespace Core.Tests
 			s.Stop ();
 			Thread.Sleep (100);
 			Assert.IsFalse (s.Ready);
-			s = factory.CreateTCPServer ("s", 4242);
 
 			s.Start ();
-			Thread.Sleep (500);
+			Thread.Sleep (100);
 
-			IMessageClient<TCPMessage> client = factory.CreateTCPClient ("c", "localhost", 4242);
+			IMessageClient<TCPMessage> client = factory.CreateTCPClient ("c", "localhost", 1111);
 
 			client.Start ();
 			Assert.IsTrue (client.Ready);

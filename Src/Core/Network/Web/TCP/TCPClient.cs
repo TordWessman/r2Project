@@ -30,11 +30,11 @@ namespace Core.Network
 		string m_host;
 		int m_port;
 		private TcpClient m_client;
-		ITCPPackageFactory m_serializer;
+		ITCPPackageFactory<TCPMessage> m_serializer;
 
 		public IDictionary<string, object> Headers;
 
-		public TCPClient (string id, ITCPPackageFactory serializer, string host, int port) : base(id) {
+		public TCPClient (string id, ITCPPackageFactory<TCPMessage> serializer, string host, int port) : base(id) {
 
 			m_host = host;
 			m_port = port;

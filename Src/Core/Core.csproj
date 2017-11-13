@@ -246,11 +246,13 @@
     <Compile Include="Scripting\Obsolete\ScriptExecutor.cs" />
     <Compile Include="Scripting\Obsolete\ScriptExecutorFactory.cs" />
     <Compile Include="Network\Web\TCP\ITCPPackageFactory.cs" />
-    <Compile Include="Network\Web\Http\IMessageClient.cs" />
     <Compile Include="Network\Web\UDP\UDPServer.cs" />
     <Compile Include="Network\Web\ServerBase.cs" />
     <Compile Include="Network\Web\Messages\INetworkMessage.cs" />
     <Compile Include="Network\Web\Messages\NetworkMessage.cs" />
+    <Compile Include="Network\Web\UDP\UDPClient.cs" />
+    <Compile Include="Network\Web\IMessageClient.cs" />
+    <Compile Include="Network\Web\UDP\BroadcastMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -132,7 +132,7 @@ namespace Core.Network.Web
 
 		}
 
-		public ITCPPackageFactory CreatePackageFactory() {
+		public ITCPPackageFactory<TCPMessage> CreateTCPPackageFactory() {
 
 			return new TCPPackageFactory (m_serialization);
 
@@ -140,13 +140,24 @@ namespace Core.Network.Web
 
 		public IMessageClient<TCPMessage> CreateTCPClient(string id, string host, int port) {
 		
-			return new TCPClient (id, CreatePackageFactory (), host, port);
+			return new TCPClient (id, CreateTCPPackageFactory (), host, port);
 
 		}
 
 		public IWebServer CreateTCPServer(string id, int port) {
 		
 			return new TCPServer (id, port, new TCPPackageFactory (m_serialization));
+
+		}
+
+		public IWebServer CreateUDPServer(string id, int port) {
+		
+			return new UDPServer (id, port, new TCPPackageFactory (m_serialization));
+		}
+
+		public UDPClient CreateUDPClient(string id, int port) {
+		
+			return new UDPClient(id, port, new TCPPackageFactory (m_serialization));
 
 		}
 

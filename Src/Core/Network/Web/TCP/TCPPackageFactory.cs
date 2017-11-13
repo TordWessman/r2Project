@@ -44,12 +44,15 @@ namespace Core.Network
 
 	}
 
-	public class TCPPackageFactory: ITCPPackageFactory 
+	public class TCPPackageFactory: ITCPPackageFactory<TCPMessage>
 	{
 		/// <summary>
 		/// Defines the data types which are transmittable
 		/// </summary>
 		public enum PayloadType: int {
+
+			// No payload
+			None = 0,
 
 			// Complex object
 			Dynamic = 1,
@@ -59,6 +62,8 @@ namespace Core.Network
 
 			// Raw byte array
 			Bytes = 3
+
+				//public static PayloadType Parse(dynamic value) {
 
 		}
 
@@ -70,6 +75,35 @@ namespace Core.Network
 
 		}
 
+		/// <summary>
+		/// Gets the PayloadType of the message.Payload.
+		/// </summary>
+		/// <returns>The payload type.</returns>
+		/// <param name="message">Message.</param>
+		public static PayloadType GetPayloadType(INetworkMessage message) {
+		
+			if (!Object.ReferenceEquals (message.Payload, null)) {
+			
+				if (message.Payload is byte[]) {
+
+					return PayloadType.Bytes;
+
+				} else if (message.Payload is string) {
+
+					return PayloadType.String;
+
+				} else {
+
+					return PayloadType.Dynamic;
+
+				}
+
+			}
+
+			return PayloadType.None;
+
+		}
+
 		public byte[] SerializeMessage(TCPMessage message) {
 		
 			byte[] code = new Int32Converter (message.Code).GetContainedBytes(2);
@@ -78,26 +112,13 @@ namespace Core.Network
 			byte[] payloadData = new byte[0];
 			byte[] payloadDataType = new byte[0];
 
-			if (!Object.ReferenceEquals(message.Payload, null)) {
-			
-				if (message.Payload is byte[]) {
+			PayloadType payloadType = GetPayloadType (message);
 
-					payloadData = message.Payload as byte[];
-					payloadDataType = new Int32Converter ((int)PayloadType.Bytes).GetContainedBytes (2);
+			if (payloadType == PayloadType.Bytes) { payloadData = message.Payload as byte[]; }
+			else if (payloadType == PayloadType.String) { payloadData = m_serialization.Encoding.GetBytes (message.Payload); }
+			else if (payloadType == PayloadType.Dynamic) { payloadData =  m_serialization.Serialize (message.Payload); }
 
-				} else if (message.Payload is string) {
-
-					payloadData = m_serialization.Encoding.GetBytes (message.Payload);
-					payloadDataType = new Int32Converter ((int)PayloadType.String).GetContainedBytes (2);
-
-				} else {
-
-					payloadData = m_serialization.Serialize (message.Payload);
-					payloadDataType = new Int32Converter ((int)PayloadType.Dynamic).GetContainedBytes (2);
-
-				}
-
-			}
+			payloadDataType = new Int32Converter ((int)payloadType).GetContainedBytes (2);
 
 			byte[] pathSize = new Int32Converter (path.Length).Bytes; 
 			byte[] payloadSize = new Int32Converter (payloadData.Length).Bytes;

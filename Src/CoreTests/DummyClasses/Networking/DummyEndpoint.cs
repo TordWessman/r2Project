@@ -17,37 +17,34 @@
 //
 //
 using System;
-using Core.Network.Data;
-using System.Collections.Generic;
-using System.Net;
+using Core.Network.Web;
+using Core.Network;
+using NUnit.Framework;
 
-namespace Core.Network
+namespace Core.Tests
 {
-
-	public struct TCPMessage: INetworkMessage
+	public class DummyEndpoint : IWebEndpoint
 	{
-		
-		public int Code { get; set; }
-		public string Destination { get; set; }
-		public IDictionary<string, object> Headers { get; set; }
-		public dynamic Payload { get; set; }
+		private string m_path;
 
-		/// <summary>
-		/// Determined data type of the payload
-		/// </summary>
-		public TCPPackageFactory.PayloadType PayloadType;
+		public DummyEndpoint (string path) {
 
-		public TCPMessage(INetworkMessage message) {
-		
-			Code = message.Code != 0 ? message.Code : (int) WebStatusCode.Ok;
-			Destination = message.Destination;
-			Headers = message.Headers;
-			Payload = message.Payload;
-
-			PayloadType = TCPPackageFactory.GetPayloadType (message);
+			m_path = path;
 
 		}
 
-	}
+		public Func<INetworkMessage,INetworkMessage> MessingUp;
 
+		public INetworkMessage Interpret(INetworkMessage message,  System.Net.IPEndPoint source) {
+		
+			Assert.AreEqual (source.Address.ToString (), "127.0.0.1");
+
+			return MessingUp == null ? message : MessingUp(message);
+
+		}
+
+		public string UriPath {get {return m_path;} }
+
+	}
 }
+
