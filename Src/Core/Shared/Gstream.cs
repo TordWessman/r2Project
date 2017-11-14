@@ -27,7 +27,7 @@ namespace Core
 	/// <summary>
 	/// Represent a gstreamer pipeline object. Use this object to create a simple gstreamer pipline. 
 	/// </summary>
-	public class Gstream : RemotlyAccessibleDeviceBase, IGstream, ITaskMonitored
+	public class Gstream : DeviceBase, IGstream, ITaskMonitored
 	{
 		private static readonly int START_LOCK_TIMEOUT_MS = 5000;
 
@@ -180,31 +180,6 @@ namespace Core
 		{
 
 			return new System.Collections.Generic.Dictionary<string,Task>() {{ "Gst" + Identifier, m_task}};
-		
-		}
-
-		#endregion
-
-		#region IRemotlyAccessable implementation
-
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-
-			} else if (methodName == "is_running") {
-			
-				return mgr.RPCReply<bool> (Guid, methodName, IsRunning);
-			}
-
-			throw new NotImplementedException ("Gstream '" + Identifier + "' : Unable to interpret IRemotlyAccessable.RemoteRequest: " + methodName);
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-
-			return RemoteDevices.Gstream;
 		
 		}
 

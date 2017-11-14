@@ -6,7 +6,7 @@ using Core;
 
 namespace GPIO
 {
-	public class InputPort2: RemotlyAccessibleDeviceBase, IInputPort
+	public class InputPort2: DeviceBase, IInputPort
 	{
 		// GPIO values:
 		private ProcessorPin m_pin;
@@ -29,32 +29,6 @@ namespace GPIO
 
 		}
 
-		#region IRemotlyAccessable implementation
-
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-
-			} else if (methodName == RemoteInputPort.GET_VALUE_FUNCTION_NAME) {
-
-				return mgr.RPCReply<bool> (Guid, methodName, Value);
-
-			} else
-
-				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-
-			return RemoteDevices.InputPort;
-
-		}
-
-		#endregion
-
 		#region IInputPort implementation
 
 		public bool Value {
@@ -66,7 +40,6 @@ namespace GPIO
 			}
 
 		}
-
 
 		#endregion
 

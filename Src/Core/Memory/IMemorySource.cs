@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using MemoryType = System.String;
 using Core.Memory;
 	
-namespace Core.Device
+namespace Core.Memory
 {
 	/// <summary>
 	/// Interface providing methods for interacting with the shared memory. 

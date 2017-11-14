@@ -19,7 +19,7 @@
 using System;
 using Core.Device;
 
-namespace Audio.TTS
+namespace Audio
 {
 		public interface ITTSObserver
 		{

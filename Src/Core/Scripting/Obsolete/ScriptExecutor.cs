@@ -26,7 +26,7 @@ namespace Core.Scripting
 	/// <summary>
 	/// Implementation of an IScriptExecutor. Remotely accissble (which allows communication with scripts created on other instances).
 	/// </summary>
-	public class ScriptExecutor<T> : RemotlyAccessibleDeviceBase, IScriptExecutor, IScriptObserver where T: IScript
+	public class ScriptExecutor<T> : DeviceBase, IScriptExecutor, IScriptObserver where T: IScript
 	{
 		
 		private IDictionary<string, IScript> m_scripts;
@@ -116,55 +116,6 @@ namespace Core.Scripting
 			//m_scripts = new Dictionary<string, IScript> ();
 		
 		}
-		
-		#region implemented abstract members of Core.Device.RemotlyAccessibleDeviceBase
-
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-				
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-				
-			} else if (methodName.Equals (RemoteScriptExecutor.GET_VALUE_METHOD_NAME)) {
-				
-				string handle = mgr.ParsePackage<string> (rawData);
-				object returnObject = Get (handle);
-				
-				if (returnObject == null) {
-
-					Log.e ("Unable to get object for handle: " + handle + 
-					       " in ScriptExecutor: " + Identifier); 
-
-					returnObject = new object ();
-				
-				}
-
-				return mgr.RPCReply<object> (Guid, methodName, returnObject);
-				
-			} else if (methodName.Equals (RemoteScriptExecutor.SET_VALUE_METHOD_NAME)) {
-				
-				KeyValuePair<string,object> input = mgr.ParsePackage<KeyValuePair<string,object>> (rawData);
-				Set (input.Key, input.Value);
-				return null;
-				
-			} else if (methodName.Equals (RemoteScriptExecutor.DONE_METHOD_NAME)) {
-				
-				return mgr.RPCReply<bool> (Guid, methodName, Done);
-				
-			} 
-			
-			throw new NotImplementedException ("Method name: " + methodName + " is not implemented for ScriptExecutor.");
-		
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-		
-			return RemoteDevices.ScriptExecutor;
-		
-		}
-
-		#endregion
 
 		#region IScriptObserver implementation
 

@@ -23,7 +23,7 @@ using Core;
 
 namespace GPIO
 {
-	public abstract class ServoBase : RemotlyAccessibleDeviceBase, ILocalServo
+	public abstract class ServoBase : DeviceBase, ILocalServo
 	{
 		public float DEFAULT_MIN_VALUE = 2;
 		public float DEFAULT_MAX_VALUE = 177f;
@@ -62,35 +62,6 @@ namespace GPIO
 				m_servoController.Set (m_channel, m_value);
 			}
 		}
-		
-		#region implemented abstract members of Core.Device.RemotlyAccessibleDeviceBase
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			} else if (methodName == RemoteServo.GET_VALUE_FUNCTION_NAME) {
-				return mgr.RPCReply<float> (Guid, methodName, Value);
-			} else if (methodName == RemoteServo.SET_VALUE_FUNCTION_NAME) {
-				Value = mgr.ParsePackage<float> (rawData);
-			} else if (methodName == RemoteServo.GET_MAX_VALUE_FUNCTION_NAME) {
-				return mgr.RPCReply<float> (Guid, methodName, MaxValue);
-			} else if (methodName == RemoteServo.SET_MAX_VALUE_FUNCTION_NAME) {
-				MaxValue = mgr.ParsePackage<float> (rawData);
-			} else if (methodName == RemoteServo.GET_MIN_VALUE_FUNCTION_NAME) {
-				return mgr.RPCReply<float> (Guid, methodName, MinValue);
-			} else if (methodName == RemoteServo.SET_MIN_VALUE_FUNCTION_NAME) {
-				MinValue = mgr.ParsePackage<float> (rawData);
-			} else
-				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for servo.");
-
-			return null;
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-			return RemoteDevices.Servo;
-		}
-		#endregion
 
 		#region ILocalServo implementation
 		public float MaxValue {

@@ -19,7 +19,6 @@
 using System;
 using Core.Device;
 using System.IO;
-using Core.Network.Data;
 using Core.Network;
 using System.Net;
 using System.Collections.Generic;
@@ -29,7 +28,7 @@ using System.Linq;
 
 namespace Core.Memory
 {
-	public class MemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver, IDataReceived<byte[],IPEndPoint>
+	public class MemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver
 	{
 		private MemoryFactory m_memoryFactory;
 		private IDeviceManager m_deviceManager;
@@ -276,22 +275,6 @@ namespace Core.Memory
 			
 		}
 		*/
-		#region IDataReceived implementation
-		public byte[] DataReceived (DataPackageType type, byte[] rawData, System.Net.IPEndPoint source)
-		{
-			
-			if (type.Equals (DataPackageType.MemoryBusOnline)) {
-				Log.t ("HEJ MEMORY BUS");
-				ICollection<IMemoryReference> refs = m_dbAdapter.LoadAll ();
-				Bus.AddMemories (refs);
-				return null;
-			} else {
-				throw new System.NotImplementedException ("WHAT HÅLLER DU PÅ MED!?");
-			}
-			
-			
-		}
-		#endregion
 
 		public ICollection<IMemory> Get (int[] memoryIds)
 		{

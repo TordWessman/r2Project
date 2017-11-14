@@ -20,7 +20,7 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialDigitalOutput : RemotlyAccessibleDeviceBase, IOutputPort
+	public class SerialDigitalOutput : DeviceBase, IOutputPort
 	{
 		//The identifier used by the serial slave device.
 		private byte m_slaveId;
@@ -53,37 +53,6 @@ namespace GPIO
 
 		#endregion
 
-		#region IRemotlyAccessable implementation
-
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr) {
-
-			if (IsBaseMethod (methodName)) {
-
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-
-			} else if (methodName == RemoteOutputPort.SET_VALUE_FUNCTION_NAME) {
-
-				Value = mgr.ParsePackage<bool> (rawData);
-				return null;
-
-			} else if (methodName == RemoteOutputPort.GET_VALUE_FUNCTION_NAME) {
-
-				return mgr.RPCReply<bool> (Guid, methodName, Value);
-
-			} else {
-
-				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
-
-			}
-
-		}
-
-		public override RemoteDevices GetTypeId () {
-			return RemoteDevices.OutputPort;
-		}
-		#endregion
-
-
 	}
-}
 
+}

@@ -44,12 +44,9 @@
     <Compile Include="Test.cs" />
     <Compile Include="DummyClasses\DummyDevice.cs" />
     <Compile Include="DummyClasses\DummyTaskMonitor.cs" />
-    <Compile Include="DummyClasses\Networking\DummyHostManager.cs" />
-    <Compile Include="DummyClasses\Networking\DummyR2Server.cs" />
     <Compile Include="CoreTests\CoreTests.cs" />
     <Compile Include="CoreTests\DataTests.cs" />
     <Compile Include="CoreTests\NetworkTests.cs" />
-    <Compile Include="CoreTests\PackageTest.cs" />
     <Compile Include="CoreTests\ScriptTests.cs" />
     <Compile Include="CoreTests\TestBase.cs" />
     <Compile Include="CoreTests\TestMemory.cs" />

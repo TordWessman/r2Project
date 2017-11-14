@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace Audio.TTS
 {
-	public class EspeakTTS : RemotlyAccessibleDeviceBase, ITTS
+	public class EspeakTTS : DeviceBase, ITTS
 	{
 		private const string dllPath = "libr2espeak.so";
 		
@@ -185,48 +185,6 @@ namespace Audio.TTS
 			m_observers.Add(observer);
 
 		}
-
-		#region IRemoteDevice implementation
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-
-			if (IsBaseMethod (methodName)) {
-
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			
-			}
-			
-
-			if (methodName == "quiet") {
-			
-				IsQuiet = mgr.ParsePackage<bool> (rawData);
-			
-			} else if (methodName == "getIsQuiet") {
-			
-				return mgr.RPCReply<bool> (Guid, methodName, IsQuiet);
-			
-			} else if (methodName == "currentText") {
-			
-				return mgr.RPCReply<string> (Guid, methodName, CurrentText);
-			
-			} else if (methodName == "say") {
-			
-				string text = mgr.ParsePackage<string> (rawData);
-				Say (text);
-			
-			}
-
-			return null;
-		
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-
-			return RemoteDevices.Espeak;
-		
-		}
-		#endregion
 
 	}
 

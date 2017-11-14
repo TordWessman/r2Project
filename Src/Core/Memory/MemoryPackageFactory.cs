@@ -17,7 +17,6 @@
 // 
 
 using System;
-using Core.Network.Data;
 using System.Collections.Generic;
 using Core.Network;
 

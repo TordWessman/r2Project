@@ -19,12 +19,15 @@
 using System;
 using Core.Device;
 
-
-namespace Core.Device
+namespace Audio
 {
-	public interface IInputMeter<T> : IDevice
+	public interface ITTS : IDevice
 	{
-		T Value { get;}
+		//void AddObserver (ITTSObserver observer);
+		bool IsQuiet{get; set;}
+		string CurrentText {get;}
+		void Say(string text);
+
 	}
 }
 

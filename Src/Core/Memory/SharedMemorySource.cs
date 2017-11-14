@@ -28,7 +28,7 @@ namespace Core.Memory
 	/// <summary>
 	/// Shared memory source is a possibly inter connected memory source (can be chained and combined with other sources). Deletions, updates etc will affect linked sources.
 	/// </summary>
-	public class SharedMemorySource : RemotlyAccessibleDeviceBase, IMemorySource, IDeviceManagerObserver
+	public class SharedMemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver
 	{
 
 		public const string F_GetAssociations = "GetAssociations";
@@ -312,92 +312,6 @@ namespace Core.Memory
 
 			}
 
-		}
-
-		#endregion
-
-		#region RemotlyAccessibleDeviceBase
-
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			
-			}
-
-			if (methodName == F_Create) {
-
-				// Not implemented on remode
-				IMemoryReference reference = mgr.ParsePackage<IMemoryReference> (rawData);
-				IMemory newMemory = Create (reference.Type, reference.Value);
-
-				return mgr.RPCReply<IMemoryReference> (Guid, methodName, newMemory.Reference);;
-
-			} else if (methodName == F_UpdateMemory) {
-
-				// Not implemented on remode
-				IMemoryReference reference = mgr.ParsePackage<IMemoryReference> (rawData);
-				bool didUpdate = _Update (reference, false);
-
-				return mgr.RPCReply<bool> (Guid, methodName, didUpdate);;
-
-			} else if (methodName == F_AddAssociation) {
-
-				IMemoryReference[] input = mgr.ParsePackage<IMemoryReference[] > (rawData);
-
-				_Associate (
-					m_memoryFactory.CreateMemory(input [0], this, false), 
-					m_memoryFactory.CreateMemory(input [1], this, false),
-					false);
-
-				return null;
-
-			} else if (methodName == F_GetAssociations) {
-
-				int id = mgr.ParsePackage<int> (rawData);
-				IMemory memory = _Get (new int[]{id}, false).FirstOrDefault();
-				List<IMemoryReference> associations = new List<IMemoryReference> ();
-
-				if (memory != null) {
-				
-					associations.AddRange (_GetAssociations (memory, false));
-
-				}
-
-				return mgr.RPCReply<ICollection<IMemoryReference>> (Guid, methodName, associations);
-
-			} else if (methodName == F_GetId) {
-
-				int id = mgr.ParsePackage<int> (rawData);
-				IMemory memory = _Get (new int[]{id}, false).FirstOrDefault();
-				IMemoryReference reference = memory != null ? memory.Reference : m_memoryFactory.CreateNullReference ();
-
-				return mgr.RPCReply<IMemoryReference> (Guid, methodName, reference);;
-
-			} else if (methodName == F_GetIds) {
-
-				int[] ids = mgr.ParsePackage<int[]> (rawData);
-				ICollection<IMemory>  memories = _Get (ids, false);
-
-				return mgr.RPCReply<IMemoryReference[]> (Guid, methodName, memories.Select( m => m.Reference).ToArray());;
-
-			} else if (methodName == F_GetType) {
-
-				MemoryType type = mgr.ParsePackage<MemoryType> (rawData);
-				ICollection<IMemory>  memories = _All (type, false);
-
-				return mgr.RPCReply<IMemoryReference[]> (Guid, methodName, memories.Select( m => m.Reference).ToArray());;
-
-			}
-
-			throw new System.NotImplementedException ("The method you try to evoke is not implemented: " + methodName);
-
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-			return RemoteDevices.MemorySource;
 		}
 
 		#endregion

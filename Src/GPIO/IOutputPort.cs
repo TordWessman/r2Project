@@ -17,16 +17,13 @@
 // 
 
 using System;
+using Core.Device;
 
-namespace Core.Device
+namespace GPIO
 {
-	public interface ICommandExecutor : IDevice
+	public interface IOutputPort : IDevice
 	{
-		void SendMessage (string command);
-		string Request (string command);
-		void SendBinary (int header, byte [] data);
-		string RequestBinary (int header, byte[] data);
-		void SendObject (int header, object obj);
+		bool Value { get; set; }
 	}
 }
 

@@ -16,18 +16,15 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
+using System;
+using Core.Device;
 
-namespace Core
+
+namespace GPIO
 {
-	public class RecurringTimer
+	public interface IInputMeter<T> : IDevice
 	{
-		private Action m_action;
-
-		public RecurringTimer (Action action)
-		{
-			m_action = action;
-		}
+		T Value { get;}
 	}
 }
 

@@ -23,7 +23,7 @@ using Core.Device;
 namespace Audio.ASR
 {
 
-	public class ASRController : RemotlyAccessibleDeviceBase, IASRController
+	public class ASRController : DeviceBase, IASRController
 	{
 		private IASR m_asr;
 		
@@ -36,24 +36,7 @@ namespace Audio.ASR
 		{
 			m_asr.Active = active;
 		}
-		
-		#region implemented abstract members of Core.Device.RemotlyAccessibleDeviceBase
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			
-			if (methodName == RemoteASRController.SET_ACTIVE_FUNCTION_NAME) {
-				SetActive (mgr.ParsePackage<bool> (rawData));
-				return null;
-			}
-			
-			throw new System.NotImplementedException ("Method not implemented: " + methodName + " wanted: " + RemoteASRController.SET_ACTIVE_FUNCTION_NAME);
-		}
 
-		public override RemoteDevices GetTypeId ()
-		{
-			return RemoteDevices.ASRController;
-		}
-		#endregion
 	}
 }
 

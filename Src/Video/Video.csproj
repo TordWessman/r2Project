@@ -68,6 +68,7 @@
     <Compile Include="CvCamera.cs" />
     <Compile Include="OldAndUntested\Camera\GstWebCam.cs" />
     <Compile Include="IFrameSource.cs" />
+    <Compile Include="ICameraController.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

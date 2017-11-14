@@ -26,7 +26,7 @@ namespace Core.Device
 	/// <summary>
 	/// A devcie manager is respnsible for keepin track of all available IDevices
 	/// </summary>
-	public interface IDeviceManager: IDevice, IHostManagerObserver, IDataReceived<byte[],IPEndPoint>, IDeviceObserver
+	public interface IDeviceManager: IDevice, IDeviceObserver
 	{
 		void Add(IDevice device);
 

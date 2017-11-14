@@ -24,7 +24,7 @@ using Core.Data;
 
 namespace GPIO
 {
-	public class AnalogInput: RemotlyAccessibleDeviceBase, IInputMeter<double>
+	public class AnalogInput: DeviceBase, IInputMeter<double>
 	{
 		private MCP3008 m_ad;
 		private ILinearDataSet<double> m_dataSet;
@@ -57,29 +57,7 @@ namespace GPIO
 
 		}
 
-		#region IRemotlyAccessable implementation
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-				
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			
-			} else if (methodName == RemoteInputMeter.GET_VALUE_FUNCTION_NAME) {
-			
-				return mgr.RPCReply<double> (Guid, methodName, Value);
-			
-			} 
-
-			throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
-
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-			return RemoteDevices.AnalogInput;
-		}
-		#endregion
-
 	}
+
 }
 

@@ -20,7 +20,7 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialServo: RemotlyAccessibleDeviceBase, IServo
+	public class SerialServo: DeviceBase, IServo
 	{
 
 		//The identifier used by the serial slave device.
@@ -54,31 +54,7 @@ namespace GPIO
 
 		#endregion
 
-		#region implemented abstract members of Core.Device.RemotlyAccessibleDeviceBase
-
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			} else if (methodName == RemoteServo.GET_VALUE_FUNCTION_NAME) {
-				return mgr.RPCReply<float> (Guid, methodName, Value);
-			} else if (methodName == RemoteServo.SET_VALUE_FUNCTION_NAME) {
-				Value = mgr.ParsePackage<float> (rawData);
-			} else {
-				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for servo.");
-			}
-
-			return null;
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-			return RemoteDevices.Servo;
-		}
-
-		#endregion
-
-
 	}
+
 }
 

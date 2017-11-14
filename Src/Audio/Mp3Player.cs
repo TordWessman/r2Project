@@ -28,7 +28,7 @@ using System.Linq;
 namespace Audio
 {
 
-	public class Mp3Player : RemotlyAccessibleDeviceBase, IAudioPlayer
+	public class Mp3Player : DeviceBase, IAudioPlayer
 	{
 	
 		private const string dllPath = "libr2mp3.so";
@@ -151,44 +151,6 @@ namespace Audio
 			}
 
 		}
-
-		#region IRemoteDevice implementation
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-
-			if (IsBaseMethod (methodName)) {
-
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			
-			}
-
-			if (methodName ==  RemoteAudioPlayer.MethodNameGetIsPlaying) {
-			
-				return mgr.RPCReply<bool> (Guid, methodName, IsPlaying);
-			
-			} else  if (methodName ==  RemoteAudioPlayer.MethodNamePlay) {
-			
-				string file_name = mgr.ParsePackage<string> (rawData);
-				Play (file_name);
-			
-			}  else if (methodName == RemoteAudioPlayer.MethodNameGetFilesList) {
-			
-				return mgr.RPCReply<string[]> (Guid, methodName, GetFileList);
-			
-			}
-
-			return null;
-		
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-
-			return RemoteDevices.AudioPlayer;
-		
-		}
-
-		#endregion
 
 	}
 

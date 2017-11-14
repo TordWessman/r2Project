@@ -22,6 +22,7 @@ using Core.Device;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using Core.Memory;
 
 namespace PushNotifications
 {

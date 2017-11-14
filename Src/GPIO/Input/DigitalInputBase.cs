@@ -5,7 +5,7 @@ using Core;
 
 namespace GPIO
 {
-	public abstract class DigitalInputBase: RemotlyAccessibleDeviceBase, IInputPort
+	public abstract class DigitalInputBase: DeviceBase, IInputPort
 	{
 		public DigitalInputBase (string id) : base (id)
 		{

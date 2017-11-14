@@ -24,7 +24,7 @@ using System.Threading;
 
 namespace GPIO
 {
-	public class OutputPort2 : RemotlyAccessibleDeviceBase, IOutputPort
+	public class OutputPort2 : DeviceBase, IOutputPort
 	{
 		// GPIO values:
 		private ProcessorPin m_pin;
@@ -56,35 +56,6 @@ namespace GPIO
 			m_driver.Write (m_pin, value);
 
 		}
-
-		#region IRemotlyAccessable implementation
-
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr)
-		{
-			if (IsBaseMethod (methodName)) {
-				
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-			
-			} else if (methodName == RemoteOutputPort.SET_VALUE_FUNCTION_NAME) {
-			
-				Set (mgr.ParsePackage<bool> (rawData));
-				return null;
-			
-			} else {
-			
-				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
-
-			}
-
-		}
-
-		public override RemoteDevices GetTypeId ()
-		{
-			return RemoteDevices.OutputPort;
-		}
-
-		#endregion
-
 
 	}
 

@@ -53,14 +53,9 @@ namespace Core.Tests
 					Log.Instance.AddLogger (console);
 				}
 
-				var dummyServer = new DummyR2Server ();
-				var dummyHostManager = new DummyHostManager (dummyServer);
 				m_dummyTaskMonitor = new DummyTaskMonitor ();
 
-				var packageFactory = new NetworkPackageFactory (null);
-				var rpcManager = new RPCManager (dummyHostManager, packageFactory, m_dummyTaskMonitor);
-
-				m_deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager(), dummyHostManager, rpcManager, packageFactory);
+				m_deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager());
 
 				m_deviceManager.Add (Settings.Instance);
 				m_deviceManager.Add (Log.Instance);

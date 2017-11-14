@@ -99,6 +99,10 @@
     <Compile Include="Output\SerialServo.cs" />
     <Compile Include="Communication\ArduinoSerialConnector.cs" />
     <Compile Include="Input\HCSR04Sonar.cs" />
+    <Compile Include="IInputMeter.cs" />
+    <Compile Include="IInputPort.cs" />
+    <Compile Include="IOutputPort.cs" />
+    <Compile Include="IServo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

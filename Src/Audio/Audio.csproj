@@ -74,6 +74,9 @@
     <Compile Include="Experiments\SphinxModelCreator.cs" />
     <Compile Include="Experiments\StaticAnswerMachine.cs" />
     <Compile Include="Experiments\UglyLanguageUpdater.cs" />
+    <Compile Include="IASRController.cs" />
+    <Compile Include="IAudioPlayer.cs" />
+    <Compile Include="ITTS.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

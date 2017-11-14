@@ -19,7 +19,6 @@
 using System;
 using System.Net;
 using System.Collections.Generic;
-using Core.Network.Data;
 using Core.Network;
 using MemoryType = System.String;
 using Core.Data;
@@ -27,7 +26,7 @@ using Core.Device;
 
 namespace Core.Memory
 {
-	public class MemoryBus : RemotlyAccessibleDeviceBase, IMemoryBus
+	public class MemoryBus : DeviceBase, IMemoryBus
 	{
 		public const string F_AddMemories = "AddMemories";
 		public const string F_AddAssociation = "AddAssociation";
@@ -50,11 +49,8 @@ namespace Core.Memory
 
 		private readonly object m_associationsLock = new object();
 		private readonly object m_shortTermMemoryLock = new object();
-		
-		private IHostManager<IPEndPoint> m_hostManager; 
 		private IAssociationsDBAdapter m_dbAdapter;
-		private INetworkPackageFactory m_networkPackageFactory;
-		
+
 		public int NextMemoryReference {
 			get {
 				
@@ -70,14 +66,12 @@ namespace Core.Memory
 			}}
 		
 		
-		public MemoryBus (string id, IDatabase db, IHostManager<IPEndPoint> hostManager, INetworkPackageFactory networkPackageFactory) : base (id)
+		public MemoryBus (string id, IDatabase db) : base (id)
 		{
 			m_memories = new Dictionary<MemoryType, ICollection<IMemoryReference>> ();
 			m_idPointers = new Dictionary<int, WeakReference> ();
-			m_dbAdapter = new AssociationsDBAdapter (db);
-			m_hostManager = hostManager;
+			m_dbAdapter = new AssociationsDBAdapter (db);;
 			m_shortTermMemories = new Dictionary<string, object> ();
-			m_networkPackageFactory = networkPackageFactory;
 		}
 		
 		public void AddMemories (ICollection<IMemoryReference> memories)

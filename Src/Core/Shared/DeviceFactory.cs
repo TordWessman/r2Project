@@ -72,12 +72,6 @@ namespace Core
 		
 		}
 
-		public INetworkSecurity CreateSimpleNetworkSecurity(string id, string password) {
-		
-			return new SimpleNetworkSecurity (id, password);
-
-		}
-
 		public DataFactory CreateDataFactory(string id, IEnumerable<string> searchPaths) {
 		
 			return new DataFactory(id, searchPaths);

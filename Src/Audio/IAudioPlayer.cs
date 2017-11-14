@@ -16,14 +16,30 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
+﻿using System;
 using Core.Device;
 
-namespace Core.Device
+namespace Audio
 {
-	public interface IServo : IDevice
+	public interface IAudioPlayer : IDevice
 	{
-		float Value {get; set;}
+		/// <summary>
+		/// Starts to play the fileName asynchronously
+		/// </summary>
+		/// <param name="fileName">File name.</param>
+		void Play(string fileName);
+
+		/// <summary>
+		/// Returns true if the player is playing
+		/// </summary>
+		/// <value><c>true</c> if this instance is playing; otherwise, <c>false</c>.</value>
+		bool IsPlaying { get;}
+
+		/// <summary>
+		/// Returns the available files available for the audio player
+		/// </summary>
+		/// <value>The get file list.</value>
+		string []GetFileList {get;}
 	}
 }
 

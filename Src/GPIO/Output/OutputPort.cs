@@ -23,7 +23,7 @@ using Core;
 
 namespace GPIO
 {
-	public class OutputPort : RemotlyAccessibleDeviceBase, IOutputPort
+	public class OutputPort : DeviceBase, IOutputPort
 	{
 		private RaspberryPiDotNet.GPIO m_gpi;
 		private bool m_value;
@@ -41,35 +41,6 @@ namespace GPIO
 			Value = initialValue;
 
 		}
-
-		#region IRemotlyAccessable implementation
-		public override byte[] RemoteRequest (string methodName, byte[] rawData, IRPCManager<System.Net.IPEndPoint> mgr) {
-			
-			if (IsBaseMethod (methodName)) {
-				
-				return ExecuteStandardDeviceMethod (methodName, rawData, mgr);
-
-			} else if (methodName == RemoteOutputPort.SET_VALUE_FUNCTION_NAME) {
-				
-				Value = mgr.ParsePackage<bool> (rawData);
-				return null;
-
-			} else if (methodName == RemoteOutputPort.GET_VALUE_FUNCTION_NAME) {
-				
-				return mgr.RPCReply<bool> (Guid, methodName, Value);
-
-			} else {
-			
-				throw new NotImplementedException ("Method name: " + methodName + " is not implemented for Distance meter.");
-
-			}
-
-		}
-
-		public override RemoteDevices GetTypeId () {
-			return RemoteDevices.OutputPort;
-		}
-		#endregion
 
 		#region IOutputPort implementation
 

@@ -17,16 +17,13 @@
 // 
 
 using System;
+using Core.Device;
 
-namespace Core.Device
+namespace GPIO
 {
-	public interface ITTS : IDevice
+	public interface IServo : IDevice
 	{
-		//void AddObserver (ITTSObserver observer);
-		bool IsQuiet{get; set;}
-		string CurrentText {get;}
-		void Say(string text);
-
+		float Value {get; set;}
 	}
 }
 
