@@ -80,6 +80,43 @@ namespace Core
 		}
 
 		/// <summary>
+		/// Returns the value of the property or member of the `target`.
+		/// </summary>
+		/// <param name="target">Target.</param>
+		/// <param name="property">Property.</param>
+		public dynamic Get (object target, string property) {
+		
+			PropertyInfo propertyInfo = target.GetType().GetProperty(property);
+
+			if (propertyInfo == null) {
+
+				// If no property found. Try to find a member variable instead.
+
+				MemberInfo[] members = target.GetType ().GetMember (property);
+
+				if (members.Length == 0) { 
+
+					throw new ArgumentException ("Property '{property}' not found in '{target}'.");
+
+				} else if (!(members [0] is FieldInfo)) {
+
+					throw new ArgumentException ("Unable to access property '{property}' in '{target}'.");
+
+				}
+
+				FieldInfo fieldInfo = (members [0] as FieldInfo);
+
+				return fieldInfo.GetValue (target);
+
+			} else {
+
+				return propertyInfo.GetValue (target);
+
+			}
+
+		}
+
+		/// <summary>
 		/// Set the 'value' of a member or property named 'property' on object 'target'.
 		/// </summary>
 		/// <param name="target">Target.</param>
