@@ -44,19 +44,17 @@ namespace Core.Network
 
 		public override bool Ready { get { return ShouldRun && m_listener != null; } }
 
-		public override void Start () {
-			
-			m_listener = new UdpClient (m_groupEndpoint);
-			base.Start ();
-
-		}
-
 		protected override void Service() {
-		
+
+			m_listener = new UdpClient ();
+			m_listener.EnableBroadcast = true;
+			m_listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+			m_listener.Client.Bind (m_groupEndpoint);
+
 			while (ShouldRun) {
 			
 				TCPMessage response = new TCPMessage();
-				IPEndPoint client = new IPEndPoint(IPAddress.Any, 0);
+				IPEndPoint client = null;
 
 				// Any request should contain this identifier. It will automatically be bundled with the reply.
 				string broadcastMessageUniqueIdentifierHeaderValue = ""; 
@@ -105,6 +103,8 @@ namespace Core.Network
 
 						};
 
+						response.PayloadType = TCPPackageFactory.PayloadType.String;
+
 					}
 
 				}
@@ -120,10 +120,8 @@ namespace Core.Network
 		
 		}
 
-		public override void Stop () {
+		protected override void Cleanup () {
 			
-			base.Stop ();
-
 			m_listener.Close ();
 			m_listener = null;
 

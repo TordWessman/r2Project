@@ -22,10 +22,16 @@ using Core.Device;
 namespace Core.Network
 {
 
+	public interface IMessageClient: IDevice {
+
+		INetworkMessage Send (INetworkMessage message);
+		System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate);
+
+	}
 	/// <summary>
 	/// Implementations are capable of transmitting data to a remote host.
 	/// </summary>
-	public interface IMessageClient<MessageType>: IDevice
+	public interface IMessageClientX<MessageType>: IMessageClient
 	{
 
 		/// <summary>

@@ -147,13 +147,16 @@ namespace Core.Network
 		public TCPMessage DeserializePackage(Stream stream) {
 			
 			int code = stream.ReadInt (2);
-			int pathSize = stream.ReadInt ();
+			int destinationSize = stream.ReadInt ();
 			int headerSize = stream.ReadInt ();
 			int payloadSize = stream.ReadInt ();
-			byte[] path = pathSize > 0 ? stream.Read (pathSize) : new byte[0];
+			byte[] destination = destinationSize > 0 ? stream.Read (destinationSize) : new byte[0];
 			byte[] headers = headerSize > 0 ? stream.Read (headerSize) : new byte[0];
-			PayloadType payloadType = (PayloadType)stream.ReadInt (2);
+			int pt = stream.ReadInt (2);
+			PayloadType payloadType = (PayloadType)pt;
 			byte[] payloadData = stream.Read (payloadSize);
+
+			Log.t(m_serialization.Encoding.GetString(payloadData));
 
 			dynamic payload;
 
@@ -172,7 +175,7 @@ namespace Core.Network
 			}
 
 			return new TCPMessage () { 
-				Destination = m_serialization.Encoding.GetString (path),
+				Destination = m_serialization.Encoding.GetString (destination),
 				Headers = m_serialization.Deserialize (headers),
 				Payload = payload,
 				Code = code,

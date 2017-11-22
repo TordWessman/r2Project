@@ -156,10 +156,8 @@ namespace Core
 		/// </summary>
 		/// <param name="text">Text.</param>
 		public void InterpretText(string text) {
-
-			// If @interpret returns false, the run loop should quit.
-
-			m_shouldRun = m_interpreter.Interpret (text);
+			
+			m_interpreter.Interpret (text);
 
 		}
 

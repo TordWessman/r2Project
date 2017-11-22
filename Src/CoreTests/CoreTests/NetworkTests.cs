@@ -33,7 +33,7 @@ namespace Core.Tests
 
 		public IWebIntermediate Response;
 
-		public IWebIntermediate OnReceive (INetworkMessage input, IPEndPoint endpoint = null) {
+		public INetworkMessage OnReceive (INetworkMessage input, IPEndPoint endpoint = null) {
 		
 			Assert.AreEqual ("Bar", input.Payload.Foo);
 			Assert.AreEqual (42, input.Payload.Bar);

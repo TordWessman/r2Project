@@ -42,7 +42,7 @@ namespace Core.Tests
 		[Test]
 		public void TestPackageFactory() {
 
-			var packageFactory = factory.CreateTCPPackageFactory ();
+			var packageFactory = factory.CreateTcpPackageFactory ();
 
 			DummyDevice d = new DummyDevice ("dummyXYZ");
 			d.HAHA = 42.25f;
@@ -111,7 +111,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServerBasics() {
 
-			IWebServer s = factory.CreateTCPServer ("s", 1111);
+			IWebServer s = factory.CreateTcpServer ("s", 1111);
 			s.Start ();
 			Thread.Sleep (100);
 			Assert.IsTrue (s.Ready);
@@ -123,13 +123,13 @@ namespace Core.Tests
 			s.Start ();
 			Thread.Sleep (100);
 
-			IMessageClient<TCPMessage> client = factory.CreateTCPClient ("c", "localhost", 1111);
+			IMessageClient client = factory.CreateTcpClient ("c", "localhost", 1111);
 
 			client.Start ();
 			Assert.IsTrue (client.Ready);
 
 			TCPMessage message = new TCPMessage () { Destination = "blah", Payload = "bleh"};
-			TCPMessage response = client.Send (message);
+			INetworkMessage response = client.Send (message);
 			Assert.AreEqual (response.Code, (int)WebStatusCode.NotFound);
 			client.Stop ();
 			s.Stop ();
@@ -142,7 +142,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServer_Ruby_Endpoint() {
 
-			IWebServer s = factory.CreateTCPServer ("s", 4243);
+			IWebServer s = factory.CreateTcpServer ("s", 4243);
 			s.Start ();
 			Thread.Sleep (100);
 
@@ -159,7 +159,7 @@ namespace Core.Tests
 
 			// Do the message passing
 
-			IMessageClient<TCPMessage> client = factory.CreateTCPClient ("c", "localhost", 4243);
+			IMessageClient client = factory.CreateTcpClient ("c", "localhost", 4243);
 
 			client.Start ();
 
@@ -170,15 +170,15 @@ namespace Core.Tests
 
 			TCPMessage  message2 = new TCPMessage () { Destination = "/test", Payload = testObject};
 
-			TCPMessage response2 = client.Send (message2);
+			INetworkMessage response2 = client.Send (message2);
 
-			Assert.AreEqual (TCPPackageFactory.PayloadType.Dynamic, response2.PayloadType);
+			Assert.AreEqual (TCPPackageFactory.PayloadType.Dynamic, ((TCPMessage) response2).PayloadType);
 			Assert.AreEqual (42 * 10, response2.Payload.foo);
 
 			dynamic msg = new R2Dynamic ();
 			msg.text = "foo";
 			TCPMessage message = new TCPMessage () { Destination = "/test", Payload = msg};
-			TCPMessage response = client.Send (message);
+			INetworkMessage response = client.Send (message);
 
 			Assert.AreEqual (response.Code, (int)WebStatusCode.Ok);
 			Assert.AreEqual ("foo", response.Payload);
@@ -196,7 +196,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServer_DeviceRouter() {
 
-			IWebServer s = factory.CreateTCPServer ("s", 4244);
+			IWebServer s = factory.CreateTcpServer ("s", 4244);
 			s.Start ();
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";
@@ -206,7 +206,7 @@ namespace Core.Tests
 			s.AddEndpoint (ep);
 			Thread.Sleep (100);
 		
-			var client = factory.CreateTCPClient ("c", "localhost", 4244);
+			var client = factory.CreateTcpClient ("c", "localhost", 4244);
 			client.Start ();
 
 			//Client should be connected
@@ -219,8 +219,9 @@ namespace Core.Tests
 				Identifier = "dummy_device"};
 			
 			TCPMessage  message = new TCPMessage () { Destination = "/test", Payload = requestPayload};
-			TCPMessage response = client.Send (message);
+			INetworkMessage response = client.Send (message);
 
+			Assert.AreEqual (WebStatusCode.Ok, (WebStatusCode)response.Code); 
 			// Make sure the identifiers are the same.
 			Assert.AreEqual (dummyObject.Identifier, response.Payload.Object.Identifier);
 
@@ -239,7 +240,8 @@ namespace Core.Tests
 			};
 
 			TCPMessage  message2 = new TCPMessage () { Destination = "/test", Payload = requestPayload2};
-			TCPMessage response2 = client.Send (message2);
+			INetworkMessage response2 = client.Send (message2);
+			Assert.AreEqual (WebStatusCode.Ok, (WebStatusCode)response2.Code); 
 
 			Assert.AreEqual (fortytwo * 10, response2.Payload.ActionResponse);
 			Assert.AreEqual ("dummy_device", response2.Payload.Object.Identifier);

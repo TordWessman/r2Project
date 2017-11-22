@@ -26,6 +26,9 @@ namespace Core.Network.Web
 	public struct HttpMessage: INetworkMessage
 	{
 
+		public const string DefaultHttpMethod = "POST";
+		public const string DefaultContentType = "application/json";
+
 		public int Code { get; set; }
 		public dynamic Payload { get; set; }
 		public string Destination { get; set; }
@@ -33,6 +36,27 @@ namespace Core.Network.Web
 
 		public string Method;
 		public string ContentType;
+
+		public HttpMessage(INetworkMessage message) {
+
+			Code = message.Code;
+			Payload = message.Payload;
+			Destination = message.Destination;
+			Headers = message.Headers;
+
+			if (message is HttpMessage) {
+				
+				Method = ((HttpMessage) message).Method;
+				ContentType = ((HttpMessage) message).ContentType;
+			
+			} else {
+			
+				Method = DefaultHttpMethod;
+				ContentType = DefaultContentType;
+
+			}
+
+		}
 
 	}
 

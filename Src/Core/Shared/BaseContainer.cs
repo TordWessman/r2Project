@@ -127,7 +127,7 @@ namespace Core
 			// Creating a web factory used to create http/websocket related endpoints etc.
 			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory(), serializer);
 
-			IWebServer udpServer = httpFactory.CreateUDPServer ("udp_server", 9875);
+			IWebServer udpServer = httpFactory.CreateUdpServer ("udp_server", 9875);
 
 			// Add devices to device manager
 			m_devices.Add (runLoopScript);

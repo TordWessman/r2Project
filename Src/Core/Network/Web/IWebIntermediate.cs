@@ -24,7 +24,7 @@ using System.Collections.Generic;
 namespace Core.Network.Web
 {
 	/// <summary>
-	/// IHttpIntermediate is responsible for containing data during Http communication. Implementations might i.e. be capable of transcribing data between the server and the sub system parser.
+	/// Implementations might i.e. be capable of transcribing data between the server and the sub system parser.
 	/// </summary>
 	public interface IWebIntermediate : INetworkMessage
 	{

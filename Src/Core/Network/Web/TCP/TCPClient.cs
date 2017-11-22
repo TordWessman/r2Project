@@ -25,7 +25,7 @@ using Core.Network.Web;
 
 namespace Core.Network
 {
-	public class TCPClient: DeviceBase, IMessageClient<TCPMessage>
+	public class TCPClient: DeviceBase, IMessageClient
 	{
 		string m_host;
 		int m_port;
@@ -61,11 +61,11 @@ namespace Core.Network
 
 		}
 
-		public System.Threading.Tasks.Task SendAsync(TCPMessage message, Action<TCPMessage> responseDelegate) {
+		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
 
 			return System.Threading.Tasks.Task.Factory.StartNew ( () => {
 
-				TCPMessage response;
+				INetworkMessage response;
 				Exception exception = null;
 
 				try {
@@ -87,17 +87,19 @@ namespace Core.Network
 		}
 
 
-		public TCPMessage Send(TCPMessage requestMessage) {
-			
-			if (requestMessage.Headers != null && Headers != null) {
+		public INetworkMessage Send(INetworkMessage requestMessage) {
 
-				Headers.ToList().ForEach( kvp => requestMessage.Headers.Add(kvp));
+			TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage (requestMessage);
+			
+			if (message.Headers != null && Headers != null) {
+
+				Headers.ToList().ForEach( kvp => message.Headers.Add(kvp));
 
 			}
 
-			requestMessage.Headers = requestMessage.Headers ?? Headers;
+			message.Headers = message.Headers ?? Headers;
 
-			byte[] request = m_serializer.SerializeMessage (requestMessage);
+			byte[] request = m_serializer.SerializeMessage (message);
 
 			m_client.GetStream ().Write (request, 0, request.Length);
 

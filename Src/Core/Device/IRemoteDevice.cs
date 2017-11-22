@@ -20,7 +20,10 @@ using System;
 
 namespace Core.Device
 {
-	public interface IRemoteDevice
+	/// <summary>
+	/// Represents a non-local device. 
+	/// </summary>
+	public interface IRemoteDevice : IDevice
 	{
 	}
 }

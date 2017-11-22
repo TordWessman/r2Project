@@ -19,36 +19,22 @@
 using System;
 using System.Dynamic;
 using Core.Device;
-using System.Collections.Specialized;
-using System.Collections.Generic;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
-	//TODO: finish this class...
-
 	/// <summary>
-	/// Used as a raw intermediate type. 
+	/// Abstracts details of a network connection
 	/// </summary>
-	public class JsonObjectIntermediate : IWebIntermediate
+	public interface INetworkConnection: IDevice
 	{
-		private dynamic m_data;
+	
+		/// <summary>
+		/// Synchronously transmits the message
+		/// </summary>
+		/// <param name="message">Message.</param>
+		dynamic Send(dynamic message);
 
-		public JsonObjectIntermediate (dynamic data)
-		{
-			m_data = data; 
-		}
-
-		public void CLRConvert() {}
-
-		public void AddMetadata(string key, object value) {}
-
-		public dynamic Payload { get { return m_data; } set { m_data = value; } }
-
-		public IDictionary<string, object> Headers { get; set; }
-
-		public int Code  { get; set; }
-
-		public string Destination  { get; set; }
 	}
+
 }
 

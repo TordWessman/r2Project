@@ -88,7 +88,7 @@ namespace CoreTests
 			Assert.NotNull (deserialized.Params[2]);
 			Assert.AreEqual ("Dog", deserialized.Params [2].Cat);
 
-			IWebIntermediate result = rec.OnReceive (new NetworkMessage{Payload = deserialized}, null);
+			INetworkMessage result = rec.OnReceive (new NetworkMessage{Payload = deserialized}, null);
 
 			// Make sure the identifiers are the same.
 			Assert.AreEqual (deserialized.Identifier, result.Payload.Object.Identifier);
@@ -139,7 +139,7 @@ namespace CoreTests
 			dynamic deserialized = serialization.Deserialize(serialized);
 			Assert.AreEqual("dummy_device", deserialized.Identifier);
 
-			IWebIntermediate result = rec.OnReceive (new NetworkMessage{Payload = deserialized}, null);
+			INetworkMessage result = rec.OnReceive (new NetworkMessage{Payload = deserialized}, null);
 
 			// Make sure the identifiers are the same.
 			Assert.AreEqual (deserialized.Identifier, result.Payload.Object.Identifier);

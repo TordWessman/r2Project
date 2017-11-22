@@ -45,8 +45,6 @@ namespace Core.Network
 
 		}
 
-		protected abstract void Service();
-
 		public int Port { get { return m_port; } }
 
 		public string Ip { 
@@ -79,14 +77,23 @@ namespace Core.Network
 		}
 
 
+		/// <summary>
+		/// Need to be implemented. Allows connection cleanup operations after Stop has been called.
+		/// </summary>
+		protected abstract void Cleanup();
+
+		/// <summary>
+		/// The service running the host connection. Will be called upon start
+		/// </summary>
+		protected abstract void Service();
+
 		public override void Stop () {
 
 			m_shouldRun = false;
+			Cleanup ();
 		
 		}
 
-		public override bool Ready { get { return ShouldRun; } }
-
 	}
-}
 
+}

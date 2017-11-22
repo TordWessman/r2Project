@@ -27,7 +27,7 @@ using System.Threading.Tasks;
 
 namespace Core.Network.Web
 {
-	public class HttpClient: DeviceBase, IMessageClient<HttpMessage>
+	public class HttpClient: DeviceBase, IMessageClient
 	{
 		public static string DefaultHttpMethod = "POST";
 		public int Timeout = 30000;
@@ -39,13 +39,13 @@ namespace Core.Network.Web
 			m_serializer = serializer;
 		}
 
-		public HttpMessage Send(HttpMessage message) {
+		public INetworkMessage Send(INetworkMessage message) {
 		
 			return _Send (message);
 
 		}
 
-		public System.Threading.Tasks.Task SendAsync(HttpMessage message, Action<HttpMessage> responseDelegate) {
+		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
 		
 			return Task.Factory.StartNew ( () => {
 			
@@ -70,8 +70,10 @@ namespace Core.Network.Web
 
 		}
 
-		private HttpMessage _Send (HttpMessage message) {
+		private HttpMessage _Send (INetworkMessage requestMessage) {
 		
+			HttpMessage message = new HttpMessage (requestMessage);
+
 			HttpMessage responseObject = new HttpMessage () { Headers = new Dictionary<string, object> ()};
 
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(message.Destination ?? "");

@@ -103,7 +103,7 @@ namespace Core.Network.Web
 
 		}
 
-		public IWebIntermediate OnReceive (INetworkMessage message, IPEndPoint source) {
+		public INetworkMessage OnReceive (INetworkMessage message, IPEndPoint source) {
 			
 			IDevice device = null;
 
@@ -121,20 +121,29 @@ namespace Core.Network.Web
 
 			WebObjectResponse response = new WebObjectResponse ();
 				
-			if (Convert.ToInt32(message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Invoke) {
+			if (Convert.ToInt32 (message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Invoke) {
 
 				response.ActionResponse = m_invoker.Invoke (device, message.Payload.Action, message.Payload.Params);
 
-			} else if (Convert.ToInt32(message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Set) {
+			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Set) {
 				
 				m_invoker.Set (device, message.Payload.Action, message.Payload.Params? [0]);
+
+			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Get &&
+				m_invoker.ContainsPropertyOrMember(message.Payload, "Action")) { 
+			
+				response.ActionResponse = m_invoker.Get (device, message.Payload.Action);
+
+			} else {
+			
+				throw new DeviceException ($"ActionType {Convert.ToInt32 (message.Payload.ActionType)} not identified (device: {device.Identifier}).");
 
 			}
 
 			response.Action = message.Payload.Action;
 			response.Object = device;
 
-			return new JsonObjectIntermediate(response);
+			return new NetworkMessage() {Code = 200, Payload = response};
 
 		}
 

@@ -50,6 +50,9 @@ namespace Core.Network.Web
 
 		protected override void Service() {
 
+			m_listener = new HttpListener ();
+			m_listener.Prefixes.Add(String.Format("http://*:{0}/", Port));
+
 			m_listener.Start ();
 
 			while (ShouldRun) {
@@ -86,19 +89,8 @@ namespace Core.Network.Web
 
 		public override bool Ready { get { return m_listener?.IsListening == true; }}
 
-		public override void Start() {
-
-			m_listener = new HttpListener ();
-			m_listener.Prefixes.Add(String.Format("http://*:{0}/", Port));
-
-			base.Start ();
-
-		}
-
-		public override void Stop() {
-
-			base.Stop ();
-
+		protected override void Cleanup () {
+			
 			try {
 			
 				m_listener.Stop ();

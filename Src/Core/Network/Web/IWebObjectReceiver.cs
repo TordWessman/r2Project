@@ -33,7 +33,7 @@ namespace Core.Network.Web
 		/// Handles the receival of the input object. Output object should contain
 		/// </summary>
 		/// <param name="input">Input.</param>
-		IWebIntermediate OnReceive (INetworkMessage input, IPEndPoint source);
+		INetworkMessage OnReceive (INetworkMessage input, IPEndPoint source);
 
 	}
 }

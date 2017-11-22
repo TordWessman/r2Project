@@ -47,7 +47,7 @@ namespace Core.Network.Web
 		
 		}
 
-		public IWebIntermediate OnReceive (INetworkMessage message, IPEndPoint source) {
+		public INetworkMessage OnReceive (INetworkMessage message, IPEndPoint source) {
 			
 			T response = m_script.Invoke(ON_RECEIVE_METHOD_NAME, message, new T(), source);
 

@@ -172,6 +172,18 @@ namespace Core
 
 		}
 
+		/// <summary>
+		/// Returns true if `target` contains the property or member `property`
+		/// </summary>
+		/// <returns><c>true</c>, if property or member was containsed, <c>false</c> otherwise.</returns>
+		/// <param name="target">Target.</param>
+		/// <param name="property">Property.</param>
+		public bool ContainsPropertyOrMember(object target, string property) {
+
+			return  target.GetType().GetProperty(property) == null ? target.GetType ().GetMember (property).Length > 0 : true;
+
+		}
+
 	}
 
 }

@@ -136,7 +136,6 @@
     <Compile Include="Network\Web\WebSockets\IWebSocketSender.cs" />
     <Compile Include="Network\Web\WebSockets\IWebSocketServer.cs" />
     <Compile Include="Network\Web\WebSockets\WebSocketSender.cs" />
-    <Compile Include="Network\Web\Messages\JsonObjectIntermediate.cs" />
     <Compile Include="Extensions\ExpandoObjectExtensions.cs" />
     <Compile Include="Shared\IRunLoop.cs" />
     <Compile Include="Shared\InterpreterRunLoop.cs" />
@@ -193,6 +192,8 @@
     <Compile Include="Memory\IMemorySource.cs" />
     <Compile Include="Network\Web\IEndpoint.cs" />
     <Compile Include="Device\IRemoteDevice.cs" />
+    <Compile Include="Device\RemoteDevice.cs" />
+    <Compile Include="Network\Web\INetworkConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

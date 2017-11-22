@@ -5,6 +5,7 @@ using Core.Device;
 using System.Linq;
 using System.Dynamic;
 using Core.Network.Web;
+using System.Collections.Generic;
 
 namespace Core.Tests
 {
@@ -105,6 +106,42 @@ namespace Core.Tests
 			Assert.AreEqual (deserialized.Action, "MultiplyByTen");
 			Assert.AreEqual (deserialized.ActionType, 2);
 
+
+		}
+
+		class Invokable {
+		
+			public int Member;
+
+			private string m_propertyMember;
+			public string Property { get { return m_propertyMember; } set { m_propertyMember = value;} }
+
+			public string AddBar(string value) {
+			
+				return value + "bar";
+
+			}
+		}
+
+		[Test]
+		public void TestDynamicInvoker() {
+
+			var invoker = new ObjectInvoker ();
+			var o = new Invokable ();
+
+			var res = invoker.Invoke(o, "AddBar", new List<object>() {"foo"});
+
+			Assert.AreEqual ("foobar", res);
+
+			invoker.Set (o, "Member", 42);
+			Assert.AreEqual (42, o.Member);
+
+			invoker.Set (o, "Property", "42");
+			Assert.AreEqual ("42", o.Property);
+			Assert.AreEqual ("42", invoker.Get(o,"Property"));
+			Assert.AreEqual (42, invoker.Get(o,"Member"));
+			Assert.IsTrue (invoker.ContainsPropertyOrMember (o, "Member"));
+			Assert.IsFalse (invoker.ContainsPropertyOrMember (o, "NotAMember"));
 
 		}
 

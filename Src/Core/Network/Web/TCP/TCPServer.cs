@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using Core.Data;
 using Core.Network.Web;
+using System.IO;
 
 namespace Core.Network
 {
@@ -105,6 +106,20 @@ namespace Core.Network
 							Log.t ($"Server will send response now {response.Length}!");
 							client.GetStream ().Write (response, 0, response.Length);
 
+						} catch (IOException ex) {
+						
+							if (ex.InnerException is SocketException) {
+							
+								// Disconnected....
+
+							} else {
+							
+								Log.x (ex);
+
+							}
+							if (client.Connected) { client.Close (); }
+							break;
+
 						} catch (Exception ex) {
 
 							Log.x (ex);
@@ -132,9 +147,10 @@ namespace Core.Network
 		/// Represents the server side listener.
 		/// </summary>
 		protected override void Service() {
-		
+
 			Log.t ($"Starting TCP Server on port {Port}");
 
+			m_connections = new Dictionary<TcpClient, Task> ();
 			m_listener = new TcpListener (IPAddress.Any, Port);
 			m_listener.Start ();
 
@@ -161,25 +177,20 @@ namespace Core.Network
 
 		}
 
-		public override void Stop () {
+		protected override void Cleanup () {
 			
-			base.Stop ();
-
 			m_listener.Stop ();
 			m_listener = null;
 
 			foreach (TcpClient client in m_connections.Keys) {
 			
-				client.Close ();
+				try {
 
+					client.Close ();
+
+				} catch (SocketException) {} 
+					
 			}
-
-		}
-
-		public override void Start () {
-			
-			m_connections = new Dictionary<TcpClient, Task> ();
-			base.Start ();
 
 		}
 

@@ -38,9 +38,9 @@ namespace Core.Tests
 		[Test]
 		public void TestSendReceive() {
 
-			var s = factory.CreateUDPServer ("s", 9876);
+			var s = factory.CreateUdpServer ("s", 9876);
 			DummyEndpoint ep = new DummyEndpoint ("/dummy");
-			UDPClient client = factory.CreateUDPClient ("c", 9876);
+			UDPClient client = factory.CreateUdpClient ("c", 9876);
 
 			Task waitForResponse;
 
