@@ -8,9 +8,12 @@
 #include <Servo.h>
 #include <string.h>
 
+// If defined, serial communication (not I2C) will be used for master/slave communication. 
+#define USE_SERIAL
+
 // -- Private method declarations
 
-// Decides what to do with the incoming data. Preferably call "execute".
+// Decides what to do with the incoming data. Preferably, it should call "execute".
 ResponsePackage interpret(byte* input);
 
 // Performs the actions requested by the RequestPackage.
@@ -151,6 +154,7 @@ void loop() {
   #ifdef USE_SERIAL
   serialCommunicate();
   #else
+	//TODO: Add radio here?
   delay(1000);
   #endif
   

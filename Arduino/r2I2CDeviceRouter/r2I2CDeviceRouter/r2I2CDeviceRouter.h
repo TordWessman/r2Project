@@ -4,9 +4,6 @@
 #ifndef R2I2C_DEVICE_ROUTER_H
 #define R2I2C_DEVICE_ROUTER_H
 
-// If defined, serial communication (not I2C) will be used for master/slave communication. 
-#define USE_SERIAL
-
 typedef byte DEVICE_TYPE;
 
 typedef struct Devices {
