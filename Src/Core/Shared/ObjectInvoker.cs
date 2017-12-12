@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
+using Core.Data;
 
 namespace Core
 {
@@ -180,7 +181,10 @@ namespace Core
 		/// <param name="property">Property.</param>
 		public bool ContainsPropertyOrMember(object target, string property) {
 
-			return target.GetType().GetProperty(property) == null ? target.GetType ().GetMember (property).Length > 0 : true;
+			return 
+				target.GetType().GetProperty(property) != null ||
+				target.GetType ().GetMember (property).Length > 0 ||
+				((target is R2Dynamic) ? (target as R2Dynamic).Has(property) : false);
 
 		}
 

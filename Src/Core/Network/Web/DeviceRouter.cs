@@ -131,7 +131,11 @@ namespace Core.Network
 
 			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Get) { 
 
-				response.ActionResponse = message.Payload.Action == null ? null : m_invoker.Get (device, message.Payload.Action);
+				if (m_invoker.ContainsPropertyOrMember(message.Payload, "Action")) {
+
+					response.ActionResponse = m_invoker.Get (device, message.Payload.Action);
+
+				}
 
 			} else {
 			

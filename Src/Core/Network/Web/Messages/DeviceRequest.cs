@@ -32,7 +32,7 @@ namespace Core.Network {
 		public dynamic Object;
 
 		/// <summary>
-		/// If a value or property changed, the result of the method will be stored here (ignored if ActionType is Get).
+		/// If `Action` was specified, the result of the method/property will be returned here.
 		/// </summary>
 		public dynamic ActionResponse;
 
