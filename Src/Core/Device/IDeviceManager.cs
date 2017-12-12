@@ -71,11 +71,6 @@ namespace Core.Device
 		void AddObserver (IDeviceManagerObserver observer);
 
 		/// <summary>
-		/// Print out all devices to debug
-		/// </summary>
-		void PrintDevices();
-
-		/// <summary>
 		/// Sends stop signal to all local devices. Use optional ignoreDevice in order to exclude devices from being stopped
 		/// </summary>
 		void Stop(IDevice[] ignoreDevices);

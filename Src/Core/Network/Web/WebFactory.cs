@@ -25,7 +25,7 @@ using System.Dynamic;
 using Core.Data;
 using System.Collections.Generic;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	/// <summary>
 	/// Creates various http components
@@ -62,9 +62,9 @@ namespace Core.Network.Web
 
 		}
 
-		public Core.Network.Web.HttpMessage CreateHttpMessage(string url) {
+		public Core.Network.HttpMessage CreateHttpMessage(string url) {
 		
-			return new Core.Network.Web.HttpMessage () { Destination = url };
+			return new Core.Network.HttpMessage () { Destination = url };
 
 		}
 
@@ -155,10 +155,22 @@ namespace Core.Network.Web
 			return new UDPServer (id, port, new TCPPackageFactory (m_serialization));
 		}
 
-		public UDPClient CreateUdpClient(string id, int port) {
+		public UDPBroadcaster CreateUdpClient(string id, int port) {
 		
-			return new UDPClient(id, port, new TCPPackageFactory (m_serialization));
+			return new UDPBroadcaster(id, port, new TCPPackageFactory (m_serialization));
 
+		}
+
+		/// <summary>
+		/// `port` denotes the porth which the broadcast receiver (i.e. UDPServer) listen to whereas `destination` is the endpoint path (i.e. "/devices").
+		/// </summary>
+		/// <returns>The host manager.</returns>
+		/// <param name="id">Identifier.</param>
+		/// <param name="port">Port.</param>
+		/// <param name="destination">Destination.</param>
+		public HostManager CreateHostManager(string id, int port, string destination, IDeviceManager deviceManager) {
+		
+			return new HostManager (id, port, destination, deviceManager, this);
 		}
 
 	}

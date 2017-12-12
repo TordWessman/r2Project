@@ -18,7 +18,7 @@
 //
 using System;
 using NUnit.Framework;
-using Core.Network.Web;
+using Core.Network;
 using Core.Data;
 using System.Collections.Generic;
 using Core.Device;

@@ -34,11 +34,16 @@ namespace Core.Tests
 		protected DeviceFactory m_deviceFactory;
 		protected DataFactory m_dataFactory;
 
+		[TestFixtureTearDown]
+		public virtual void Teardown() {
+		
+			Log.d ("--- TEST FINISHED ---");
+
+		}
+
 		[TestFixtureSetUp]
 		public virtual void Setup() {
-
-			Console.WriteLine ("pappa");
-
+			
 			try {
 				
 				if (Log.Instance == null) {

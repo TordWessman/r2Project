@@ -29,7 +29,7 @@ using System.Web;
 using System.Linq;
 using Core.Data;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 
 	/// <summary>

@@ -41,7 +41,7 @@ namespace Core.Network
 		MessageType Send (MessageType message);
 
 		/// <summary>
-		/// Asynchronous communication. The action delegate will have to take a Core.Network.Web.HttpResponse parameter. 
+		/// Asynchronous communication. The action delegate will have to take a Core.Network.HttpResponse parameter. 
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="responseDelegate">Response delegate.</param>

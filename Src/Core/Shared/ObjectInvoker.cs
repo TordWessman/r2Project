@@ -180,7 +180,7 @@ namespace Core
 		/// <param name="property">Property.</param>
 		public bool ContainsPropertyOrMember(object target, string property) {
 
-			return  target.GetType().GetProperty(property) == null ? target.GetType ().GetMember (property).Length > 0 : true;
+			return target.GetType().GetProperty(property) == null ? target.GetType ().GetMember (property).Length > 0 : true;
 
 		}
 

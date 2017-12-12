@@ -21,7 +21,7 @@ using Core.Device;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Linq;
-using Core.Network.Web;
+using Core.Network;
 
 namespace Core.Network
 {
@@ -43,11 +43,9 @@ namespace Core.Network
 
 		}
 
-		public override bool Ready {
-			get {
-				return m_client.Connected;
-			}
-		}
+		public string Host { get { return m_host; } }
+		public int Port { get { return m_port; } }
+		public override bool Ready { get { return m_client.Connected; } }
 
 		public override void Start() {
 		
@@ -74,7 +72,7 @@ namespace Core.Network
 
 				} catch (Exception ex) {
 
-					response = new TCPMessage() { Code = (int) WebStatusCode.NetworkError, Payload = ex.ToString()};
+					response = new TCPMessage() { Code = WebStatusCode.NetworkError.Raw(), Payload = ex.ToString()};
 					exception = ex;
 				}
 
@@ -107,6 +105,12 @@ namespace Core.Network
 
 		}
 
-	}
-}
+		public override string ToString () {
+			
+			return string.Format ("[TCPClient: Ready={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
+		
+		}
 
+	}
+
+}

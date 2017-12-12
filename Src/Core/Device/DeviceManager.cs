@@ -41,22 +41,24 @@ namespace Core.Device
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Core.Device.DeviceManager"/.
 		/// </summary>
-		public DeviceManager (string id) : base(id)
-		{
+		public DeviceManager (string id) : base(id) {
+			
 			m_devices = new Dictionary<Guid, IDevice> ();
 			m_observers = new List<IDeviceManagerObserver> ();
+
 		}
 
-		public IEnumerable<IDevice> LocalDevices { get { return m_devices.Values.Where (device => !(device is IRemoteDevice)); } }
-
-		public IEnumerable<IDevice> Devices { get { return m_devices.Values; } }
+		/// <summary>
+		/// Return all local devices
+		/// </summary>
+		/// <value>The devices.</value>
+		public IEnumerable<IDevice> Devices { get { return m_devices.Values.Where (device => !(device is IRemoteDevice));; } }
 
 		/// <summary>
 		/// Add the device internally
 		/// </summary>
 		/// <param name="newDevice">New device.</param>
-		private void _Add (IDevice newDevice)
-		{
+		private void _Add (IDevice newDevice) {
 			lock (m_lock) {
 
 				if (m_devices.ContainsKey (newDevice.Guid)) {
@@ -90,8 +92,7 @@ namespace Core.Device
 
 		}
 		
-		public void Add (IDevice newDevice)
-		{
+		public void Add (IDevice newDevice) {
 			/*
 			if (m_hostManager.Ready && newDevice is IRemotlyAccessable) {
 
@@ -109,8 +110,7 @@ namespace Core.Device
 
 		}
 
-		public T GetByGuid<T> (Guid guid) 
-		{
+		public T GetByGuid<T> (Guid guid) {
 
 			IDevice device = m_devices [guid];
 
@@ -126,8 +126,7 @@ namespace Core.Device
 
 		}
 
-		public T Get<T> (string identifier) 
-		{
+		public T Get<T> (string identifier) {
 
 			IDevice device = _Get (identifier);
 
@@ -187,22 +186,17 @@ namespace Core.Device
 
 		}
 
-		#region INewHostIdentified implementation
-
-		public bool Has (string identifier)
-		{
+		public bool Has (string identifier) {
 
 			lock (m_lock) {
 
 				return _Get (identifier) != null;
+
 			}
 
 		}
 
-		#endregion
-
-		private void _Remove (Guid guid)
-		{
+		private void _Remove (Guid guid) {
 
 			lock (m_lock) {
 
@@ -216,8 +210,7 @@ namespace Core.Device
 
 		}
 
-		public void Remove (string id)
-		{
+		public void Remove (string id) {
 
 			lock (m_removelock) {
 
@@ -230,12 +223,6 @@ namespace Core.Device
 						observer.DeviceRemoved (device);
 
 					}
-					/*
-					if (device is IRemotlyAccessable) {
-
-						m_hostManager.SendToAll (GetDeviceRemovedPackage (device));
-
-					}*/
 
 					_Remove (device.Guid);
 
@@ -245,17 +232,16 @@ namespace Core.Device
 
 		}
 
-		public void PrintDevices ()
-		{
+		public void PrintDevices () {
 			foreach (IDevice device in m_devices.Values) {
 
 				if (Has (device.Identifier)) {
 				
-					Log.d (device.Identifier + "    - [" + device.Guid.ToString() + "]" + (device is IRemoteDevice ? " (remote)" : "")); 
+					Log.d ($"{device.Identifier}    - [{device.Guid.ToString()}]" + (device is IRemoteDevice ? " (remote)" : "")); 
 				
 				} else {
 				
-					Log.e (device.Identifier + " does not exist - yet it does. It's an esoterical device. Please contact God for more information.");
+					Log.e ($"{device.Identifier} does not exist - yet it does. It's an esoterical device. Please contact God for more information.");
 				
 				}
 				

@@ -29,7 +29,10 @@ using System.Runtime.Remoting.Messaging;
 
 namespace Core.Network
 {
-	public class UDPClient: DeviceBase
+	/// <summary>
+	/// "Raw" UDP broadcasting. Should be able to handle errors and distinguish it's own messages if the server is set up correctly...
+	/// </summary>
+	public class UDPBroadcaster: DeviceBase, INetworkBroadcaster
 	{
 		ITCPPackageFactory<TCPMessage> m_serializer;
 		private IPEndPoint m_host;
@@ -38,14 +41,20 @@ namespace Core.Network
 		private CancellationTokenSource m_cancelationToken;
 
 		// Used to uniquely identify broadcast messages sent by this client. This value will be appended to the headers any message sent.
-		private string m_currentMessageId;
+		private Guid m_currentMessageId;
 
 		/// <summary>
 		/// The maximum size of the packages sent over UDP.
 		/// </summary>
 		public const int MaximumPackageSize = 1024 * 10;
 
-		public UDPClient (string id, int port, ITCPPackageFactory<TCPMessage> serializer, string address = null) : base(id)
+		/// <summary>
+		/// Gets the latest used broadcast task.
+		/// </summary>
+		/// <value>The broadcast task.</value>
+		public Task BroadcastTask { get { return m_task; } }
+
+		public UDPBroadcaster (string id, int port, ITCPPackageFactory<TCPMessage> serializer, string address = null) : base(id)
 		{
 
 			m_serializer = serializer;
@@ -74,7 +83,7 @@ namespace Core.Network
 		/// <param name="message">Message.</param>
 		/// <param name="timout">Timout.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		public Task Broadcast(TCPMessage message, int timeout = 0, Action<BroadcastMessage, Exception> responseDelegate = null) {
+		public Guid Broadcast(INetworkMessage requestMessage, int timeout = 0, Action<BroadcastMessage, Exception> responseDelegate = null) {
 
 			if (!Ready) {
 			
@@ -82,10 +91,12 @@ namespace Core.Network
 
 			}
 
+			TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage (requestMessage);
+
 			if (message.Headers == null) { message.Headers = new Dictionary<string, object> (); }
 
-			m_currentMessageId = Guid.NewGuid ().ToString();
-			message.Headers.Add (BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, m_currentMessageId);
+			m_currentMessageId = Guid.NewGuid ();
+			message.Headers.Add (BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, m_currentMessageId.ToString());
 
 			m_cancelationToken = new CancellationTokenSource();
 			m_socket.ReceiveTimeout = timeout;
@@ -94,7 +105,6 @@ namespace Core.Network
 			m_task = new Task(() => {
 				
 				byte[] requestData = m_serializer.SerializeMessage (message);
-
 				if (requestData.Length > MaximumPackageSize) {
 
 					throw new ArgumentException ($"UDP message is to lage ({requestData.Length} bytes). Maximum size is {MaximumPackageSize} bytes. ");
@@ -113,7 +123,6 @@ namespace Core.Network
 				} catch (System.Net.Sockets.SocketException ex) {
 
 					// Ignore timeouts, since they are expected...
-
 					if (ex.SocketErrorCode != SocketError.TimedOut) {
 						
 						Log.x(ex);
@@ -131,12 +140,12 @@ namespace Core.Network
 			});
 
 			m_task.Start ();
-			return m_task;
+			return m_currentMessageId;
 
 		}
 
 		/// <summary>
-		/// Waits for responses until m_cancelationToken is set.
+		/// Waits for responses until m_cancelationToken is set. Delegates are called asynchronously.
 		/// </summary>
 		/// <param name="responseDelegate">Response delegate.</param>
 		private void WaitForResponse(Action<BroadcastMessage, Exception> responseDelegate) {
@@ -148,12 +157,11 @@ namespace Core.Network
 			while (!m_cancelationToken.Token.IsCancellationRequested) {
 
 				int length = m_socket.ReceiveFrom (buffer, ref remoteHost);
+				INetworkMessage response = m_serializer.DeserializePackage (new MemoryStream (buffer, 0, length));
+				object responseKey = null;
 
-				INetworkMessage response = m_serializer.DeserializePackage (new MemoryStream (buffer,0, length));
-			
-				if (response.Headers == null ||
-				    !response.Headers.ContainsKey (BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey) ||
-					m_currentMessageId != response.Headers [BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey] as string) {
+				if ((response.Headers?.TryGetValue(BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, out responseKey) ?? false) &&
+					m_currentMessageId.ToString() != responseKey.ToString()) {
 				
 					// Invalid message id header fields. This message was not a reply for something I recently sent.
 					continue;

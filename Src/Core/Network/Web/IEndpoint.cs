@@ -26,10 +26,10 @@ namespace Core.Network
 	public interface IEndpoint {
 
 		/// <summary>
-		/// Returns the Ip address on which the server is configured to listen to.
+		/// Returns the address on which the server is configured to listen to.
 		/// </summary>
 		/// <value>The port.</value>
-		string Ip {get;}
+		string Address {get;}
 
 		/// <summary>
 		/// Returns the port on which the server is configured to listen to.

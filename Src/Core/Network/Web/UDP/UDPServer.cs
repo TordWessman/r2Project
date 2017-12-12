@@ -17,7 +17,7 @@
 //
 //
 using System;
-using Core.Network.Web;
+using Core.Network;
 using System.Net.Sockets;
 using System.Net;
 using System.IO;
@@ -44,6 +44,11 @@ namespace Core.Network
 
 		public override bool Ready { get { return ShouldRun && m_listener != null; } }
 
+		/// <summary>
+		/// If true, server NOT ignore requests sent from the same IP.
+		/// </summary>
+		public bool AllowLocalRequests = false;
+
 		protected override void Service() {
 
 			m_listener = new UdpClient ();
@@ -62,6 +67,12 @@ namespace Core.Network
 				try {
 
 					byte [] requestData = m_listener.Receive (ref client);
+					if (!AllowLocalRequests && IPAddress.IsLoopback(client.Address)) {
+					
+						// Ignore requests sent by the same Ip
+						continue;
+
+					}
 
 					using (MemoryStream requestDataStream = new MemoryStream (requestData)) {
 
@@ -81,8 +92,8 @@ namespace Core.Network
 						} else {
 
 							response = new TCPMessage() {
-								Code = (int) WebStatusCode.NotFound,
-								Payload =  new WebErrorMessage((int) WebStatusCode.NotFound, $"Path not found: {request.Destination}")
+								Code = WebStatusCode.NotFound.Raw(),
+								Payload =  new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}")
 							};
 
 						}
@@ -95,7 +106,7 @@ namespace Core.Network
 						Log.x(ex);
 
 						response = new TCPMessage() {
-							Code = (int) WebStatusCode.ServerError,
+							Code = WebStatusCode.ServerError.Raw(),
 
 							#if DEBUG
 							Payload = ex.ToString()

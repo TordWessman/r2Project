@@ -45,6 +45,11 @@ namespace Core.Network
 		/// <value>The origin.</value>
 		public IPEndPoint Origin { get; set; }
 
+		/// <summary>
+		/// Constructor used for incomming broadcasts
+		/// </summary>
+		/// <param name="message">Message.</param>
+		/// <param name="origin">Origin.</param>
 		public BroadcastMessage(INetworkMessage message, IPEndPoint origin) {
 		
 			Code = message.Code;

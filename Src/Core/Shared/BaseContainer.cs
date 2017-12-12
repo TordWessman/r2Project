@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using Core.Scripting;
 using System.IO;
 using System.Linq;
-using Core.Network.Web;
+using Core.Network;
 
 namespace Core
 {

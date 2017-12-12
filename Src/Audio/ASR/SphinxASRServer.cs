@@ -81,7 +81,7 @@ namespace Audio.ASR
 		private string m_ip;
 
 		public int Port { get { return m_port; } }
-		public string Ip { get { return m_ip; } }
+		public string Address { get { return m_ip; } }
 
 		/// <summary>
 		/// Initailize and listen to local microphpone

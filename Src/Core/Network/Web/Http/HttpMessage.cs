@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 
 	public struct HttpMessage: INetworkMessage

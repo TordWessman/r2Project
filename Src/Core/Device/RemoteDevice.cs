@@ -19,7 +19,7 @@
 using System;
 using System.Dynamic;
 using Core.Network;
-using Core.Network.Web;
+using Core.Network;
 
 namespace Core.Device
 {
@@ -30,29 +30,31 @@ namespace Core.Device
 	{
 		private string m_identifier;
 		private INetworkConnection m_host;
+		private Guid m_guid;
 
 		public string Identifier { get { return m_identifier; } }
 		public bool Ready { get { return m_host.Ready; } }
-		public Guid Guid { get { return Guid.Empty; } }
+		public Guid Guid { get { return m_guid; } }
 
 		public void Start() {}
 		public void Stop() {}
 		public void AddObserver (IDeviceObserver observer) {}
 
-		public RemoteDevice (string id, INetworkConnection host)
+		public RemoteDevice (string id, Guid guid, INetworkConnection host)
 		{
 
 			m_identifier = id;
 			m_host = host;
+			m_guid = guid;
 
 		}
 
 		public override bool TrySetMember (SetMemberBinder binder, object value) {
 
-			WebObjectRequest request = new WebObjectRequest () {
+			DeviceRequest request = new DeviceRequest () {
 				Action = binder.Name,
 				Params = new object[] { value },
-				ActionType = WebObjectRequest.ObjectActionType.Set,
+				ActionType = DeviceRequest.ObjectActionType.Set,
 				Identifier = m_identifier
 			};
 
@@ -63,10 +65,10 @@ namespace Core.Device
 
 		public override bool TryGetMember (GetMemberBinder binder, out object result) {
 
-			WebObjectRequest request = new WebObjectRequest () {
+			DeviceRequest request = new DeviceRequest () {
 				Action = binder.Name,
 				Params = new object[] {},
-				ActionType = WebObjectRequest.ObjectActionType.Get,
+				ActionType = DeviceRequest.ObjectActionType.Get,
 				Identifier = m_identifier
 			};
 
@@ -79,10 +81,10 @@ namespace Core.Device
 
 		public override bool TryInvokeMember (InvokeMemberBinder binder, object[] args, out object result) {
 			
-			WebObjectRequest request = new WebObjectRequest () {
+			DeviceRequest request = new DeviceRequest () {
 				Action = binder.Name,
 				Params = args,
-				ActionType = WebObjectRequest.ObjectActionType.Invoke,
+				ActionType = DeviceRequest.ObjectActionType.Invoke,
 				Identifier = m_identifier
 			};
 

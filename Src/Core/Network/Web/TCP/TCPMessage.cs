@@ -38,7 +38,7 @@ namespace Core.Network
 
 		public TCPMessage(INetworkMessage message) {
 		
-			Code = message.Code != 0 ? message.Code : (int) WebStatusCode.Ok;
+			Code = message.Code != 0 ? message.Code : WebStatusCode.Ok.Raw();
 			Destination = message.Destination;
 			Headers = message.Headers;
 			Payload = message.Payload;

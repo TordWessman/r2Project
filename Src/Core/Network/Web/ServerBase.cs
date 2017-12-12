@@ -17,7 +17,7 @@
 //
 //
 using System;
-using Core.Network.Web;
+using Core.Network;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Core.Device;
@@ -47,7 +47,7 @@ namespace Core.Network
 
 		public int Port { get { return m_port; } }
 
-		public string Ip { 
+		public string Address { 
 
 			get {
 

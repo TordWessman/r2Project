@@ -27,7 +27,6 @@ namespace Core
 	{
 
 		private StreamWriter m_outputStream;
-		private StreamReader m_inputStream;
 		private FileStream m_fs;
 
 		private string m_fileName;
@@ -39,7 +38,6 @@ namespace Core
 			m_fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite);
 			m_outputStream = new StreamWriter (m_fs);
 			m_outputStream.AutoFlush = true;
-			m_inputStream = new StreamReader (m_fs);
 			m_fileName = path;
 
 		}
@@ -63,9 +61,8 @@ namespace Core
 		public IEnumerable<ILogMessage> History { 
 		
 			get {
-				
-				string line = m_inputStream.ReadLine ();
-				throw new NotImplementedException ();
+
+				yield return new LogMessage ("History not allowed for FileLogger (not implemented)", LogType.Error);
 
 			}
 			 

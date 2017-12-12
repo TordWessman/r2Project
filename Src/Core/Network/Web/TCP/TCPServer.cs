@@ -24,7 +24,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Core.Data;
-using Core.Network.Web;
+using Core.Network;
 using System.IO;
 
 namespace Core.Network
@@ -52,7 +52,7 @@ namespace Core.Network
 		/// <param name="client">Client.</param>
 		private void Connection(TcpClient client) {
 		
-			TCPMessage responseMessage =  new TCPMessage() {Code = (int) WebStatusCode.NotDefined, Headers = new Dictionary<string, object>()};
+			TCPMessage responseMessage =  new TCPMessage() {Code = WebStatusCode.NotDefined.Raw(), Headers = new Dictionary<string, object>()};
 
 			using (client) {
 				
@@ -61,7 +61,6 @@ namespace Core.Network
 					try {
 
 						TCPMessage requestMessage = m_packageFactory.DeserializePackage (client.GetStream ());
-						Log.t($"Server got message for: {requestMessage.Destination}");
 						IWebEndpoint endpoint = GetEndpoint (requestMessage.Destination);
 
 						if (endpoint != null) {
@@ -71,22 +70,22 @@ namespace Core.Network
 						} else {
 
 							responseMessage = new TCPMessage() {
-								Code = (int) WebStatusCode.NotFound,
-								Payload =  new WebErrorMessage((int) WebStatusCode.NotFound, $"Path not found: {requestMessage.Destination}")
+								Code = WebStatusCode.NotFound.Raw(),
+								Payload =  new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {requestMessage.Destination}")
 							};
 
 						}
 
 					} catch (Exception ex) {
+						
+						Log.d($"TCP Server died: {ex.Message}.");
 
-						Log.t($"I died {ex.ToString()}.");
-
-						if (ShouldRun) {
+						if (ShouldRun && !(ex is System.Threading.ThreadAbortException)) {
 
 							Log.x(ex);
 
 							responseMessage = new TCPMessage() {
-								Code = (int) WebStatusCode.ServerError,
+								Code = WebStatusCode.ServerError.Raw(),
 
 								#if DEBUG
 								Payload = ex.ToString()
@@ -98,25 +97,17 @@ namespace Core.Network
 
 					}
 
-					if (ShouldRun && client.Connected && responseMessage.Code != (int)WebStatusCode.NotDefined) {
+					if (ShouldRun && client.Connected && responseMessage.Code != WebStatusCode.NotDefined.Raw()) {
 
 						try {
 							
 							byte[] response = m_packageFactory.SerializeMessage (responseMessage);
-							Log.t ($"Server will send response now {response.Length}!");
 							client.GetStream ().Write (response, 0, response.Length);
 
 						} catch (IOException ex) {
 						
-							if (ex.InnerException is SocketException) {
-							
-								// Disconnected....
+							if (!(ex.InnerException is SocketException)) { Log.x (ex); }
 
-							} else {
-							
-								Log.x (ex);
-
-							}
 							if (client.Connected) { client.Close (); }
 							break;
 
@@ -138,18 +129,13 @@ namespace Core.Network
 			
 			}
 
-
-			Log.t($"Now disconnecting client: {client.Client.RemoteEndPoint.ToString()}.");
-
 		}
 
 		/// <summary>
 		/// Represents the server side listener.
 		/// </summary>
 		protected override void Service() {
-
-			Log.t ($"Starting TCP Server on port {Port}");
-
+			
 			m_connections = new Dictionary<TcpClient, Task> ();
 			m_listener = new TcpListener (IPAddress.Any, Port);
 			m_listener.Start ();
@@ -159,7 +145,6 @@ namespace Core.Network
 				try {
 					
 					TcpClient client = m_listener.AcceptTcpClient();
-					Log.t($"Got connection from: {client.Client.RemoteEndPoint.ToString()}");
 					client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 					m_connections[client] = Task.Run( () => Connection(client));
 

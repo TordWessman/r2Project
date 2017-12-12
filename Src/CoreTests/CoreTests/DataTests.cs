@@ -4,7 +4,7 @@ using Core.Data;
 using Core.Device;
 using System.Linq;
 using System.Dynamic;
-using Core.Network.Web;
+using Core.Network;
 using System.Collections.Generic;
 
 namespace Core.Tests
@@ -91,9 +91,9 @@ namespace Core.Tests
 		[Test]
 		public void TestSerializeWithEnum() {
 		
-			WebObjectRequest wob = new WebObjectRequest () { 
+			DeviceRequest wob = new DeviceRequest () { 
 				Identifier = "dummy_device",
-				ActionType = WebObjectRequest.ObjectActionType.Invoke,
+				ActionType = DeviceRequest.ObjectActionType.Invoke,
 				Action = "MultiplyByTen",
 				Params = new object[] { 42 }
 			};

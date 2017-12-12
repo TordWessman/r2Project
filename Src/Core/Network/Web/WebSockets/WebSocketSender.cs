@@ -22,7 +22,7 @@ using Core.Scripting;
 using Newtonsoft.Json;
 using Core.Data;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	public class WebSocketSender: DeviceBase, IWebSocketSender
 	{

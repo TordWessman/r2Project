@@ -22,7 +22,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Collections.Specialized;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	/// <summary>
 	/// Uses as a very primitive file server within an IHttpServer.

@@ -25,7 +25,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	public class HttpClient: DeviceBase, IMessageClient
 	{
@@ -58,7 +58,7 @@ namespace Core.Network.Web
 
 				} catch (Exception ex) {
 
-					response = new HttpMessage() { Payload = new HttpError() { Message = ex.Message }, Code = (int) WebStatusCode.NetworkError };
+					response = new HttpMessage() { Payload = new HttpError() { Message = ex.Message }, Code = WebStatusCode.NetworkError.Raw() };
 					exception =  ex;
 				}
 
@@ -128,11 +128,11 @@ namespace Core.Network.Web
 
 				if (ex.Status == System.Net.WebExceptionStatus.ProtocolError) {
 				
-					responseObject.Code = (int)WebStatusCode.ServerError;
+					responseObject.Code = WebStatusCode.ServerError.Raw();
 				 
 				} else {
 				
-					responseObject.Code = (int)WebStatusCode.NetworkError;
+					responseObject.Code = WebStatusCode.NetworkError.Raw();
 						
 				}
 				 
@@ -149,7 +149,7 @@ namespace Core.Network.Web
 
 			if (response.StatusCode == HttpStatusCode.OK) {
 
-				responseObject.Code = (int) WebStatusCode.Ok;
+				responseObject.Code = WebStatusCode.Ok.Raw();
 
 				if (response.ContentType.ToLower().Contains ("text")) {
 					

@@ -19,6 +19,7 @@
 using System;
 using System.Dynamic;
 using Core.Device;
+using System.Collections.Generic;
 
 namespace Core.Network
 {
@@ -29,10 +30,16 @@ namespace Core.Network
 	{
 	
 		/// <summary>
+		/// Access the request headers. 
+		/// </summary>
+		/// <value>The headers.</value>
+		IDictionary<string, object> Headers { get; }
+
+		/// <summary>
 		/// Synchronously transmits the message
 		/// </summary>
 		/// <param name="message">Message.</param>
-		dynamic Send(dynamic message);
+		dynamic Send(dynamic payload);
 
 	}
 

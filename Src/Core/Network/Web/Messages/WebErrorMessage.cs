@@ -18,7 +18,7 @@
 //
 using System;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	public struct WebErrorMessage
 	{

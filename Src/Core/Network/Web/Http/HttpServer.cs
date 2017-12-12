@@ -29,7 +29,7 @@ using System.Web;
 using Core.Data;
 using System.Text.RegularExpressions;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 
 	/// <summary>
@@ -73,9 +73,9 @@ namespace Core.Network.Web
 					} else {
 
 						Log.w ("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
-						response.StatusCode = (int) WebStatusCode.NotFound;
+						response.StatusCode = WebStatusCode.NotFound.Raw();
 
-						Write (response,  m_serialization.Serialize(new WebErrorMessage((int) WebStatusCode.NotFound, $"Path not found: {request.Url.AbsolutePath}") ));
+						Write (response,  m_serialization.Serialize(new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Url.AbsolutePath}") ));
 
 					}
 
@@ -168,13 +168,13 @@ namespace Core.Network.Web
 
 					// Add header fields from metadata
 					responseObject.Headers?.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
-					response.StatusCode = (int) WebStatusCode.Ok;
+					response.StatusCode = WebStatusCode.Ok.Raw();
 
 				} catch (Exception ex) {
 
 					Log.x (ex);
 
-					response.StatusCode = (int) WebStatusCode.ServerError;
+					response.StatusCode = WebStatusCode.ServerError.Raw();
 
 					#if DEBUG
 					responseBody = m_serialization.Serialize(new HttpMessage() { Payload = new HttpError(ex.Message), Code = response.StatusCode } );

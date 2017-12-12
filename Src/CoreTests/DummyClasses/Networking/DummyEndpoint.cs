@@ -17,7 +17,7 @@
 //
 //
 using System;
-using Core.Network.Web;
+using Core.Network;
 using Core.Network;
 using NUnit.Framework;
 

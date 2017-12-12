@@ -18,7 +18,7 @@
 
 ﻿using System;
 using Core.Device;
-using Core.Network.Web;
+using Core.Network;
 using Core.Memory;
 using MemoryType = System.String;
 using System.Linq;

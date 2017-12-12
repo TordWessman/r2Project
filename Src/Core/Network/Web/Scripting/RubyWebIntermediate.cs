@@ -23,7 +23,7 @@ using System.Collections.Generic;
 using System.Runtime.Remoting;
 using Core.Data;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 
 	/// <summary>

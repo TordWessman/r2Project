@@ -26,7 +26,7 @@ using System.Linq;
 using System.Net;
 using Core.Data;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	internal class WebSocketHandler: WebSocketSharp.Server.WebSocketBehavior, IWebSocketSenderDelegate {
 	
@@ -161,7 +161,7 @@ namespace Core.Network.Web
 		}
 
 		public int Port { get { return m_server.Port; } }
-		public string Ip { get { return /*m_server.Address.ToString (); */ Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault ()?.ToString ();  } }
+		public string Address { get { return /*m_server.Address.ToString (); */ Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault ()?.ToString ();  } }
 
 		public override bool Ready { get { return m_server.IsListening; } }
 

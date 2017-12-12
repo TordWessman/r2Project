@@ -18,7 +18,7 @@
 //
 using System;
 using NUnit.Framework;
-using Core.Network.Web;
+using Core.Network;
 using Core.Data;
 using System.Collections.Generic;
 using Core.Device;
@@ -130,7 +130,7 @@ namespace Core.Tests
 
 			TCPMessage message = new TCPMessage () { Destination = "blah", Payload = "bleh"};
 			INetworkMessage response = client.Send (message);
-			Assert.AreEqual (response.Code, (int)WebStatusCode.NotFound);
+			Assert.AreEqual (WebStatusCode.NotFound.Raw(), response.Code);
 			client.Stop ();
 			s.Stop ();
 
@@ -180,13 +180,13 @@ namespace Core.Tests
 			TCPMessage message = new TCPMessage () { Destination = "/test", Payload = msg};
 			INetworkMessage response = client.Send (message);
 
-			Assert.AreEqual (response.Code, (int)WebStatusCode.Ok);
+			Assert.AreEqual (response.Code, WebStatusCode.Ok.Raw());
 			Assert.AreEqual ("foo", response.Payload);
 
 			// Now also test the scripts additional_string public property
 			script.additional_string = "bar";
 			response = client.Send (message);
-			Assert.AreEqual ((int)WebStatusCode.Ok, response.Code);
+			Assert.AreEqual (WebStatusCode.Ok.Raw(), response.Code);
 			Assert.AreEqual ("foobar", response.Payload);
 
 			s.Stop ();
@@ -212,9 +212,9 @@ namespace Core.Tests
 			//Client should be connected
 			Assert.IsTrue (client.Ready);
 
-			var requestPayload = new WebObjectRequest() {
+			var requestPayload = new DeviceRequest() {
 				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
-				ActionType =  WebObjectRequest.ObjectActionType.Invoke,
+				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
 			
@@ -232,9 +232,9 @@ namespace Core.Tests
 			Assert.AreEqual ("Foo", dummyObject.Bar);
 
 			int fortytwo = 42;
-			WebObjectRequest requestPayload2 = new WebObjectRequest () { 
+			DeviceRequest requestPayload2 = new DeviceRequest () { 
 				Identifier = "dummy_device",
-				ActionType = WebObjectRequest.ObjectActionType.Invoke,
+				ActionType = DeviceRequest.ObjectActionType.Invoke,
 				Action = "MultiplyByTen",
 				Params = new object[] { fortytwo }
 			};

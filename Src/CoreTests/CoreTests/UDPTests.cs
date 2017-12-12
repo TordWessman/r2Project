@@ -22,6 +22,7 @@ using System.Threading;
 using Core.Network;
 using Core.Data;
 using System.Threading.Tasks;
+using Core.Device;
 
 namespace Core.Tests
 {
@@ -35,14 +36,15 @@ namespace Core.Tests
 			base.Setup ();
 
 		}
+
 		[Test]
 		public void TestSendReceive() {
 
 			var s = factory.CreateUdpServer ("s", 9876);
 			DummyEndpoint ep = new DummyEndpoint ("/dummy");
-			UDPClient client = factory.CreateUdpClient ("c", 9876);
+			UDPBroadcaster client = factory.CreateUdpClient ("c", 9876);
 
-			Task waitForResponse;
+			(s as UDPServer).AllowLocalRequests = true;
 
 			s.AddEndpoint (ep);
 
@@ -58,16 +60,16 @@ namespace Core.Tests
 
 			bool didReceiveResponse = false;
 
-			waitForResponse = client.Broadcast (new TCPMessage () { Destination = "should not be found" }, 2000, (response, error) => {
-
-
+			var guid = client.Broadcast (new TCPMessage () { Destination = "should not be found" }, 2000, (response, error) => {
+				
 				Assert.IsNull(error);
-				Assert.AreEqual (response.Code, (int)WebStatusCode.NotFound);
+				Assert.AreEqual (WebStatusCode.NotFound.Raw(), (response.Code));
 				didReceiveResponse = true;
 
 			});
 
-			waitForResponse.Wait();
+			Thread.Sleep (2500);
+
 			Assert.True (didReceiveResponse);
 			didReceiveResponse = false;
 
@@ -89,9 +91,8 @@ namespace Core.Tests
 
 			});
 
-			waitForResponse = client.Broadcast (request, 2000, (response, error) => {
+			guid = client.Broadcast (request, 2000, (response, error) => {
 
-				Log.t("T22222");
 				Assert.IsNull(error);
 				Assert.AreEqual (4242, response.Code);
 				Assert.AreEqual (420, response.Payload.PaybackTime);
@@ -99,11 +100,61 @@ namespace Core.Tests
 			
 			});
 
-			waitForResponse.Wait();
+			Thread.Sleep (2500);
+
 			Assert.True (didReceiveResponse);
 
 			//TCPMessage request = new TCPMessage() {
 
+
+		}
+
+		[Test]
+		public void TestHostManager() {
+
+			// Set up tcp-server
+			var path = "/devices";
+			var tcps = factory.CreateTcpServer ("tcp_server", 4445);
+			var udps = (UDPServer) factory.CreateUdpServer ("udp_server", 4446);
+			udps.AllowLocalRequests = true;
+
+			tcps.Start ();
+			udps.Start ();
+
+			DeviceRouter deviceRouter = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
+			deviceRouter.AddDevice (tcps);
+			var dummy = new DummyDevice ("dummyX");
+			deviceRouter.AddDevice (dummy);
+			deviceRouter.AddDevice (m_deviceManager);
+			m_deviceManager.Add (dummy);
+			m_deviceManager.Add (tcps);
+
+			var endpoint = factory.CreateJsonEndpoint (path, deviceRouter);
+			udps.AddEndpoint (endpoint);
+			tcps.AddEndpoint (endpoint);
+
+			Thread.Sleep (500);
+
+			DeviceManager remoteDeviceManager = new DeviceManager ("remote_dm");
+
+			HostManager h = factory.CreateHostManager ("h", 4446, path, remoteDeviceManager);
+
+			h.Broadcast ("tcp_server");
+
+			Thread.Sleep (1000);
+
+			Log.t (h.Broadcaster.BroadcastTask.Exception?.StackTrace);
+
+			Thread.Sleep (1000);
+
+			dynamic d = remoteDeviceManager.Get ("dummyX");
+
+			Assert.IsTrue (d is IRemoteDevice);
+			Assert.AreEqual (420, d.MultiplyByTen (42));
+
+			d.HAHA = 42.42d;
+
+			Assert.AreEqual (dummy.HAHA, d.HAHA);
 
 		}
 	}

@@ -20,7 +20,7 @@ using System;
 using NUnit.Framework;
 using Core.Tests;
 using Core;
-using Core.Network.Web;
+using Core.Network;
 using System.Threading;
 using Core.Data;
 using Core.Scripting;
@@ -75,9 +75,9 @@ namespace CoreTests
 			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
 			rec.AddDevice (dummyObject);
 
-			var request = new WebObjectRequest() {
+			var request = new DeviceRequest() {
 				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
-				ActionType =  WebObjectRequest.ObjectActionType.Invoke,
+				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
 
@@ -100,9 +100,9 @@ namespace CoreTests
 			Assert.AreEqual ("Foo", dummyObject.Bar);
 
 			int fortytwo = 42;
-			WebObjectRequest wob = new WebObjectRequest () { 
+			DeviceRequest wob = new DeviceRequest () { 
 				Identifier = "dummy_device",
-				ActionType = WebObjectRequest.ObjectActionType.Invoke,
+				ActionType = DeviceRequest.ObjectActionType.Invoke,
 				Action = "MultiplyByTen",
 				Params = new object[] { fortytwo }
 			};
@@ -145,7 +145,7 @@ namespace CoreTests
 			Assert.AreEqual (deserialized.Identifier, result.Payload.Object.Identifier);
 
 			// The dummy object should now have been changed.
-			Assert.AreEqual (42.1f, dummyObject.HAHA);
+			Assert.AreEqual (42.1d, dummyObject.HAHA);
 
 
 		}
@@ -242,9 +242,9 @@ namespace CoreTests
 
 			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
 
-			var requestPayload = new WebObjectRequest() {
+			var requestPayload = new DeviceRequest() {
 				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
-				ActionType =  WebObjectRequest.ObjectActionType.Invoke,
+				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
 

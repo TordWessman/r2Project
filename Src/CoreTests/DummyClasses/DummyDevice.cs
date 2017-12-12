@@ -34,7 +34,7 @@ namespace Core.Tests
 		public int Value {get{return m_val;}set{m_val = value;}}
 		public string Bar {get{return m_bar;}set{m_bar = value;}}
 
-		public float HAHA;
+		public double HAHA;
 
 		public float GiveMeFooAnd42AndAnObject(string foo, int _42, dynamic anObject) {
 		

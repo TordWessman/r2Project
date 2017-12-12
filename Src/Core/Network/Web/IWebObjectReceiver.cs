@@ -22,7 +22,7 @@ using System.Dynamic;
 using System.Collections.Generic;
 using System.Net;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	/// <summary>
 	/// Represents an implementation capable of handdling objects through network requests

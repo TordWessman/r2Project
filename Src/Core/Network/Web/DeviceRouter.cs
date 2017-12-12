@@ -27,7 +27,7 @@ using System.Dynamic;
 using System.Reflection;
 using System.Net;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	/// <summary>
 	/// A DeviceRouter is a specialized helper IWebObjectReceiver usable for dealing with devices using the a WebJsonEndpoint. It's onReceive method requires a JsonObjectRequest formatted message, evaluates it's device id, values and actions, perform the requested action on the requested device and returns the device object affected. It keeps track of devices requested and will communicate changes.
@@ -119,20 +119,19 @@ namespace Core.Network.Web
 			
 			}
 
-			WebObjectResponse response = new WebObjectResponse ();
+			DeviceResponse response = new DeviceResponse ();
 				
-			if (Convert.ToInt32 (message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Invoke) {
+			if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Invoke) {
 
 				response.ActionResponse = m_invoker.Invoke (device, message.Payload.Action, message.Payload.Params);
 
-			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Set) {
+			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Set) {
 				
 				m_invoker.Set (device, message.Payload.Action, message.Payload.Params? [0]);
 
-			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)WebObjectRequest.ObjectActionType.Get &&
-				m_invoker.ContainsPropertyOrMember(message.Payload, "Action")) { 
-			
-				response.ActionResponse = m_invoker.Get (device, message.Payload.Action);
+			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Get) { 
+
+				response.ActionResponse = message.Payload.Action == null ? null : m_invoker.Get (device, message.Payload.Action);
 
 			} else {
 			

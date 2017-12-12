@@ -165,7 +165,6 @@
     <Compile Include="Data\Int32Converter.cs" />
     <Compile Include="Network\Web\Messages\WebErrorMessage.cs" />
     <Compile Include="Network\Web\WebStatusCode.cs" />
-    <Compile Include="Network\Web\Messages\WebObjectRequest.cs" />
     <Compile Include="Network\Web\Http\HttpServer.cs" />
     <Compile Include="Network\Web\Http\HttpClient.cs" />
     <Compile Include="Data\ISerialization.cs" />
@@ -186,7 +185,6 @@
     <Compile Include="Network\Web\ServerBase.cs" />
     <Compile Include="Network\Web\Messages\INetworkMessage.cs" />
     <Compile Include="Network\Web\Messages\NetworkMessage.cs" />
-    <Compile Include="Network\Web\UDP\UDPClient.cs" />
     <Compile Include="Network\Web\IMessageClient.cs" />
     <Compile Include="Network\Web\UDP\BroadcastMessage.cs" />
     <Compile Include="Memory\IMemorySource.cs" />
@@ -194,6 +192,11 @@
     <Compile Include="Device\IRemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice.cs" />
     <Compile Include="Network\Web\INetworkConnection.cs" />
+    <Compile Include="Network\Web\NetworkConnection.cs" />
+    <Compile Include="Network\Web\HostManager.cs" />
+    <Compile Include="Network\Web\UDP\UDPBroadcaster.cs" />
+    <Compile Include="Network\Web\UDP\INetworkBroadcaster.cs" />
+    <Compile Include="Network\Web\Messages\DeviceRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

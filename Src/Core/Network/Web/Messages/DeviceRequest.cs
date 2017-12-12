@@ -19,12 +19,12 @@
 ﻿using System;
 using System.Dynamic;
 
-namespace Core.Network.Web {
+namespace Core.Network {
 
 	/// <summary>
 	/// Response for object requests.
 	/// </summary>
-	public struct WebObjectResponse {
+	public struct DeviceResponse {
 
 		/// <summary>
 		/// Containing the object to be invoked.
@@ -41,12 +41,20 @@ namespace Core.Network.Web {
 		/// </summary>
 		public string Action;
 
+		public DeviceResponse(dynamic payload) {
+		
+			Object = payload.Object;
+			ActionResponse = payload.ActionResponse;
+			Action = payload.Action;
+
+		}
+
 	}
 
 	/// <summary>
 	/// Message used to invoke and retrieve data from objects.
 	/// </summary>
-	public struct WebObjectRequest
+	public struct DeviceRequest
 	{
 
 		/// <summary>

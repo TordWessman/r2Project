@@ -19,7 +19,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Core.Network.Web
+namespace Core.Network
 {
 	/// <summary>
 	/// Interprets data input and returns a decoded response.

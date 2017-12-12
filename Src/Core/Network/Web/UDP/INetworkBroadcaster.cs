@@ -17,35 +17,32 @@
 //
 //
 using System;
-using System.Dynamic;
 using Core.Device;
+using System.Threading.Tasks;
 
 namespace Core.Network
 {
 	/// <summary>
-	/// Capable of listening to IWebSocketSender messages.
+	/// Represents a broadcast client, capable of sending INetworkMessages
 	/// </summary>
-	public interface IWebSocketSenderDelegate {
-	
-		void OnSend (byte[] data);
-
-	}
-
-	/// <summary>
-	/// Implementations are used for transmitting data to web socket clients.
-	/// </summary>
-	public interface IWebSocketSender: IDevice
+	public interface INetworkBroadcaster: IDevice
 	{
-
-		IWebSocketSenderDelegate Delegate { get; set; }
-		void Send(dynamic outputObject);
+		/// <summary>
+		/// Will broadcast `message` through the implentation specific medium (i.e. UDP). 
+		/// Waits `timeout` for any response. Upon response, `responseDelegate` is called.
+		/// Returns an unique identifier for the broadcast message sent.
+		/// </summary>
+		/// <param name="message">Message.</param>
+		/// <param name="timeout">Timeout.</param>
+		/// <param name="responseDelegate">Response delegate.</param>
+		Guid Broadcast (INetworkMessage message, int timeout = 0, Action<BroadcastMessage, Exception> responseDelegate = null);
 
 		/// <summary>
-		/// The path on which this sender will be sending data to.
+		/// Contains the task used for broadcast requests
 		/// </summary>
-		/// <value>The URI path.</value>
-		string UriPath { get; }
-	
+		/// <value>The broadcast task.</value>
+		Task BroadcastTask { get; }
 	}
 
 }
+
