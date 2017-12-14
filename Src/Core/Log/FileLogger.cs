@@ -52,7 +52,7 @@ namespace Core
 		
 			lock (m_lock) {
 
-				m_outputStream.WriteLine($"[{message.Type}] [{message.TimeStamp}] : {message.Message} ");
+				m_outputStream.WriteLine($"[{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
 
 			}
 

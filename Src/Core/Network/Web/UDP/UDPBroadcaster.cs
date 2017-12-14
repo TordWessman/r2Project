@@ -87,7 +87,7 @@ namespace Core.Network
 
 			if (!Ready) {
 			
-				throw new InvalidOperationException ("Unable to broadcast. Previous broadcast is not completed.");
+				throw new InvalidOperationException ($"Unable to broadcast. Previous broadcast is not completed (task status: {m_task?.Status}).");
 
 			}
 

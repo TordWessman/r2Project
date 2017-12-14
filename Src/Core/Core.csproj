@@ -191,12 +191,15 @@
     <Compile Include="Network\Web\IEndpoint.cs" />
     <Compile Include="Device\IRemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice.cs" />
-    <Compile Include="Network\Web\INetworkConnection.cs" />
     <Compile Include="Network\Web\NetworkConnection.cs" />
     <Compile Include="Network\Web\HostManager.cs" />
     <Compile Include="Network\Web\UDP\UDPBroadcaster.cs" />
     <Compile Include="Network\Web\UDP\INetworkBroadcaster.cs" />
     <Compile Include="Network\Web\Messages\DeviceRequest.cs" />
+    <Compile Include="Network\Web\IMessageClientObserver.cs" />
+    <Compile Include="Network\Web\BlockingNetworkStream.cs" />
+    <Compile Include="Network\Web\IHostConnection.cs" />
+    <Compile Include="Network\Web\IClientConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

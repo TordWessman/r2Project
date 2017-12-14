@@ -25,7 +25,7 @@ namespace Core.Network
 	/// <summary>
 	/// Default implementation of an INetworkConnection.
 	/// </summary>
-	public class NetworkConnection : DeviceBase, INetworkConnection
+	public class NetworkConnection : DeviceBase, IHostConnection
 	{
 		private IMessageClient m_connection;
 		private INetworkMessage m_message;
@@ -62,7 +62,7 @@ namespace Core.Network
 
 			}
 
-			throw new ApplicationException ($"Request to {m_message.Destination} for connection `m_connection.ToString ()` failed with code `{response.Code}`. Response body: `{response.Payload}`.");
+			throw new ApplicationException ($"Request to {m_message.Destination} for connection `{m_connection.ToString ()}` failed with code `{response.Code}`. Response body: `{response.Payload}`.");
 
 		}
 

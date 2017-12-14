@@ -29,7 +29,7 @@ namespace Core.Device
 	public class RemoteDevice : DynamicObject, IRemoteDevice
 	{
 		private string m_identifier;
-		private INetworkConnection m_host;
+		private IHostConnection m_host;
 		private Guid m_guid;
 
 		public string Identifier { get { return m_identifier; } }
@@ -40,7 +40,7 @@ namespace Core.Device
 		public void Stop() {}
 		public void AddObserver (IDeviceObserver observer) {}
 
-		public RemoteDevice (string id, Guid guid, INetworkConnection host)
+		public RemoteDevice (string id, Guid guid, IHostConnection host)
 		{
 
 			m_identifier = id;

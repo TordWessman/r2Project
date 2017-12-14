@@ -25,7 +25,6 @@ using Core.Device;
 using System.Threading;
 using System.Net;
 using Core.Scripting;
-using Core.Network;
 
 namespace Core.Tests
 {
@@ -130,6 +129,7 @@ namespace Core.Tests
 
 			TCPMessage message = new TCPMessage () { Destination = "blah", Payload = "bleh"};
 			INetworkMessage response = client.Send (message);
+			Log.t (" --- --- -- GOT RESPONSE HERE TOO!");
 			Assert.AreEqual (WebStatusCode.NotFound.Raw(), response.Code);
 			client.Stop ();
 			s.Stop ();
@@ -249,6 +249,24 @@ namespace Core.Tests
 
 			s.Stop ();
 
+		}
+
+		[Test]
+		public void TestTCP_Duplex() {
+
+			IWebServer s = factory.CreateTcpServer ("s", 4244);
+			s.Start ();
+			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
+			dummyObject.Bar = "XYZ";
+			DeviceRouter rec = (DeviceRouter)factory.CreateDeviceObjectReceiver ();
+			rec.AddDevice (dummyObject);
+			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
+			s.AddEndpoint (ep);
+			Thread.Sleep (100);
+
+			var client = factory.CreateTcpClient ("c", "localhost", 4244);
+			client.Start ();
+		
 		}
 
 

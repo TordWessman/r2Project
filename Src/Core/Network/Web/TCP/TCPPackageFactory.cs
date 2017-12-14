@@ -31,7 +31,13 @@ namespace Core.Network
 		public static byte[] Read(this Stream self, int size) {
 
 			byte[] buff = new byte[size];
-			self.Read (buff, 0, size);
+
+			if (size != self.Read (buff, 0, size)) {
+			
+				throw new IOException ($"Unable to read {size} bytes from stream");
+
+			}
+
 			return buff;
 
 		}

@@ -40,19 +40,9 @@ namespace Core.Network
 			
 			m_senders = senders;
 			m_packageFactory = packageFactory;
-
-			if (m_senders != null) {
-			
-				foreach (IWebSocketSender sender in m_senders) {
-
-					sender.Delegate = this;
-
-				}
-
-			}
-
-
+			m_senders?.AsParallel ().ForAll (s => s.Delegate = this);
 			m_endpoint = endpoint;
+
 		}
 
 		public void SetEndpoint(IWebEndpoint endpoint) {
