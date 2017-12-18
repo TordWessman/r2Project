@@ -40,7 +40,8 @@ namespace Core.Network
 		private bool m_shouldRun = false;
 
 		private readonly object m_sendLock = new object();
-		private AutoResetEvent m_mutex;
+		private AutoResetEvent m_writeLock;
+		private AutoResetEvent m_readLock;
 
 		// Contains the latest previous response
 		TCPMessage m_latestResponse;
@@ -78,14 +79,12 @@ namespace Core.Network
 		public int Port { get { return m_port; } }
 		public override bool Ready { get { return m_shouldRun && m_client.Connected; } }
 
-		static int apa = 0;
-
 		public override void Start() {
 		
 			m_readError = null;
 			m_shouldRun = true;
 			m_client.Connect (m_host, m_port);
-			m_receiverTask = Receive (apa++);
+			m_receiverTask = Receive ();
 
 		}
 
@@ -133,6 +132,8 @@ namespace Core.Network
 
 		public INetworkMessage Send(INetworkMessage requestMessage) {
 
+			//m_readLock.WaitOne ();
+
 			lock (m_sendLock) {
 	
 				TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage (requestMessage);
@@ -145,15 +146,15 @@ namespace Core.Network
 
 				m_client.GetStream ().Write (request, 0, request.Length);
 
-				m_mutex = new AutoResetEvent (false);
+				m_writeLock = new AutoResetEvent (false);
 
 				// Reset the read error. Still an awful lot of race conditions, but wtf.
 				m_readError = null;
 
 				// Wait for receiver thread to fetch data.
-				if (!m_mutex.WaitOne (Timeout)) { throw new SocketException ((int)SocketError.TimedOut); }
+				if (!m_writeLock.WaitOne (Timeout)) { throw new SocketException ((int)SocketError.TimedOut); }
 
-				m_mutex = null;
+				m_writeLock = null;
 
 				try {
 
@@ -179,9 +180,11 @@ namespace Core.Network
 		
 		}
 
-		private System.Threading.Tasks.Task Receive (int hund) {
+		private System.Threading.Tasks.Task Receive () {
 
 			return System.Threading.Tasks.Task.Factory.StartNew (() => {
+
+				m_readLock = new AutoResetEvent(false);
 
 				while (Ready) {
 
@@ -189,29 +192,25 @@ namespace Core.Network
 						
 						m_latestResponse = m_serializer.DeserializePackage (new BlockingNetworkStream(m_client.Client));
 
-					} catch (Exception ex) {
-
-						m_readError = ex;
-						Log.e($"TCP Read error. Message: {ex.Message}");
-						Stop();
-
-						m_observers.AsParallel()
-							.ForAll(observer => observer.OnReceive(null, ex));
-
-					} finally {
-
-						if (m_mutex == null) {
-
-							// No mutex is set. This message should be propagated to observers
-
+						if (m_latestResponse.IsBroadcastMessage()) {
+						
 							m_observers.AsParallel()
 								.Where(observer => observer.Destination == null || System.Text.RegularExpressions.Regex.IsMatch (m_latestResponse.Destination, observer.Destination))
 								.ForAll(observer => observer.OnReceive(m_latestResponse, m_readError));
-	
-						} 
+							
+						}
 
-						m_mutex?.Set();
+					} catch (Exception ex) {
 
+						m_readError = ex;
+
+						Log.w($"TCP Client disconnected. Error: {ex.GetType()}. Message: `{ex.Message}`.");
+						Stop();
+
+					} finally {
+
+						m_writeLock?.Set();
+						//m_readLock.Set();
 					}
 
 				} 	

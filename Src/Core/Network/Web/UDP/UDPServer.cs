@@ -78,10 +78,7 @@ namespace Core.Network
 
 						TCPMessage request = m_packageFactory.DeserializePackage (requestDataStream);
 
-						broadcastMessageUniqueIdentifierHeaderValue = 
-								(request.Headers?.ContainsKey(BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey) == true ?
-								request.Headers[BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey] : "(No Unique Identifier Header provided)")
-								as string;
+						broadcastMessageUniqueIdentifierHeaderValue = request.GetBroadcastMessageKey();
 
 						IWebEndpoint ep = GetEndpoint (request.Destination);
 
@@ -120,11 +117,11 @@ namespace Core.Network
 
 				}
 
-				if (response.Headers == null) { response.Headers = new Dictionary<string, object> (); }
+				// Make sure the request returns the expected broadcast key.
+				BroadcastMessage responseBroadcast = new BroadcastMessage(response);
+				responseBroadcast.Identifier = broadcastMessageUniqueIdentifierHeaderValue;
 
-				response.Headers.Add (BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, broadcastMessageUniqueIdentifierHeaderValue);
-
-				byte[] responseData = m_packageFactory.SerializeMessage (response);
+				byte[] responseData = m_packageFactory.SerializeMessage (new TCPMessage(responseBroadcast)); 
 				m_listener.Send (responseData, responseData.Length, client);
 
 			}

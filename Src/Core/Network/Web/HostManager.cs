@@ -22,6 +22,7 @@ using Core.Network;
 using System.Threading.Tasks;
 using System.Net;
 using Core.Data;
+using MessageIdType = System.String;
 
 namespace Core.Network
 {
@@ -37,7 +38,7 @@ namespace Core.Network
 		private INetworkBroadcaster m_broadcaster;
 
 		// Contains the latest broadcast message id.
-		private Guid m_messageId;
+		private MessageIdType m_messageId;
 
 		// Responsible of keeping track of devices.
 		private IDeviceManager m_devices;
@@ -90,10 +91,10 @@ namespace Core.Network
 
 			INetworkMessage message = new NetworkMessage () { Payload = request, Destination = m_destination };
 
-			m_messageId = m_broadcaster.Broadcast(message, BroadcastTimeout, (response, exception) => {
+			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
 
 				if (WebStatusCode.Ok.Is(response?.Code)) {
-
+					
 					DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
 					dynamic endpoint = deviceResponse.Object;
 
@@ -147,7 +148,7 @@ namespace Core.Network
 
 				}
 
-			});
+			}, BroadcastTimeout);
 
 		}
 

@@ -251,24 +251,58 @@ namespace Core.Tests
 
 		}
 
-		[Test]
-		public void TestTCP_Duplex() {
+		public class DummyClientObserver : IMessageClientObserver {
 
-			IWebServer s = factory.CreateTcpServer ("s", 4244);
+			private string m_destination;
+
+			public DummyClientObserver(string destination = null) {
+			
+				m_destination = destination;
+
+			}
+
+			public void OnReceive (INetworkMessage message, Exception ex) {
+			
+				Asserter (message);
+
+			}
+
+			public Action<INetworkMessage> Asserter;
+
+			public string Destination { get { return m_destination; } }
+
+		}
+		[Test]
+		public void TestTCP_Server_broadcast() {
+
+			TCPServer s = (TCPServer) factory.CreateTcpServer ("s", 4244);
 			s.Start ();
-			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
-			dummyObject.Bar = "XYZ";
-			DeviceRouter rec = (DeviceRouter)factory.CreateDeviceObjectReceiver ();
-			rec.AddDevice (dummyObject);
-			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
-			s.AddEndpoint (ep);
+			//DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
+			//dummyObject.Bar = "XYZ";
+			//DeviceRouter rec = (DeviceRouter)factory.CreateDeviceObjectReceiver ();
+			//rec.AddDevice (dummyObject);
+			//IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
+			//s.AddEndpoint (ep);
 			Thread.Sleep (100);
 
-			var client = factory.CreateTcpClient ("c", "localhost", 4244);
-			client.Start ();
-		
-		}
+			DummyClientObserver observer = new DummyClientObserver ();
 
+			var client = (TCPClient) factory.CreateTcpClient ("c", "localhost", 4244);
+			client.AddObserver(observer);
+			client.Start ();
+
+			observer.Asserter = (msg) => { Assert.AreEqual(42, msg.Payload.Bar); };
+		
+			R2Dynamic tmp = new R2Dynamic ();
+			tmp ["Bar"] = 42;
+
+			s.Broadcast (new TCPMessage () { Payload = tmp }, (response, error) => {
+				
+			});
+
+			Thread.Sleep (2000);
+
+		}
 
 	}
 }

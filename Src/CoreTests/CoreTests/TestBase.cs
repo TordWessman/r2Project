@@ -22,6 +22,7 @@ using Core.Network;
 using NUnit.Framework;
 using Core.Memory;
 using Core.Data;
+using System.Diagnostics;
 
 namespace Core.Tests
 {
@@ -36,8 +37,8 @@ namespace Core.Tests
 
 		[TestFixtureTearDown]
 		public virtual void Teardown() {
-		
-			Log.d ("--- TEST FINISHED ---");
+
+			Log.d ($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` FINISHED ---");
 
 		}
 
@@ -75,6 +76,7 @@ namespace Core.Tests
 
 			}
 
+			Log.d ($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` STARTED ---");
 
 		}
 

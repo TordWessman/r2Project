@@ -200,6 +200,7 @@
     <Compile Include="Network\Web\BlockingNetworkStream.cs" />
     <Compile Include="Network\Web\IHostConnection.cs" />
     <Compile Include="Network\Web\IClientConnection.cs" />
+    <Compile Include="Network\Web\TCP\TCPClientConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

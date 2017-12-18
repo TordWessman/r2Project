@@ -26,25 +26,50 @@ using System.Collections.Generic;
 using Core.Data;
 using Core.Network;
 using System.IO;
+using MessageIdType = System.String;
 
 namespace Core.Network
 {
-	public class TCPServer : ServerBase, IWebServer
+	public class TCPServer : ServerBase, IWebServer, INetworkBroadcaster
 	{
 		
 		private TcpListener m_listener;
 
 		private ITCPPackageFactory<TCPMessage> m_packageFactory;
-		private IDictionary<TcpClient, Task> m_connections;
+		private IList<IClientConnection> m_connections;
 
 		public TCPServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id, port)
 		{
 
 			m_packageFactory = packageFactory;
+			m_connections = new List<IClientConnection> ();
 
 		}
 
 		public override bool Ready { get { return ShouldRun && m_listener != null; } }
+
+		public MessageIdType Broadcast (INetworkMessage message, Action<BroadcastMessage, Exception> responseDelegate = null, int timeout = 2000) {
+		
+			INetworkMessage request = new BroadcastMessage (message);
+
+			m_connections.AsParallel ().ForAll ((connection) => {
+
+				try {
+				
+					INetworkMessage response = connection.Send(request);
+					if (responseDelegate != null) { responseDelegate(new BroadcastMessage(response, connection.Endpoint), null); }
+
+				} catch (Exception ex) {
+
+					if (responseDelegate != null) { responseDelegate(null, ex); }
+
+				}
+
+			});
+
+			return null;
+		
+		}
 
 		/// <summary>
 		/// Represents a single client connection.
@@ -54,81 +79,6 @@ namespace Core.Network
 		
 			TCPMessage responseMessage =  new TCPMessage() {Code = WebStatusCode.NotDefined.Raw(), Headers = new Dictionary<string, object>()};
 
-			using (client) {
-				
-				while (ShouldRun && client.Connected) {
-
-					try {
-
-						TCPMessage requestMessage = m_packageFactory.DeserializePackage (client.GetStream ());
-						IWebEndpoint endpoint = GetEndpoint (requestMessage.Destination);
-
-						if (endpoint != null) {
-							
-							responseMessage = new TCPMessage(endpoint.Interpret (requestMessage, (IPEndPoint) client.Client.RemoteEndPoint));
-
-						} else {
-
-							responseMessage = new TCPMessage() {
-								Code = WebStatusCode.NotFound.Raw(),
-								Payload =  new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {requestMessage.Destination}")
-							};
-
-						}
-
-					} catch (Exception ex) {
-						
-						Log.d($"TCP Server died: {ex.Message}.");
-
-						if (ShouldRun && !(ex is System.Threading.ThreadAbortException)) {
-
-							Log.x(ex);
-
-							responseMessage = new TCPMessage() {
-								Code = WebStatusCode.ServerError.Raw(),
-
-								#if DEBUG
-								Payload = ex.ToString()
-								#endif
-
-							};
-
-						}
-
-					}
-
-					if (ShouldRun && client.Connected && responseMessage.Code != WebStatusCode.NotDefined.Raw()) {
-
-						try {
-							
-							byte[] response = m_packageFactory.SerializeMessage (responseMessage);
-							client.GetStream ().Write (response, 0, response.Length);
-
-						} catch (IOException ex) {
-						
-							if (!(ex.InnerException is SocketException)) { Log.x (ex); }
-
-							if (client.Connected) { client.Close (); }
-							break;
-
-						} catch (Exception ex) {
-
-							Log.x (ex);
-							if (client.Connected) { client.Close (); }
-							break;
-
-						}
-
-					} else if (ShouldRun) {
-
-						Log.w($"TCPServer not sending reply to client {client.Client.RemoteEndPoint}. Reason: " + (!client.Connected ? "Disconnected" : responseMessage.Code == (int)WebStatusCode.NotDefined ? "Response message not defined" : ""));
-
-					}
-
-				}
-			
-			}
-
 		}
 
 		/// <summary>
@@ -136,7 +86,6 @@ namespace Core.Network
 		/// </summary>
 		protected override void Service() {
 			
-			m_connections = new Dictionary<TcpClient, Task> ();
 			m_listener = new TcpListener (IPAddress.Any, Port);
 			m_listener.Start ();
 
@@ -145,8 +94,14 @@ namespace Core.Network
 				try {
 					
 					TcpClient client = m_listener.AcceptTcpClient();
+					Log.t("Connection from: "+ client.Client.RemoteEndPoint.ToString());
 					client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-					m_connections[client] = Task.Run( () => Connection(client));
+					TCPClientConnection connection = new TCPClientConnection(client.Client.RemoteEndPoint.ToString(), m_packageFactory, client);
+					connection.OnReceive += OnReceive;
+					connection.OnDisconnect += OnDisconnect;
+
+					m_connections.Add(connection);
+					connection.Start();
 
 				} catch (System.Net.Sockets.SocketException ex) {
 
@@ -162,20 +117,36 @@ namespace Core.Network
 
 		}
 
+		private void OnDisconnect(IClientConnection connection, Exception ex) {
+		
+			if (ex != null) { Log.x(ex); }
+			m_connections.Remove (connection);
+
+		}
+
+		private INetworkMessage OnReceive(INetworkMessage request, IPEndPoint address) {
+		
+			IWebEndpoint endpoint = GetEndpoint (request.Destination);
+
+			if (endpoint != null) { return endpoint.Interpret (request, address); } 
+
+			return new TCPMessage() {
+				Code = WebStatusCode.NotFound.Raw(),
+				Payload =  new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}")
+			};
+
+		}
+
 		protected override void Cleanup () {
 			
 			m_listener.Stop ();
 			m_listener = null;
 
-			foreach (TcpClient client in m_connections.Keys) {
+			m_connections.AsParallel ().ForAll ((client) => {
 			
-				try {
+				client.Stop ();
 
-					client.Close ();
-
-				} catch (SocketException) {} 
-					
-			}
+			});
 
 		}
 

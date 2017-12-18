@@ -17,12 +17,45 @@
 //
 //
 using System;
+using System.Net;
+using Core.Device;
 
-namespace Core
+namespace Core.Network
 {
-	public interface IClientConnection
+	/// <summary>
+	/// Called whenever the connection receives an INetworkMessage.
+	/// </summary>
+	public delegate INetworkMessage OnReceiveHandler(INetworkMessage request, IPEndPoint address);
+
+	/// <summary>
+	/// Called whenever the client disconnected. `Exception` is not null if the connection was gracefully disconnected.
+	/// </summary>
+	public delegate void OnDisconnectHandler(IClientConnection connection, Exception ex);
+
+	public interface IClientConnection : IDevice
 	{
-		//delegate Func<
+		/// <summary>
+		/// Writes INetworkMessage to remote. Will bypas the OnReceive handler.
+		/// </summary>
+		/// <param name="message">Message.</param>
+		INetworkMessage Send (INetworkMessage message);
+
+		/// <summary>
+		/// Called upon asynchronous message retrieval
+		/// </summary>
+		event OnReceiveHandler OnReceive;
+
+		/// <summary>
+		/// Called whenever the client is disconnected.
+		/// </summary>
+		event OnDisconnectHandler OnDisconnect;
+
+		/// <summary>
+		/// Returns the other end of the line.
+		/// </summary>
+		/// <value>The endpoint.</value>
+		IPEndPoint Endpoint { get; } 
+
 	}
 }
 

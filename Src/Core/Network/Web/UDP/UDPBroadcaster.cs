@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Runtime.Remoting.Messaging;
+using MessageIdType = System.String;
 
 namespace Core.Network
 {
@@ -41,7 +42,7 @@ namespace Core.Network
 		private CancellationTokenSource m_cancelationToken;
 
 		// Used to uniquely identify broadcast messages sent by this client. This value will be appended to the headers any message sent.
-		private Guid m_currentMessageId;
+		private MessageIdType m_currentMessageId;
 
 		/// <summary>
 		/// The maximum size of the packages sent over UDP.
@@ -83,7 +84,7 @@ namespace Core.Network
 		/// <param name="message">Message.</param>
 		/// <param name="timout">Timout.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		public Guid Broadcast(INetworkMessage requestMessage, int timeout = 0, Action<BroadcastMessage, Exception> responseDelegate = null) {
+		public MessageIdType Broadcast(INetworkMessage requestMessage, Action<BroadcastMessage, Exception> responseDelegate = null, int timeout = 2000) {
 
 			if (!Ready) {
 			
@@ -91,23 +92,21 @@ namespace Core.Network
 
 			}
 
-			TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage (requestMessage);
+			BroadcastMessage message = new BroadcastMessage (requestMessage);
 
-			if (message.Headers == null) { message.Headers = new Dictionary<string, object> (); }
-
-			m_currentMessageId = Guid.NewGuid ();
-			message.Headers.Add (BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, m_currentMessageId.ToString());
-
+			m_currentMessageId = message.Identifier;
 			m_cancelationToken = new CancellationTokenSource();
 			m_socket.ReceiveTimeout = timeout;
 			m_cancelationToken.CancelAfter (timeout);
 
 			m_task = new Task(() => {
 				
-				byte[] requestData = m_serializer.SerializeMessage (message);
+				byte[] requestData = m_serializer.SerializeMessage (new TCPMessage(message));
+
 				if (requestData.Length > MaximumPackageSize) {
 
 					throw new ArgumentException ($"UDP message is to lage ({requestData.Length} bytes). Maximum size is {MaximumPackageSize} bytes. ");
+				
 				}
 
 				if (requestData.Length != m_socket.SendTo (requestData, m_host)) {
@@ -158,10 +157,8 @@ namespace Core.Network
 
 				int length = m_socket.ReceiveFrom (buffer, ref remoteHost);
 				INetworkMessage response = m_serializer.DeserializePackage (new MemoryStream (buffer, 0, length));
-				object responseKey = null;
 
-				if ((response.Headers?.TryGetValue(BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, out responseKey) ?? false) &&
-					m_currentMessageId.ToString() != responseKey.ToString()) {
+				if (m_currentMessageId?.ToString() != response.GetBroadcastMessageKey()) {
 				
 					// Invalid message id header fields. This message was not a reply for something I recently sent.
 					continue;

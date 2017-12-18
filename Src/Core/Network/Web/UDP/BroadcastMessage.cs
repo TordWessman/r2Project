@@ -18,6 +18,8 @@
 //
 using System;
 using System.Net;
+using System.Collections.Generic;
+using MessageIdType = System.String;
 
 namespace Core.Network
 {
@@ -37,10 +39,21 @@ namespace Core.Network
 		/// An unique identifier in the payload allowing messages to be tracked back to it's origin.
 		/// </summary>
 		/// <value>The identifier.</value>
-		public Guid Identifier { get; set; }
+		public String Identifier { 
+
+			get { return Headers [BroadcastMessageUniqueIdentifierHeaderKey].ToString (); } 
+
+			set {
+
+				if (Headers == null) { Headers = new Dictionary<string, object> (); }
+				Headers [BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey] = value;
+
+			}
+
+		}
 
 		/// <summary>
-		/// The endpoint from where this message was sent.
+		/// The endpoint from where this message was sent. This information is typically set on the receiver side ands hould not be included in the message.
 		/// </summary>
 		/// <value>The origin.</value>
 		public IPEndPoint Origin { get; set; }
@@ -50,16 +63,51 @@ namespace Core.Network
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="origin">Origin.</param>
-		public BroadcastMessage(INetworkMessage message, IPEndPoint origin) {
+		public BroadcastMessage(INetworkMessage message, IPEndPoint origin = null) {
 		
 			Code = message.Code;
 			Destination = message.Destination;
-			Headers = message.Headers;
+			Headers = message.Headers ?? new System.Collections.Generic.Dictionary<string, object>();
 			Payload = message.Payload;
 			Origin = origin;
+
+			if (!Headers.ContainsKey (BroadcastMessageUniqueIdentifierHeaderKey)) {
+			
+				Headers.Add (BroadcastMessageUniqueIdentifierHeaderKey, Guid.NewGuid ().ToString());
+
+			}
 
 		}
 
 	}
+
+	public static class INetworkMessageExtensions {
+	
+		/// <summary>
+		/// Determines if the message is a broadcast message.
+		/// </summary>
+		/// <returns><c>true</c> if is broadcast message the specified self; otherwise, <c>false</c>.</returns>
+		/// <param name="self">Self.</param>
+		public static bool IsBroadcastMessage(this INetworkMessage self) {
+		
+			return self.GetBroadcastMessageKey() != null;
+				
+		}
+
+		/// <summary>
+		/// Returns the unique message id for this message if it's a broadcast message or null if not.
+		/// </summary>
+		/// <returns>The broadcast message key.</returns>
+		/// <param name="self">Self.</param>
+		public static MessageIdType GetBroadcastMessageKey(this INetworkMessage self) {
+		
+			object responseKey = null;
+
+			return self.Headers?.TryGetValue (BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, out responseKey) == true ? responseKey?.ToString() : null;
+
+		}
+
+	}
+
 }
 

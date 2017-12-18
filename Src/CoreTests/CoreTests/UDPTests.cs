@@ -60,7 +60,7 @@ namespace Core.Tests
 
 			bool didReceiveResponse = false;
 
-			var guid = client.Broadcast (new TCPMessage () { Destination = "should not be found" }, 2000, (response, error) => {
+			var guid = client.Broadcast (new TCPMessage () { Destination = "should not be found" }, (response, error) => {
 				
 				Assert.IsNull(error);
 				Assert.AreEqual (WebStatusCode.NotFound.Raw(), (response.Code));
@@ -68,7 +68,7 @@ namespace Core.Tests
 
 			});
 
-			Thread.Sleep (2500);
+			client.BroadcastTask.Wait ();
 
 			Assert.True (didReceiveResponse);
 			didReceiveResponse = false;
@@ -91,7 +91,7 @@ namespace Core.Tests
 
 			});
 
-			guid = client.Broadcast (request, 2000, (response, error) => {
+			guid = client.Broadcast (request, (response, error) => {
 
 				Assert.IsNull(error);
 				Assert.AreEqual (4242, response.Code);
@@ -100,7 +100,7 @@ namespace Core.Tests
 			
 			});
 
-			Thread.Sleep (2500);
+			client.BroadcastTask.Wait ();
 
 			Assert.True (didReceiveResponse);
 
@@ -143,7 +143,7 @@ namespace Core.Tests
 
 			Thread.Sleep (1000);
 
-			Log.t (h.Broadcaster.BroadcastTask.Exception?.StackTrace);
+			Log.t (((UDPBroadcaster) h.Broadcaster).BroadcastTask.Exception?.StackTrace);
 
 			Thread.Sleep (1000);
 

@@ -19,6 +19,7 @@
 using System;
 using Core.Device;
 using System.Threading.Tasks;
+using MessageIdType = System.String;
 
 namespace Core.Network
 {
@@ -35,13 +36,13 @@ namespace Core.Network
 		/// <param name="message">Message.</param>
 		/// <param name="timeout">Timeout.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		Guid Broadcast (INetworkMessage message, int timeout = 0, Action<BroadcastMessage, Exception> responseDelegate = null);
+		MessageIdType Broadcast (INetworkMessage message, Action<BroadcastMessage, Exception> responseDelegate = null, int timeout = 2000);
 
 		/// <summary>
 		/// Contains the task used for broadcast requests
 		/// </summary>
 		/// <value>The broadcast task.</value>
-		Task BroadcastTask { get; }
+		//Task BroadcastTask { get; }
 	}
 
 }
