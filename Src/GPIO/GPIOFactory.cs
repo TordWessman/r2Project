@@ -97,7 +97,9 @@ namespace GPIO
 		private void ReservePort (RaspberryPiDotNet.GPIO port) {
 			
 			if (m_ioPortsUsed [(int)port.Pin]) {
-				throw new InvalidOperationException ("Port: " + port + " is allready used!");
+				
+				throw new InvalidOperationException ($"Port: {port } is already used!");
+			
 			}
 			
 			m_ioPortsUsed [(int)port.Pin] = true;
