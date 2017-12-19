@@ -26,16 +26,20 @@ using System.Linq;
 
 namespace Core.Network
 {
-	public abstract class ServerBase : DeviceBase,  IWebServer
+	public abstract class ServerBase : DeviceBase,  IWebServer, ITaskMonitored
 	{
 
 		int m_port;
 		private bool m_shouldRun;
-		private Task m_service;
-
+		private Task m_serviceTask;
 		private IList<IWebEndpoint> m_endpoints;
 
 		protected bool ShouldRun { get { return m_shouldRun; } }
+
+		/// <summary>
+		/// The task used by the service
+		/// </summary>
+		protected Task ServiceTask { get {return m_serviceTask; } }
 
 		public ServerBase (string id, int port) : base(id)
 		{
@@ -72,7 +76,7 @@ namespace Core.Network
 		public override void Start () {
 
 			m_shouldRun = true;
-			m_service = Task.Factory.StartNew (Service);
+			m_serviceTask = Task.Factory.StartNew (Service);
 
 		}
 
@@ -93,6 +97,13 @@ namespace Core.Network
 			Cleanup ();
 		
 		}
+
+		#region ITaskMonitored implementation
+		public IDictionary<string,Task> GetTasksToObserve ()
+		{
+			return new Dictionary<string, Task>() { { Identifier, ServiceTask} };
+		}
+		#endregion
 
 	}
 

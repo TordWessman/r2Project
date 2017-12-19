@@ -25,6 +25,7 @@ namespace Core
 {
 	public interface ITaskMonitored
 	{
+		
 		IDictionary<string,Task> GetTasksToObserve();
 		
 	}

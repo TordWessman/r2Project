@@ -36,8 +36,7 @@ namespace PushNotifications
 
 		public ApplePushNotificationFacade (string id,  string certFileName, string password) : base (id)
 		{
-
-
+			
 			if (!File.Exists (certFileName)) {
 			
 				throw new IOException ($"A push notification certificate with name '{certFileName}' could not be found.");
