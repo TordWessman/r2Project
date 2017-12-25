@@ -97,11 +97,11 @@ namespace Core
 
 				if (members.Length == 0) { 
 
-					throw new ArgumentException ("Property '{property}' not found in '{target}'.");
+					throw new ArgumentException ($"Property '{property}' not found in '{target}'.");
 
 				} else if (!(members [0] is FieldInfo)) {
 
-					throw new ArgumentException ("Unable to access property '{property}' in '{target}'.");
+					throw new ArgumentException ($"Unable to access property '{property}' in '{target}'.");
 
 				}
 
@@ -135,11 +135,11 @@ namespace Core
 
 				if (members.Length == 0) { 
 
-					throw new ArgumentException ("Property '{property}' not found in '{target}'.");
+					throw new ArgumentException ($"Property '{property}' not found in '{target}'.");
 
 				} else if (!(members [0] is FieldInfo)) {
 
-					throw new ArgumentException ("Unable to access property '{property}' in '{target}'.");
+					throw new ArgumentException ($"Unable to access property '{property}' in '{target}'.");
 
 				}
 
