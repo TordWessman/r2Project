@@ -171,6 +171,7 @@ namespace Core.Network
 		public HostManager CreateHostManager(string id, int port, string destination, IDeviceManager deviceManager) {
 		
 			return new HostManager (id, port, destination, deviceManager, this);
+		
 		}
 
 	}

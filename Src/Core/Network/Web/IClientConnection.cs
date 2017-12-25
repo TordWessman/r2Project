@@ -19,6 +19,7 @@
 using System;
 using System.Net;
 using Core.Device;
+using Newtonsoft.Json;
 
 namespace Core.Network
 {
@@ -54,6 +55,7 @@ namespace Core.Network
 		/// Returns the other end of the line.
 		/// </summary>
 		/// <value>The endpoint.</value>
+		[JsonIgnoreAttribute] // IPEndPoint is not very serializable..
 		IPEndPoint Endpoint { get; } 
 
 	}

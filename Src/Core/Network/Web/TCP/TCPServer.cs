@@ -38,6 +38,12 @@ namespace Core.Network
 		private ITCPPackageFactory<TCPMessage> m_packageFactory;
 		private IList<IClientConnection> m_connections;
 
+		/// <summary>
+		/// Returns all current connections
+		/// </summary>
+		/// <value>The connections.</value>
+		public IEnumerable<IClientConnection> Connections { get { return m_connections; } }
+
 		public TCPServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id, port)
 		{
 

@@ -123,6 +123,8 @@ namespace Core.Network
 
 				m_readError = ex;
 
+				Log.x (ex);
+
 				if (ex.InnerException is SocketException) {
 				
 					Log.d($"TCP connection aborted ( code{(ex.InnerException as SocketException).SocketErrorCode} ).");

@@ -148,7 +148,7 @@ namespace Core.Network
 
 				}
 
-			}, BroadcastTimeout);
+			}, BroadcastTimeout * 1);
 
 		}
 

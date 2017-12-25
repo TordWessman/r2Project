@@ -117,12 +117,16 @@ namespace Core.Network
 
 				}
 
-				// Make sure the request returns the expected broadcast key.
-				BroadcastMessage responseBroadcast = new BroadcastMessage(response);
-				responseBroadcast.Identifier = broadcastMessageUniqueIdentifierHeaderValue;
+				if (ShouldRun) {
+				
+					// Make sure the request returns the expected broadcast key.
+					BroadcastMessage responseBroadcast = new BroadcastMessage(response);
+					responseBroadcast.Identifier = broadcastMessageUniqueIdentifierHeaderValue;
 
-				byte[] responseData = m_packageFactory.SerializeMessage (new TCPMessage(responseBroadcast)); 
-				m_listener.Send (responseData, responseData.Length, client);
+					byte[] responseData = m_packageFactory.SerializeMessage (new TCPMessage(responseBroadcast)); 
+					m_listener.Send (responseData, responseData.Length, client);
+
+				}
 
 			}
 		

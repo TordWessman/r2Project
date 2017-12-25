@@ -154,8 +154,9 @@ namespace Core.Network
 			EndPoint remoteHost = (EndPoint)m_host;
 
 			while (!m_cancelationToken.Token.IsCancellationRequested) {
-
+				
 				int length = m_socket.ReceiveFrom (buffer, ref remoteHost);
+
 				INetworkMessage response = m_serializer.DeserializePackage (new MemoryStream (buffer, 0, length));
 
 				if (m_currentMessageId?.ToString() != response.GetBroadcastMessageKey()) {
