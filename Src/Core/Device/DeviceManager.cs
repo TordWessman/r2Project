@@ -58,29 +58,29 @@ namespace Core.Device
 		/// Add the device internally
 		/// </summary>
 		/// <param name="newDevice">New device.</param>
-		private void _Add (IDevice newDevice) {
+		private void _Add (IDevice device) {
+			
 			lock (m_lock) {
 
-				if (m_devices.ContainsKey (newDevice.Guid)) {
+				IDevice existingDevice = m_devices.Values.Where (d => d.Identifier == device.Identifier).FirstOrDefault ();
+				if (existingDevice != null) {
 
-					Log.w ("Replacing device duplicated device with id: " + newDevice.Identifier);
-					m_devices.Remove (newDevice.Guid);
-					m_devices.Add (newDevice.Guid, newDevice);
-				
-				} else {
-				
-					m_devices.Add (newDevice.Guid, newDevice);
+					Log.w ($"Replacing device duplicated device with id `{device.Identifier}`");
+					m_devices.Remove (existingDevice.Guid);
 				
 				}
 
+				m_devices.Add (device.Guid, device);
+
+
 				// Device Manager will be able to propagate changes in any device to it's own observers. 
-				newDevice.AddObserver (this);
+				device.AddObserver (this);
 			
 			}
 
 			foreach (IDeviceManagerObserver observer in m_observers) {
 			
-				observer.DeviceAdded (newDevice);
+				observer.DeviceAdded (device);
 
 			}
 
