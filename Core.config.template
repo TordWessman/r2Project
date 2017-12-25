@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- THIS IS AN EXAMPLE IMPLEMENTATION FOR THE PROJECT. IT MUST BE LOCATED AT THE PROJECT ROOT FOLDER (probably the parent folder) AND BE NAMED "Core.config" -->
 <Configuration>
 	<Paths>
 		<r2ProjectDirectory relative="./r2Project" comment="r2 Project main directory.">
@@ -7,14 +6,13 @@
 		</r2ProjectDirectory>
 
 		<Common relative="./r2Project/Common" comment="Shared project resources path."/>
-		<!-- RubyLib path should be pointing at the location where the standard ruby components resides. -->
-		<RubyLib comment="Standard ruby libraries." absolute="/usr/lib/ruby/2.1.0" />
 		<TestData relative="./r2Project/TestData" comment="Contains resource files for tests."/>
-		<Resources comment="Resource base path." relative="./Resources">
+		<Resources comment="Resource base path." relative="../r2/Resources">
 			<Scripts comment="contains various types of runtime scripts">
 				<Ruby comment="Here be all Ruby script files.">
-					<Setup comment="Here be ruby setup files."/>
+					<Setup comment="Here be ruby setup filex."/>
 				</Ruby>
+				<Python comment="Here be all Python script files." />
 				<Shell/>
 				<Sphinx ignore="true">
 					<lib/>
@@ -39,29 +37,34 @@
 	</Paths>
 	<Identifiers>
 		<Core>core</Core>
-		<DeviceManager comment="Keeps track of all IDevice implementations. Should not be changed, since scripts are accessing it.">device_manager</DeviceManager>
+		<DeviceManager comment="Keeps track of all IDevice implementations.">device_manager</DeviceManager>
 		<HostManager comment="Host manager. Keep tracks of/receive hello packages from remote hosts and broadcasts existance.">hostmgr</HostManager>
 		<Server>server</Server>
-		<ScriptFactory comment="Responsible for creating new ruby scripts">script_factory</ScriptFactory>
-		<PSF comment="Responsible for creating new python scripts">psf</PSF>
+		<RubyScriptFactory comment="Responsible for creating new ruby scripts">ruby_script_factory</RubyScriptFactory>
+		<PythonScriptFactory comment="Responsible for creating new python scripts">python_script_factory</PythonScriptFactory>
 		<Memory comment="Interface for retrieving memories">memory</Memory>
 		<MemoryBus comment="communicates memories">membus</MemoryBus>
-		<Serializer>serializer</Serializer>
+		<Serializer comment="Used to serialize and deserialize data packages">data_serializer</Serializer>
 		<DeviceFactory comment="default factory instance for general devices">device_factory</DeviceFactory>
 		<RunLoop comment="The object representing the run loop.">run_loop</RunLoop>
 		<RunLoopScript comment="the id of the script running the show (probably used by the run_loop to interpret stuff).">run_loop_script</RunLoopScript>
 		<TaskMonitor comment="keeps track of all running processes">task_monitor</TaskMonitor>
-		<Logger>log</Logger>
+		<Logger comment="Main logging interface">log</Logger>
+		<FileLogger comment="log to file">file_logger</FileLogger>
 		<ConsoleLogger>console_logger</ConsoleLogger>
 		<Database>sqlite_database</Database>
+		<DataFactory comment="Generic factory for... data stuff...">data_factory</DataFactory>
 		<WebFactory>web_factory</WebFactory>
+		<TcpServer comment="TCP connections be here.">tcp_server</TcpServer>
+		<UdpServer comment="Handling broadcast messages">udp_server</UdpServer>
 	</Identifiers>
 	<Consts>
+		<FileLoggerDefaultFile comment="The default file logger output file">test_output.txt</FileLoggerDefaultFile>
 		<MaxConsoleHistory type="int">200</MaxConsoleHistory>
-		<HttpPort type="int" comment="Default port for http server">4242</HttpPort>
-		<DefaultRpcPort type="int" comment="default server port">1234</DefaultRpcPort>
-		<BroadcastMgrPort type="int" comment="the port used by the host manager to broadcast">9050</BroadcastMgrPort>
-		<BroadcastMgrTcpPort type="int" comment="tcp listener port for broadcast manager">9051</BroadcastMgrTcpPort>
-		<DefaultPassword comment="Default password for RPC operations.">Din mamma!</DefaultPassword>
+		<HttpPort type="int" comment="Default port for http server">10000</HttpPort>
+		<DefaultTcpPort type="int" comment="default TCP port">1234</DefaultTcpPort>
+		<DefaultBroadcastPort type="int" comment="the port used by the host manager to broadcast">9050</DefaultBroadcastPort>
+		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7/Lib;/usr/lib/python2.7</PythonPaths>
+		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation)">"/usr/lib/ruby/2.3.0"</RubyPaths>
 	</Consts>
 </Configuration>

@@ -40,10 +40,19 @@ namespace Core.Tests
 
 			base.Setup ();
 
-			m_rubyScriptFactory = new RubyScriptFactory ("rf", BaseContainer.DEFAULT_RUBY_PATHS, m_deviceManager);
+			Log.t ("mamma");
+			Log.t ("L: " + BaseContainer.RubyPaths.Count);
+
+			foreach (string path in BaseContainer.RubyPaths) {
+			
+				Log.t (path);
+
+			}
+
+			m_rubyScriptFactory = new RubyScriptFactory ("rf", BaseContainer.RubyPaths, m_deviceManager);
 			m_rubyScriptFactory.AddSourcePath (Settings.Paths.TestData ());
 
-			m_pythonScriptFactory = new PythonScriptFactory ("rf", new List<string>(){Settings.Paths.PythonLib(),  Settings.Paths.Common ()}, m_deviceManager);
+			m_pythonScriptFactory = new PythonScriptFactory ("rf", BaseContainer.PythonPaths , m_deviceManager);
 			m_pythonScriptFactory.AddSourcePath (Settings.Paths.TestData ());
 			m_pythonScriptFactory.AddSourcePath (Settings.Paths.Common ());
 

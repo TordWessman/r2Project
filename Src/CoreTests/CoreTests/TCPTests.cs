@@ -32,6 +32,8 @@ namespace Core.Tests
 	public class TCPTests : NetworkTests
 	{
 	
+		const int tcp_port = 4444;
+
 		[TestFixtureSetUp]
 		public override void Setup() {
 
@@ -110,7 +112,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServerBasics() {
 
-			IWebServer s = factory.CreateTcpServer ("s", 1111);
+			IWebServer s = factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
 			Thread.Sleep (100);
 			Assert.IsTrue (s.Ready);
@@ -122,7 +124,7 @@ namespace Core.Tests
 			s.Start ();
 			Thread.Sleep (100);
 
-			IMessageClient client = factory.CreateTcpClient ("c", "localhost", 1111);
+			IMessageClient client = factory.CreateTcpClient ("c", "localhost", tcp_port);
 
 			client.Start ();
 			Assert.IsTrue (client.Ready);
@@ -142,13 +144,12 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServer_Ruby_Endpoint() {
 
-			IWebServer s = factory.CreateTcpServer ("s", 4243);
+			IWebServer s = factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
 			Thread.Sleep (100);
 
 			// Set up scripts and add endpoint
-			var scriptFactory = new RubyScriptFactory ("sf", new List<string>() { Settings.Paths.RubyLib(),
-				Settings.Paths.Common()}, m_deviceManager);
+			var scriptFactory = new RubyScriptFactory ("sf", BaseContainer.RubyPaths, m_deviceManager);
 			scriptFactory.AddSourcePath (Settings.Paths.TestData ());
 
 			// see test_server.rb
@@ -159,7 +160,7 @@ namespace Core.Tests
 
 			// Do the message passing
 
-			IMessageClient client = factory.CreateTcpClient ("c", "localhost", 4243);
+			IMessageClient client = factory.CreateTcpClient ("c", "localhost", tcp_port);
 
 			client.Start ();
 
@@ -196,7 +197,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServer_DeviceRouter() {
 
-			IWebServer s = factory.CreateTcpServer ("s", 4244);
+			IWebServer s = factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";
@@ -204,9 +205,9 @@ namespace Core.Tests
 			rec.AddDevice (dummyObject);
 			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
 			s.AddEndpoint (ep);
-			Thread.Sleep (100);
+			Thread.Sleep (500);
 		
-			var client = factory.CreateTcpClient ("c", "localhost", 4244);
+			var client = factory.CreateTcpClient ("c", "localhost", tcp_port);
 			client.Start ();
 
 			//Client should be connected
@@ -219,6 +220,7 @@ namespace Core.Tests
 				Identifier = "dummy_device"};
 			
 			TCPMessage  message = new TCPMessage () { Destination = "/test", Payload = requestPayload};
+			Thread.Sleep (500);
 			INetworkMessage response = client.Send (message);
 
 			Assert.AreEqual (WebStatusCode.Ok, (WebStatusCode)response.Code); 
@@ -275,7 +277,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCP_Server_broadcast() {
 
-			TCPServer s = (TCPServer) factory.CreateTcpServer ("s", 4244);
+			TCPServer s = (TCPServer) factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
 			//DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			//dummyObject.Bar = "XYZ";
@@ -287,7 +289,7 @@ namespace Core.Tests
 
 			DummyClientObserver observer = new DummyClientObserver ();
 
-			var client = (TCPClient) factory.CreateTcpClient ("c", "localhost", 4244);
+			var client = (TCPClient) factory.CreateTcpClient ("c", "localhost", tcp_port);
 			client.AddObserver(observer);
 			client.Start ();
 
@@ -299,7 +301,7 @@ namespace Core.Tests
 			s.Broadcast (new TCPMessage () { Payload = tmp }, (response, error) => {
 				
 			});
-
+			s.Stop ();
 			Thread.Sleep (2000);
 
 		}

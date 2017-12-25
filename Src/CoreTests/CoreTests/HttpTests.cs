@@ -156,8 +156,7 @@ namespace CoreTests
 
 			var webServer = factory.CreateHttpServer ("test_server", 9999);
 
-			var scriptFactory = new RubyScriptFactory ("sf", new List<string>() { Settings.Paths.RubyLib(),
-				Settings.Paths.Common()}, m_deviceManager);
+			var scriptFactory = new RubyScriptFactory ("sf", BaseContainer.RubyPaths , m_deviceManager);
 
 			scriptFactory.AddSourcePath (Settings.Paths.TestData ());
 

@@ -48,18 +48,29 @@ namespace Core
 		private IScriptFactory<IronScript> m_scriptFactory;
 		private IRunLoop m_runLoop;
 
-		/// <summary>
-		/// Search paths for the script engine.
-		/// </summary>
-		public static readonly ICollection<string> DEFAULT_RUBY_PATHS = new List<string> () {
-			Settings.Paths.Ruby(),
-			Settings.Paths.RubyLib(),
-			Settings.Paths.Common()
-		};
-
 		public IDeviceManager DeviceManager { get { return m_devices; } }
 
 		public ITaskMonitor TaskMonitor { get { return m_taskMonitor; } }
+
+		public static IList<string> RubyPaths {
+		
+			get {
+				var rubyPaths = Settings.Consts.RubyPaths ().Split (new char[] { ';' }).ToList ();
+				rubyPaths.Add (Settings.Paths.Common ());
+				rubyPaths.Add (Settings.Paths.Python ());
+				return rubyPaths;
+			}
+		}
+
+		public static IList<string> PythonPaths {
+
+			get {
+				var pythonPaths = Settings.Consts.PythonPaths ().Split (new char[] { ';' }).ToList ();
+				pythonPaths.Add (Settings.Paths.Common ());
+				pythonPaths.Add (Settings.Paths.Python ());
+				return pythonPaths;
+			}
+		}
 
 		public BaseContainer (string dbFile, int tcpPort = -1) : base (Settings.Identifiers.Core())
 		{
@@ -72,7 +83,7 @@ namespace Core
 			Log.Instantiate(Settings.Identifiers.Logger ());
 
 			Log.Instance.AddLogger (consoleLogger);
-			Log.Instance.AddLogger (new FileLogger("file_logger", "test_output.txt"));
+			Log.Instance.AddLogger (new FileLogger(Settings.Identifiers.FileLogger(), Settings.Consts.FileLoggerDefaultFile()));
 
 			// contains and manages all devices
 			m_devices = new DeviceManager (Settings.Identifiers.DeviceManager ());
@@ -86,7 +97,7 @@ namespace Core
 			m_devices.Add (Log.Instance);
 			m_devices.Add (this);
 
-			var psf = new PythonScriptFactory(Settings.Identifiers.PSF(), new List<string> () {Settings.Paths.PythonLib(), Settings.Paths.Common ()}, m_devices);
+			var psf = new PythonScriptFactory(Settings.Identifiers.PythonScriptFactory(), PythonPaths, m_devices);
 
 			// Point to the defauult ruby script files resides.
 			psf.AddSourcePath (Settings.Paths.Python());
@@ -96,8 +107,8 @@ namespace Core
 			m_devices.Add (psf);
 
 			m_scriptFactory = new RubyScriptFactory (
-				Settings.Identifiers.ScriptFactory(),
-			    DEFAULT_RUBY_PATHS,
+				Settings.Identifiers.RubyScriptFactory(),
+				RubyPaths,
 			    m_devices);
 
 			// Point to the defauult ruby script files resides.
@@ -106,10 +117,6 @@ namespace Core
 			// Point to the common folder.
 			m_scriptFactory.AddSourcePath (Settings.Paths.Common ());
 
-			// Python modules
-			m_scriptFactory.AddSourcePath ("/usr/lib/python2.7/dist-packages");
-			m_scriptFactory.AddSourcePath ("/usr/lib/python2.7/Lib");
-
 			// The run loop script must meet the method requirements of the InterpreterRunLoop.
 			IronScript runLoopScript = m_scriptFactory.CreateScript (Settings.Identifiers.RunLoopScript());
 
@@ -117,8 +124,8 @@ namespace Core
 
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
 			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoop (), runLoopInterpreter, consoleLogger);
-			var dataFactory = m_deviceFactory.CreateDataFactory ("data_factory", new List<string> () {Settings.Paths.Databases()});
-			var serializer = dataFactory.CreateSerialization ("data_serializer", System.Text.Encoding.UTF8);
+			var dataFactory = m_deviceFactory.CreateDataFactory (Settings.Identifiers.DataFactory(), new List<string> () {Settings.Paths.Databases()});
+			var serializer = dataFactory.CreateSerialization (Settings.Identifiers.Serializer(), System.Text.Encoding.UTF8);
 
 			// Set up database and memory
 			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbFile);
@@ -126,8 +133,6 @@ namespace Core
 
 			// Creating a web factory used to create http/websocket related endpoints etc.
 			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory(), serializer);
-
-			IWebServer udpServer = httpFactory.CreateUdpServer ("udp_server", 9875);
 
 			// Add devices to device manager
 			m_devices.Add (runLoopScript);

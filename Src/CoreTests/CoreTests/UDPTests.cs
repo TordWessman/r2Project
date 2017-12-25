@@ -30,6 +30,9 @@ namespace Core.Tests
 	public class UDPTests: NetworkTests
 	{
 
+		const int tcp_port = 4444;
+		const int udp_port = 4445;
+
 		[TestFixtureSetUp]
 		public override void Setup() {
 
@@ -40,9 +43,9 @@ namespace Core.Tests
 		[Test]
 		public void TestSendReceive() {
 
-			var s = factory.CreateUdpServer ("s", 9876);
+			var s = factory.CreateUdpServer ("s", udp_port);
 			DummyEndpoint ep = new DummyEndpoint ("/dummy");
-			UDPBroadcaster client = factory.CreateUdpClient ("c", 9876);
+			UDPBroadcaster client = factory.CreateUdpClient ("c", udp_port);
 
 			(s as UDPServer).AllowLocalRequests = true;
 
@@ -114,8 +117,8 @@ namespace Core.Tests
 
 			// Set up tcp-server
 			var path = "/devices";
-			var tcps = factory.CreateTcpServer ("tcp_server", 4445);
-			var udps = (UDPServer) factory.CreateUdpServer ("udp_server", 4446);
+			var tcps = factory.CreateTcpServer ("tcp_server", tcp_port);
+			var udps = (UDPServer) factory.CreateUdpServer ("udp_server", udp_port);
 			udps.AllowLocalRequests = true;
 
 			tcps.Start ();
@@ -137,7 +140,7 @@ namespace Core.Tests
 
 			DeviceManager remoteDeviceManager = new DeviceManager ("remote_dm");
 
-			HostManager h = factory.CreateHostManager ("h", 4446, path, remoteDeviceManager);
+			HostManager h = factory.CreateHostManager ("h", udp_port, path, remoteDeviceManager);
 
 			h.Broadcast ("tcp_server");
 
@@ -155,6 +158,45 @@ namespace Core.Tests
 			d.HAHA = 42.42d;
 
 			Assert.AreEqual (dummy.HAHA, d.HAHA);
+
+			udps.Stop ();
+			tcps.Stop ();
+
+		}
+
+		[Test]
+		public void TestMultipleBroadcasts() {
+
+			var s = factory.CreateUdpServer ("s", udp_port);
+			DummyEndpoint ep = new DummyEndpoint ("/dummy");
+			UDPBroadcaster client = factory.CreateUdpClient ("c", udp_port);
+
+			(s as UDPServer).AllowLocalRequests = true;
+
+			s.AddEndpoint (ep);
+
+			s.Start ();
+			Thread.Sleep (100);
+			Assert.True (s.Ready);
+
+			bool didReceiveResponse = false;
+
+			for (int i = 0; i < 6; i++) {
+			
+				var guid = client.Broadcast (new TCPMessage () { Destination = "should not be found" }, (response, error) => {
+
+					Assert.IsNull(error);
+					Assert.AreEqual (WebStatusCode.NotFound.Raw(), (response.Code));
+					didReceiveResponse = true;
+
+				}, 500);
+
+				client.BroadcastTask.Wait ();
+
+				Assert.True (didReceiveResponse);
+				didReceiveResponse = false;
+
+			}
 
 		}
 	}
