@@ -28,6 +28,8 @@ namespace Core.Scripting
 
 		private IList<string> m_scriptSourcePaths;
 
+		protected IList<string> ScriptSourcePaths { get { return m_scriptSourcePaths; } }
+
 		public ScriptFactoryBase (string id) : base (id)
 		{
 
@@ -76,6 +78,12 @@ namespace Core.Scripting
 		/// </summary>
 		/// <value>The file extension.</value>
 		protected abstract string FileExtension { get; }
+
+		/// <summary>
+		/// Overridden implementation will be called upon new source path.
+		/// </summary>
+		/// <param name="path">Path.</param>
+		protected virtual void doAddSearchPath(string path) {}
 
 	}
 }

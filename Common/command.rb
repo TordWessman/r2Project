@@ -120,7 +120,7 @@ class MainClass < ScriptBase
 			@go.robot.get("core").remove_script script
 		end
 
-		factory = @go.robot.get("script_factory")
+		factory = @go.robot.get("ruby_script_factory")
 		script = factory.create_script script_name, script_name + ".rb"
 		@go.robot.get("core").add_script script
 

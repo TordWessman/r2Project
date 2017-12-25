@@ -22,6 +22,7 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using Core.Device;
+using System.Linq;
 
 namespace Core.Scripting
 {
@@ -50,6 +51,9 @@ namespace Core.Scripting
 		public override IronScript CreateScript (string id) {
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
+
+			// Add the factorys source paths to the engines search paths.
+			m_engine.SetSearchPaths (m_engine.GetSearchPaths ().Concat (ScriptSourcePaths).ToList());
 
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
