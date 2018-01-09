@@ -26,11 +26,17 @@ namespace Core.Network
 	/// <summary>
 	/// Only used to distinguish failed reads for the BlockingNetworkStream
 	/// </summary>
-	public class BlockingNetworkException: IOException {
+	public class BlockingNetworkException: SocketException {
 
-		public BlockingNetworkException(string message) : base (message) {
-			
+		private string m_message;
+
+		public BlockingNetworkException(string message) : base (10053) {
+		
+			m_message = message;
+
 		}
+
+		public override string Message { get { return m_message; } }
 
 	}
 

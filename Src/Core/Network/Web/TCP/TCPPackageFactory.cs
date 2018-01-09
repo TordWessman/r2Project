@@ -162,8 +162,6 @@ namespace Core.Network
 			PayloadType payloadType = (PayloadType)pt;
 			byte[] payloadData = stream.Read (payloadSize);
 
-			Log.t(m_serialization.Encoding.GetString(payloadData));
-
 			dynamic payload;
 
 			if (payloadType ==  PayloadType.Bytes) {
@@ -177,7 +175,7 @@ namespace Core.Network
 			} else {
 
 				payload = m_serialization.Deserialize(payloadData);
-
+				Log.t($"Deserializing: {m_serialization.Encoding.GetString(payloadData)}");
 			}
 
 			return new TCPMessage () { 

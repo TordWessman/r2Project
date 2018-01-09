@@ -99,7 +99,7 @@ namespace Core.Network
 		}
 
 		private void Disconnect(IClientConnection connection, Exception ex = null) {
-		
+
 			ShouldRun = false;
 			if (m_client.Connected) { m_client.Close (); }
 			if (OnDisconnect != null) { OnDisconnect (this, ex); }
@@ -123,14 +123,14 @@ namespace Core.Network
 
 				m_readError = ex;
 
-				Log.x (ex);
-
-				if (ex.InnerException is SocketException) {
-				
-					Log.d($"TCP connection aborted ( code{(ex.InnerException as SocketException).SocketErrorCode} ).");
+				if (ex is SocketException) {
+					
+					Log.w($"TCP connection aborted. Code: '{(ex as SocketException).SocketErrorCode}'.");
 					Disconnect (this);
 
 				} else {
+
+					Log.x (ex);
 
 					if (Ready && !m_latestResponse.IsBroadcastMessage()) {
 						
@@ -142,7 +142,7 @@ namespace Core.Network
 					
 					} else {
 					
-						Disconnect (this, ex);
+						Disconnect (this, Ready ? ex : null);
 
 					}
 
