@@ -65,9 +65,6 @@ int getValue(Device* device);
 // The base size of response packages (without additional output stored in "content").
 #define PACKAGE_SIZE sizeof(ResponsePackage) - MAX_CONTENT_SIZE
 
-// Use with caution. If defined, serial errors will be printed through serial port.
-//#define PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
-
 // Package "checksum" headers. Shuld initially be sent in the beginning of every transaction. 
 #define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
 

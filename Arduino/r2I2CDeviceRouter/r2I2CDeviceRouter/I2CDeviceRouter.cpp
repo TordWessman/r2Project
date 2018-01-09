@@ -3,6 +3,9 @@
 #include <Arduino.h>
 #include <Servo.h>
 
+// Use with caution. If defined, serial errors will be printed through serial port.
+#define PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
+
 // -- Variables
 Device devices[MAX_DEVICES];
 bool portsInUse[30];

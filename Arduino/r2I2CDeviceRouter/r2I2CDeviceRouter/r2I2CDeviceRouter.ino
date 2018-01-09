@@ -9,7 +9,7 @@
 #include <string.h>
 
 // If defined, serial communication (not I2C) will be used for master/slave communication. 
-#define USE_SERIAL
+//#define USE_SERIAL
 
 // -- Private method declarations
 
