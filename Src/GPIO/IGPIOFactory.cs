@@ -37,16 +37,6 @@ namespace GPIO
 		IInputMeter<double> CreateAnalogInput (string id, int adcPort);
 
 		/// <summary>
-		/// Creates a servo controller (servo hub)
-		/// </summary>
-		/// <returns>The servo controller.</returns>
-		/// <param name="id">Identifier.</param>
-		/// <param name="bus">Bus.</param>
-		/// <param name="address">Address.</param>
-		/// <param name="frequency">Frequency.</param>
-		IServoController CreateServoController (string id, int bus = 1, int address = 0x40, int frequency = 63);
-
-		/// <summary>
 		/// Creates an input port on the specified pin
 		/// </summary>
 		/// <returns>The input port.</returns>
@@ -61,8 +51,6 @@ namespace GPIO
 		/// <param name="id">Identifier.</param>
 		/// <param name="gpioPort">Gpio port.</param>
 		IOutputPort CreateOutputPort (string id, int gpioPort);
-
-		IDHT11 CreateTempHumidity (string id, int pin);
 
 	}
 }

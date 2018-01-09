@@ -67,7 +67,6 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="GPIOTypes.cs" />
     <Compile Include="IGPIOFactory.cs" />
-    <Compile Include="GPIOFactory.cs" />
     <Compile Include="Input\InputPort.cs" />
     <Compile Include="Output\OutputPort.cs" />
     <Compile Include="Output\IServoController.cs" />
@@ -79,7 +78,6 @@
     <Compile Include="GPIOConfigurationTemplate.cs">
       <DependentUpon>GPIOConfigurationTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="GPIOFactory2.cs" />
     <Compile Include="Output\OutputPort2.cs" />
     <Compile Include="Input\InputPort2.cs" />
     <Compile Include="Input\IDHT11.cs" />
@@ -103,6 +101,9 @@
     <Compile Include="IInputPort.cs" />
     <Compile Include="IOutputPort.cs" />
     <Compile Include="IServo.cs" />
+    <Compile Include="GPIOFactoryFactory.cs" />
+    <Compile Include="PiGPIOFactory.cs" />
+    <Compile Include="PiGPIOFactory2.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

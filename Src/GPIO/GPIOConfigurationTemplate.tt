@@ -18,7 +18,7 @@ XmlDocument doc = GetConfigXml(config[CFILE]); #>
 using System;
 using Core;
 
-namespace Audio {
+namespace GPIO {
 
 <#= GetPathsForDoc(configFileName, doc, baseDir, true) #>
 

@@ -20,13 +20,13 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class ArduinoGPIOFactory: DeviceBase
+	public class ArduinoGPIOFactory: DeviceBase, IGPIOFactory
 	{
 		private ISerialConnection m_connection;
 		private ISerialPackageFactory m_packageFactory;
 		private byte m_deviceCount;
 		private const string SERIAL_CONNECTOR_ID_POSTFIX = "_serial_connector";
-		private const int DEFAULT_BAUD_RATE = 9600;
+		public const int DEFAULT_BAUD_RATE = 9600;
 
 		// port identifier for ISerialConnection
 		private string m_portIdentifier;
@@ -96,6 +96,7 @@ namespace GPIO
 			}
 
 			return response.Id;
+
 		}
 
 		public IInputMeter<double> CreateAnalogInput (string id, int port) {

@@ -29,7 +29,7 @@ namespace GPIO
 	/// <summary>
 	/// PRimitive raspberry pi implementation of an IGPIOFactory
 	/// </summary>
-	public class GPIOFactory: DeviceBase, IGPIOFactory
+	public class PiGPIOFactory: DeviceBase, IGPIOFactory
 	{
 
 		private RaspberryPiDotNet.GPIO m_clck;
@@ -39,20 +39,17 @@ namespace GPIO
 		private Dictionary<int, RaspberryPiDotNet.GPIOPins> m_pinConfiguration;
 
 		private bool[] m_ioPortsUsed;
-		private string m_dataPath;
 
 		/// <summary>
-		/// Instantiation of the factory. Will set up the MCP3008 hub. The `dataPath` is the path to the GPIO resources.
+		/// Instantiation of the factory. Will set up the MCP3008 hub.
 		/// </summary>
 		/// <param name="id">Identifier.</param>
-		/// <param name="dataPath">Data path.</param>
-		public GPIOFactory (string id, string dataPath = null) : base (id)
+		public PiGPIOFactory (string id) : base (id)
 		{
 		
 			m_ioPortsUsed = new bool[40];
 			SetUpPinConfiguration ();
 			SetUpMCP3008 ();
-			m_dataPath = dataPath == null ?  null : dataPath.EndsWith(Path.DirectorySeparatorChar.ToString()) ? dataPath : dataPath + Path.DirectorySeparatorChar;
 
 		}
 
@@ -113,7 +110,15 @@ namespace GPIO
 				            m_spiOut,
 			                     m_spiS);
 		}
-		
+
+		/// <summary>
+		/// Creates a servo controller (servo hub)
+		/// </summary>
+		/// <returns>The servo controller.</returns>
+		/// <param name="id">Identifier.</param>
+		/// <param name="bus">Bus.</param>
+		/// <param name="address">Address.</param>
+		/// <param name="frequency">Frequency.</param>
 		public IServoController CreateServoController (string id, int bus = 1, int address = 0x40, int frequency = 63) {
 			return new PCA9685ServoController (id, bus, address, frequency);
 		}

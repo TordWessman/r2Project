@@ -25,10 +25,13 @@ namespace GPIO
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		private static extern  byte[] r2I2C_get_response();
 
+		public const int DEFAULT_BUS = 1;
+		public const int DEFAULT_PORT = 0x4;
+
 		private int m_bus;
 		private int m_port;
 
-		public R2I2CMaster (string id, int bus, int port): base (id)
+		public R2I2CMaster (string id, int bus = DEFAULT_BUS, int port = DEFAULT_PORT): base (id)
 		{
 
 			m_bus = bus;

@@ -23,7 +23,10 @@ using System.Collections.Generic;
 
 namespace GPIO
 {
-	public class GPIOFactory2 : DeviceBase, IGPIOFactory
+	/// <summary>
+	/// This factory should replace PiGPIOFactory, since it's using the newer libraries.
+	/// </summary>
+	public class PiGPIOFactory2 : DeviceBase, IGPIOFactory
 	{
 		public readonly IDictionary<int,ConnectorPin> AvailablePorts = new Dictionary<int,ConnectorPin> {
 			{18, ConnectorPin.P1Pin12},
@@ -33,7 +36,7 @@ namespace GPIO
 			{4, ConnectorPin.P1Pin07},
 			{17, ConnectorPin.P1Pin11}
 		};
-		public GPIOFactory2 (string id) : base (id)
+		public PiGPIOFactory2 (string id) : base (id)
 		{
 		}
 
