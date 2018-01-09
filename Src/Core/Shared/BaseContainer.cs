@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using Core.Scripting;
 using System.IO;
 using System.Linq;
-using Core.Network;
+
 
 namespace Core
 {
@@ -144,7 +144,7 @@ namespace Core
 			m_devices.Add (m_scriptFactory);
 			m_devices.Add (m_deviceFactory);
 			m_taskMonitor.AddMonitorable (runLoopScript);
-	
+
 		}
 
 		public void RemoveScript (IScript script)

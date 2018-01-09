@@ -19,7 +19,6 @@
 using System;
 using System.Dynamic;
 using Core.Network;
-using Core.Network;
 
 namespace Core.Device
 {
