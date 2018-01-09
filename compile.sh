@@ -49,11 +49,12 @@ fi
 
 function compileT4 {
 
+	echo "Compiling T4 template '$1'..."
 	eval "$T4_compiler_command $1 -o $2"
 
 	if [ ! $? -eq 0 ];
 	then
-        	echo "Unable to compile T4 template $1."
+        	echo "Unable to compile T4 template '$1'."
         	exit 1
 	fi
 
