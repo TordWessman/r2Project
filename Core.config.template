@@ -57,6 +57,7 @@
 		<WebFactory>web_factory</WebFactory>
 		<TcpServer comment="TCP connections be here.">tcp_server</TcpServer>
 		<UdpServer comment="Handling broadcast messages">udp_server</UdpServer>
+		<IoFactory comment="IO factory factory, responsible for creating IO factories.">io_factory</IoFactory>
 	</Identifiers>
 	<Consts>
 		<FileLoggerDefaultFile comment="The default file logger output file">test_output.txt</FileLoggerDefaultFile>
