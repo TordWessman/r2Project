@@ -148,7 +148,9 @@ namespace Core.Network
 			m_listener.Stop ();
 			m_listener = null;
 
-			m_connections.AsParallel ().ForAll ((client) => {
+			IList<IClientConnection> connections = m_connections;
+
+			connections.AsParallel ().ForAll ((client) => {
 			
 				client.Stop ();
 
