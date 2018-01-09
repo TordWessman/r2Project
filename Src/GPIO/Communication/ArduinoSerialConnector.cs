@@ -31,7 +31,7 @@ namespace GPIO
 		/// <summary>
 		/// The package headers used as "checksum". Defined in the source code for the Arduino slave in r2I2CDeviceRouter.h (PACKAGE_HEADER_IDENTIFIER).
 		/// </summary>
-		public const byte[] PackageHeader = { 0xF0, 0x0F, 0xF1 };
+		public readonly byte[] PackageHeader = { 0xF0, 0x0F, 0xF1 };
 
 		private SerialPort m_serialPort;
 		public const int DEFAULT_BAUD_RATE = 9600;
