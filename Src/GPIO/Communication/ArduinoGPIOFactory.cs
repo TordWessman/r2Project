@@ -83,17 +83,16 @@ namespace GPIO
 		/// <param name="type">Type.</param>
 		private byte Create(string id, DeviceType type, params byte[] ports) {
 
-			if (!Ready) {
+			if (!Ready) { throw new System.IO.IOException ("Communication not started."); }
 
-				throw new System.IO.IOException ("Communication not started.");
-			}
+			DeviceRequestPackage request = m_packageFactory.CreateDevice (m_deviceCount++, type, ports);
+			byte[] responseData = m_connection.Send (request.ToBytes ());
 
-			DeviceResponsePackage response = new DeviceResponsePackage (m_connection.Send (m_packageFactory.CreateDevice (m_deviceCount++, type, ports).ToBytes ()));
+			if (responseData.Length == 0) { throw new System.IO.IOException ("Response length was 0 for GPIO message."); }
 
-			if (response.IsError) {
+			DeviceResponsePackage response = new DeviceResponsePackage (responseData);
 
-				throw new System.IO.IOException ($"Unable to create device: {response.Value}");
-			}
+			if (response.IsError) { throw new System.IO.IOException ($"Unable to create device: {response.Value}"); }
 
 			return response.Id;
 

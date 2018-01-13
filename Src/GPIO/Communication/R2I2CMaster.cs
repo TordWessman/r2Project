@@ -28,6 +28,21 @@ namespace GPIO
 		public const int DEFAULT_BUS = 1;
 		public const int DEFAULT_PORT = 0x4;
 
+		/// <summary>
+		/// Defined in r2I2C.h
+		/// </summary>
+		public enum I2CError: int {
+		
+			BusError = -1,
+			WriteError = -2,
+			ReadError = -4,
+			// Returned if an receive/send operation has been commenced after should_run has been set to false. 
+			ShouldNotRun = -8,
+			// The receive/send operation was busy.
+			Busy = -16,
+
+		}
+
 		private int m_bus;
 		private int m_port;
 
@@ -41,7 +56,7 @@ namespace GPIO
 
 			if (status < 0) {
 			
-				throw new System.IO.IOException ($"Unable to open I2C bus {bus} and port {port}. Status: {status}.");
+				throw new System.IO.IOException ($"Unable to open I2C bus {bus} and port {port}. Type: {(I2CError)status}.");
 
 			}
 

@@ -62,13 +62,19 @@ namespace GPIO
 		// Contains the response data (value, error message or null).
 		public byte[] Content;
 
+		private const int POSITION_HOST = 0;
+		private const int POSITION_ACTION = 1;
+		private const int POSITION_ID = 2;
+		private const int POSITION_CONTENT_LENGTH = 3;
+		private const int POSITION_CONTENT = 4;
+
 		public DeviceResponsePackage(byte[] response) {
 		
-			Host = response [0];
-			Action = response [1];
-			Id = response [2];
-			int contentLength = response [3];
-			Content = response.Skip (4).Take (contentLength)?.ToArray() ?? new byte[]{};
+			Host = response [POSITION_HOST];
+			Action = response [POSITION_ACTION];
+			Id = response [POSITION_ID];
+			int contentLength = response [POSITION_CONTENT_LENGTH];
+			Content = contentLength > 0 ? response.Skip (POSITION_CONTENT).Take (contentLength)?.ToArray() ?? new byte[]{} : new byte[]{};
 
 		}
 

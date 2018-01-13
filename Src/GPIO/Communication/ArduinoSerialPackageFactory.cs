@@ -28,7 +28,8 @@ namespace GPIO
 
 		const int MAX_CONTENT_SIZE = 100;
 
-		readonly byte[] VALID_ANALOGUE_PORTS_ON_ARDUINO = { 14, 15, 16, 17, 18, 19 };
+		// ATMEGA 328-specific constraints. 18 & 19 will not be available if running I2C, since they are used as SDA and SCL on the ATMEGA 328 board.
+		public readonly byte[] VALID_ANALOGUE_PORTS_ON_ARDUINO = { 14, 15, 16, 17, 18, 19 };
 
 		public DeviceRequestPackage CreateDevice(byte remoteDeviceId, DeviceType type, byte[] ports) {
 
