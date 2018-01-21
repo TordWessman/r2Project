@@ -1,7 +1,7 @@
-
 #include "r2I2CDeviceRouter.h"
 #include <Arduino.h>
 #include <Servo.h>
+#include "Dht11.h"
 
 // -- Variables
 Device devices[MAX_DEVICES];
@@ -132,7 +132,14 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
          device.object = (void *)servo;
        }
        break;
-       
+  case DEVICE_TYPE_DHT11:
+       { 
+         device.IOPorts[0] = input[0];
+         Dht11 *dht11 =  new Dht11(device.IOPorts[0]);
+         device.object = (void *)dht11;
+       }
+       break;
+    
   default:
   
     err("Unable to create device. Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND);
@@ -146,25 +153,50 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
   
 }
 
-int getValue(Device* device) {
+int* getValue(Device* device) {
 
+  int *values = (int *)malloc(RESPONSE_VALUE_CONTENT_SIZE);
+  
+  for (int i = 0; i < RESPONSE_VALUE_COUNT; i++) { values [i] = 0; }
+  
   switch (device->type) {
     
     case DEVICE_TYPE_DIGITAL_INPUT:
-      return digitalRead(device->IOPorts[0]);  
+      values[0] = digitalRead(device->IOPorts[0]);   
+      break;
    case DEVICE_TYPE_ANALOGUE_INPUT:
-     return analogRead(device->IOPorts[0]);
+     values[0] = analogRead(device->IOPorts[0]);
+     break;
    case DEVICE_TYPE_HCSR04_SONAR:
      digitalWrite(device->IOPorts[HCSR04_SONAR_TRIG_PORT], HIGH); //Trigger ultrasonic detection 
      delayMicroseconds(10); 
      digitalWrite(device->IOPorts[HCSR04_SONAR_TRIG_PORT], LOW); 
-     return device->IOPorts[HCSR04_SONAR_ECHO_PORT];
-     //return pulseIn(device->IOPorts[HCSR04_SONAR_ECHO_PORT], HIGH) / HCSR04_SONAR_DISTANCE_DENOMIATOR; //Read ultrasonic reflection
-     
+     values[0] = pulseIn(device->IOPorts[HCSR04_SONAR_ECHO_PORT], HIGH) / HCSR04_SONAR_DISTANCE_DENOMIATOR; //Read ultrasonic reflection
+     break;
+   case DEVICE_TYPE_DHT11:
+   {
+       Dht11 *sensor = ((Dht11 *) device->object); 
+       switch (sensor->read()) {
+          case Dht11::OK:
+            values[DHT11_TEMPERATUR_RESPONSE_POSITION] = sensor->getTemperature();
+            values[DHT11_HUMIDITY_RESPONSE_POSITION] = sensor->getHumidity();
+          break;
+       }
+       
+       // silent error
+   }
+      break;
+   default:
+    err("Unable to read from device.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE);
+    break;
+    
+   
+      
+    
   }
   
-  err("Unable to read from device.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE);
-  return 0;
+  
+  return values;
   
 }
 

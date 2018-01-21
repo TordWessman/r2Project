@@ -107,6 +107,7 @@
     <Compile Include="Input\SerialHCSR04Sonar.cs" />
     <Compile Include="Communication\SerialGPIOFactory.cs" />
     <Compile Include="Communication\SerialHost.cs" />
+    <Compile Include="Communication\SerialDHT11.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -76,17 +76,10 @@ ResponsePackage execute(RequestPackage *request) {
   switch(request->action) {
   
     case ACTION_CREATE_DEVICE:
-      
+    {
       response.id = deviceCount++;
-      
-   
-   /*request->args[0] = 42;
-   Serial.println(42);
-   Serial.println("HAHAHA: ");
-   Serial.println(((int)request->args[REQUEST_ARG_CREATE_TYPE_POSITION]) + 1);
-   Serial.println((int)request->args[REQUEST_ARG_CREATE_PORT_POSITION]);
-   Serial.println(((int)request->args[REQUEST_ARG_CREATE_PORT_POSITION + 1]));*/
-   byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
+
+       byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
    
       if (!createDevice(response.id, request->args[REQUEST_ARG_CREATE_TYPE_POSITION], parameters)) {
         
@@ -94,7 +87,9 @@ ResponsePackage execute(RequestPackage *request) {
         
       }
       
-      break;
+    }
+     
+    break;
       
     case ACTION_SET_DEVICE:
       {
@@ -116,8 +111,8 @@ ResponsePackage execute(RequestPackage *request) {
   
         if (device) {
       
-          response.contentSize = sizeof(int);
-          byte *result = asInt16(getValue(device));
+          response.contentSize = RESPONSE_VALUE_CONTENT_SIZE;
+          byte *result = (byte *)getValue(device);
           
           for (int i = 0; i < response.contentSize; i++) { response.content[i] = result[i]; }
           

@@ -32,7 +32,8 @@ namespace GPIO
 		DigitalOutput = 0x2,	// Simple digital output
 		AnalogueInput = 0x3,	// Uses slave's AD converter to read a value
 		Servo = 0x4,			// PWM Servo
-		Sonar_HCSR04 = 0x5		// HC-SR04 Sonar implementation
+		Sonar_HCSR04 = 0x5,		// HC-SR04 Sonar implementation
+		DHT11 = 0x6				// DHT11 Temperature/Humidity sensor
 			
 	}
 
@@ -70,6 +71,9 @@ namespace GPIO
 		private const int POSITION_CONTENT_LENGTH = 3;
 		private const int POSITION_CONTENT = 4;
 
+		// The number of int16 returned from slave upon a ActionType.Get request.
+		private const int NUMBER_OF_RETURN_VALUES = 2;
+
 		// If the POSITION_ACTION bart has this value, the response was an error.
 		private const byte ACTION_ERROR = 0xF0;
 
@@ -103,8 +107,11 @@ namespace GPIO
 				
 				} else if (Action == ActionType.Get) {
 				
-					return Content.ToInt ();
+					int[] values = new int[NUMBER_OF_RETURN_VALUES];
 
+					for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt (i * 2, 2); }
+
+					return values;
 				}
 
 				return null;

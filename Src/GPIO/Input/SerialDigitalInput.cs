@@ -49,7 +49,7 @@ namespace GPIO
 
 		#region IInputPort implementation
 
-		public override bool Value { get { return m_host.GetValue(m_deviceId, m_hostId) == 1; } }
+		public override bool Value { get { return ((int[]) m_host.GetValue(m_deviceId, m_hostId))[0] == 1; } }
 
 		#endregion
 

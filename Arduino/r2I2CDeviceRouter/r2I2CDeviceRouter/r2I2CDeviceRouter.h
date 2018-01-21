@@ -34,6 +34,7 @@ typedef struct Devices {
 #define DEVICE_TYPE_ANALOGUE_INPUT 3
 #define DEVICE_TYPE_SERVO 4
 #define DEVICE_TYPE_HCSR04_SONAR 5
+#define DEVICE_TYPE_DHT11 6
 // Used by responses to indicate an error.
 #define DEVICE_TYPE_ERROR 250
 
@@ -70,8 +71,8 @@ Device* getDevice(byte id);
 // Tries to set the value of a device
 bool setValue(Device* device, int value);
 
-// Returns the value of a device
-int getValue(Device* device);
+// Returns the value(s) of a device
+int* getValue(Device* device);
 
 // REQUEST PARSING: ---------------------------
 
@@ -110,6 +111,16 @@ typedef byte ACTION_TYPE;
 #define HCSR04_SONAR_TRIG_PORT 0x0
 #define HCSR04_SONAR_ECHO_PORT 0x1
 #define HCSR04_SONAR_DISTANCE_DENOMIATOR 58 // I found this number somewhere
+
+// Here be response positions for DHT11
+#define DHT11_TEMPERATUR_RESPONSE_POSITION 0x0;
+#define DHT11_HUMIDITY_RESPONSE_POSITION 0x1;
+
+// Number of arguments to return in response
+#define RESPONSE_VALUE_COUNT 2
+
+// The size of the response on ACTION_GET_DEVICE requests
+#define RESPONSE_VALUE_CONTENT_SIZE (sizeof(int) * RESPONSE_VALUE_COUNT)
 
 // Containing data which should be returned to host after a request.
 struct ResponsePackage {

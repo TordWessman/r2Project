@@ -39,7 +39,7 @@ namespace GPIO
 
 		}
 
-		public int Value { get { return (int) Host.GetValue(DeviceId, HostId); } }
+		public int Value { get { return ((int[]) Host.GetValue(DeviceId, HostId))[0]; } }
 
 	}
 }

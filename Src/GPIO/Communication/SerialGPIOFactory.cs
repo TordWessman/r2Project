@@ -141,6 +141,14 @@ namespace GPIO
 
 		}
 
+		public IDHT11 CreateDht11 (string id, int port, int hostId = ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL) {
+
+			var device = new SerialDHT11(id, (byte)hostId, m_connection, port); 
+			SynchronizeDevice ((byte) hostId, device);
+			return device; 
+
+		}
+
 	}
 
 }
