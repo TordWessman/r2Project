@@ -56,11 +56,19 @@ namespace PushNotifications
 
 			};
 
-			fbs.Check ();
+			try {
+
+				fbs.Check ();
+
+			} catch (System.AggregateException ex) {
+
+				Log.e($"Certificate `{certFileName}` is probably invalid. Exception: `{ex.InnerException?.InnerException?.Message ?? ex.InnerException?.Message ?? ex.Message}`. Apple Push notification is broken.");
+
+			}
 
 		}
 
-		public void QueuePushNotification(IPushNotification notification , IEnumerable<string> deviceIds) {
+		public void QueuePushNotification(IPushNotification notification, IEnumerable<string> deviceIds) {
 
 			if (!AcceptsNotification(notification)) {
 				
