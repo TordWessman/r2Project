@@ -20,20 +20,21 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialDigitalOutput : DeviceBase, IOutputPort
+	public class SerialDigitalOutput : SerialDeviceBase, IOutputPort
 	{
-		//The identifier used by the serial slave device.
-		private byte m_slaveId;
-
+		private int m_port;
 		private bool m_value;
-		private ISerialConnection m_connection;
-		private ISerialPackageFactory m_packageFactory;
 
-		public SerialDigitalOutput (string id, byte slaveId, ISerialConnection connection, ISerialPackageFactory packageFactory): base(id)
-		{
-			m_slaveId = slaveId;
-			m_packageFactory = packageFactory;
-			m_connection = connection;
+		public SerialDigitalOutput (string id, byte hostId, ISerialHost host, int port): base(id, hostId, host) {
+
+			m_port = port;
+
+		}
+			
+		protected override byte Update() {
+
+			return Host.Create ((byte)HostId, SerialDeviceType.DigitalOutput, new byte[]{  (byte)m_port  });
+
 		}
 
 		#region IOutputPort implementation
@@ -43,7 +44,7 @@ namespace GPIO
 			set {
 
 				m_value = value;
-				m_connection.Send (m_packageFactory.SetDevice (m_slaveId, value ? 1 : 0).ToBytes ());
+				Host.Set (DeviceId, HostId, value ? 1 : 0);
 
 			}
 

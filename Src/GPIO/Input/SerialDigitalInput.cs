@@ -20,34 +20,36 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialDigitalInput : DigitalInputBase
+	public class SerialDigitalInput : DigitalInputBase, ISerialDevice
 	{
 
-		//The identifier used by the serial slave device.
-		private byte m_slaveId;
+		// The id of the device at the slave device
+		private byte m_deviceId;
+		// The id for the host where the device resides
+		private byte m_hostId;
 
-		private ISerialConnection m_connection;
-		private ISerialPackageFactory m_packageFactory;
+		// The I/O port on the device
+		private int m_port;
 
-		public SerialDigitalInput (string id, byte slaveId, ISerialConnection connection, ISerialPackageFactory packageFactory): base(id)
+		private ISerialHost m_host;
+
+		// ISerialDevice implementation
+		public void Synchronize() {
+
+			m_deviceId = m_host.Create (m_hostId, SerialDeviceType.DigitalInput, new byte[]{  (byte)m_port  });
+
+		}
+
+		public SerialDigitalInput (string id, byte hostId, ISerialHost host, int port): base(id)
 		{
-			m_slaveId = slaveId;
-			m_packageFactory = packageFactory;
-			m_connection = connection;
+			m_port = port;
+			m_host = host;
+			m_hostId = hostId;
 		}
 
 		#region IInputPort implementation
 
-		public override bool Value {
-
-			get {
-
-				return (double) new DeviceResponsePackage (m_connection.Send (m_packageFactory.GetDevice (m_slaveId).ToBytes())).Value == 1;
-			
-			}
-
-		}
-
+		public override bool Value { get { return m_host.GetValue(m_deviceId, m_hostId) == 1; } }
 
 		#endregion
 

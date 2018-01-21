@@ -9,30 +9,46 @@
 #include <string.h>
 
 // If defined, serial communication (not I2C) will be used for master/slave communication. 
-//#define USE_SERIAL
+#define USE_SERIAL
+
+// Use with caution. If defined, serial errors will be printed through serial port.
+//#define PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
 
 // -- Private method declarations
 
 // Decides what to do with the incoming data. Preferably, it should call "execute".
 ResponsePackage interpret(byte* input);
 
-// Performs the actions requested by the RequestPackage.
+// Performs the actions requested by the RequestPackage.>
 ResponsePackage execute(RequestPackage *request);
 
-// -- Variables
+// Intializes the host if host is DEVICE_HOST_LOCAL, the host affected is self.
+void initialize(byte host);
+
+// Keeps track of the available devices.
+byte deviceCount = 0;
+
+// If true, the host is ready for operation. This flag is set after ACTION_INITIALIZE has been received.
+bool initialized = false;
+
+// -- Variables used by serial communication
 
 byte readBuffer[MAX_RECEIZE_SIZE];
 
-// read input size
+// read input size for serial communication.
 int rs = 0;
 
-// read input counter
+// read input counter for serial communication.
 int rx = 0;
 
-// Flag telling that the header ("checksum") was received
+// Flag telling that the header ("checksum") was received.
 bool headerReceived = false;
+
 // Header read counter
 int rh;
+
+// This is my ID
+byte hostId = DEVICE_HOST_LOCAL;
 
 // Response/Request header
 byte messageHeader[] = PACKAGE_HEADER_IDENTIFIER;
@@ -48,16 +64,35 @@ ResponsePackage execute(RequestPackage *request) {
    response.action = request->action;
    response.host = request->host;
    response.contentSize = 0;
+
+   if (!initialized && request->action != ACTION_INITIALIZE) {
+   
+     // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
+     response.action = ACTION_INITIALIZE;
+     return response;
+     
+   }
    
   switch(request->action) {
   
     case ACTION_CREATE_DEVICE:
       
-      if (!createDevice(request->id, request->args[REQUEST_ARG_CREATE_TYPE_POSITION], &request->args[REQUEST_ARG_CREATE_PORT_POSITION])) {
+      response.id = deviceCount++;
+      
+   
+   /*request->args[0] = 42;
+   Serial.println(42);
+   Serial.println("HAHAHA: ");
+   Serial.println(((int)request->args[REQUEST_ARG_CREATE_TYPE_POSITION]) + 1);
+   Serial.println((int)request->args[REQUEST_ARG_CREATE_PORT_POSITION]);
+   Serial.println(((int)request->args[REQUEST_ARG_CREATE_PORT_POSITION + 1]));*/
+   byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
+   
+      if (!createDevice(response.id, request->args[REQUEST_ARG_CREATE_TYPE_POSITION], parameters)) {
         
         response.action = ACTION_ERROR;
         
-      } 
+      }
       
       break;
       
@@ -96,10 +131,17 @@ ResponsePackage execute(RequestPackage *request) {
         
       }
       break;
+      case ACTION_INITIALIZE:
+      
+        initialize(request->host);
+        response.action = ACTION_INITIALIZATION_OK;
+        return response;
+        
+      break;
     
      default:
      
-        err("Unknown action sent to device router.");
+        err("Unknown action sent to device router.", ERROR_CODE_UNKNOWN_ACTION);
       
   }
   
@@ -113,6 +155,24 @@ ResponsePackage execute(RequestPackage *request) {
   
 }
 
+void initialize(byte host) {
+
+  if (host == hostId) {
+  
+    initialized = true;
+    err(NULL, 0x0);
+    deviceCount = 0;
+    
+    for (int i = 0; i < MAX_DEVICES; i++) { void deleteDevice(byte i); }
+    
+  } else {
+  
+    
+    // TODO: send to remote host
+    
+  }
+  
+}
 
 ResponsePackage interpret(byte* input) {
 
@@ -129,7 +189,7 @@ ResponsePackage interpret(byte* input) {
   }
   
   // Reset error state
-  err(NULL);
+  err(NULL, 0x0);
 
   return out;
   
@@ -140,12 +200,9 @@ void setup() {
 #ifdef USE_SERIAL
   Serial.begin(9600);
 #else
+  Serial.begin(9600);
   R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
 #endif
-
-  err(NULL);
-
-  for (int i = 0; i < MAX_DEVICES; i++) { void deleteDevice(byte i); }
  
 }
 
@@ -155,7 +212,8 @@ void loop() {
   serialCommunicate();
   #else
 	//TODO: Add radio here?
-  delay(1000);
+  delay(2000);
+  Serial.print(".");
   #endif
   
 }
@@ -167,8 +225,7 @@ void i2cReceive(byte* data, int data_size) {
 
   ResponsePackage out = interpret(data); 
   byte *response = (byte *)&out;
-  int responseSize = sizeof(ResponsePackage) - MAX_CONTENT_SIZE + out.contentSize;
-  
+  int responseSize = PACKAGE_SIZE + out.contentSize;
   R2I2C.setResponse(response, responseSize);
   
 }

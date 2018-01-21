@@ -27,14 +27,33 @@ typedef struct Devices {
 
 #define DEVICE_HOST_LOCAL 0xFF
 
-// Available device types.
+// Available device types
 #define DEVICE_TYPE_UNDEFINED 0
 #define DEVICE_TYPE_DIGITAL_INPUT 1
 #define DEVICE_TYPE_DIGITAL_OUTPUT 2
 #define DEVICE_TYPE_ANALOGUE_INPUT 3
 #define DEVICE_TYPE_SERVO 4
 #define DEVICE_TYPE_HCSR04_SONAR 5
+// Used by responses to indicate an error.
+#define DEVICE_TYPE_ERROR 250
+
+// Maximum number of deviceses
 #define MAX_DEVICES 20
+
+// No device with the specified id was found.
+#define ERROR_CODE_NO_DEVICE_FOUND 1
+// The port you're trying to assign is in use.
+#define ERROR_CODE_PORT_IN_USE 2
+// The device type specified was not declared
+#define ERROR_CODE_DEVICE_TYPE_NOT_FOUND 3
+// Too many devices has been allocated
+#define ERROR_CODE_MAX_DEVICES_IN_USE 4
+// This device does not suport set operation
+#define ERROR_CODE_DEVICE_TYPE_NOT_FOUND_SET_DEVICE 5
+// This device does not support read operation
+#define ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE 6
+// Unknown action received
+#define ERROR_CODE_UNKNOWN_ACTION 7
 
 // Removes a device from list and free resources
 void deleteDevice(byte id);
@@ -68,16 +87,20 @@ int getValue(Device* device);
 // Package "checksum" headers. Shuld initially be sent in the beginning of every transaction. 
 #define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
 
-// Type of action to invoke durng requests
+// Type of action to invoke durng requests.
 typedef byte ACTION_TYPE;
 
-// Just to communicate that something went wrong
-#define ACTION_ERROR 0x0
+// Just to communicate that something went wrong.
+#define ACTION_ERROR 0xF0
+// The slave has been restarted and requires reinitialization.
+#define ACTION_REQUIRE_INITIALIZATION 0xF0
 
 // Normal actions.
 #define ACTION_CREATE_DEVICE 0x1
 #define ACTION_SET_DEVICE 0x2
 #define ACTION_GET_DEVICE 0x3
+#define ACTION_INITIALIZE 0x4
+#define ACTION_INITIALIZATION_OK 0x5
 
 // Used by the create request.
 #define REQUEST_ARG_CREATE_TYPE_POSITION 0x0 // Position of the type to create.
@@ -122,7 +145,7 @@ int toInt16(byte *bytes);
 byte *asInt16(int value);
 
 // Set error state with a message.
-void err (const char* msg);
+void err (const char* msg, int code);
 
 // Returns the current error message.
 const char* getError();

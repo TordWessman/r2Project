@@ -21,31 +21,25 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class HCSR04Sonar: DeviceBase, IInputMeter<int>
+	public class SerialHCSR04Sonar: SerialDeviceBase, IInputMeter<int>
 	{
-		//The identifier used by the serial slave device.
-		private byte m_slaveId;
+		private int m_echoPort;
+		private int m_triggerPort;
 
-		private ISerialConnection m_connection;
-		private ISerialPackageFactory m_packageFactory;
+		public SerialHCSR04Sonar (string id, byte hostId, ISerialHost host, int triggerPort, int echoPort): base(id, hostId, host) {
 
-		public HCSR04Sonar (string id, byte slaveId, ISerialConnection connection, ISerialPackageFactory packageFactory): base(id) {
+			m_echoPort = echoPort;
+			m_triggerPort = triggerPort;
+		
+		}
 
-			m_slaveId = slaveId;
-			m_packageFactory = packageFactory;
-			m_connection = connection;
+		protected override byte Update() {
+
+			return Host.Create ((byte)HostId, SerialDeviceType.Sonar_HCSR04, new byte[]{  (byte)m_triggerPort, (byte)m_echoPort  });
 
 		}
 
-		public int Value {
-
-			get {
-
-				return (int) new DeviceResponsePackage (m_connection.Send (m_packageFactory.GetDevice (m_slaveId).ToBytes())).Value;
-
-			}
-
-		}
+		public int Value { get { return (int) Host.GetValue(DeviceId, HostId); } }
 
 	}
 }

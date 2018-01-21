@@ -2,6 +2,7 @@
 using Core.Device;
 using System.Runtime.InteropServices;
 using System.Linq;
+using Core;
 
 namespace GPIO
 {
@@ -23,7 +24,7 @@ namespace GPIO
 		private static extern byte r2I2C_get_response_size();
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		private static extern  byte[] r2I2C_get_response();
+		private static extern  byte r2I2C_get_response(int position);
 
 		public const int DEFAULT_BUS = 1;
 		public const int DEFAULT_PORT = 0x4;
@@ -56,7 +57,21 @@ namespace GPIO
 
 			if (status < 0) {
 			
-				throw new System.IO.IOException ($"Unable to open I2C bus {bus} and port {port}. Type: {(I2CError)status}.");
+				throw new System.IO.IOException ($"Unable to open I2C bus {bus} and port {port}. Error type: {(I2CError)status}.");
+
+			}
+
+		}
+
+		private byte[] Response {
+		
+			get {
+				
+				byte[] response = new byte[r2I2C_get_response_size()];
+
+				for (int i = 0; i < r2I2C_get_response_size (); i++) { response [i] = r2I2C_get_response (i); }
+
+				return response;
 
 			}
 
@@ -65,10 +80,9 @@ namespace GPIO
 		public byte [] Send (byte []data) {
 		
 			int status = r2I2C_send(data, data.Length);
-
 			if (status < 0) {
 
-				throw new System.IO.IOException ($"Unable to send to I2C bus {m_bus} and port {m_port}. Status: {status}.");
+				throw new System.IO.IOException ($"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
 
 			} 
 			
@@ -82,11 +96,19 @@ namespace GPIO
 
 			if (status < 0) {
 
-				throw new System.IO.IOException ($"Unable to receive from I2C bus {m_bus} and port {m_port}. Status: {status}.");
+				throw new System.IO.IOException ($"Unable to receive from I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}..");
 
 			}
 
-			return r2I2C_get_response ().Take (r2I2C_get_response_size()).ToArray();
+
+			byte[] b = Response;
+
+			Log.t ($"Got size: {b.Length}, expected: {r2I2C_get_response_size ()}");
+			for (int i = 0; i < r2I2C_get_response_size (); i++) {
+				byte bbb = Response [i];
+				Log.t ($"Got response : {bbb}");
+			}
+			return Response.Take (r2I2C_get_response_size()).ToArray();
 
 		}
 

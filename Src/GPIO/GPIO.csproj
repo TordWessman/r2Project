@@ -88,7 +88,6 @@
     <Compile Include="Communication\ISerialConnection.cs" />
     <Compile Include="Communication\ArduinoSerialPackageFactory.cs" />
     <Compile Include="Communication\ISerialPackageFactory.cs" />
-    <Compile Include="Communication\ArduinoGPIOFactory.cs" />
     <Compile Include="Communication\SerialDevicePackages.cs" />
     <Compile Include="Input\SerialAnalogInput.cs" />
     <Compile Include="Output\SerialDigitalOutput.cs" />
@@ -96,7 +95,6 @@
     <Compile Include="Input\DigitalInputBase.cs" />
     <Compile Include="Output\SerialServo.cs" />
     <Compile Include="Communication\ArduinoSerialConnector.cs" />
-    <Compile Include="Input\HCSR04Sonar.cs" />
     <Compile Include="IInputMeter.cs" />
     <Compile Include="IInputPort.cs" />
     <Compile Include="IOutputPort.cs" />
@@ -104,6 +102,11 @@
     <Compile Include="GPIOFactoryFactory.cs" />
     <Compile Include="PiGPIOFactory.cs" />
     <Compile Include="PiGPIOFactory2.cs" />
+    <Compile Include="Communication\ISerialHost.cs" />
+    <Compile Include="Communication\SerialDeviceBase.cs" />
+    <Compile Include="Input\SerialHCSR04Sonar.cs" />
+    <Compile Include="Communication\SerialGPIOFactory.cs" />
+    <Compile Include="Communication\SerialHost.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -20,31 +20,23 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialAnalogInput: DeviceBase, IInputMeter<double>
+	public class SerialAnalogInput: SerialDeviceBase, IInputMeter<double>
 	{
-		//The identifier used by the serial slave device.
-		private byte m_slaveId;
+		private int m_port;
 
-		private ISerialConnection m_connection;
-		private ISerialPackageFactory m_packageFactory;
+		public SerialAnalogInput (string id, byte hostId, ISerialHost host, int port): base(id, hostId, host) {
 
-		public SerialAnalogInput (string id, byte slaveId, ISerialConnection connection, ISerialPackageFactory packageFactory): base(id) {
-		
-			m_slaveId = slaveId;
-			m_packageFactory = packageFactory;
-			m_connection = connection;
+			m_port = port;
 
 		}
 
-		public double Value {
+		protected override byte Update() {
 		
-			get {
-			
-				return (double) new DeviceResponsePackage (m_connection.Send (m_packageFactory.GetDevice (m_slaveId).ToBytes())).Value;
-			
-			}
-		
+			return Host.Create ((byte)HostId, SerialDeviceType.AnalogueInput, new byte[]{ (byte)m_port });
+
 		}
+
+		public double Value { get { return (double) Host.GetValue(DeviceId, HostId); } }
 	
 	}
 }

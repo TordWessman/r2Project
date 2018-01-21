@@ -3,9 +3,6 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-// Use with caution. If defined, serial errors will be printed through serial port.
-#define PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
-
 // -- Variables
 Device devices[MAX_DEVICES];
 bool portsInUse[30];
@@ -18,12 +15,13 @@ byte* asInt16(int value) { byte* bytes = (byte *) malloc(2 * sizeof(byte)); byte
 // Error handling
 
 const char* errMsg;
+int errCode = 0;
 
 const char* getError() {
     return errMsg;
 }
 
-void err (const char* msg) {
+void err (const char* msg, int errCode) {
 
 #ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
     if (Serial && msg) { Serial.println(msg); }
@@ -43,7 +41,7 @@ Device* getDevice(byte id) {
   
   }
   
-  err("No device found");
+  err("No device found", ERROR_CODE_NO_DEVICE_FOUND);
   
   return NULL;
   
@@ -76,8 +74,9 @@ bool reservePort(byte IOPort) {
 
   if (portsInUse[IOPort] == true) {
     
-    err("Port in use.");
+    err("Port in use.", ERROR_CODE_PORT_IN_USE);
     return false;
+    
   }
   
   portsInUse[IOPort] = true;
@@ -89,7 +88,7 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
 
   if (id >= MAX_DEVICES) {
   
-    err("Id > MAX_DEVICES");
+    err("Id > MAX_DEVICES", ERROR_CODE_MAX_DEVICES_IN_USE);
     return false;
     
   } 
@@ -118,6 +117,7 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
       break;
       
   case DEVICE_TYPE_HCSR04_SONAR:
+  
       device.IOPorts[HCSR04_SONAR_TRIG_PORT] = input[HCSR04_SONAR_TRIG_PORT];
       device.IOPorts[HCSR04_SONAR_ECHO_PORT] = input[HCSR04_SONAR_ECHO_PORT];
       pinMode(device.IOPorts[HCSR04_SONAR_TRIG_PORT], OUTPUT);
@@ -135,7 +135,7 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
        
   default:
   
-    err("Unable to create device. Device type not found.");
+    err("Unable to create device. Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND);
     return false;
   
   }
@@ -151,20 +151,19 @@ int getValue(Device* device) {
   switch (device->type) {
     
     case DEVICE_TYPE_DIGITAL_INPUT:
-      return digitalRead(device->IOPorts[0]);
-      
+      return digitalRead(device->IOPorts[0]);  
    case DEVICE_TYPE_ANALOGUE_INPUT:
      return analogRead(device->IOPorts[0]);
-   
    case DEVICE_TYPE_HCSR04_SONAR:
      digitalWrite(device->IOPorts[HCSR04_SONAR_TRIG_PORT], HIGH); //Trigger ultrasonic detection 
      delayMicroseconds(10); 
      digitalWrite(device->IOPorts[HCSR04_SONAR_TRIG_PORT], LOW); 
-     return pulseIn(device->IOPorts[HCSR04_SONAR_ECHO_PORT], HIGH) / HCSR04_SONAR_DISTANCE_DENOMIATOR; //Read ultrasonic reflection
+     return device->IOPorts[HCSR04_SONAR_ECHO_PORT];
+     //return pulseIn(device->IOPorts[HCSR04_SONAR_ECHO_PORT], HIGH) / HCSR04_SONAR_DISTANCE_DENOMIATOR; //Read ultrasonic reflection
      
   }
   
-  err("Unable to read from device.");
+  err("Unable to read from device.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE);
   return 0;
   
 }
@@ -182,7 +181,7 @@ bool setValue(Device* device, int value) {
       break;
       
   default:
-    err("Unable to set setDevice (set device value). Specified device does not exist or is of a read-only DEVICE_TYPE.");
+    err("Unable to set setDevice (set device value). Specified device does not exist or is of a read-only DEVICE_TYPE.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_SET_DEVICE);
     return false;
     
   }

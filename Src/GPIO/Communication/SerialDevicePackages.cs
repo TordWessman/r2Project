@@ -25,7 +25,7 @@ namespace GPIO
 	/// <summary>
 	/// Device types defined in r2I2CDeviceRouter.h
 	/// </summary>
-	public enum DeviceType: byte
+	public enum SerialDeviceType: byte
 	{
 		
 		DigitalInput = 0x1,		// Simple digital input
@@ -44,8 +44,10 @@ namespace GPIO
 		Unknown = 0x0,	// Hmm... This must be an error 
 		Create = 0x1,	// Tell the slave to create a device
 		Set = 0x2,		// Set the value of a device on slave
-		Get = 0x3		// Return the value of a device
-			
+		Get = 0x3,		// Return the value of a device
+		Error = 0xF0,	// Yep, this was an error (only used by responses).
+		Initialization = 0x4, // As a request header, this tells the slave that it's ready for communication. As a response header, this indicate that the slave has been rebooted and needs to be reinitialized.
+		InitializationOk = 0x5 // Response header telling that the initialization was successfull.
 	}
 
 	public struct DeviceResponsePackage {
@@ -54,7 +56,7 @@ namespace GPIO
 		public byte Host;
 
 		// Action required by slave.
-		public byte Action;
+		public ActionType Action;
 
 		// Id of an affected device on slave. A slave have a limited range of id:s (i.e. 0-19).
 		public byte Id;
@@ -68,10 +70,13 @@ namespace GPIO
 		private const int POSITION_CONTENT_LENGTH = 3;
 		private const int POSITION_CONTENT = 4;
 
+		// If the POSITION_ACTION bart has this value, the response was an error.
+		private const byte ACTION_ERROR = 0xF0;
+
 		public DeviceResponsePackage(byte[] response) {
 		
 			Host = response [POSITION_HOST];
-			Action = response [POSITION_ACTION];
+			Action = (ActionType) response [POSITION_ACTION];
 			Id = response [POSITION_ID];
 			int contentLength = response [POSITION_CONTENT_LENGTH];
 			Content = contentLength > 0 ? response.Skip (POSITION_CONTENT).Take (contentLength)?.ToArray() ?? new byte[]{} : new byte[]{};
@@ -82,7 +87,7 @@ namespace GPIO
 		/// If true, the request to slave generated an error.
 		/// </summary>
 		/// <value><c>true</c> if this instance is error; otherwise, <c>false</c>.</value>
-		public bool IsError { get { return Action == (byte)ActionType.Unknown; } }
+		public bool IsError { get { return Action == ActionType.Error || Action == ActionType.Unknown; } }
 
 		/// <summary>
 		/// Contains the response. Normally it's an int16 containing some requested response data, but it can also conains a string (error message).
@@ -96,7 +101,7 @@ namespace GPIO
 				
 					return System.Text.Encoding.Default.GetString (Content);
 				
-				} else if (Action == (byte)ActionType.Get) {
+				} else if (Action == ActionType.Get) {
 				
 					return Content.ToInt ();
 

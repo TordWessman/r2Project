@@ -35,7 +35,7 @@ namespace GPIO
 
 		private SerialPort m_serialPort;
 		public const int DEFAULT_BAUD_RATE = 9600;
-		private const int DEFAULT_TIMOUT_MS = 5000;
+		private const int DEFAULT_TIMOUT_MS = 2000;
 
 		/// <summary>
 		/// portIdentifier is either an explicit name of the port (i.e. /dev/ttyACM0) or a regexp pattern (i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 

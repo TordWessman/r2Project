@@ -26,13 +26,12 @@ namespace GPIO
 	{
 
 		/// <summary>
-		/// Creates a "Create device package". 'remoteDeviceId' must be within range of the slave application. 
+		/// Creates a "Create device package". ports-requirements must be applicable to the requirements of the device.  
 		/// </summary>
 		/// <returns>The device.</returns>
-		/// <param name="remoteDeviceId">Remote device identifier.</param>
 		/// <param name="type">Type.</param>
 		/// <param name="port">Port.</param>
-		DeviceRequestPackage CreateDevice(byte remoteDeviceId, DeviceType type, byte[] ports);
+		DeviceRequestPackage CreateDevice(byte hostId, SerialDeviceType type, byte[] ports);
 
 		/// <summary>
 		/// Creates a "Set device package" used to set the value of a device (previously created through a CreateDevice package call).
@@ -40,14 +39,20 @@ namespace GPIO
 		/// <returns>The device.</returns>
 		/// <param name="remoteDeviceId">Remote device identifier.</param>
 		/// <param name="value">Value.</param>
-		DeviceRequestPackage SetDevice(byte remoteDeviceId, int value);
+		DeviceRequestPackage SetDevice(byte deviceId, byte hostId, int value);
 
 		/// <summary>
 		/// Used for returning the value of a device.
 		/// </summary>
 		/// <returns>The device.</returns>
 		/// <param name="remoteDeviceId">Remote device identifier.</param>
-		DeviceRequestPackage GetDevice(byte remoteDeviceId);
+		DeviceRequestPackage GetDevice(byte deviceId, byte hostId);
+
+		/// <summary>
+		/// Initializes (resets) the host and prepare it for new devices (and clearing any configuration of the slave). `host` is the address of the host to reset.
+		/// </summary>
+		/// <param name="host">Host.</param>
+		DeviceRequestPackage Initialize (byte hostId);
 
 	}
 
