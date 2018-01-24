@@ -65,27 +65,8 @@ namespace GPIO
 		// Contains the response data (value, error message or null).
 		public byte[] Content;
 
-		private const int POSITION_HOST = 0;
-		private const int POSITION_ACTION = 1;
-		private const int POSITION_ID = 2;
-		private const int POSITION_CONTENT_LENGTH = 3;
-		private const int POSITION_CONTENT = 4;
-
 		// The number of int16 returned from slave upon a ActionType.Get request.
-		private const int NUMBER_OF_RETURN_VALUES = 2;
-
-		// If the POSITION_ACTION bart has this value, the response was an error.
-		private const byte ACTION_ERROR = 0xF0;
-
-		public DeviceResponsePackage(byte[] response) {
-		
-			Host = response [POSITION_HOST];
-			Action = (ActionType) response [POSITION_ACTION];
-			Id = response [POSITION_ID];
-			int contentLength = response [POSITION_CONTENT_LENGTH];
-			Content = contentLength > 0 ? response.Skip (POSITION_CONTENT).Take (contentLength)?.ToArray() ?? new byte[]{} : new byte[]{};
-
-		}
+		public const int NUMBER_OF_RETURN_VALUES = 2;
 
 		/// <summary>
 		/// If true, the request to slave generated an error.

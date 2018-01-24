@@ -41,9 +41,34 @@ namespace GPIO
 		/// </summary>
 		private const byte MAXIMUM_NUMBER_OF_DEVICES_PER_HOST = 20;
 
+		public const int POSITION_HOST = 0;
+		public const int POSITION_ACTION = 1;
+		public const int POSITION_ID = 2;
+		public const int POSITION_CONTENT_LENGTH = 3;
+		public const int POSITION_CONTENT = 4;
+
+		// In the content part of the (create) message, here be the Type
+		public const int POSITION_CONTENT_DEVICE_TYPE = 0;
+
+		// If the POSITION_ACTION bart has this value, the response was an error.
+		public const byte ACTION_ERROR = 0xF0;
+
 		public ArduinoSerialPackageFactory() {
 
 			m_deviceCount = new byte[sizeof(byte) * 256];
+
+		}
+
+		public DeviceResponsePackage ParseResponse (byte[] response) {
+
+			int contentLength = response [POSITION_CONTENT_LENGTH];
+
+			return new DeviceResponsePackage () {
+				Host = response [POSITION_HOST],
+				Action = (ActionType)response [POSITION_ACTION],
+				Id = response [POSITION_ID],
+				Content = contentLength > 0 ? response.Skip (POSITION_CONTENT).Take (contentLength)?.ToArray () ?? new byte[]{ } : new byte[]{ }
+			};
 
 		}
 
@@ -51,7 +76,7 @@ namespace GPIO
 
 			// Slave expects <device type><IOPort1><IOPort2> ...
 			byte[] content = new byte[1 + ports.Length];
-			content [0] = (byte)type;
+			content [POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
 			Array.Copy (ports, 0, content, 1, ports.Length);
 
 			if (type == SerialDeviceType.AnalogueInput && !(VALID_ANALOGUE_PORTS_ON_ARDUINO.Contains(ports[0]))) {

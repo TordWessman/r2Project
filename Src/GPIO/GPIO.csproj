@@ -107,13 +107,16 @@
     <Compile Include="Input\SerialHCSR04Sonar.cs" />
     <Compile Include="Communication\SerialGPIOFactory.cs" />
     <Compile Include="Communication\SerialHost.cs" />
-    <Compile Include="Communication\SerialDHT11.cs" />
+    <Compile Include="Input\SerialDHT11.cs" />
+    <Compile Include="Test\GPIOTests.cs" />
+    <Compile Include="Test\MockSerialConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Input\" />
     <Folder Include="Output\" />
     <Folder Include="Communication\" />
+    <Folder Include="Test\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="GPIOConfigurationTemplate.tt">
@@ -125,6 +128,10 @@
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
       <Name>Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\CoreTests\CoreTests.csproj">
+      <Project>{B6397024-E95C-43D8-8CDF-0EB826804949}</Project>
+      <Name>CoreTests</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

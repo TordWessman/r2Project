@@ -90,7 +90,7 @@ namespace GPIO
 
 			byte[] responseData = m_connection.Send (request.ToBytes ());
 
-			DeviceResponsePackage response = new DeviceResponsePackage (responseData);
+			DeviceResponsePackage response = m_packageFactory.ParseResponse (responseData);//new DeviceResponsePackage (responseData);
 
 			if (response.Action == ActionType.Initialization) {
 
@@ -100,7 +100,7 @@ namespace GPIO
 
 				// Resend the current request
 				responseData = m_connection.Send (request.ToBytes ());
-				response = new DeviceResponsePackage (responseData);
+				response = m_packageFactory.ParseResponse (responseData);
 
 			}
 

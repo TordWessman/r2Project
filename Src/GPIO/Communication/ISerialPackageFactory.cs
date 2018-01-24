@@ -54,6 +54,13 @@ namespace GPIO
 		/// <param name="host">Host.</param>
 		DeviceRequestPackage Initialize (byte hostId);
 
+		/// <summary>
+		/// Parses raw response into a response package.
+		/// </summary>
+		/// <returns>The response.</returns>
+		/// <param name="response">Response.</param>
+		DeviceResponsePackage ParseResponse (byte[] response);
+
 	}
 
 }
