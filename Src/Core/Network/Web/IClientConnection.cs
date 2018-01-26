@@ -33,6 +33,9 @@ namespace Core.Network
 	/// </summary>
 	public delegate void OnDisconnectHandler(IClientConnection connection, Exception ex);
 
+	/// <summary>
+	/// Represents a connection to a client from a server.
+	/// </summary>
 	public interface IClientConnection : IDevice
 	{
 		/// <summary>

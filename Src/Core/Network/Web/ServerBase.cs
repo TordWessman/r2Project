@@ -26,7 +26,10 @@ using System.Linq;
 
 namespace Core.Network
 {
-	public abstract class ServerBase : DeviceBase,  IWebServer, ITaskMonitored
+	/// <summary>
+	/// Contains some general functionality used by all IServers
+	/// </summary>
+	public abstract class ServerBase : DeviceBase,  IServer, ITaskMonitored
 	{
 
 		int m_port;

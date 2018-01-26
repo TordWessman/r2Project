@@ -112,7 +112,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServerBasics() {
 
-			IWebServer s = factory.CreateTcpServer ("s", tcp_port);
+			IServer s = factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
 			Thread.Sleep (100);
 			Assert.IsTrue (s.Ready);
@@ -144,7 +144,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServer_Ruby_Endpoint() {
 
-			IWebServer s = factory.CreateTcpServer ("s", tcp_port);
+			IServer s = factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
 			Thread.Sleep (100);
 
@@ -197,7 +197,7 @@ namespace Core.Tests
 		[Test]
 		public void TestTCPServer_DeviceRouter() {
 
-			IWebServer s = factory.CreateTcpServer ("s", tcp_port);
+			IServer s = factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";

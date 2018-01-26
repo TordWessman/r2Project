@@ -44,7 +44,7 @@ namespace Core.Network
 
 		}
 
-		public IWebServer CreateHttpServer (string id, int port) {
+		public IServer CreateHttpServer (string id, int port) {
 
 			return new HttpServer (id, port, m_serialization);
 
@@ -144,13 +144,13 @@ namespace Core.Network
 
 		}
 
-		public IWebServer CreateTcpServer(string id, int port) {
+		public IServer CreateTcpServer(string id, int port) {
 		
 			return new TCPServer (id, port, new TCPPackageFactory (m_serialization));
 
 		}
 
-		public IWebServer CreateUdpServer(string id, int port) {
+		public IServer CreateUdpServer(string id, int port) {
 		
 			return new UDPServer (id, port, new TCPPackageFactory (m_serialization));
 		}

@@ -124,7 +124,6 @@
     <Compile Include="Network\Web\Messages\JsonAddRecordMessage.cs" />
     <Compile Include="Network\Web\Scripting\ScriptObjectReceiver.cs" />
     <Compile Include="Network\Web\JsonExportObject.cs" />
-    <Compile Include="Network\Web\IWebServer.cs" />
     <Compile Include="Network\Web\WebFactory.cs" />
     <Compile Include="Network\Web\IWebIntermediate.cs" />
     <Compile Include="Network\Web\IWebEndpoint.cs" />
@@ -188,7 +187,6 @@
     <Compile Include="Network\Web\IMessageClient.cs" />
     <Compile Include="Network\Web\UDP\BroadcastMessage.cs" />
     <Compile Include="Memory\IMemorySource.cs" />
-    <Compile Include="Network\Web\IEndpoint.cs" />
     <Compile Include="Device\IRemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice.cs" />
     <Compile Include="Network\Web\NetworkConnection.cs" />
@@ -201,6 +199,7 @@
     <Compile Include="Network\Web\IHostConnection.cs" />
     <Compile Include="Network\Web\IClientConnection.cs" />
     <Compile Include="Network\Web\TCP\TCPClientConnection.cs" />
+    <Compile Include="Network\Web\IServer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

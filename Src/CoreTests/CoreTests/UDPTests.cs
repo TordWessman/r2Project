@@ -153,6 +153,7 @@ namespace Core.Tests
 			dynamic d = remoteDeviceManager.Get ("dummyX");
 
 			Assert.IsTrue (d is IRemoteDevice);
+			// TODO: This times out sometimes. Too many other Tasks?
 			Assert.AreEqual (420, d.MultiplyByTen (42));
 
 			d.HAHA = 42.42d;

@@ -27,7 +27,7 @@ using Core.Network;
 
 namespace Audio.ASR
 {
-	public class SphinxASRServer : DeviceBase, IASR, IEndpoint
+	public class SphinxASRServer : DeviceBase, IASR
 	{
 
 		// Local audio input as source instead of the TCP server

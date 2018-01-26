@@ -20,7 +20,7 @@ using System;
 
 namespace Core.Network
 {
-	public interface IWebSocketServer: IWebServer
+	public interface IWebSocketServer: IServer
 	{
 
 		/// <summary>

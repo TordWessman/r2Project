@@ -30,7 +30,7 @@ using MessageIdType = System.String;
 
 namespace Core.Network
 {
-	public class TCPServer : ServerBase, IWebServer, INetworkBroadcaster
+	public class TCPServer : ServerBase, IServer, INetworkBroadcaster
 	{
 		
 		private TcpListener m_listener;
