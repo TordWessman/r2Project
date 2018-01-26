@@ -18,7 +18,7 @@ namespace GPIO
 		private static extern int r2I2C_send(byte[] data, int data_size);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		private static extern int r2I2C_receive();
+		private static extern int r2I2C_receive(int wait);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		private static extern byte r2I2C_get_response_size();
@@ -26,8 +26,8 @@ namespace GPIO
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		private static extern  byte r2I2C_get_response(int position);
 
-		public const int DEFAULT_BUS = 1;
-		public const int DEFAULT_PORT = 0x4;
+		// Delay before starting to read from slave. Usefull if slave response is slow.
+		public int ReadDelay = Settings.Consts.I2CReadDelay();
 
 		/// <summary>
 		/// Defined in r2I2C.h
@@ -47,17 +47,17 @@ namespace GPIO
 		private int m_bus;
 		private int m_port;
 
-		public R2I2CMaster (string id, int bus = DEFAULT_BUS, int port = DEFAULT_PORT): base (id)
+		public R2I2CMaster (string id, int? bus = null, int? port = null): base (id)
 		{
 
-			m_bus = bus;
-			m_port = port;
+			m_bus = bus ?? Settings.Consts.I2CDefaultBus();
+			m_port = port ?? Settings.Consts.I2CDefaultPort();
 
-			int status = r2I2C_init (bus, port);
+			int status = r2I2C_init (m_bus, m_port);
 
 			if (status < 0) {
 			
-				throw new System.IO.IOException ($"Unable to open I2C bus {bus} and port {port}. Error type: {(I2CError)status}.");
+				throw new System.IO.IOException ($"Unable to open I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
 
 			}
 
@@ -92,7 +92,7 @@ namespace GPIO
 
 		public byte [] Read() {
 		
-			int status = r2I2C_receive ();
+			int status = r2I2C_receive (ReadDelay);
 
 			if (status < 0) {
 
