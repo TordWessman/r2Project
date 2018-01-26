@@ -31,7 +31,7 @@ namespace GPIO
 		/// <param name="id">Identifier.</param>
 		/// <param name="bus">Bus.</param>
 		/// <param name="port">Port.</param>
-		public ISerialHost CreateSerialConnection(string id, int bus = R2I2CMaster.DEFAULT_BUS, int port = R2I2CMaster.DEFAULT_PORT) {
+		public ISerialHost CreateSerialConnection(string id, int? bus = null, int? port = null) {
 
 			ISerialConnection connection = new R2I2CMaster (id, bus, port);
 			return new SerialHost(id, connection, new ArduinoSerialPackageFactory());

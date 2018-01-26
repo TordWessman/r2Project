@@ -24,6 +24,8 @@ namespace GPIO {
 
 <#= GetIdentifiersForDoc(configFileName, doc, true) #>
 
+<#= GetConstsForDoc(configFileName, StripBasePath(baseDir, config[CFILE]), doc, true) #>
+
 }
 <#
 	} else {
