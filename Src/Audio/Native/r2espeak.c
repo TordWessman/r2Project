@@ -120,7 +120,7 @@ int init() {
 	convert2 = gst_element_factory_make ("audioconvert", "converter2");
 
 	//creates and set the values for the speed filter	
-	effect0 = gst_element_factory_make ("speed", "testish");
+	//effect0 = gst_element_factory_make ("speed", "testish");
 	//g_object_set (G_OBJECT (effect0), "speed", 1.5, NULL);
 	
 	//creates and set the values for the cut off filter
@@ -133,10 +133,10 @@ int init() {
 		return 0;
 	}
 
-	if (effect0 == NULL) {
-		g_critical ("Unable to create effect0");
-		return 0;
-	}
+	//if (effect0 == NULL) {
+	//	g_critical ("Unable to create effect0");
+	//	return 0;
+	//}
 
 	if (effect1 == NULL) {
 		g_critical ("Unable to create effect1");
@@ -165,7 +165,7 @@ int init() {
 	gst_bin_add_many (GST_BIN (bin), 
 		espeak, 
 		convert0,
-		effect0,
+		//effect0,
 		convert1,
 		effect1,
 		convert2,
@@ -179,7 +179,7 @@ int init() {
 	if (!gst_element_link_many (
 		espeak,
 		convert0,
-		effect0,
+		//effect0,
 		convert1, 
 		effect1,
 		convert2,
