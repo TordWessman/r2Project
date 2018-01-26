@@ -39,13 +39,14 @@
 #define R2I2C_USE_READY_FLAG true
 
 // The I2C slave should begin every response with R2I2C_READY_TO_READ_FLAG, telling the receive operation that it's ready to receive data.
-#define R2I2C_READY_TO_READ_FLAG 0xFF
+#define R2I2C_READY_TO_READ_FLAG 0xF0
 
 // Initializes the bus and address variables. Will return the status of the bus request operation.
 int r2I2C_init (int bus, int address);
 
 // Requests data from slave. Returns 0 if successful. Will block until R2I2C_READY_TO_READ_FLAG has been received from slave.
-int r2I2C_receive();
+// Waits `wait` ms before trying to retrieve data (usefull for delayed callbacks).
+int r2I2C_receive(int wait);
 
 // Returns the size of the last successfull transmission.
 uint8_t r2I2C_get_response_size();
@@ -59,5 +60,5 @@ bool r2I2C_is_ready();
 // If false, pending operations will not be executed.
 void r2I2C_should_run(bool should_run);
 
-// Will return the entire array containing data. Will be populated with the latest data retrieved.
-uint8_t* r2I2C_get_response();
+// Will return the value of the array containing data. Will be populated with the latest data retrieved.
+uint8_t r2I2C_get_response(int position);
