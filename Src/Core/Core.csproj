@@ -200,6 +200,7 @@
     <Compile Include="Network\Web\IClientConnection.cs" />
     <Compile Include="Network\Web\TCP\TCPClientConnection.cs" />
     <Compile Include="Network\Web\IServer.cs" />
+    <Compile Include="Network\Web\NetworkExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

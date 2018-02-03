@@ -39,6 +39,11 @@ namespace Core.Network
 		private IList<IClientConnection> m_connections;
 
 		/// <summary>
+		/// Default timeout for Broadcasts
+		/// </summary>
+		public const int DefaultBroadcastTimeout = 2000;
+
+		/// <summary>
 		/// Returns all current connections
 		/// </summary>
 		/// <value>The connections.</value>
@@ -54,7 +59,7 @@ namespace Core.Network
 
 		public override bool Ready { get { return ShouldRun && m_listener != null; } }
 
-		public MessageIdType Broadcast (INetworkMessage message, Action<BroadcastMessage, Exception> responseDelegate = null, int timeout = 2000) {
+		public MessageIdType Broadcast (INetworkMessage message, Action<BroadcastMessage, Exception> responseDelegate = null, int timeout = DefaultBroadcastTimeout) {
 		
 			INetworkMessage request = new BroadcastMessage (message);
 
@@ -100,7 +105,6 @@ namespace Core.Network
 				try {
 					
 					TcpClient client = m_listener.AcceptTcpClient();
-					Log.t("Connection from: "+ client.Client.RemoteEndPoint.ToString());
 					client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 					TCPClientConnection connection = new TCPClientConnection(client.Client.RemoteEndPoint.ToString(), m_packageFactory, client);
 					connection.OnReceive += OnReceive;
@@ -112,8 +116,8 @@ namespace Core.Network
 				} catch (System.Net.Sockets.SocketException ex) {
 
 					if (ex.SocketErrorCode != SocketError.Interrupted) {
-					
-						Log.w ($"Connection failure. Error code: {ex.ErrorCode}. Socket error type: {ex.SocketErrorCode}.");
+						
+						Log.w ($"Connection failure: '{ex.Message}'. Error code: {ex.ErrorCode}. Socket error type: {ex.SocketErrorCode}.");
 
 					}
 

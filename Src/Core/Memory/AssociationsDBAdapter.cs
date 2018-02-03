@@ -73,8 +73,7 @@ namespace Core.Memory
 			
 			foreach (int assocId in GetAssociations(memoryId1)) {
 				if (assocId == memoryId2) {
-					Log.w ($"Will not add association for {memoryId1} and {memoryId2} since they already are associated."
-					);
+					//Log.w ($"Will not add association for {memoryId1} and {memoryId2} since they already are associated.");
 					return;
 				}
 			}
