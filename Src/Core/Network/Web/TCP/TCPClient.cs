@@ -176,7 +176,7 @@ namespace Core.Network
 
 		public override string ToString () {
 			
-			return string.Format ("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
+			return $"TcpClient: `{m_client.GetDescription ()}`. Ready: {Ready}."; //string.Format ("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
 		
 		}
 
@@ -204,7 +204,7 @@ namespace Core.Network
 
 						m_readError = ex;
 
-						Log.w($"TCP Client disconnected. Error: {ex.GetType()}. Message: `{ex.Message}`.");
+						Log.w($"TcpClient ({m_client.GetDescription()}) disconnected. Error: {ex.GetType()}. Message: `{ex.Message}.");
 						Stop();
 
 					} finally {

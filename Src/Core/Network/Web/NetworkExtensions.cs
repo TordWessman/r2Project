@@ -42,9 +42,9 @@ namespace Core.Network
 		/// </summary>
 		/// <returns>The string.</returns>
 		/// <param name="self">Self.</param>
-		public static override string ToString(this EndPoint self) {
+		public static string GetDescription(this EndPoint self) {
 		
-			return $"{GetAddress()}:{GetPort()}";
+			return $"{self.GetAddress()}:{self.GetPort()}";
 
 		}
 
@@ -57,9 +57,9 @@ namespace Core.Network
 		/// </summary>
 		/// <returns>The remote description.</returns>
 		/// <param name="self">Self.</param>
-		public static override string ToString(this TcpClient self) {
+		public static string GetDescription(this TcpClient self) {
 			
-			return self.Client.RemoteEndPoint.GetAddress ();
+			return self.Client?.RemoteEndPoint?.GetDescription () ?? "<not connected>";
 
 		}
 
@@ -70,7 +70,7 @@ namespace Core.Network
 		/// <param name="self">Self.</param>
 		public static string GetRemoteAddress(this TcpClient self) {
 
-			return self.Client.RemoteEndPoint.GetAddress();
+			return self.Client?.RemoteEndPoint?.GetAddress() ?? "null";
 
 		}
 
@@ -81,7 +81,7 @@ namespace Core.Network
 		/// <param name="self">Self.</param>
 		public static int GetRemotePort(this TcpClient self) {
 
-			return self.Client.RemoteEndPoint.GetPort();
+			return self.Client?.RemoteEndPoint?.GetPort() ?? 0;
 
 		}
 

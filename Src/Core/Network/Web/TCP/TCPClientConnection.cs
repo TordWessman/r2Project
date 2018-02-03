@@ -61,7 +61,7 @@ namespace Core.Network
 
 			ShouldRun = true;
 
-			Log.d ($"Connecting to {m_client.ToString()}.");
+			Log.d ($"Connecting to {m_client.GetDescription()}.");
 			m_listener = Task.Factory.StartNew(() => {
 			
 				using (m_client) {
@@ -127,7 +127,7 @@ namespace Core.Network
 
 				if (ex is SocketException) {
 					
-					Log.d($"TCP connection ({m_client.ToString()}) aborted. Code: '{(ex as SocketException).SocketErrorCode}'.");
+					Log.d($"TCPClientConnection `{m_client.GetDescription()}` aborted. Code: `{(ex as SocketException).SocketErrorCode}`.");
 					Disconnect (this);
 
 				} else {
