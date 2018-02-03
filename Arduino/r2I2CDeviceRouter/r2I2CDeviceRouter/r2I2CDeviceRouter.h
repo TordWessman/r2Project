@@ -55,6 +55,8 @@ typedef struct Devices {
 #define ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE 6
 // Unknown action received
 #define ERROR_CODE_UNKNOWN_ACTION 7
+// General device read error
+#define ERROR_CODE_DEVICE_READ_ERROR 8
 
 // Removes a device from list and free resources
 void deleteDevice(byte id);
@@ -113,8 +115,8 @@ typedef byte ACTION_TYPE;
 #define HCSR04_SONAR_DISTANCE_DENOMIATOR 58 // I found this number somewhere
 
 // Here be response positions for DHT11
-#define DHT11_TEMPERATUR_RESPONSE_POSITION 0x0;
-#define DHT11_HUMIDITY_RESPONSE_POSITION 0x1;
+#define DHT11_TEMPERATUR_RESPONSE_POSITION 0x0
+#define DHT11_HUMIDITY_RESPONSE_POSITION 0x1
 
 // Number of arguments to return in response
 #define RESPONSE_VALUE_COUNT 2

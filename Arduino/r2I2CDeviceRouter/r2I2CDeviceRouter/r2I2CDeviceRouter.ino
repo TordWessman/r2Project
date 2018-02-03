@@ -208,6 +208,7 @@ void loop() {
   #else
 	//TODO: Add radio here?
   delay(2000);
+  
   Serial.print(".");
   #endif
   

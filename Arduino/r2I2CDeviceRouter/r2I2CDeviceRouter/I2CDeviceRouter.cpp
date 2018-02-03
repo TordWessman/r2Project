@@ -178,9 +178,25 @@ int* getValue(Device* device) {
        Dht11 *sensor = ((Dht11 *) device->object); 
        switch (sensor->read()) {
           case Dht11::OK:
-            values[DHT11_TEMPERATUR_RESPONSE_POSITION] = sensor->getTemperature();
-            values[DHT11_HUMIDITY_RESPONSE_POSITION] = sensor->getHumidity();
+            {
+            int temp = sensor->getTemperature();;
+            int humid = sensor->getHumidity(); 
+            Serial.println(temp);
+            Serial.println(humid);
+            values[DHT11_TEMPERATUR_RESPONSE_POSITION] = temp;
+            values[DHT11_HUMIDITY_RESPONSE_POSITION] = humid;
+            }
           break;
+          case Dht11::ERROR_TIMEOUT:
+            values[DHT11_TEMPERATUR_RESPONSE_POSITION] = 0;
+            values[DHT11_HUMIDITY_RESPONSE_POSITION] = 0;
+            err("Unable to read from device (DHT Timeout).", ERROR_CODE_DEVICE_READ_ERROR);
+            break;
+          default:
+            values[DHT11_TEMPERATUR_RESPONSE_POSITION] = 0;
+            values[DHT11_HUMIDITY_RESPONSE_POSITION] = 0;
+            err("Unable to read from device (DHT error. Probably checksum).", ERROR_CODE_DEVICE_READ_ERROR);
+            break;
        }
        
        // silent error
@@ -189,9 +205,6 @@ int* getValue(Device* device) {
    default:
     err("Unable to read from device.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE);
     break;
-    
-   
-      
     
   }
   
