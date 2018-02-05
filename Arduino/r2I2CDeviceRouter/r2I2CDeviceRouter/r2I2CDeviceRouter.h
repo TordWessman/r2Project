@@ -1,8 +1,9 @@
-#include <stdbool.h>
-#include <Arduino.h>
-
 #ifndef R2I2C_DEVICE_ROUTER_H
 #define R2I2C_DEVICE_ROUTER_H
+
+#include <Arduino.h>
+#include "r2I2C_config.h"
+#include <stdbool.h>
 
 typedef byte DEVICE_TYPE;
 
@@ -25,7 +26,7 @@ typedef struct Devices {
   
 } Device;
 
-#define DEVICE_HOST_LOCAL 0xFF
+#define DEVICE_HOST_LOCAL 0x0
 
 // Available device types
 #define DEVICE_TYPE_UNDEFINED 0
@@ -37,9 +38,6 @@ typedef struct Devices {
 #define DEVICE_TYPE_DHT11 6
 // Used by responses to indicate an error.
 #define DEVICE_TYPE_ERROR 250
-
-// Maximum number of deviceses
-#define MAX_DEVICES 20
 
 // No device with the specified id was found.
 #define ERROR_CODE_NO_DEVICE_FOUND 1
@@ -57,12 +55,20 @@ typedef struct Devices {
 #define ERROR_CODE_UNKNOWN_ACTION 7
 // General device read error
 #define ERROR_CODE_DEVICE_READ_ERROR 8
+// The node (during remote communication) was not available.
+#define ERROR_RH24_NODE_NOT_AVAILABLE 9
+// Whenever a read did not return the expected size
+#define ERROR_RH24_BAD_SIZE_READ 10
+// Called if a read-write timed out during RH24 communication
+#define ERROR_RH24_TIMEOUT 11
+// If a write operation fails for RH24
+#define ERROR_RH24_WRITE_ERROR 12
 
 // Removes a device from list and free resources
 void deleteDevice(byte id);
 
 // Creates and stores a Device using the specified parameters.
-bool createDevice(byte id, DEVICE_TYPE type, byte* input);
+void createDevice(byte id, DEVICE_TYPE type, byte* input);
 
 // Tries to reserve the IO-Port. if reserved: return false and sets the error flag.
 bool reservePort(byte IOPort);
@@ -70,8 +76,8 @@ bool reservePort(byte IOPort);
 // Returns a pointer to a device with the specified id
 Device* getDevice(byte id);
 
-// Tries to set the value of a device
-bool setValue(Device* device, int value);
+// Tries to set the value of a device. Returns true if successfull
+void setValue(Device* device, int value);
 
 // Returns the value(s) of a device
 int* getValue(Device* device);
@@ -83,9 +89,6 @@ int* getValue(Device* device);
 
 // The maximum size (in bytes) for package content;
 #define MAX_CONTENT_SIZE 100
-
-// The base size of response packages (without additional output stored in "content").
-#define PACKAGE_SIZE sizeof(ResponsePackage) - MAX_CONTENT_SIZE
 
 // Package "checksum" headers. Shuld initially be sent in the beginning of every transaction. 
 #define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
@@ -104,6 +107,7 @@ typedef byte ACTION_TYPE;
 #define ACTION_GET_DEVICE 0x3
 #define ACTION_INITIALIZE 0x4
 #define ACTION_INITIALIZATION_OK 0x5
+#define ACTION_SET_NODE_ID 0x6
 
 // Used by the create request.
 #define REQUEST_ARG_CREATE_TYPE_POSITION 0x0 // Position of the type to create.
@@ -137,6 +141,12 @@ struct ResponsePackage {
 
 typedef struct ResponsePackage ResponsePackage;
 
+// Decides what to do with the incoming data.
+ResponsePackage interpret(byte* input);
+
+// The base size of response packages (without additional output stored in "content").
+#define RESPONSE_PACKAGE_SIZE(responsePackage) (sizeof(ResponsePackage) - MAX_CONTENT_SIZE + responsePackage.contentSize)
+
 // Request data from host.
 struct RequestPackage {
 
@@ -149,18 +159,8 @@ struct RequestPackage {
 
 typedef struct RequestPackage RequestPackage;
 
-// -- Various "helper" methods.
+// Performs the actions requested by the RequestPackage.
+ResponsePackage execute(RequestPackage *request);
 
-// Converts a big endian 16-bit int contained in a byte array.
-int toInt16(byte *bytes);
-
-// 16-bit-Int-to-byte-array-conversions (Don't forget to free the result!)
-byte *asInt16(int value);
-
-// Set error state with a message.
-void err (const char* msg, int code);
-
-// Returns the current error message.
-const char* getError();
 
 #endif

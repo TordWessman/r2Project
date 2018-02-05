@@ -1,35 +1,14 @@
-#include "r2I2CDeviceRouter.h"
-#include <Arduino.h>
-#include <Servo.h>
 #include "Dht11.h"
+#include <Servo.h>
+
+#include "r2I2CDeviceRouter.h"
+#include "r2I2C_config.h"
+#include "r2Common.h"
+//xxx #include <Arduino.h>
 
 // -- Variables
 Device devices[MAX_DEVICES];
 bool portsInUse[30];
-
-// -- Conversions
-
-int toInt16(byte *bytes) { return bytes[0] + (bytes[1] << 8);  }
-byte* asInt16(int value) { byte* bytes = (byte *) malloc(2 * sizeof(byte)); bytes[0] = value; bytes[1] = value >> 8; return bytes; }
-
-// Error handling
-
-const char* errMsg;
-int errCode = 0;
-
-const char* getError() {
-    return errMsg;
-}
-
-void err (const char* msg, int errCode) {
-
-#ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
-    if (Serial && msg) { Serial.println(msg); }
-#endif
-
-    errMsg = msg;
-    
-}
 
 // -- Device handling
 
@@ -84,12 +63,11 @@ bool reservePort(byte IOPort) {
   
 }
 
-bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
+void createDevice(byte id, DEVICE_TYPE type, byte* input) {
 
   if (id >= MAX_DEVICES) {
   
-    err("Id > MAX_DEVICES", ERROR_CODE_MAX_DEVICES_IN_USE);
-    return false;
+    return err("Id > MAX_DEVICES", ERROR_CODE_MAX_DEVICES_IN_USE);
     
   } 
   
@@ -142,15 +120,12 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
     
   default:
   
-    err("Unable to create device. Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND);
-    return false;
+    return err("Unable to create device. Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND);;
   
   }
   
   devices[id] = device;
-  
-  return true;
-  
+
 }
 
 int* getValue(Device* device) {
@@ -213,7 +188,7 @@ int* getValue(Device* device) {
   
 }
 
-bool setValue(Device* device, int value) {
+void setValue(Device* device, int value) {
 
   switch (device->type) {
 
@@ -227,10 +202,8 @@ bool setValue(Device* device, int value) {
       
   default:
     err("Unable to set setDevice (set device value). Specified device does not exist or is of a read-only DEVICE_TYPE.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_SET_DEVICE);
-    return false;
     
   }
-  
-  return true;
-  
+
 }
+
