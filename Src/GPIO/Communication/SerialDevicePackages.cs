@@ -48,7 +48,8 @@ namespace GPIO
 		Get = 0x3,		// Return the value of a device
 		Error = 0xF0,	// Yep, this was an error (only used by responses).
 		Initialization = 0x4, // As a request header, this tells the slave that it's ready for communication. As a response header, this indicate that the slave has been rebooted and needs to be reinitialized.
-		InitializationOk = 0x5 // Response header telling that the initialization was successfull.
+		InitializationOk = 0x5, // Response header telling that the initialization was successfull.
+		SetNodeId = 0x6 // This action will cause the node to change it's id. This action should not be propagated.
 	}
 
 	public struct DeviceResponsePackage {

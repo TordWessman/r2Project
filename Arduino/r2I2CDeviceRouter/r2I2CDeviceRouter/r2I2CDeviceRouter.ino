@@ -2,6 +2,15 @@
 #include "r2I2CDeviceRouter.h"
 #include "r2Common.h"
 #include <string.h>
+#include "Dht11.h"
+#include <Servo.h>
+#include <EEPROM.h>
+#ifdef RH24
+#include "RF24.h"
+#include "RF24Network.h"
+#include "RF24Mesh.h"
+#include <SPI.h>
+#endif
 
 #ifdef USE_SERIAL
   #include "r2I2CSerial.h"
@@ -12,7 +21,7 @@
   #include <r2I2C.h>
 #endif
 
-#ifdef USE_RF24
+#ifdef USE_RH24
   #include "r2RH24.h"
 #endif
 
@@ -22,6 +31,19 @@ byte deviceCount = 0;
 
 // If true, the host is ready for operation. This flag is set after ACTION_INITIALIZE has been received.
 bool initialized = false;
+
+#ifdef USE_I2C
+
+// Delegate method for I2C event communication.
+void i2cReceive(byte* data, int data_size) {
+
+  ResponsePackage out = interpret(data); 
+  byte *response = (byte *)&out;
+  R2I2C.setResponse(response, RESPONSE_PACKAGE_SIZE(out));
+  
+}
+
+#endif
 
 ResponsePackage interpret(byte* input) {
 
@@ -60,6 +82,8 @@ ResponsePackage execute(RequestPackage *request) {
   #ifdef USE_RH24
   if (request->host != getNodeId()) {
   
+    R2_LOG("SENDING RH24 PACKAGE TO:");
+    R2_LOG(request->host);
     return rh24Send(request);
     
   }
@@ -67,6 +91,8 @@ ResponsePackage execute(RequestPackage *request) {
 
    if (!initialized && request->action != ACTION_INITIALIZE) {
    
+     R2_LOG("Redirecting request to node:");
+     R2_LOG(request->host);
      // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
      response.action = ACTION_INITIALIZE;
      return response;
@@ -79,9 +105,15 @@ ResponsePackage execute(RequestPackage *request) {
     {
       response.id = deviceCount++;
 
-       byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
-   
-      createDevice(response.id, request->args[REQUEST_ARG_CREATE_TYPE_POSITION], parameters);
+      // Get the type of the device to create from the args.
+      DEVICE_TYPE type = request->args[REQUEST_ARG_CREATE_TYPE_POSITION];
+      
+      // The parameters are everything (mainly port information) that comes after the type parameter.    
+      byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
+      
+      R2_LOG("Creating device of type:");
+      R2_LOG(type);
+      createDevice(response.id, type, parameters);
       
     }
      
@@ -97,6 +129,8 @@ ResponsePackage execute(RequestPackage *request) {
           
         } else {
           
+          R2_LOG("Setting device with id:");
+          R2_LOG(request->id);
           setValue(device, toInt16 ( request->args ));
         
         }
@@ -108,7 +142,10 @@ ResponsePackage execute(RequestPackage *request) {
       case ACTION_GET_DEVICE:
       {
         Device *device = getDevice(request->id);
-  
+       
+         R2_LOG("Retrieved device with id:");
+         R2_LOG(request->id);
+       
         if (device) {
       
           response.contentSize = RESPONSE_VALUE_CONTENT_SIZE;
@@ -131,6 +168,7 @@ ResponsePackage execute(RequestPackage *request) {
         initialized = true;
         clearError();
         deviceCount = 0;
+        R2_LOG("Initializing");
         
         for (int i = 0; i < MAX_DEVICES; i++) { void deleteDevice(byte i); }
 
@@ -161,40 +199,37 @@ ResponsePackage execute(RequestPackage *request) {
 
 void setup() {
 
-  clearError();
-  
-#ifdef USER_RH24
-  rh24Setup();
+#ifdef R2_STATUS_LED
+pinMode(R2_STATUS_LED, OUTPUT);
 #endif
-  
-#ifdef USE_SERIAL
-  Serial.begin(9600);
-#endif
-
-#ifdef USE_I2C
-  Serial.begin(9600);
-  R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
+#ifdef R2_ERROR_LED
+pinMode(R2_ERROR_LED, OUTPUT);
 #endif
  
+  Serial.begin(SERIAL_BAUD_RATE);
+  //clearError();
+
+#ifdef USE_I2C  
+  R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
+#endif
+
+#ifdef USE_RH24
+  rh24Setup();
+#endif
+   
 }
 
 void loop() {
   
+  //Serial.println("Starting serial");
   #ifdef USE_SERIAL
     serialCommunicate();
   #endif
+  
+  //Serial.println("Starting RH24");
   
   #ifdef USE_RH24
     rh24Communicate();
   #endif
   
 }
-
-#include "Dht11.h"
-#include <Servo.h>
-#include <EEPROM.h>
-#include "RF24.h"
-#include "RF24Network.h"
-#include "RF24Mesh.h"
-#include <SPI.h>
-

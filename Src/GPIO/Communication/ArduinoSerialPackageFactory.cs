@@ -23,17 +23,16 @@ namespace GPIO
 {
 	public class ArduinoSerialPackageFactory: ISerialPackageFactory
 	{
-		// Default local host value. (Not used).
-		public const byte DEVICE_HOST_LOCAL = 0xFF;
+		// Default local host value. This is the default host used. Data sent to other hosts requires a RH24 enabled slave (configured as RH24 master).
+		public const byte DEVICE_HOST_LOCAL = 0x0;
 
+		// Max size for content in packages
 		const int MAX_CONTENT_SIZE = 100;
 
 		// ATMEGA 328-specific constraints. 18 & 19 will not be available if running I2C, since they are used as SDA and SCL on the ATMEGA 328 board.
 		public readonly byte[] VALID_ANALOGUE_PORTS_ON_ARDUINO = { 14, 15, 16, 17, 18, 19 };
 
-		/// <summary>
-		/// Keeps track of the devcie number for each host.
-		/// </summary>
+		/// Keeps track of the devcie number for each host. This values does not correspond to the id's of the host.
 		private byte[] m_deviceCount;
 
 		/// <summary>
@@ -88,7 +87,7 @@ namespace GPIO
 			DeviceRequestPackage package = new DeviceRequestPackage () { 
 				Host = hostId, 
 				Action = (byte) ActionType.Create, 
-				Id = m_deviceCount[hostId]++,
+				Id = m_deviceCount[hostId]++, // Id's for devices are normally managed by the slave, so this value will normally be ignored.
 				Content = content
 			};
 
@@ -126,6 +125,17 @@ namespace GPIO
 				Host = host, 
 				Action = (byte) ActionType.Initialization, 
 				Id = 0x0, 
+				Content = {} 
+			};
+
+		}
+
+		public DeviceRequestPackage SetNodeId (byte host) {
+
+			return new DeviceRequestPackage () { 
+				Host = 0x0, 
+				Action = (byte) ActionType.Initialization, 
+				Id = host, 
 				Content = {} 
 			};
 

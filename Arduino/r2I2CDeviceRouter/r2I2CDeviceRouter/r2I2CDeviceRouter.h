@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 typedef byte DEVICE_TYPE;
+typedef byte HOST_ADDRESS;
 
 typedef struct Devices {
 
@@ -19,7 +20,7 @@ typedef struct Devices {
   byte IOPorts[4];
   
   // The host containing this device (DEVICE_HOST_LOCAL if not remote).
-  byte host;
+  HOST_ADDRESS host;
   
   // Object specific data.
   void* object;
@@ -131,7 +132,7 @@ typedef byte ACTION_TYPE;
 // Containing data which should be returned to host after a request.
 struct ResponsePackage {
 
-    byte host;
+    HOST_ADDRESS host;
     ACTION_TYPE action;
     byte id;
     byte contentSize;
@@ -150,7 +151,7 @@ ResponsePackage interpret(byte* input);
 // Request data from host.
 struct RequestPackage {
 
-    byte host;
+    HOST_ADDRESS host;
     ACTION_TYPE action;
     byte id;
     byte args[MAX_CONTENT_SIZE];

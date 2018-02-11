@@ -1,7 +1,29 @@
 #ifndef R2I2C_COMMON_H
 #define R2I2C_COMMON_H
 
+#include "Arduino.h"
+
+// -- Debuging
+
+#ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
+
+#define R2_LOG(msg) (Serial.println(msg))
+
+#else
+
+#define R2_LOG(msg) (r2_debug(&msg))
+
+#endif
+
+// Set the status led if defined by R2_STATUS_LED
+void setStatus(bool on);
+
+// Set the error led if defined by R2_ERROR_LED
+void setError(bool on);
+
 // -- Various "helper" methods.
+
+void r2_debug(const void *msg);
 
 // Returns the node id used (will default to DEVICE_HOST_LOCAL if not stored). 
 byte getNodeId();

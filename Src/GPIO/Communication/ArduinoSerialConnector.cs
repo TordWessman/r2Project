@@ -20,6 +20,7 @@ using System.IO.Ports;
 using System.Text.RegularExpressions;
 using System.Linq;
 using Core.Device;
+using Core;
 
 namespace GPIO
 {
@@ -34,7 +35,7 @@ namespace GPIO
 		public readonly byte[] PackageHeader = { 0xF0, 0x0F, 0xF1 };
 
 		private SerialPort m_serialPort;
-		public const int DEFAULT_BAUD_RATE = 9600;
+		public const int DEFAULT_BAUD_RATE = 115200;
 		private const int DEFAULT_TIMOUT_MS = 2000;
 
 		/// <summary>
@@ -57,8 +58,6 @@ namespace GPIO
 			m_serialPort.BaudRate = baudRate;
 			m_serialPort.ReadTimeout = DEFAULT_TIMOUT_MS;
 			m_serialPort.WriteTimeout = DEFAULT_TIMOUT_MS;
-			m_serialPort.ReadTimeout = DEFAULT_TIMOUT_MS;
-
 
 		}
 
@@ -86,6 +85,7 @@ namespace GPIO
 
 		public override void Start() {
 
+			Log.d ($"Connectiing to {m_serialPort.PortName}");
 			m_serialPort.Open ();
 
 		}

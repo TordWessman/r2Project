@@ -57,6 +57,8 @@ bool reservePort(byte IOPort) {
     return false;
     
   }
+  R2_LOG("Reserving port");
+  R2_LOG(IOPort);
   
   portsInUse[IOPort] = true;
   return true;
@@ -156,8 +158,6 @@ int* getValue(Device* device) {
             {
             int temp = sensor->getTemperature();;
             int humid = sensor->getHumidity(); 
-            Serial.println(temp);
-            Serial.println(humid);
             values[DHT11_TEMPERATUR_RESPONSE_POSITION] = temp;
             values[DHT11_HUMIDITY_RESPONSE_POSITION] = humid;
             }

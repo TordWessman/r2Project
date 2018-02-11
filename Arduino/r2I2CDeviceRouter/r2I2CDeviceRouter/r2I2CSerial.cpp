@@ -1,5 +1,6 @@
 #include "r2I2CSerial.h"
 
+#ifdef USE_SERIAL
 // Contains data during serial read.
 byte readBuffer[MAX_RECEIZE_SIZE];
 
@@ -25,6 +26,9 @@ void serialCommunicate() {
   
   if (Serial.available() > 0) {
 
+    //delay(10);
+    
+    digitalWrite(0x4,1);
     if (!headerReceived) {
       
       rs = rx = 0;
@@ -56,7 +60,8 @@ void serialCommunicate() {
       readBuffer[rx++] = Serial.read();
       
     } else if (rx == rs - 1) {
-  
+      
+      digitalWrite(0x4,0);
       readBuffer[rx] = Serial.read();
       
       headerReceived = false;
@@ -79,5 +84,6 @@ void serialCommunicate() {
     }
     
   }
-}
 
+}
+#endif

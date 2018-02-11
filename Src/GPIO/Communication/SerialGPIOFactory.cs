@@ -78,7 +78,7 @@ namespace GPIO
 
 		public override void Stop() { 
 
-			if (!Ready) { Log.w ("Will not stop. We are not connected!"); } 
+			if (!Ready) { Log.w ("Will not stop ISerialHost. Not connected!"); } 
 			else { m_connection.Start (); } 
 
 		}
