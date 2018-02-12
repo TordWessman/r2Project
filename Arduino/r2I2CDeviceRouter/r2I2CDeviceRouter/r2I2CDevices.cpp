@@ -57,7 +57,7 @@ bool reservePort(byte IOPort) {
     return false;
     
   }
-  R2_LOG("Reserving port");
+  R2_LOG(F("Reserving port: "));
   R2_LOG(IOPort);
   
   portsInUse[IOPort] = true;
@@ -122,7 +122,7 @@ void createDevice(byte id, DEVICE_TYPE type, byte* input) {
     
   default:
   
-    return err("Unable to create device. Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND);;
+    return err("Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND);;
   
   }
   
@@ -165,12 +165,12 @@ int* getValue(Device* device) {
           case Dht11::ERROR_TIMEOUT:
             values[DHT11_TEMPERATUR_RESPONSE_POSITION] = 0;
             values[DHT11_HUMIDITY_RESPONSE_POSITION] = 0;
-            err("Unable to read from device (DHT Timeout).", ERROR_CODE_DEVICE_READ_ERROR);
+            err("DHT Timeout", ERROR_CODE_DEVICE_READ_ERROR);
             break;
           default:
             values[DHT11_TEMPERATUR_RESPONSE_POSITION] = 0;
             values[DHT11_HUMIDITY_RESPONSE_POSITION] = 0;
-            err("Unable to read from device (DHT error. Probably checksum).", ERROR_CODE_DEVICE_READ_ERROR);
+            err("DHT error.", ERROR_CODE_DEVICE_READ_ERROR);
             break;
        }
        
@@ -178,7 +178,7 @@ int* getValue(Device* device) {
    }
       break;
    default:
-    err("Unable to read from device.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE);
+    err("Bad device type", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE);
     break;
     
   }
@@ -201,7 +201,7 @@ void setValue(Device* device, int value) {
       break;
       
   default:
-    err("Unable to set setDevice (set device value). Specified device does not exist or is of a read-only DEVICE_TYPE.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_SET_DEVICE);
+    err("Unable to set setDevice.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_SET_DEVICE);
     
   }
 

@@ -82,7 +82,7 @@ ResponsePackage execute(RequestPackage *request) {
   #ifdef USE_RH24
   if (request->host != getNodeId()) {
   
-    R2_LOG("SENDING RH24 PACKAGE TO:");
+    R2_LOG(F("SENDING RH24 PACKAGE TO:"));
     R2_LOG(request->host);
     return rh24Send(request);
     
@@ -91,7 +91,7 @@ ResponsePackage execute(RequestPackage *request) {
 
    if (!initialized && request->action != ACTION_INITIALIZE) {
    
-     R2_LOG("Redirecting request to node:");
+     R2_LOG(F("Redirecting request to node:"));
      R2_LOG(request->host);
      // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
      response.action = ACTION_INITIALIZE;
@@ -111,7 +111,7 @@ ResponsePackage execute(RequestPackage *request) {
       // The parameters are everything (mainly port information) that comes after the type parameter.    
       byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
       
-      R2_LOG("Creating device of type:");
+      R2_LOG(F("Creating device of type:"));
       R2_LOG(type);
       createDevice(response.id, type, parameters);
       
@@ -125,11 +125,11 @@ ResponsePackage execute(RequestPackage *request) {
   
         if (!device) {
           
-          err("Device not found when trying to set value", ERROR_CODE_NO_DEVICE_FOUND);
+          err("Device not found", ERROR_CODE_NO_DEVICE_FOUND);
           
         } else {
           
-          R2_LOG("Setting device with id:");
+          R2_LOG(F("Setting device with id:"));
           R2_LOG(request->id);
           setValue(device, toInt16 ( request->args ));
         
@@ -143,7 +143,7 @@ ResponsePackage execute(RequestPackage *request) {
       {
         Device *device = getDevice(request->id);
        
-         R2_LOG("Retrieved device with id:");
+         R2_LOG(F("Retrieved device with id:"));
          R2_LOG(request->id);
        
         if (device) {
@@ -157,7 +157,7 @@ ResponsePackage execute(RequestPackage *request) {
           
         } else {
         
-          err("Device not found when trying to get value", ERROR_CODE_NO_DEVICE_FOUND);
+          err("Get: Device not found", ERROR_CODE_NO_DEVICE_FOUND);
           
         }
         
@@ -168,9 +168,9 @@ ResponsePackage execute(RequestPackage *request) {
         initialized = true;
         clearError();
         deviceCount = 0;
-        R2_LOG("Initializing");
+        R2_LOG(F("Initializing"));
         
-        for (int i = 0; i < MAX_DEVICES; i++) { void deleteDevice(byte i); }
+        for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
 
         response.action = ACTION_INITIALIZATION_OK;
         return response;
@@ -179,17 +179,16 @@ ResponsePackage execute(RequestPackage *request) {
     
      default:
      
-        err("Unknown action sent to device router.", ERROR_CODE_UNKNOWN_ACTION);
+        err("Unknown action.", ERROR_CODE_UNKNOWN_ACTION);
       
   }
   
     if (isError()) {
-  
-      response.contentSize = strlen(getErrorMessage()) > MAX_CONTENT_SIZE ? MAX_CONTENT_SIZE : strlen(getErrorMessage());
-      response.id = getErrorCode();
-    
-      for (int i = 0; i < response.contentSize; i++) { response.content[i] = ((byte*) getErrorMessage())[i]; }
-    
+      
+      response.action = ACTION_ERROR;
+      response.contentSize = 1;
+      response.content[0] = getErrorCode();
+
     }
   
   return response;

@@ -11,7 +11,7 @@
 
 #else
 
-#define R2_LOG(msg) (r2_debug(&msg))
+#define R2_LOG(msg) (msg == 0)
 
 #endif
 
@@ -23,7 +23,6 @@ void setError(bool on);
 
 // -- Various "helper" methods.
 
-void r2_debug(const void *msg);
 
 // Returns the node id used (will default to DEVICE_HOST_LOCAL if not stored). 
 byte getNodeId();
@@ -39,9 +38,6 @@ byte *asInt16(int value);
 
 // Set error state with a message.
 void err (const char* msg, int code);
-
-// Returns the current error message.
-const char* getErrorMessage();
 
 // Returns the latest error code
 byte getErrorCode();

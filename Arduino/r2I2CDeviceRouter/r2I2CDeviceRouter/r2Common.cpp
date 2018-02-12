@@ -12,12 +12,7 @@ void r2_debug(const void *msg) { }
 
 // Error handling
 
-const char* errMsg = NULL;
 byte errCode = 0;
-
-const char* getErrorMessage() {
-    return errMsg;
-}
 
 byte getErrorCode() {
     return errCode;
@@ -30,18 +25,15 @@ bool isError() {
 void clearError() {
   setError(false);
   errCode = 0;
-  errMsg = NULL;
 }
 
 void err (const char* msg, int code) {
 
   errCode = code;
   setError(true);
-#ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
+#ifdef R2_PRINT_DEBUG
     if (Serial && msg) { R2_LOG(msg); }
 #endif
-
-    errMsg = msg;
     
 }
 
@@ -60,30 +52,15 @@ void setError(bool on) {
 #endif
 
 }
-
-// This is my ID
-HOST_ADDRESS nodeIdXYZ = DEVICE_HOST_LOCAL;
-
-// Since the EEPROM operations seems to make stuff go haywire, we should not access it to often.
-bool hasReadNodeId = false;
-
 HOST_ADDRESS getNodeId() {
   
-  if (!hasReadNodeId) {
-    
-    nodeIdXYZ = EEPROM.read(NODE_ID_EEPROM_ADDRESS);
-    hasReadNodeId = true;
-
-  }
+  return EEPROM.read(NODE_ID_EEPROM_ADDRESS);
   
-  return nodeIdXYZ;
-
 }
 
 void saveNodeId(HOST_ADDRESS id) {
 
   EEPROM.write(NODE_ID_EEPROM_ADDRESS, id);
-  nodeIdXYZ = id;
   
 }
 

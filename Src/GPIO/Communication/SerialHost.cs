@@ -104,7 +104,7 @@ namespace GPIO
 
 			}
 
-			if (response.IsError) { throw new System.IO.IOException(System.Text.Encoding.Default.GetString(response.Content)); }
+			if (response.IsError) { throw new System.IO.IOException($"Response contained an error: '{response.Value}'"); }
 
 			return response;
 

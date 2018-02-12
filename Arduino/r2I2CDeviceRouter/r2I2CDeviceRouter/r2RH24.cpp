@@ -1,7 +1,7 @@
 #include "r2RH24.h"
 #include "r2Common.h"
 
-#define RH24_DEBUG
+//#define RH24_DEBUG
 
 #ifdef USE_RH24
 
@@ -23,14 +23,14 @@
 // Keeps track of the slave's address renewal timeout 
 uint32_t renewalTimer = 0;
 
+// Keeps track of the failures to renew address. 
+uint32_t slaveRenewalFailures = 0;
+
+// If this amount is reached, the mest.begin() should be called on the slave
+#define MAX_RENEWAL_FAILURE_COUNT 10
+
 // How often the slave will try to renew it's address 
 #define RH24_NETWORK_RENEWAL_TIME 2000
-
-// Used to keeep track of responses for each node
-bool waitingForResponse[MAX_NODES];
-
-// Contains the latest ResponsePackage received
-ResponsePackage lastResponse;
 
 // Message type sent over mesh considered to be device requests
 #define RH24_MESSAGE 'M'
@@ -45,27 +45,11 @@ bool isMaster();
 // This method should live in the run loop if the I'm a RH24 remote slave
 void rh24Slave();
 
-// This method should live in the run loop if the I'm a RH24 master.
-void rh24Master();
+// Blocks and waits for a ResponsePackage from any node..
+ResponsePackage rh24Read();
 
-// Use this to set errors if you're the master and encounter errors during communication with the slave.
-void rh24MasterError(const char*msg, byte code);
-
-// Will block until a response from <host> has arrived or when RH24_MAX_RESPONSE_TIMEOUT_COUNT * RH24_RESPONSE_DELAY ms. has been reached
-void waitForResponseFrom(byte host);
-
-#ifdef RH24_DEBUG
-
-uint32_t displayTimer = 0;
-RequestPackage payload;
-bool initialize_sent = false;
-bool initialize_ok = false;
-int msgCount = 0;
-int createdDeviceId = -1;
-
-void rh_debug_host();
-
-#endif
+// Blocks until data is available from a node or when timeout has been reached.
+bool waitForResponse();
 
 // -- Public method bodies
 
@@ -75,175 +59,133 @@ void rh24Setup() {
   delay(1000);
   byte id = getNodeId();
   
-  Serial.println("Start rh24Setup with id:");
+  R2_LOG(F("Start rh24Setup with id:"));
   R2_LOG(id);
  
-  lastResponse.host = id;
-  
   reservePort(RH24_PORT1);
   reservePort(RH24_PORT2);
   
-  R2_LOG("droedhudhoudhuordhuondhonudh");
-  for (int i = 0; i < MAX_NODES; i++) {
-    waitingForResponse[i] = false;
-  }
-  R2_LOG("xdondhuondhuondhondho");
-  if (!isMaster()) {  R2_LOG("Setting up as slave and "); }
-  R2_LOG("guodtnduotnodutou");
+  if (!isMaster()) {  R2_LOG(F("Setting up as slave and ")); }
+
   mesh.setNodeID(id);
-  R2_LOG("aoundodtsodt");
+  
   if (mesh.begin()) {
-    R2_LOG("Did start mesh network");
+    R2_LOG(F("Did start mesh network"));
   } else {
     return err("mesh.begin() timeod out", ERROR_RH24_TIMEOUT);  
   }
   
   
   if (!isMaster()) {  
-    R2_LOG("Slave started"); 
+    R2_LOG(F("Slave started")); 
   } else {
-    R2_LOG("Master started "); 
+    R2_LOG(F("Master started ")); 
   }
   
-  //#ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
-  //Serial.println(id);
-  //#endif
-  R2_LOG("Setup OK!"); 
+  R2_LOG(F("Setup OK!")); 
   radio.printDetails();
 }
 
-void waitForResponseFrom(byte host) {
+bool waitForResponse() {
 
   int responseTimer = 0;
   
-  while (waitingForResponse[host] && (responseTimer++) < RH24_MAX_RESPONSE_TIMEOUT_COUNT) { delay(RH24_RESPONSE_DELAY); }
+  while (!network.available() && (responseTimer++) < RH24_MAX_RESPONSE_TIMEOUT_COUNT) { delay(RH24_RESPONSE_DELAY); }
   
-  if (responseTimer == RH24_MAX_RESPONSE_TIMEOUT_COUNT) {
+  if (responseTimer == RH24_MAX_RESPONSE_TIMEOUT_COUNT) { return false; }
   
-      rh24MasterError("Response timed out.", ERROR_RH24_TIMEOUT);
-      waitingForResponse[host] = false;
-      
-  }
+  return true;
   
 }
 
-// Returns true if the package was sent.
+
+void rh24Communicate() {
+
+  mesh.update();
+  
+  if (isMaster()) { mesh.DHCP();
+  } else { rh24Slave(); }
+  
+}
+
 ResponsePackage rh24Send(RequestPackage* request) {
 
+  ResponsePackage response;
+ 
   for (int i = 0; i < mesh.addrListTop; i++) {
   
     if (request->host == mesh.addrList[i].nodeID) {
     
         RF24NetworkHeader header(mesh.addrList[i].address, OCT);
         
-        waitingForResponse[mesh.addrList[i].nodeID] = true;
+        if (!network.write(header, request, sizeof(RequestPackage))) {
         
-        if (!network.write(header, request, sizeof(request))) {
-        
-            rh24MasterError("Unable to write to slave", ERROR_RH24_WRITE_ERROR);
+            err("Unable to write to slave", ERROR_RH24_WRITE_ERROR);
         
         } else {
           
-            waitForResponseFrom(mesh.addrList[i].nodeID);
+            if (!waitForResponse()) {
+              
+              err("Response timed out.", ERROR_RH24_TIMEOUT);
+            
+          }
         
         }
        
-        return lastResponse;
+        return rh24Read();
         
     }
     
   }
   
-  rh24MasterError("Node not available", ERROR_RH24_NODE_NOT_AVAILABLE);
+  err("Unavailable", ERROR_RH24_NODE_NOT_AVAILABLE);
   
-  return lastResponse;
+  response.action = ACTION_ERROR;
+  return response;
   
 }
 
 // -- Private method bodies
 
-bool isMaster() {
-
-  byte id = getNodeId();
-  Serial.println("");
+ResponsePackage rh24Read() {
   
-  if (id == DEVICE_HOST_LOCAL) {
-    return true;
-  }
-  
-  return false;
-  
-}
-
-void rh24Communicate() {
-
-  R2_LOG("Will update");
-  mesh.update();
- //return delay (1000);
-  
-  if (isMaster()) {
-      R2_LOG("Will DHCP");
-      mesh.DHCP();
-      //R2_LOG("DID DHCP");
-#ifdef RH24_DEBUG
-    //R2_LOG("HHAHAHA");
-    //rh_debug_host();
-#endif
-
-    //rh24Master();
-    
-  } else {
-    
-    // The program won't run if this line is not here. Even if it's the master node...
-     rh24Slave();
-     
-  }
-  
-}
-
-void rh24Master() {
+   ResponsePackage response;
   
    if (network.available()) {
     
-          R2_LOG("Master received data.");
+          R2_LOG(F("Received data of type:"));
           RF24NetworkHeader header;
-          R2_LOG("message type:");
-          R2_LOG(header.type);
           network.peek(header);
+          R2_LOG(header.type);
           
           switch (header.type) {
             
             case RH24_MESSAGE:
             
                // Try to read the response from the slave
-              if (network.read(header, &lastResponse, sizeof(ResponsePackage)) != sizeof(ResponsePackage)) {
-                
-                rh24MasterError("Did not receive the expected data amount for the RH24 reply (void rh24Communicate()", ERROR_RH24_BAD_SIZE_READ);
+              if (network.read(header, &response, sizeof(ResponsePackage)) != sizeof(ResponsePackage)) {
+
+                err("Bad read size", ERROR_RH24_BAD_SIZE_READ);
                 
               } else {
               
-                R2_LOG("Read data from network.");
+                R2_LOG(F("Read data from network."));
                 
               }
               
-              // Tell rh24Send that we have a reply.
-              for (int i = 0; i < mesh.addrListTop; i++) {
-              
-                  // Try to match the header to a node id
-                  if (mesh.addrList[i].address == header.from_node) {
-    
-                    waitingForResponse[mesh.addrList[i].nodeID] = false;
-                
-                  }
-              
-              }  
-              
+            break; 
+            
             default:
+            
+              err("Unknown message.", ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR);
               network.read(header, 0, 0);
+              
           }
        
-         
     }
+    
+    response.action = ACTION_ERROR;
+    return response;
     
 }
 
@@ -253,12 +195,24 @@ void rh24Slave() {
   
     renewalTimer = millis();
     setStatus(true);
-    R2_LOG("R2: Will check connection on R2");
-  
-  if ( !mesh.checkConnection() ) {  
+#ifdef R2_PRINT_DEBUG
+    Serial.print("x");
+#endif
+
+  if ( !mesh.checkConnection() ) {
     
-    R2_LOG("Renewing address.");
+    if (slaveRenewalFailures++ > MAX_RENEWAL_FAILURE_COUNT) {
+    
+        R2_LOG(F("Reconnectinging to mesh."));
+        mesh.begin();
+        mesh.update();
+        slaveRenewalFailures = 0;
+        
+    }
+    
+    R2_LOG(F("Renewing address."));
     mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT); 
+    
   }
   
     setStatus(false);;
@@ -266,7 +220,7 @@ void rh24Slave() {
    
   while (network.available()) {
 
-      R2_LOG("got message");  
+      R2_LOG(F("Got message"));  
       RF24NetworkHeader header;
       
       network.peek(header);
@@ -276,116 +230,28 @@ void rh24Slave() {
       // Try to read the response from the slave
       if (network.read(header, &request, sizeof(RequestPackage)) != sizeof(RequestPackage)) {
         
-        err("Did not receive the expected data amount for the RH24 reply (rh24Slave()", ERROR_RH24_BAD_SIZE_READ);
+        err("E: Bad read size", ERROR_RH24_BAD_SIZE_READ);
         
       } else {
       
-        R2_LOG("parsed response");
-          ResponsePackage response = execute(&request);
+        
+        ResponsePackage response = execute(&request);
+        R2_LOG(F("Writing response with action:"));
+        R2_LOG(response.action);
         
           if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
       
-            err("Did not receive the expected data amount for the RH24 reply (rh24Slave()", ERROR_RH24_WRITE_ERROR);
+            err("E: Slave write", ERROR_RH24_WRITE_ERROR);
           
           }
       
       }
   
-}
+  } 
    
-   
 }
 
-void rh24MasterError(const char*msg, byte code) {
 
-#ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
-    if (Serial && msg) { R2_LOG(msg); }
-#endif
-
-  lastResponse.action = ACTION_ERROR;
-  lastResponse.id = code;
-  lastResponse.contentSize = strlen(msg);
-    
-  for (int i = 0; i < lastResponse.contentSize; i++) { lastResponse.content[i] = msg[i]; }
-  
-}
-
-// -------------------- DEBUG -------------------
-
-#ifdef RH24_DEBUG
-
-void rh_debug_host() {
-
-   if (millis() - displayTimer > 5000) {
-
-    displayTimer = millis();
-    
-    R2_LOG("Will send when ready.");
-    
-    for (int i = 0; i < mesh.addrListTop; i++) {
-
-      Serial.println(mesh.addrList[i].nodeID);
-      RF24NetworkHeader header(mesh.addrList[i].address, OCT); //Constructing a header
-      
-      waitingForResponse[mesh.addrList[i].nodeID] = true;
-      
-      payload.host = mesh.addrList[i].nodeID;
-      
-      if (!initialize_sent) {
-        
-        initialize_sent = true;
-        payload.action = ACTION_INITIALIZE;
-        
-      } else if (msgCount == 1) {
-        
-        R2_LOG("Creating create device package.");
-        payload.action = ACTION_CREATE_DEVICE;
-        payload.args[REQUEST_ARG_CREATE_TYPE_POSITION] = DEVICE_TYPE_DIGITAL_INPUT;
-        payload.args[REQUEST_ARG_CREATE_PORT_POSITION] = 0x2;
-        
-      } else {
-      
-          R2_LOG("Creating get device package");
-          payload.action = ACTION_GET_DEVICE;
-          payload.id = createdDeviceId;
-          
-      }
-      
-      network.write(header, &payload, sizeof(payload)) == 1 ? R2_LOG("Send OK") : R2_LOG("Send Fail");
-
-      waitForResponseFrom(mesh.addrList[i].nodeID);
-      
-      if (initialize_sent && !initialize_ok) {
-      
-        if (lastResponse.action != ACTION_INITIALIZATION_OK) { err("Initialize failed.", 0); }
-        else { initialize_ok = true; R2_LOG("Initialize ok."); }
-      
-      } else if (msgCount == 1 && lastResponse.action == ACTION_CREATE_DEVICE) {
-          
-         createdDeviceId = lastResponse.id;
-         R2_LOG("Created device width id:");
-         Serial.println(createdDeviceId);
-        
-      } else if (lastResponse.action == ACTION_GET_DEVICE) {
-      
-        R2_LOG("Got new value: ");
-        Serial.println(lastResponse.content[0] + (lastResponse.content[1] << 8));
-        
-      } else {
-      
-        err("Got bad response with action:", 0);
-        Serial.println(lastResponse.action);
-        
-      }
-      
-      msgCount++;
-   
-    }
-      
-  }
-  
-}
-
-#endif
+bool isMaster() { return DEVICE_HOST_LOCAL == getNodeId(); }
 
 #endif

@@ -85,7 +85,8 @@ namespace GPIO
 			
 				if (IsError) {
 				
-					return System.Text.Encoding.Default.GetString (Content);
+					// Create a string representation for now... 
+					return $"Error of type: `{(Content?.Length > 0 ? Content[0] : -1)}`.";
 				
 				} else if (Action == ActionType.Get) {
 				

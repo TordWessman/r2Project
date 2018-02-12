@@ -64,7 +64,8 @@ typedef struct Devices {
 #define ERROR_RH24_TIMEOUT 11
 // If a write operation fails for RH24
 #define ERROR_RH24_WRITE_ERROR 12
-
+// Unknown message. Returned if the host receives a message with an unexpected type.
+#define ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR 13
 // Removes a device from list and free resources
 void deleteDevice(byte id);
 
@@ -89,7 +90,7 @@ int* getValue(Device* device);
 #define MAX_RECEIZE_SIZE 100
 
 // The maximum size (in bytes) for package content;
-#define MAX_CONTENT_SIZE 100
+#define MAX_CONTENT_SIZE 10
 
 // Package "checksum" headers. Shuld initially be sent in the beginning of every transaction. 
 #define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}

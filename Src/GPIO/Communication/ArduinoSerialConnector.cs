@@ -35,8 +35,8 @@ namespace GPIO
 		public readonly byte[] PackageHeader = { 0xF0, 0x0F, 0xF1 };
 
 		private SerialPort m_serialPort;
-		public const int DEFAULT_BAUD_RATE = 115200;
-		private const int DEFAULT_TIMOUT_MS = 2000;
+		public const int DEFAULT_BAUD_RATE = 9600;
+		private const int DEFAULT_TIMOUT_MS = 4000;
 
 		/// <summary>
 		/// portIdentifier is either an explicit name of the port (i.e. /dev/ttyACM0) or a regexp pattern (i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
@@ -126,7 +126,7 @@ namespace GPIO
 
 				if (headerByte != PackageHeader [i]) {
 
-					throw new System.IO.IOException ($"Bad Package header: {headerByte} at {i}.");
+					throw new System.IO.IOException ($"Bad Package header: {headerByte} at {i} (should have been {PackageHeader [i]}).");
 				
 				}
 

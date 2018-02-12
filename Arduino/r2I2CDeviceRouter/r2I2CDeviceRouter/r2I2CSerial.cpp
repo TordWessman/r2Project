@@ -1,4 +1,5 @@
 #include "r2I2CSerial.h"
+#include "r2Common.h"
 
 #ifdef USE_SERIAL
 // Contains data during serial read.
@@ -27,8 +28,7 @@ void serialCommunicate() {
   if (Serial.available() > 0) {
 
     //delay(10);
-    
-    digitalWrite(0x4,1);
+    setStatus(true);
     if (!headerReceived) {
       
       rs = rx = 0;
@@ -61,7 +61,7 @@ void serialCommunicate() {
       
     } else if (rx == rs - 1) {
       
-      digitalWrite(0x4,0);
+      setStatus(false);
       readBuffer[rx] = Serial.read();
       
       headerReceived = false;

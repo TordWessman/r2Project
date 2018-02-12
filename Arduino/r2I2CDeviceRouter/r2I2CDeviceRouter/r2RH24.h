@@ -3,7 +3,7 @@
 
 #include "r2I2CDeviceRouter.h"
 
-// Returns true if the package was sent.
+// Send a package!
 ResponsePackage rh24Send(RequestPackage* request);
 
 // Initializes RH24 communication. Should be called in setup().

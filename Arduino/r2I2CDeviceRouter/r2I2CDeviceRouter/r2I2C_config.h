@@ -5,7 +5,7 @@
 //#define USE_I2C
 
 // If defined, serial communication will be enabled 
-//#define USE_SERIAL
+#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
 #define USE_RH24
@@ -33,7 +33,7 @@
 #define MAX_DEVICES 20
 
 // Use with caution. If defined, serial errors will be printed through serial port.
-#define PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
+//#define R2_PRINT_DEBUG
 
 // The address position used to store the node id 
 #define NODE_ID_EEPROM_ADDRESS 0x0

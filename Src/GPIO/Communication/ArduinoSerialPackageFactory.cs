@@ -49,9 +49,6 @@ namespace GPIO
 		// In the content part of the (create) message, here be the Type
 		public const int POSITION_CONTENT_DEVICE_TYPE = 0;
 
-		// If the POSITION_ACTION bart has this value, the response was an error.
-		public const byte ACTION_ERROR = 0xF0;
-
 		public ArduinoSerialPackageFactory() {
 
 			m_deviceCount = new byte[sizeof(byte) * 256];
