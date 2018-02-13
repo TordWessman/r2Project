@@ -111,7 +111,7 @@ namespace Core.Tests
 
 		class Invokable {
 		
-			public int Member;
+			public int Member = 0;
 
 			private string m_propertyMember;
 			public string Property { get { return m_propertyMember; } set { m_propertyMember = value;} }

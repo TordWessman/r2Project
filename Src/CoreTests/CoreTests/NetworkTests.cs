@@ -25,7 +25,6 @@ using Core.Device;
 using System.Threading;
 using System.Net;
 using Core.Scripting;
-using Core.Network;
 
 namespace Core.Tests
 {
