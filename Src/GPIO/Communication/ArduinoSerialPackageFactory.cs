@@ -23,8 +23,8 @@ namespace GPIO
 {
 	public class ArduinoSerialPackageFactory: ISerialPackageFactory
 	{
-		// Default local host value. This is the default host used. Data sent to other hosts requires a RH24 enabled slave (configured as RH24 master).
-		public const byte DEVICE_HOST_LOCAL = 0x0;
+		// Default local nodeId value. This is the default nodeId used. Data sent to other nodeIds requires a RH24 enabled slave (configured as RH24 master).
+		public const byte DEVICE_NODE_LOCAL = 0x0;
 
 		// Max size for content in packages
 		const int MAX_CONTENT_SIZE = 100;
@@ -41,13 +41,19 @@ namespace GPIO
 		private const byte MAXIMUM_NUMBER_OF_DEVICES_PER_HOST = 20;
 
 		public const int POSITION_HOST = 0;
-		public const int POSITION_ACTION = 1;
-		public const int POSITION_ID = 2;
-		public const int POSITION_CONTENT_LENGTH = 3;
-		public const int POSITION_CONTENT = 4;
+		public const int POSITION_ACTION = 0x1;
+		public const int POSITION_ID = 0x2;
+		public const int POSITION_CONTENT_LENGTH = 0x3;
+		public const int POSITION_CONTENT = 0x4;
 
 		// In the content part of the (create) message, here be the Type
 		public const int POSITION_CONTENT_DEVICE_TYPE = 0;
+
+		// Where the the error code resides in the response content
+		public const int POSITION_CONTENT_POSITION_ERROR_TYPE = 0;
+		// Where (potentional) additional error information resides int response content.
+		public const int POSITION_CONTENT_POSITION_ERROR_INFO = 0x1;
+
 
 		public ArduinoSerialPackageFactory() {
 
@@ -60,7 +66,7 @@ namespace GPIO
 			int contentLength = response [POSITION_CONTENT_LENGTH];
 
 			return new DeviceResponsePackage () {
-				Host = response [POSITION_HOST],
+				NodeId = response [POSITION_HOST],
 				Action = (ActionType)response [POSITION_ACTION],
 				Id = response [POSITION_ID],
 				Content = contentLength > 0 ? response.Skip (POSITION_CONTENT).Take (contentLength)?.ToArray () ?? new byte[]{ } : new byte[]{ }
@@ -68,7 +74,7 @@ namespace GPIO
 
 		}
 
-		public DeviceRequestPackage CreateDevice(byte hostId, SerialDeviceType type, byte[] ports) {
+		public DeviceRequestPackage CreateDevice(byte nodeId, SerialDeviceType type, byte[] ports) {
 
 			// Slave expects <device type><IOPort1><IOPort2> ...
 			byte[] content = new byte[1 + ports.Length];
@@ -82,9 +88,9 @@ namespace GPIO
 			}
 
 			DeviceRequestPackage package = new DeviceRequestPackage () { 
-				Host = hostId, 
+				NodeId = nodeId, 
 				Action = (byte) ActionType.Create, 
-				Id = m_deviceCount[hostId]++, // Id's for devices are normally managed by the slave, so this value will normally be ignored.
+				Id = m_deviceCount[nodeId]++,
 				Content = content
 			};
 
@@ -92,12 +98,12 @@ namespace GPIO
 
 		}
 
-		public DeviceRequestPackage SetDevice(byte deviceId, byte hostId, int value) {
+		public DeviceRequestPackage SetDevice(byte deviceId, byte nodeId, int value) {
 
 			byte[] content = { (byte) (value & 0xFF) , (byte) ((value >> 8) & 0xFF) };
 
 			return new DeviceRequestPackage () { 
-				Host = hostId, 
+				NodeId = nodeId, 
 				Action = (byte) ActionType.Set, 
 				Id = deviceId, 
 				Content = content 
@@ -105,10 +111,10 @@ namespace GPIO
 
 		}
 
-		public DeviceRequestPackage GetDevice(byte deviceId, byte hostId) {
+		public DeviceRequestPackage GetDevice(byte deviceId, byte nodeId) {
 
 			return new DeviceRequestPackage () { 
-				Host = hostId, 
+				NodeId = nodeId, 
 				Action = (byte) ActionType.Get, 
 				Id = deviceId, 
 				Content = {} 
@@ -116,10 +122,10 @@ namespace GPIO
 
 		}
 
-		public DeviceRequestPackage Initialize (byte host) {
+		public DeviceRequestPackage Initialize (byte nodeId) {
 
 			return new DeviceRequestPackage () { 
-				Host = host, 
+				NodeId = nodeId, 
 				Action = (byte) ActionType.Initialization, 
 				Id = 0x0, 
 				Content = {} 
@@ -127,16 +133,28 @@ namespace GPIO
 
 		}
 
-		public DeviceRequestPackage SetNodeId (byte host) {
+		public DeviceRequestPackage SetNodeId (byte nodeId) {
 
-			return new DeviceRequestPackage () { 
-				Host = 0x0, 
+			return new DeviceRequestPackage () {
+				NodeId = 0x0, 
 				Action = (byte) ActionType.Initialization, 
-				Id = host, 
+				Id = nodeId, 
 				Content = {} 
 			};
 
 		}
+
+		public DeviceRequestPackage IsNodeAvailable (byte nodeId) {
+
+			return new DeviceRequestPackage () { 
+				NodeId = 0x0, 
+				Action = (byte) ActionType.IsNodeAvailable, 
+				Id = nodeId, 
+				Content = {} 
+			};
+
+		}
+
 	}
 }
 

@@ -1,3 +1,4 @@
+#include "r2I2C_config.h"
 #include "r2RH24.h"
 #include "r2Common.h"
 
@@ -29,18 +30,21 @@ uint32_t slaveRenewalFailures = 0;
 // If this amount is reached, the mest.begin() should be called on the slave
 #define MAX_RENEWAL_FAILURE_COUNT 10
 
-// How often the slave will try to renew it's address 
-#define RH24_NETWORK_RENEWAL_TIME 2000
+// How often the slave will try to renew it's address (in ms)
+#define RH24_NETWORK_RENEWAL_TIME 4000
+
+// Timeout in ms before a network read operation fails
+#define RH24_READ_TIMEOUT 2000
 
 // Message type sent over mesh considered to be device requests
 #define RH24_MESSAGE 'M'
 
+// Ping message from non-master nodes
+#define RH24_PING 'P'
+
 // -- Private method declarations:
 
 #endif
-
-// Returns true if this node is a master node
-bool isMaster();
 
 // This method should live in the run loop if the I'm a RH24 remote slave
 void rh24Slave();
@@ -86,19 +90,6 @@ void rh24Setup() {
   radio.printDetails();
 }
 
-bool waitForResponse() {
-
-  int responseTimer = 0;
-  
-  while (!network.available() && (responseTimer++) < RH24_MAX_RESPONSE_TIMEOUT_COUNT) { delay(RH24_RESPONSE_DELAY); }
-  
-  if (responseTimer == RH24_MAX_RESPONSE_TIMEOUT_COUNT) { return false; }
-  
-  return true;
-  
-}
-
-
 void rh24Communicate() {
 
   mesh.update();
@@ -108,64 +99,125 @@ void rh24Communicate() {
   
 }
 
+bool nodeAvailable(HOST_ADDRESS nodeId) {
+
+  for (int i = 0; i < mesh.addrListTop; i++) {
+  
+    if (nodeId == mesh.addrList[i].nodeID) { return true; }
+  
+  }
+  
+  return false;
+    
+}
+
+int nodeCount() { return mesh.addrListTop; }
+
+HOST_ADDRESS* getNodes() {
+
+    HOST_ADDRESS* addresses = (HOST_ADDRESS*)malloc(mesh.addrListTop);
+    
+    for (int i = 0; i < mesh.addrListTop; i++) {
+       addresses[i] = mesh.addrList[i].nodeID;
+    }
+    
+    return addresses;
+  
+}
+
 ResponsePackage rh24Send(RequestPackage* request) {
 
   ResponsePackage response;
  
+  byte foundNodeId = 0;
+  
   for (int i = 0; i < mesh.addrListTop; i++) {
   
+    foundNodeId = mesh.addrList[i].nodeID;
+    
     if (request->host == mesh.addrList[i].nodeID) {
     
         RF24NetworkHeader header(mesh.addrList[i].address, OCT);
         
         if (!network.write(header, request, sizeof(RequestPackage))) {
         
-            err("Unable to write to slave", ERROR_RH24_WRITE_ERROR);
-        
+            err("Unable to write to slave", ERROR_RH24_WRITE_ERROR, request->host);
+            return response;
+            
         } else {
           
-            if (!waitForResponse()) {
-              
-              err("Response timed out.", ERROR_RH24_TIMEOUT);
-            
-          }
-        
+             response = rh24Read();
+             
+             // ignore ping messages:
+             while (!isError() && response.action == ACTION_RH24_PING) { response = rh24Read();   }
+             
+             return response;
+   
         }
-       
-        return rh24Read();
         
-    }
+     }
     
   }
   
-  err("Unavailable", ERROR_RH24_NODE_NOT_AVAILABLE);
+  err("Unavailable", ERROR_RH24_NODE_NOT_AVAILABLE, foundNodeId);{
+          
+             response = rh24Read();
+             
+             // ignore ping messages:
+             while (!isError() && response.action == ACTION_RH24_PING) { response = rh24Read();   }
+             
+             return response;
+   
+        }
   
-  response.action = ACTION_ERROR;
   return response;
   
 }
 
 // -- Private method bodies
 
+uint16_t previousReceivedId = 0;
+
 ResponsePackage rh24Read() {
   
    ResponsePackage response;
+   response.id = 0;
+   response.action = 0;
+
+   unsigned long responseTimer = millis();
   
-   if (network.available()) {
+   while (responseTimer + RH24_READ_TIMEOUT > millis() ) { 
     
-          R2_LOG(F("Received data of type:"));
+     mesh.update();
+     mesh.DHCP();
+     
+     if (network.available()) {
+    
           RF24NetworkHeader header;
           network.peek(header);
+          
+          if (previousReceivedId != 0 && header.id == previousReceivedId) {
+          
+             err("Duplicate msg", ERROR_RH24_DUPLICATE_MESSAGES);
+             return response;
+             
+          }
+          
+          previousReceivedId = header.id;
+          
+          R2_LOG(F("Received data of type:"));
           R2_LOG(header.type);
           
           switch (header.type) {
             
-            case RH24_MESSAGE:
+            case RH24_MESSAGE: {
             
                // Try to read the response from the slave
-              if (network.read(header, &response, sizeof(ResponsePackage)) != sizeof(ResponsePackage)) {
+              byte readSize = network.read(header, &response, sizeof(ResponsePackage));
+              
+              if (readSize != sizeof(ResponsePackage)) {
 
-                err("Bad read size", ERROR_RH24_BAD_SIZE_READ);
+                err("Bad read size", ERROR_RH24_BAD_SIZE_READ, readSize);
                 
               } else {
               
@@ -173,54 +225,97 @@ ResponsePackage rh24Read() {
                 
               }
               
-            break; 
+              // DEBUG ME:
+              if (response.action == ACTION_CREATE_DEVICE) {
+                 response.action == response.id;
+              }
+              
+              return response;
+              
+            } break; 
             
+            case RH24_PING: {
+              
+                R2_LOG(F("Got ping from node:"));
+                R2_LOG(header.from_node);
+                HOST_ADDRESS addr;
+                network.read(header, &addr, sizeof(HOST_ADDRESS));
+                R2_LOG(addr);
+                response.action = ACTION_RH24_PING;
+                
+                return response;
+                
+            } break;
+        
             default:
             
-              err("Unknown message.", ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR);
+              err("Unknown message.", ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR, header.type);
               network.read(header, 0, 0);
+              return response;
               
           }
-       
-    }
+         
+      } 
     
-    response.action = ACTION_ERROR;
-    return response;
+   }
+   
+   err("Read timeout.", ERROR_RH24_TIMEOUT);
+   
+   return response;
     
 }
 
+#ifdef R2_PRINT_DEBUG
+    int slaveDebugOutputCount = 0;
+#endif
+
 void rh24Slave() {
 
+  
+  // Begin check connection
   if (millis() - renewalTimer >= RH24_NETWORK_RENEWAL_TIME) {
   
     renewalTimer = millis();
     setStatus(true);
 #ifdef R2_PRINT_DEBUG
     Serial.print("x");
+    if (slaveDebugOutputCount++ > 30) { Serial.println(""); slaveDebugOutputCount = 0; }
 #endif
 
-  if ( !mesh.checkConnection() ) {
+    HOST_ADDRESS addr = getNodeId();
     
-    if (slaveRenewalFailures++ > MAX_RENEWAL_FAILURE_COUNT) {
+    //if (!mesh.write(&addr, RH24_PING, sizeof(HOST_ADDRESS))) {
+      
+      if ( !mesh.checkConnection() ) {
     
-        R2_LOG(F("Reconnectinging to mesh."));
-        mesh.begin();
-        mesh.update();
-        slaveRenewalFailures = 0;
+        if (slaveRenewalFailures++ > MAX_RENEWAL_FAILURE_COUNT) {
         
-    }
-    
-    R2_LOG(F("Renewing address."));
-    mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT); 
-    
-  }
+            R2_LOG(F("Reconnectinging to mesh."));
+            mesh.begin();
+            mesh.update();
+            slaveRenewalFailures = 0;
+            
+        }
+        
+        R2_LOG(F("Renewing address."));
+        mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT); 
+        
+        }
   
-    setStatus(false);;
-}
+      setStatus(false);
+      
+     //}
    
+  }
+    
+   //End check connection
+   
+   //Begin try read
+ 
   while (network.available()) {
 
       R2_LOG(F("Got message"));  
+      
       RF24NetworkHeader header;
       
       network.peek(header);
@@ -233,21 +328,22 @@ void rh24Slave() {
         err("E: Bad read size", ERROR_RH24_BAD_SIZE_READ);
         
       } else {
-      
         
         ResponsePackage response = execute(&request);
-        R2_LOG(F("Writing response with action:"));
+        R2_LOG(F("Writing response with action & id:"));
         R2_LOG(response.action);
+        R2_LOG(response.id);
+        if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
+    
+          err("E: Slave write", ERROR_RH24_WRITE_ERROR);
         
-          if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
-      
-            err("E: Slave write", ERROR_RH24_WRITE_ERROR);
-          
-          }
+        }
       
       }
   
   } 
+   
+   // End tryread
    
 }
 

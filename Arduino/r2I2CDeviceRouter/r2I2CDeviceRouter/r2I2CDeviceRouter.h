@@ -8,6 +8,8 @@
 typedef byte DEVICE_TYPE;
 typedef byte HOST_ADDRESS;
 
+#define DEVICE_MAX_PORTS 2
+
 typedef struct Devices {
 
   // Unique id of the perephial (device).
@@ -16,8 +18,8 @@ typedef struct Devices {
   // Type of the device (i e DEVICE_TYPE_DIGITAL_INPUT).
   DEVICE_TYPE type;
   
-  // What I/O ports is used for the device. (max 4)
-  byte IOPorts[4];
+  // What I/O ports is used for the device. (max DEVICE_MAX_PORTS)
+  byte IOPorts[DEVICE_MAX_PORTS];
   
   // The host containing this device (DEVICE_HOST_LOCAL if not remote).
   HOST_ADDRESS host;
@@ -66,13 +68,20 @@ typedef struct Devices {
 #define ERROR_RH24_WRITE_ERROR 12
 // Unknown message. Returned if the host receives a message with an unexpected type.
 #define ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR 13
+// If the the master's read operation was unable to retrieve data.
+#define ERROR_RH24_NO_NETWORK_DATA 14
+// Routing through a node that is not the master is not supported.
+#define ERROR_RH24_ROUTING_THROUG_NON_MASTER 15
+// If the master receives two messages with the same id
+#define ERROR_RH24_DUPLICATE_MESSAGES 16
+
 // Removes a device from list and free resources
 void deleteDevice(byte id);
 
 // Creates and stores a Device using the specified parameters.
 void createDevice(byte id, DEVICE_TYPE type, byte* input);
 
-// Tries to reserve the IO-Port. if reserved: return false and sets the error flag.
+// Tries to reserve the IO-Port. if reserved: return false and sets the error flag if port was already reserved.
 bool reservePort(byte IOPort);
 
 // Returns a pointer to a device with the specified id
@@ -103,13 +112,26 @@ typedef byte ACTION_TYPE;
 // The slave has been restarted and requires reinitialization.
 #define ACTION_REQUIRE_INITIALIZATION 0xF0
 
-// Normal actions.
+//--- Actions:
+
+// Creates a device
 #define ACTION_CREATE_DEVICE 0x1
+// Sets the value of a device
 #define ACTION_SET_DEVICE 0x2
+// Returns the value of a device
 #define ACTION_GET_DEVICE 0x3
+// Re-set (initialize) the controller
 #define ACTION_INITIALIZE 0x4
+// Return action message indicating that the initialization was successful
 #define ACTION_INITIALIZATION_OK 0x5
+// Set nodeId for the controller. This method will override any network communication
 #define ACTION_SET_NODE_ID 0x6
+// To check if the node is connected
+#define ACTION_CHECK_NODE 0x7
+// To retrieve a list of nodes
+#define ACTION_GET_NODES 0x8
+// Internally used by RH24 to distinguish regular messages from ping messages.
+#define ACTION_RH24_PING 0x9
 
 // Used by the create request.
 #define REQUEST_ARG_CREATE_TYPE_POSITION 0x0 // Position of the type to create.
@@ -120,9 +142,19 @@ typedef byte ACTION_TYPE;
 #define HCSR04_SONAR_ECHO_PORT 0x1
 #define HCSR04_SONAR_DISTANCE_DENOMIATOR 58 // I found this number somewhere
 
+// -- RESPONSE POSITIONS FOR ResponsePackage.content:
+
 // Here be response positions for DHT11
-#define DHT11_TEMPERATUR_RESPONSE_POSITION 0x0
-#define DHT11_HUMIDITY_RESPONSE_POSITION 0x1
+#define RESPONSE_POSITION_DHT11_TEMPERATURE 0x0
+#define RESPONSE_POSITION_DHT11_HUMIDITY 0x1
+
+// The response part containing the error code
+#define RESPONSE_POSITION_ERROR_TYPE 0x0
+// Might contain additional error information
+#define RESPONSE_POSITION_ERROR_INFO 0x1
+
+// The response position containing host availability information
+#define RESPONSE_POSITION_HOST_AVAILABLE 0x0
 
 // Number of arguments to return in response
 #define RESPONSE_VALUE_COUNT 2

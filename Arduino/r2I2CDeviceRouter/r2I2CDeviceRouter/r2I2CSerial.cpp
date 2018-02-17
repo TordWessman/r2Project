@@ -68,7 +68,8 @@ void serialCommunicate() {
       
       rs = rx = 0;
       
-      ResponsePackage out = interpret(readBuffer); 
+      ResponsePackage out = execute((RequestPackage*)readBuffer); 
+      
       byte *outputBuffer = (byte *)&out;
       int outputSize = RESPONSE_PACKAGE_SIZE(out);
   

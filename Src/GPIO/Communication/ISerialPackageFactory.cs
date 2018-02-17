@@ -26,12 +26,19 @@ namespace GPIO
 	{
 
 		/// <summary>
+		/// Parses raw response into a response package.
+		/// </summary>
+		/// <returns>The response.</returns>
+		/// <param name="response">Response.</param>
+		DeviceResponsePackage ParseResponse (byte[] response);
+
+		/// <summary>
 		/// Creates a "Create device package". ports-requirements must be applicable to the requirements of the device.  
 		/// </summary>
 		/// <returns>The device.</returns>
 		/// <param name="type">Type.</param>
 		/// <param name="port">Port.</param>
-		DeviceRequestPackage CreateDevice(byte hostId, SerialDeviceType type, byte[] ports);
+		DeviceRequestPackage CreateDevice(byte nodeId, SerialDeviceType type, byte[] ports);
 
 		/// <summary>
 		/// Creates a "Set device package" used to set the value of a device (previously created through a CreateDevice package call).
@@ -39,27 +46,27 @@ namespace GPIO
 		/// <returns>The device.</returns>
 		/// <param name="remoteDeviceId">Remote device identifier.</param>
 		/// <param name="value">Value.</param>
-		DeviceRequestPackage SetDevice(byte deviceId, byte hostId, int value);
+		DeviceRequestPackage SetDevice(byte deviceId, byte nodeId, int value);
 
 		/// <summary>
 		/// Used for returning the value of a device.
 		/// </summary>
 		/// <returns>The device.</returns>
 		/// <param name="remoteDeviceId">Remote device identifier.</param>
-		DeviceRequestPackage GetDevice(byte deviceId, byte hostId);
+		DeviceRequestPackage GetDevice(byte deviceId, byte nodeId);
 
 		/// <summary>
 		/// Initializes (resets) the host and prepare it for new devices (and clearing any configuration of the slave). `host` is the address of the host to reset.
 		/// </summary>
 		/// <param name="host">Host.</param>
-		DeviceRequestPackage Initialize (byte hostId);
+		DeviceRequestPackage Initialize (byte nodeId);
 
 		/// <summary>
-		/// Parses raw response into a response package.
+		/// Creates a check-node-id package used to determine weither a node is connected or not. 
 		/// </summary>
-		/// <returns>The response.</returns>
-		/// <param name="response">Response.</param>
-		DeviceResponsePackage ParseResponse (byte[] response);
+		/// <returns><c>true</c> if this instance is node available the specified nodeId; otherwise, <c>false</c>.</returns>
+		/// <param name="nodeId">Node identifier.</param>
+		DeviceRequestPackage IsNodeAvailable (byte nodeId);
 
 	}
 

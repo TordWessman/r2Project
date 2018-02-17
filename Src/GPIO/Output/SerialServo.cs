@@ -25,15 +25,15 @@ namespace GPIO
 		private int m_port;
 		private float m_value;
 
-		public SerialServo  (string id, byte hostId, ISerialHost host, int port): base(id, hostId, host) {
+		public SerialServo  (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
 
 			m_port = port;
 		
 		}
 
-		protected override byte Update() {
+		protected override byte ReCreate() {
 
-			return Host.Create ((byte)HostId, SerialDeviceType.Servo, new byte[]{  (byte)m_port  });
+			return Host.Create ( (byte)NodeId, SerialDeviceType.Servo, new byte[]{ (byte) m_port  });
 
 		}
 
@@ -44,7 +44,7 @@ namespace GPIO
 			set {
 
 				m_value = value;
-				Host.Set (DeviceId, HostId, (int) value);
+				Host.Set (DeviceId, NodeId, (int) value);
 
 			}
 

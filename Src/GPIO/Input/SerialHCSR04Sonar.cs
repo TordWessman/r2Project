@@ -26,20 +26,20 @@ namespace GPIO
 		private int m_echoPort;
 		private int m_triggerPort;
 
-		public SerialHCSR04Sonar (string id, byte hostId, ISerialHost host, int triggerPort, int echoPort): base(id, hostId, host) {
+		public SerialHCSR04Sonar (string id, byte nodeId, ISerialHost host, int triggerPort, int echoPort): base(id, nodeId, host) {
 
 			m_echoPort = echoPort;
 			m_triggerPort = triggerPort;
 		
 		}
 
-		protected override byte Update() {
+		protected override byte ReCreate() {
 
-			return Host.Create ((byte)HostId, SerialDeviceType.Sonar_HCSR04, new byte[]{  (byte)m_triggerPort, (byte)m_echoPort  });
+			return Host.Create ((byte)NodeId, SerialDeviceType.Sonar_HCSR04, new byte[]{  (byte)m_triggerPort, (byte)m_echoPort  });
 
 		}
 
-		public int Value { get { return ((int[]) Host.GetValue(DeviceId, HostId))[0]; } }
+		public int Value { get { return ((int[]) Host.GetValue(DeviceId, NodeId))[0]; } }
 
 	}
 }

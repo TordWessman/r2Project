@@ -13,6 +13,7 @@ void r2_debug(const void *msg) { }
 // Error handling
 
 byte errCode = 0;
+byte errInfo = 0;
 
 byte getErrorCode() {
     return errCode;
@@ -25,10 +26,18 @@ bool isError() {
 void clearError() {
   setError(false);
   errCode = 0;
+  errInfo = 0;
 }
 
-void err (const char* msg, int code) {
+void err (const char* msg, byte code) {
 
+    err(msg, code, 0);
+    
+}
+
+void err (const char* msg, byte code, byte info) {
+
+  errInfo = info;  
   errCode = code;
   setError(true);
 #ifdef R2_PRINT_DEBUG
@@ -37,10 +46,24 @@ void err (const char* msg, int code) {
     
 }
 
+ResponsePackage createErrorPackage(HOST_ADDRESS host) {
+
+  ResponsePackage response;
+    
+  response.host = host;
+  response.action = ACTION_ERROR;
+  response.id = 42;
+  response.contentSize = 2;
+  response.content[RESPONSE_POSITION_ERROR_TYPE] = errCode;
+  response.content[RESPONSE_POSITION_ERROR_INFO] = errInfo;
+
+  return response;
+  
+}
 void setStatus(bool on) {
 
 #ifdef R2_STATUS_LED
-  digitalWrite(R2_ERROR_LED, on ? 1 : 0); 
+  digitalWrite(R2_STATUS_LED, on ? 1 : 0); 
 #endif
 
 }

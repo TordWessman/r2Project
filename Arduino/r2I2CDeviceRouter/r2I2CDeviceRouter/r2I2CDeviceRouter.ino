@@ -25,38 +25,24 @@
   #include "r2RH24.h"
 #endif
 
-
-// Keeps track of the available devices.
-byte deviceCount = 0;
-
 // If true, the host is ready for operation. This flag is set after ACTION_INITIALIZE has been received.
 bool initialized = false;
+
+// Keeps track of the devices (and thus their id's).
+byte deviceCount = 0;
 
 #ifdef USE_I2C
 
 // Delegate method for I2C event communication.
 void i2cReceive(byte* data, int data_size) {
 
-  ResponsePackage out = interpret(data); 
+  ResponsePackage out = interpret((RequestPackage*)data); 
   byte *response = (byte *)&out;
   R2I2C.setResponse(response, RESPONSE_PACKAGE_SIZE(out));
   
 }
 
 #endif
-
-ResponsePackage interpret(byte* input) {
-
-  RequestPackage *request = (RequestPackage*) input;
-
-  ResponsePackage out = execute(request);
-  
-  // Reset error state
-  clearError();
-
-  return out;
-  
-}
 
 ResponsePackage execute(RequestPackage *request) {
   
@@ -74,122 +60,141 @@ ResponsePackage execute(RequestPackage *request) {
       
         // Store the id. This host will now be known as 'request->id'.
       saveNodeId(request->id);
-      
       return response;
         
-  }
+  }  
   
   #ifdef USE_RH24
-  if (request->host != getNodeId()) {
+  
+  if (request->action == ACTION_CHECK_NODE) {
+  
+    response.contentSize = 1;
+    response.content[RESPONSE_POSITION_HOST_AVAILABLE] = nodeAvailable(request->host);
+  
+  } else if (request->action == ACTION_GET_NODES) {
+  
+    HOST_ADDRESS *nodes = getNodes();
+    int count = nodeCount() > MAX_CONTENT_SIZE ? MAX_CONTENT_SIZE : nodeCount();
+    
+    response.contentSize = count;
+    
+    for (int i = 0; i < count; i++) { response.content[i] = nodes[i];  }
+    
+    free(nodes);
+  
+  } else if (isMaster() && request->host != getNodeId()) {
   
     R2_LOG(F("SENDING RH24 PACKAGE TO:"));
     R2_LOG(request->host);
-    return rh24Send(request);
+    response = rh24Send(request);
     
-  }
+  } else if (!isMaster() && request->host != getNodeId()) {
+    
+    err("Bad routing", ERROR_RH24_ROUTING_THROUG_NON_MASTER);
+
+  } else {
+  
   #endif
-
-   if (!initialized && request->action != ACTION_INITIALIZE) {
-   
-     R2_LOG(F("Redirecting request to node:"));
-     R2_LOG(request->host);
-     // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
-     response.action = ACTION_INITIALIZE;
-     return response;
-     
-   }
-   
-  switch(request->action) {
   
-    case ACTION_CREATE_DEVICE:
-    {
-      response.id = deviceCount++;
-
-      // Get the type of the device to create from the args.
-      DEVICE_TYPE type = request->args[REQUEST_ARG_CREATE_TYPE_POSITION];
-      
-      // The parameters are everything (mainly port information) that comes after the type parameter.    
-      byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
-      
-      R2_LOG(F("Creating device of type:"));
-      R2_LOG(type);
-      createDevice(response.id, type, parameters);
-      
-    }
+     if (!initialized && request->action != ACTION_INITIALIZE) {
      
-    break;
-      
-    case ACTION_SET_DEVICE:
-      {
-        Device *device = getDevice(request->id);
-  
-        if (!device) {
-          
-          err("Device not found", ERROR_CODE_NO_DEVICE_FOUND);
-          
-        } else {
-          
-          R2_LOG(F("Setting device with id:"));
-          R2_LOG(request->id);
-          setValue(device, toInt16 ( request->args ));
-        
-        }
-        
-      }
-      
-      break;
-      
-      case ACTION_GET_DEVICE:
-      {
-        Device *device = getDevice(request->id);
+       R2_LOG(F("I'm not initialized. Please do so..."));
+       R2_LOG(request->host);
+       // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
+       response.action = ACTION_INITIALIZE;
+       return response;
        
-         R2_LOG(F("Retrieved device with id:"));
-         R2_LOG(request->id);
-       
-        if (device) {
-      
-          response.contentSize = RESPONSE_VALUE_CONTENT_SIZE;
-          byte *result = (byte *)getValue(device);
-          
-          for (int i = 0; i < response.contentSize; i++) { response.content[i] = result[i]; }
-          
-          free (result);
-          
-        } else {
-        
-          err("Get: Device not found", ERROR_CODE_NO_DEVICE_FOUND);
-          
-        }
-        
-      }
-      break;
-      case ACTION_INITIALIZE:
-      
-        initialized = true;
-        clearError();
-        deviceCount = 0;
-        R2_LOG(F("Initializing"));
-        
-        for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
-
-        response.action = ACTION_INITIALIZATION_OK;
-        return response;
-        
-      break;
+     }
+     
+    switch(request->action) {
     
-     default:
-     
-        err("Unknown action.", ERROR_CODE_UNKNOWN_ACTION);
-      
-  }
+      case ACTION_CREATE_DEVICE: {
+        
+        response.id = deviceCount++;
   
-    if (isError()) {
+        // Get the type of the device to create from the args.
+        DEVICE_TYPE type = request->args[REQUEST_ARG_CREATE_TYPE_POSITION];
+        
+        // The parameters are everything (mainly port information) that comes after the type parameter.    
+        byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
+        
+        R2_LOG(F("Creating device of type:"));
+        R2_LOG(type);
+        R2_LOG(F("With id:"));
+        R2_LOG(response.id);
+        createDevice(response.id, type, parameters);
+        
+      } break;
+        
+      case ACTION_SET_DEVICE: {
+        
+          Device *device = getDevice(request->id);
+    
+          if (!device) {
+            
+            err("Device not found", ERROR_CODE_NO_DEVICE_FOUND);
+            
+          } else {
+            
+            R2_LOG(F("Setting device with id:"));
+            R2_LOG(request->id);
+            setValue(device, toInt16 ( request->args ));
+          
+          }
+          
+        } break;
+        
+        case ACTION_GET_DEVICE: {
+          
+            R2_LOG(F("Retrieved device with id:"));
+            R2_LOG(request->id);
+         
+           Device *device = getDevice(request->id);
+         
+          if (device) {
+        
+            response.contentSize = RESPONSE_VALUE_CONTENT_SIZE;
+            byte *result = (byte *)getValue(device);
+            
+            for (int i = 0; i < response.contentSize; i++) { response.content[i] = result[i]; }
+            
+            free (result);
+            
+          } else {
+          
+            err("Get: Device not found", ERROR_CODE_NO_DEVICE_FOUND);
+            
+          }
+          
+        } break;
+        
+        case ACTION_INITIALIZE:
+          
+          deviceCount = 0;
+          initialized = true;
+          clearError();
+          R2_LOG(F("Initializing"));
+          
+          for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
+  
+          response.action = ACTION_INITIALIZATION_OK;
+          return response;
+          
+        break;
       
-      response.action = ACTION_ERROR;
-      response.contentSize = 1;
-      response.content[0] = getErrorCode();
-
+       default:
+       
+          err("Unknown action.", ERROR_CODE_UNKNOWN_ACTION);
+          
     }
+  
+#ifdef USE_RH24
+  }
+#endif
+  if (isError()) { response = createErrorPackage(response.host); }
+  
+  // Reset error state
+  clearError();
   
   return response;
   

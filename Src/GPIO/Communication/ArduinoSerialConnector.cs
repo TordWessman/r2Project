@@ -93,7 +93,7 @@ namespace GPIO
 		public override bool Ready { get { return m_serialPort.IsOpen; } }
 
 		public byte[] Send(byte[] request) {
-
+			
 			if (m_serialPort.BytesToRead > 0) {
 
 				m_serialPort.ReadExisting ();

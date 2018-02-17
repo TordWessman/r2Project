@@ -26,7 +26,7 @@ namespace GPIO
 		// The id of the device at the slave device
 		private byte m_deviceId;
 		// The id for the host where the device resides
-		private byte m_hostId;
+		private byte m_nodeId;
 
 		// The I/O port on the device
 		private int m_port;
@@ -36,20 +36,20 @@ namespace GPIO
 		// ISerialDevice implementation
 		public void Synchronize() {
 
-			m_deviceId = m_host.Create (m_hostId, SerialDeviceType.DigitalInput, new byte[]{  (byte)m_port  });
+			m_deviceId = m_host.Create (m_nodeId, SerialDeviceType.DigitalInput, new byte[]{  (byte)m_port  });
 
 		}
 
-		public SerialDigitalInput (string id, byte hostId, ISerialHost host, int port): base(id)
+		public SerialDigitalInput (string id, byte nodeId, ISerialHost host, int port): base(id)
 		{
 			m_port = port;
 			m_host = host;
-			m_hostId = hostId;
+			m_nodeId = nodeId;
 		}
 
 		#region IInputPort implementation
 
-		public override bool Value { get { return ((int[]) m_host.GetValue(m_deviceId, m_hostId))[0] == 1; } }
+		public override bool Value { get { return ((int[]) m_host.GetValue(m_deviceId, m_nodeId))[0] == 1; } }
 
 		#endregion
 

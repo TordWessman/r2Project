@@ -49,13 +49,53 @@ namespace GPIO
 		Error = 0xF0,	// Yep, this was an error (only used by responses).
 		Initialization = 0x4, // As a request header, this tells the slave that it's ready for communication. As a response header, this indicate that the slave has been rebooted and needs to be reinitialized.
 		InitializationOk = 0x5, // Response header telling that the initialization was successfull.
-		SetNodeId = 0x6 // This action will cause the node to change it's id. This action should not be propagated.
+		SetNodeId = 0x6, // This action will cause the node to change it's id. This action should not be propagated.
+		IsNodeAvailable = 0x7, // Check if a specified host, determined by `Host` is currently connected.
+		GetNodes = 0x8 // Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h).
+	}
+
+	public enum ErrorType: byte {
+	
+		// No error status was received, but response indicated an error.
+		Undefined = 0,
+		// No device with the specified id was found.
+		NO_DEVICE_FOUND = 1,
+		// The port you're trying to assign is in use.
+		PORT_IN_USE = 2,
+		// The device type specified was not declared
+		DEVICE_TYPE_NOT_FOUND = 3,
+		// Too many devices has been allocated
+		MAX_DEVICES_IN_USE = 4,
+		// This device does not suport set operation
+		DEVICE_TYPE_NOT_FOUND_SET_DEVICE = 5,
+		// This device does not support read operation
+		DEVICE_TYPE_NOT_FOUND_READ_DEVICE = 6,
+		// Unknown action received
+		UNKNOWN_ACTION = 7,
+		// General device read error
+		DEVICE_READ_ERROR = 8,
+		// The node (during remote communication) was not available.
+		RH24_NODE_NOT_AVAILABLE = 9,
+		// Whenever a read did not return the expected size
+		RH24_BAD_SIZE_READ = 10,
+		// Called if a read-write timed out during RH24 communication
+		RH24_TIMEOUT = 11,
+		// If a write operation fails for RH24
+		RH24_WRITE_ERROR = 12,
+		// Unknown message. Returned if the host receives a message with an unexpected type.
+		RH24_UNKNOWN_MESSAGE_TYPE_ERROR = 13,
+		// If the the master's read operation was unable to retrieve data.
+		ERROR_RH24_NO_NETWORK_DATA = 14,
+		// Routing through a node that is not the master is not supported.
+		ERROR_RH24_ROUTING_THROUG_NON_MASTER = 15,
+		// If the master receives two messages with the same id
+		ERROR_RH24_DUPLICATE_MESSAGES = 16
 	}
 
 	public struct DeviceResponsePackage {
 	
 		// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
-		public byte Host;
+		public byte NodeId;
 
 		// Action required by slave.
 		public ActionType Action;
@@ -85,9 +125,12 @@ namespace GPIO
 			
 				if (IsError) {
 				
-					// Create a string representation for now... 
-					return $"Error of type: `{(Content?.Length > 0 ? Content[0] : -1)}`.";
+					return (Content?.Length ?? 0) > 0 ? (ErrorType) Content[ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : ErrorType.Undefined;
 				
+				} else if (Action == ActionType.IsNodeAvailable) {
+
+					return Content [0] > 0; 
+
 				} else if (Action == ActionType.Get) {
 				
 					int[] values = new int[NUMBER_OF_RETURN_VALUES];
@@ -112,7 +155,7 @@ namespace GPIO
 	public struct DeviceRequestPackage
 	{
 		// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
-		public byte Host;
+		public byte NodeId;
 
 		// Action required by slave.
 		public byte Action;

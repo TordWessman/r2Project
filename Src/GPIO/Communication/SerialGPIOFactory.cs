@@ -56,13 +56,13 @@ namespace GPIO
 		/// <summary>
 		/// Called whenever the slave informs that it did reset and that it needs to be reinitialized.
 		/// </summary>
-		/// <param name="hostId">Host identifier.</param>
-		private void HostDidReset(byte hostId) {
+		/// <param name="nodeId">nodeId identifier.</param>
+		private void HostDidReset(byte nodeId) {
 
-			if (m_devices.ContainsKey (hostId)) {
+			if (m_devices.ContainsKey (nodeId)) {
 			
 				// Resynchronize each device
-				m_devices [hostId].ForEach (device => device.Synchronize ());
+				m_devices [nodeId].ForEach (device => device.Synchronize ());
 
 			}
 
@@ -88,63 +88,63 @@ namespace GPIO
 		/// <summary>
 		/// Synchronizes the device to the host and add it for re-synchronization purposes.
 		/// </summary>
-		/// <param name="hostId">Host identifier.</param>
+		/// <param name="nodeId">Host identifier.</param>
 		/// <param name="device">Device.</param>
-		private void SynchronizeDevice(byte hostId, ISerialDevice device) {
+		private void SynchronizeDevice(byte nodeId, ISerialDevice device) {
 		
-			if (!m_devices.ContainsKey (hostId)) { m_devices.Add(hostId, new List<ISerialDevice>()); }
-			m_devices [hostId].Add (device);
+			if (!m_devices.ContainsKey (nodeId)) { m_devices.Add(nodeId, new List<ISerialDevice>()); }
+			m_devices [nodeId].Add (device);
 
 			// Synchronize the device with the slave host
 			device.Synchronize ();
 
 		}
 
-		public IInputMeter<double> CreateAnalogInput (string id, int port, int hostId = ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL) {
+		public IInputMeter<double> CreateAnalogInput (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialAnalogInput (id, (byte)hostId, m_connection, port); 
-			SynchronizeDevice ((byte) hostId, device);
+			var device = new SerialAnalogInput (id, (byte)nodeId, m_connection, port); 
+			SynchronizeDevice ((byte) nodeId, device);
 			return device; 
 
 		}
 
-		public IInputPort CreateInputPort (string id, int port, int hostId = ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL) {
+		public IInputPort CreateInputPort (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 		
-			var device = new SerialDigitalInput (id, (byte)hostId, m_connection, port); 
-			SynchronizeDevice ((byte) hostId, device);
+			var device = new SerialDigitalInput (id, (byte)nodeId, m_connection, port); 
+			SynchronizeDevice ((byte) nodeId, device);
 			return device; 
 
 		}
 
 
-		public IOutputPort CreateOutputPort (string id, int port, int hostId = ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL) {
+		public IOutputPort CreateOutputPort (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialDigitalOutput (id, (byte)hostId, m_connection, port); 
-			SynchronizeDevice ((byte) hostId, device);
+			var device = new SerialDigitalOutput (id, (byte)nodeId, m_connection, port); 
+			SynchronizeDevice ((byte) nodeId, device);
 			return device; 
 
 		}
 
-		public IServo CreateServo (string id, int port, int hostId = ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL) {
+		public IServo CreateServo (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialServo (id, (byte)hostId, m_connection, port); 
-			SynchronizeDevice ((byte) hostId, device);
+			var device = new SerialServo (id, (byte)nodeId, m_connection, port); 
+			SynchronizeDevice ((byte) nodeId, device);
 			return device; 
 
 		}
 
-		public IInputMeter<int> CreateSonar (string id, int triggerPort, int echoPort, int hostId = ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL) {
+		public IInputMeter<int> CreateSonar (string id, int triggerPort, int echoPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialHCSR04Sonar (id, (byte)hostId, m_connection, triggerPort, echoPort); 
-			SynchronizeDevice ((byte) hostId, device);
+			var device = new SerialHCSR04Sonar (id, (byte)nodeId, m_connection, triggerPort, echoPort); 
+			SynchronizeDevice ((byte) nodeId, device);
 			return device; 
 
 		}
 
-		public IDHT11 CreateDht11 (string id, int port, int hostId = ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL) {
+		public IDHT11 CreateDht11 (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialDHT11(id, (byte)hostId, m_connection, port); 
-			SynchronizeDevice ((byte) hostId, device);
+			var device = new SerialDHT11(id, (byte)nodeId, m_connection, port); 
+			SynchronizeDevice ((byte) nodeId, device);
 			return device; 
 
 		}

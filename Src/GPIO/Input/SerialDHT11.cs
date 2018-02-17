@@ -27,28 +27,28 @@ namespace GPIO
 		private const int DHT11_TEMPERATURE_POSITION = 0x0;
 		private const int DHT11_HUMIDITY_POSITION = 0x1;
 
-		public SerialDHT11  (string id, byte hostId, ISerialHost host, int port): base(id, hostId, host) {
+		public SerialDHT11  (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
 
 			m_port = port;
 
 		}
 
-		public int Temperature  { get { return ((int[]) Host.GetValue(DeviceId, HostId))[DHT11_TEMPERATURE_POSITION]; } }
+		public int Temperature  { get { return ((int[]) Host.GetValue(DeviceId, NodeId))[DHT11_TEMPERATURE_POSITION]; } }
 
-		public int Humidity  { get { return ((int[]) Host.GetValue(DeviceId, HostId))[DHT11_HUMIDITY_POSITION]; } }
+		public int Humidity  { get { return ((int[]) Host.GetValue(DeviceId, NodeId))[DHT11_HUMIDITY_POSITION]; } }
 
 		public IInputMeter<int> GetHumiditySensor(string id) { return new DHT11Sensor (id, this, DHT11Sensor.DHT11ValueType.Humidity); }
 
 		public IInputMeter<int> GetTemperatureSensor(string id)  { return new DHT11Sensor (id, this, DHT11Sensor.DHT11ValueType.Temperature); }
 
 
-		protected override byte Update() {
+		protected override byte ReCreate() {
 
-			return Host.Create ((byte)HostId, SerialDeviceType.DHT11, new byte[]{ (byte)m_port });
+			return Host.Create ((byte)NodeId, SerialDeviceType.DHT11, new byte[]{ (byte)m_port });
 
 		}
 
-		public double Value { get { return (double) ((int[]) Host.GetValue(DeviceId, HostId))[0]; } }
+		public double Value { get { return (double) ((int[]) Host.GetValue(DeviceId, NodeId))[0]; } }
 	}
 }
 

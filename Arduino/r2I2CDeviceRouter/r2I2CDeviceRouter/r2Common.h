@@ -5,7 +5,7 @@
 
 // -- Debuging
 
-#ifdef PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
+#ifdef R2_PRINT_DEBUG
 
 #define R2_LOG(msg) (Serial.println(msg))
 
@@ -28,7 +28,7 @@ void setError(bool on);
 byte getNodeId();
 
 // Store the node id permanently.
-void saveNodeId(byte id);
+void saveNodeId(HOST_ADDRESS id);
 
 // Converts a big endian 16-bit int contained in a byte array.
 int toInt16(byte *bytes);
@@ -37,7 +37,12 @@ int toInt16(byte *bytes);
 byte *asInt16(int value);
 
 // Set error state with a message.
-void err (const char* msg, int code);
+void err (const char* msg, byte code);
+// Attach additional error information to a response.
+void err (const char* msg, byte code, byte info);
+
+// Uses the previously stored error information to create an error package.
+ResponsePackage createErrorPackage(HOST_ADDRESS host);
 
 // Returns the latest error code
 byte getErrorCode();

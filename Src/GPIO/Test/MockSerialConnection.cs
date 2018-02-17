@@ -126,7 +126,7 @@ namespace GPIO.Tests
 		public byte [] Read() {
 
 			byte[] response = new byte[3 + ReadResponsePackage.Content?.Length ?? 0];
-			response [ArduinoSerialPackageFactory.POSITION_HOST] = ReadResponsePackage.Host;
+			response [ArduinoSerialPackageFactory.POSITION_HOST] = ReadResponsePackage.NodeId;
 			response [ArduinoSerialPackageFactory.POSITION_ACTION] = (byte) ReadResponsePackage.Action;
 			response [ArduinoSerialPackageFactory.POSITION_ID] = ReadResponsePackage.Id;
 

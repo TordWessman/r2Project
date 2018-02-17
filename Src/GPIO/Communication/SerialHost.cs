@@ -1,6 +1,7 @@
 ﻿using System;
 using Core.Device;
 using System.Collections.Generic;
+using Core;
 
 namespace GPIO
 {
@@ -32,7 +33,7 @@ namespace GPIO
 			if (m_connection?.Ready == false) {
 
 				m_connection.Start ();
-				Initialize (ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL);
+				Initialize (ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL);
 
 			}
 
@@ -48,25 +49,25 @@ namespace GPIO
 
 		}
 
-		public override bool Ready { get { return m_connection.Ready; } }
+		public override bool Ready { get { return m_connection?.Ready == true; } }
 
-		public dynamic GetValue(byte slaveId, int hostId) {
+		public dynamic GetValue(byte slaveId, int nodeId) {
 
-			DeviceResponsePackage response = Send (m_packageFactory.GetDevice (slaveId, (byte)hostId));
+			DeviceResponsePackage response = Send (m_packageFactory.GetDevice (slaveId, (byte)nodeId));
 
 			return response.Value;
 
 		}
 
-		public void Set(byte slaveId, int hostId, int value) {
+		public void Set(byte slaveId, int nodeId, int value) {
 
-			DeviceResponsePackage response = Send (m_packageFactory.SetDevice (slaveId, (byte)hostId, value));
+			DeviceResponsePackage response = Send (m_packageFactory.SetDevice (slaveId, (byte)nodeId, value));
 
 		}
 
-		public byte Create(int hostId, SerialDeviceType type, byte[] parameters) {
+		public byte Create(int nodeId, SerialDeviceType type, byte[] parameters) {
 
-			DeviceRequestPackage request = m_packageFactory.CreateDevice ((byte)hostId, type, parameters);
+			DeviceRequestPackage request = m_packageFactory.CreateDevice ((byte)nodeId, type, parameters);
 
 			DeviceResponsePackage response = Send (request);
 
@@ -74,9 +75,27 @@ namespace GPIO
 
 		}
 
-		public void Initialize(int host = ArduinoSerialPackageFactory.DEVICE_HOST_LOCAL) {
+		public void Initialize(int host = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
 			ResetSlave ((byte)host);
+
+		}
+
+		public bool IsNodeAvailable(int nodeId) {
+
+			DeviceRequestPackage request = m_packageFactory.IsNodeAvailable ((byte)nodeId);
+			DeviceResponsePackage response = Send (request);
+
+			return response.Value == true;
+		
+		}
+
+		public byte[] GetNodes() {
+		
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = (byte)ActionType.GetNodes };
+			DeviceResponsePackage response = Send (request);
+
+			return response.Content;
 
 		}
 
@@ -90,21 +109,36 @@ namespace GPIO
 
 			byte[] responseData = m_connection.Send (request.ToBytes ());
 
-			DeviceResponsePackage response = m_packageFactory.ParseResponse (responseData);//new DeviceResponsePackage (responseData);
+			DeviceResponsePackage response = m_packageFactory.ParseResponse (responseData);
 
+			//Log.d ($"Sending package: {(ActionType) request.Action} to node: {request.NodeId}.");
+			//Log.d ($"Receiving: {response.Action} to from: {request.NodeId}.");
 			if (response.Action == ActionType.Initialization) {
 
 				// The slave needs to be reset. Reset the slave and notify delegate, allowing it to re-create and/or re-send
-				ResetSlave(response.Host); 
-				if (HostDidReset != null) { HostDidReset (response.Host); }
+				ResetSlave (response.NodeId);
+				Log.t ($"Resetting slave with id: {response.NodeId}.");
+
+				if (HostDidReset != null) {
+					HostDidReset (response.NodeId);
+				}
 
 				// Resend the current request
 				responseData = m_connection.Send (request.ToBytes ());
 				response = m_packageFactory.ParseResponse (responseData);
 
-			}
+			} else if (response.IsError) { 
 
-			if (response.IsError) { throw new System.IO.IOException($"Response contained an error: '{response.Value}'"); }
+				int info = (response.Content?.Length ?? (int)0) > 1 ? response.Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
+				throw new System.IO.IOException ($"Response contained an error for action '{(ActionType) request.Action}': '{response.Value}'. Info: {info}. NodeId: {request.NodeId}.");
+			
+			} else if (!((ActionType) request.Action == ActionType.Initialization && response.Action == ActionType.InitializationOk) &&
+				response.Action != (ActionType) request.Action) {
+
+				// The .InitializationOk is a response to a successfull .Initialization. Other successfull requests should return the requested Action.
+				throw new System.IO.IOException ($"Response action missmatch: Expected '{(ActionType) request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.");
+
+			}
 
 			return response;
 

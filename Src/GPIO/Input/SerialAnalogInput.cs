@@ -24,19 +24,19 @@ namespace GPIO
 	{
 		private int m_port;
 
-		public SerialAnalogInput (string id, byte hostId, ISerialHost host, int port): base(id, hostId, host) {
+		public SerialAnalogInput (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
 
 			m_port = port;
 
 		}
 
-		protected override byte Update() {
+		protected override byte ReCreate() {
 		
-			return Host.Create ((byte)HostId, SerialDeviceType.AnalogueInput, new byte[]{ (byte)m_port });
+			return Host.Create ((byte)NodeId, SerialDeviceType.AnalogueInput, new byte[]{ (byte)m_port });
 
 		}
 
-		public double Value { get { return (double) ((int[]) Host.GetValue(DeviceId, HostId))[0]; } }
+		public double Value { get { return (double) ((int[]) Host.GetValue(DeviceId, NodeId))[0]; } }
 	
 	}
 }
