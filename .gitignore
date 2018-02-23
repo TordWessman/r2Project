@@ -73,6 +73,7 @@ obj/*.txt
 config.status
 Shared.cs
 **/bin
+*dumpcode.txt
 
 # binary directories
 Src/Core/bin/Debug/*

@@ -51,7 +51,8 @@ namespace GPIO
 		InitializationOk = 0x5, // Response header telling that the initialization was successfull.
 		SetNodeId = 0x6, // This action will cause the node to change it's id. This action should not be propagated.
 		IsNodeAvailable = 0x7, // Check if a specified host, determined by `Host` is currently connected.
-		GetNodes = 0x8 // Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h).
+		GetNodes = 0x8, // Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
+		SendToSleep = 0x0A // Sends the node to sleep
 	}
 
 	public enum ErrorType: byte {
@@ -87,13 +88,20 @@ namespace GPIO
 		// If the the master's read operation was unable to retrieve data.
 		ERROR_RH24_NO_NETWORK_DATA = 14,
 		// Routing through a node that is not the master is not supported.
-		ERROR_RH24_ROUTING_THROUG_NON_MASTER = 15,
+		ERROR_RH24_ROUTING_THROUGH_NON_MASTER = 15,
 		// If the master receives two messages with the same id
-		ERROR_RH24_DUPLICATE_MESSAGES = 16
+		ERROR_RH24_DUPLICATE_MESSAGES = 16,
+		// Failed to make the node sleep
+		ERROR_FAILED_TO_SLEEP = 18,
+		// Messages are not in sync. Unrecieved messages found in the masters input buffer.
+		ERROR_RH24_MESSAGE_SYNCHRONIZATION = 19
 	}
 
 	public struct DeviceResponsePackage {
 	
+		// Id for a message. Used for debugging.
+		public byte MessageId;
+
 		// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
 		public byte NodeId;
 
@@ -173,7 +181,6 @@ namespace GPIO
 		public byte[] ToBytes()
 		{  
 
-			Console.WriteLine(Marshal.SizeOf(typeof(DeviceRequestPackage)));
 			Byte[] structData = new Byte[3 + (Content?.Length ?? 0)]; 
 
 			GCHandle pinStructure = GCHandle.Alloc(this, GCHandleType.Pinned);  
@@ -197,6 +204,29 @@ namespace GPIO
 			}  
 
 		}  
+
+	}
+
+	public static class ResponsePackageExtensions {
+	
+		/// <summary>
+		/// Helps identify the info part of the error message 
+		/// </summary>
+		/// <returns>The error info.</returns>
+		/// <param name="response">Response.</param>
+		public static string GetErrorInfo(this DeviceResponsePackage response) {
+
+			int info = (response.Content?.Length ?? 0) > 1 ? response.Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
+
+			if (response.Value == ErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
+
+				// Will return the action of an unread message in the master node's pipe.
+				return $"Action from the previous message: `{(ActionType) info}`";
+
+			}
+
+			return info.ToString ();
+		}
 
 	}
 }

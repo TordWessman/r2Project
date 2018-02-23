@@ -51,16 +51,16 @@ namespace GPIO
 		byte[] GetNodes();
 
 		/// <summary>
+		/// Sets a node to sleep mode. Sleep the specified nodeId for `cycles` (1 cycle equals ~8 seconds).
+		/// </summary>
+		void Sleep(int nodeId, bool toggle, int cycles = ArduinoSerialPackageFactory.RH24_SLEEP_UNTIL_MESSAGE_RECEIVED);
+
+		/// <summary>
 		/// Delegate called whenever a host replied that it will be reset. The argument is the host name.
 		/// </summary>
 		Action<byte> HostDidReset { get; set; }
 
-		/// <summary>
-		/// Exposes the internal mechanism for sending packages.
-		/// </summary>
-		/// <param name="request">Request.</param>
-		//DeviceResponsePackage Send(DeviceRequestPackage request);
-
+		void WaitFor(int nodeId);
 	}
 
 }

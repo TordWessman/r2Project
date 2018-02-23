@@ -56,18 +56,12 @@ namespace GPIO
 		DeviceRequestPackage GetDevice(byte deviceId, byte nodeId);
 
 		/// <summary>
-		/// Initializes (resets) the host and prepare it for new devices (and clearing any configuration of the slave). `host` is the address of the host to reset.
+		/// Creates a set-to-sleep-package
 		/// </summary>
-		/// <param name="host">Host.</param>
-		DeviceRequestPackage Initialize (byte nodeId);
-
-		/// <summary>
-		/// Creates a check-node-id package used to determine weither a node is connected or not. 
-		/// </summary>
-		/// <returns><c>true</c> if this instance is node available the specified nodeId; otherwise, <c>false</c>.</returns>
 		/// <param name="nodeId">Node identifier.</param>
-		DeviceRequestPackage IsNodeAvailable (byte nodeId);
-
+		/// <param name="toggle">If set to <c>true</c> toggle.</param>
+		/// <param name="cycles">Cycles.</param>
+		DeviceRequestPackage Sleep(byte nodeId, bool toggle, byte cycles);
 	}
 
 }

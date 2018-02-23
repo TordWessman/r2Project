@@ -21,8 +21,11 @@ void setStatus(bool on);
 // Set the error led if defined by R2_ERROR_LED
 void setError(bool on);
 
-// -- Various "helper" methods.
+// -- Runloop methods
 
+void loop_common();
+
+// -- Various "helper" methods.
 
 // Returns the node id used (will default to DEVICE_HOST_LOCAL if not stored). 
 byte getNodeId();

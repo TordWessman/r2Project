@@ -31,6 +31,9 @@ bool initialized = false;
 // Keeps track of the devices (and thus their id's).
 byte deviceCount = 0;
 
+// Counter for messages. For debuging purposes only.
+byte messageId = 0;
+
 #ifdef USE_I2C
 
 // Delegate method for I2C event communication.
@@ -52,7 +55,8 @@ ResponsePackage execute(RequestPackage *request) {
   response.action = request->action;
   response.host = request->host;
   response.contentSize = 0;
-   
+  response.messageId = messageId++;
+  
   // If the ACTION_SET_NODE_ID is called, this node will be "configured" with a new id. Intended for setting up nodes only.
   if (request->action == ACTION_SET_NODE_ID) {
       
@@ -90,8 +94,20 @@ ResponsePackage execute(RequestPackage *request) {
     
   } else if (!isMaster() && request->host != getNodeId()) {
     
-    err("Bad routing", ERROR_RH24_ROUTING_THROUG_NON_MASTER);
+    err("E: Routing", ERROR_RH24_ROUTING_THROUGH_NON_MASTER, request->host);
 
+  } else if (request->action == ACTION_SEND_TO_SLEEP) {
+  
+    if (isMaster()) {
+      
+      err("E: I'm master.", ERROR_FAILED_TO_SLEEP);
+      
+    } else {
+    
+       sleep(request->args[SLEEP_MODE_TOGGLE_POSITION], request->args[SLEEP_MODE_CYCLES_POSITION]);
+       
+    }
+    
   } else {
   
   #endif
@@ -132,7 +148,7 @@ ResponsePackage execute(RequestPackage *request) {
     
           if (!device) {
             
-            err("Device not found", ERROR_CODE_NO_DEVICE_FOUND);
+            err("E: Device not found", ERROR_CODE_NO_DEVICE_FOUND, request->id);
             
           } else {
             
@@ -162,7 +178,7 @@ ResponsePackage execute(RequestPackage *request) {
             
           } else {
           
-            err("Get: Device not found", ERROR_CODE_NO_DEVICE_FOUND);
+            err("E: Device not found", ERROR_CODE_NO_DEVICE_FOUND, request->id);
             
           }
           
@@ -181,10 +197,10 @@ ResponsePackage execute(RequestPackage *request) {
           return response;
           
         break;
-      
+        
        default:
        
-          err("Unknown action.", ERROR_CODE_UNKNOWN_ACTION);
+          err("Unknown action", ERROR_CODE_UNKNOWN_ACTION, request->action);
           
     }
   
@@ -205,14 +221,16 @@ void setup() {
 
 #ifdef R2_STATUS_LED
 pinMode(R2_STATUS_LED, OUTPUT);
+reservePort(R2_STATUS_LED);
 #endif
 #ifdef R2_ERROR_LED
 pinMode(R2_ERROR_LED, OUTPUT);
+reservePort(R2_ERROR_LED);
 #endif
- 
-  Serial.begin(SERIAL_BAUD_RATE);
-  //clearError();
 
+  Serial.begin(SERIAL_BAUD_RATE);
+  clearError();
+  
 #ifdef USE_I2C  
   R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
 #endif
@@ -225,15 +243,16 @@ pinMode(R2_ERROR_LED, OUTPUT);
 
 void loop() {
   
-  //Serial.println("Starting serial");
+  loop_common();
+  
   #ifdef USE_SERIAL
-    serialCommunicate();
+    loop_serial();
   #endif
   
   //Serial.println("Starting RH24");
   
   #ifdef USE_RH24
-    rh24Communicate();
+    loop_rh24();
   #endif
   
 }

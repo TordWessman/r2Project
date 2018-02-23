@@ -8,8 +8,6 @@
 int toInt16(byte *bytes) { return bytes[0] + (bytes[1] << 8);  }
 byte* asInt16(int value) { byte* bytes = (byte *) malloc(2 * sizeof(byte)); bytes[0] = value; bytes[1] = value >> 8; return bytes; }
 
-void r2_debug(const void *msg) { }
-
 // Error handling
 
 byte errCode = 0;
@@ -41,7 +39,18 @@ void err (const char* msg, byte code, byte info) {
   errCode = code;
   setError(true);
 #ifdef R2_PRINT_DEBUG
-    if (Serial && msg) { R2_LOG(msg); }
+    if (Serial && msg) { 
+      
+      R2_LOG(msg);
+      
+      if (info != 0) {
+      
+          R2_LOG(F("Info:"));
+          R2_LOG(info);
+          
+      }
+      
+    }
 #endif
     
 }
@@ -60,6 +69,7 @@ ResponsePackage createErrorPackage(HOST_ADDRESS host) {
   return response;
   
 }
+
 void setStatus(bool on) {
 
 #ifdef R2_STATUS_LED
@@ -75,6 +85,11 @@ void setError(bool on) {
 #endif
 
 }
+
+void loop_common() {
+
+}
+
 HOST_ADDRESS getNodeId() {
   
   return EEPROM.read(NODE_ID_EEPROM_ADDRESS);
@@ -86,7 +101,3 @@ void saveNodeId(HOST_ADDRESS id) {
   EEPROM.write(NODE_ID_EEPROM_ADDRESS, id);
   
 }
-
-
-
-

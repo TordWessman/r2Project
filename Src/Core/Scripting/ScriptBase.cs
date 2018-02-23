@@ -122,7 +122,6 @@ namespace Core.Scripting
 
 				}
 
-
 				m_isRunning = false;
 
 				foreach (IScriptObserver observer in m_scriptObservers) {

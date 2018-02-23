@@ -35,8 +35,10 @@ namespace GPIO
 		public readonly byte[] PackageHeader = { 0xF0, 0x0F, 0xF1 };
 
 		private SerialPort m_serialPort;
-		public const int DEFAULT_BAUD_RATE = 9600;
-		private const int DEFAULT_TIMOUT_MS = 4000;
+		public const int DEFAULT_BAUD_RATE = 115200;
+
+		// High timeout due to the fact that requests to mesh node might be slow.
+		private const int DEFAULT_TIMOUT_MS = 16000;
 
 		/// <summary>
 		/// portIdentifier is either an explicit name of the port (i.e. /dev/ttyACM0) or a regexp pattern (i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
@@ -53,8 +55,13 @@ namespace GPIO
 
 			}
 
-			m_serialPort = new SerialPort (portName);
+			m_serialPort = new SerialPort (portName, baudRate);
+
 			m_serialPort.DtrEnable = true;
+			m_serialPort.Parity = Parity.None;
+			m_serialPort.DataBits = 8;
+			m_serialPort.StopBits = StopBits.One;
+			m_serialPort.Handshake = Handshake.None;
 			m_serialPort.BaudRate = baudRate;
 			m_serialPort.ReadTimeout = DEFAULT_TIMOUT_MS;
 			m_serialPort.WriteTimeout = DEFAULT_TIMOUT_MS;
@@ -64,8 +71,8 @@ namespace GPIO
 		/// <summary>
 		/// Gets or sets the serial port's read & write timouts.
 		/// </summary>
-		/// <value>The timout.</value>
-		public int Timout {
+		/// <value>The timeout.</value>
+		public int Timeout {
 		
 			get { return m_serialPort.WriteTimeout; }
 			set {
@@ -86,19 +93,27 @@ namespace GPIO
 		public override void Start() {
 
 			Log.d ($"Connectiing to {m_serialPort.PortName}");
-			m_serialPort.Open ();
+
+			try {
+				m_serialPort.Open ();
+			} catch (TimeoutException) {
+				//ehh this seems to be needed
+				m_serialPort.Open ();
+				Log.t ("The fulhack did work...");
+			
+			}
+			m_serialPort.DiscardOutBuffer ();
+			m_serialPort.DiscardInBuffer ();
+			System.Threading.Thread.Sleep (DEFAULT_TIMOUT_MS);
 
 		}
 
 		public override bool Ready { get { return m_serialPort.IsOpen; } }
 
 		public byte[] Send(byte[] request) {
-			
-			if (m_serialPort.BytesToRead > 0) {
 
-				m_serialPort.ReadExisting ();
-
-			}
+			// Make sure the input buffer is empty before sending.
+			ClearPipe ();
 
 			byte[] requestPackage = new byte[request.Length + 1 + (PackageHeader?.Length ?? 0)];
 
@@ -143,6 +158,8 @@ namespace GPIO
 
 			}
 
+			ClearPipe ();
+
 			return readBuffer;
 
 		}
@@ -150,6 +167,16 @@ namespace GPIO
 		public override void Stop() {
 
 			m_serialPort.Close ();
+
+		}
+
+		/// <summary>
+		/// Make sure the input stream is empty.
+		/// </summary>
+		private void ClearPipe() {
+
+			if (m_serialPort.BytesToRead > 0) { Log.w ("Ahr, there was apparently some data in the pipe."); }
+			m_serialPort.DiscardInBuffer ();
 
 		}
 

@@ -3,7 +3,7 @@
 
 #ifdef USE_SERIAL
 // Contains data during serial read.
-byte readBuffer[MAX_RECEIZE_SIZE];
+byte readBuffer[MAX_RECEIZE_SIZE + 1];
 
 // read input size for serial communication.
 int rs = 0;
@@ -15,7 +15,7 @@ int rx = 0;
 bool headerReceived = false;
 
 // Header read counter
-int rh;
+int rh = 0;
 
 // Response/Request header
 byte messageHeader[] = PACKAGE_HEADER_IDENTIFIER;
@@ -23,18 +23,20 @@ byte messageHeader[] = PACKAGE_HEADER_IDENTIFIER;
 // Size of header
 int headerLength = (sizeof(messageHeader)/sizeof(messageHeader[0]));
 
-void serialCommunicate() {
+bool apa = false;
+
+void loop_serial() {
   
   if (Serial.available() > 0) {
-
-    //delay(10);
-    setStatus(true);
+  
     if (!headerReceived) {
+      //setStatus(apa); apa = !apa; delay(100);
       
       rs = rx = 0;
       
       if ((byte) Serial.read() == messageHeader[rh]) {
        
+        // if the header is ok, we want the next byte
         rh++;
        
        if (rh == headerLength) {
@@ -52,21 +54,25 @@ void serialCommunicate() {
       
     } else if (rs == 0) {
     
+      //setStatus(apa); apa = !apa; delay(100);
       rx = 0;
       rs = Serial.read();
       
     } else if (rx < rs - 1) {
-    
+      
+      //setStatus(apa); apa = !apa; delay(100);
+      
       readBuffer[rx++] = Serial.read();
       
     } else if (rx == rs - 1) {
       
-      setStatus(false);
+      //setStatus(apa); apa = !apa; delay(100);
+      
       readBuffer[rx] = Serial.read();
       
       headerReceived = false;
       
-      rs = rx = 0;
+      rs = rx = rh = 0;
       
       ResponsePackage out = execute((RequestPackage*)readBuffer); 
       

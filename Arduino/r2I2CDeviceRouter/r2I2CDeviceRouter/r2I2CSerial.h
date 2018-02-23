@@ -5,6 +5,6 @@
 //#include <stdbool.h>
 
 // Handles the serial read/write operations. Prefarbly used in run loop.
-void serialCommunicate();
+void loop_serial();
 
 #endif

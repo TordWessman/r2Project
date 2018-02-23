@@ -20,11 +20,10 @@
   
 #endif
 
-#define SERIAL_BAUD_RATE 9600
-//115200
+#define SERIAL_BAUD_RATE 115200
 
 // Maximum number of devices
-#define MAX_DEVICES 20
+#define MAX_DEVICES 5
 
 // Use with caution. If defined, serial communication (USE_SERIAL)
 #define R2_PRINT_DEBUG
@@ -33,7 +32,7 @@
 #define NODE_ID_EEPROM_ADDRESS 0x0
 
 // If defined, these leds will be used to communicate status and error 
-//#define R2_STATUS_LED 0x2
+#define R2_STATUS_LED 0x2
 //#define R2_ERROR_LED 0x4
 
 #endif

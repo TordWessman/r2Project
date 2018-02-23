@@ -33,7 +33,6 @@ namespace GPIO
 			if (m_connection?.Ready == false) {
 
 				m_connection.Start ();
-				Initialize (ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL);
 
 			}
 
@@ -83,7 +82,7 @@ namespace GPIO
 
 		public bool IsNodeAvailable(int nodeId) {
 
-			DeviceRequestPackage request = m_packageFactory.IsNodeAvailable ((byte)nodeId);
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = (byte)ActionType.IsNodeAvailable, NodeId = (byte) nodeId };
 			DeviceResponsePackage response = Send (request);
 
 			return response.Value == true;
@@ -99,6 +98,21 @@ namespace GPIO
 
 		}
 
+		public void Sleep(int nodeId, bool toggle, int cycles = ArduinoSerialPackageFactory.RH24_SLEEP_UNTIL_MESSAGE_RECEIVED) {
+
+			DeviceRequestPackage request = m_packageFactory.Sleep ((byte) nodeId, toggle, (byte) cycles);
+			DeviceResponsePackage response = Send (request);
+
+		}
+
+		public void WaitFor(int nodeId) {
+		
+			while (!IsNodeAvailable (nodeId)) {
+				Console.Write ("x");
+				System.Threading.Thread.Sleep (1000);
+			}
+		}
+
 		/// <summary>
 		/// Sends the request to host, converts it to a DeviceResponsePackage, checks for errors and returns the package.
 		/// </summary>
@@ -111,8 +125,8 @@ namespace GPIO
 
 			DeviceResponsePackage response = m_packageFactory.ParseResponse (responseData);
 
-			//Log.d ($"Sending package: {(ActionType) request.Action} to node: {request.NodeId}.");
-			//Log.d ($"Receiving: {response.Action} to from: {request.NodeId}.");
+			Log.t ($"Sending package: {(ActionType) request.Action} to node: {request.NodeId}.");
+			Log.t ($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
 			if (response.Action == ActionType.Initialization) {
 
 				// The slave needs to be reset. Reset the slave and notify delegate, allowing it to re-create and/or re-send
@@ -129,8 +143,8 @@ namespace GPIO
 
 			} else if (response.IsError) { 
 
-				int info = (response.Content?.Length ?? (int)0) > 1 ? response.Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
-				throw new System.IO.IOException ($"Response contained an error for action '{(ActionType) request.Action}': '{response.Value}'. Info: {info}. NodeId: {request.NodeId}.");
+				int info = (response.Content?.Length ?? 0) > 1 ? response.Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
+				throw new System.IO.IOException ($"Response contained an error for action '{(ActionType) request.Action}': '{response.Value}'. Info: {response.GetErrorInfo()}. NodeId: {request.NodeId}.");
 			
 			} else if (!((ActionType) request.Action == ActionType.Initialization && response.Action == ActionType.InitializationOk) &&
 				response.Action != (ActionType) request.Action) {
@@ -148,9 +162,9 @@ namespace GPIO
 		/// Will send the Initialize request to the host and clear it's data.
 		/// </summary>
 		/// <param name="host">Host.</param>
-		private void ResetSlave(byte host) {
+		private void ResetSlave(byte nodeId) {
 
-			Send (m_packageFactory.Initialize (host));
+			Send (new DeviceRequestPackage() {Action = (byte) ActionType.Initialization, NodeId = nodeId});
 
 		}
 

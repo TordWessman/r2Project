@@ -27,7 +27,7 @@ namespace GPIO
 		public const byte DEVICE_NODE_LOCAL = 0x0;
 
 		// Max size for content in packages
-		const int MAX_CONTENT_SIZE = 100;
+		const int MAX_CONTENT_SIZE = 10;
 
 		// ATMEGA 328-specific constraints. 18 & 19 will not be available if running I2C, since they are used as SDA and SCL on the ATMEGA 328 board.
 		public readonly byte[] VALID_ANALOGUE_PORTS_ON_ARDUINO = { 14, 15, 16, 17, 18, 19 };
@@ -38,22 +38,29 @@ namespace GPIO
 		/// <summary>
 		/// Defines the maximum number of devices possible to allocate on each host
 		/// </summary>
-		private const byte MAXIMUM_NUMBER_OF_DEVICES_PER_HOST = 20;
+		private const byte MAXIMUM_NUMBER_OF_DEVICES_PER_HOST = 5;
 
-		public const int POSITION_HOST = 0;
-		public const int POSITION_ACTION = 0x1;
-		public const int POSITION_ID = 0x2;
-		public const int POSITION_CONTENT_LENGTH = 0x3;
-		public const int POSITION_CONTENT = 0x4;
+		// During SendToSleep, this amount of cycles forces the node to sleep until woken up by tranciever
+		public const int RH24_SLEEP_UNTIL_MESSAGE_RECEIVED = 0xFF;
+
+		public const int POSITION_MESSAGE_ID = 0x0;
+		public const int POSITION_HOST = 0x1;
+		public const int POSITION_ACTION = 0x2;
+		public const int POSITION_ID = 0x3;
+		public const int POSITION_CONTENT_LENGTH = 0x4;
+		public const int POSITION_CONTENT = 0x5;
 
 		// In the content part of the (create) message, here be the Type
-		public const int POSITION_CONTENT_DEVICE_TYPE = 0;
+		public const int POSITION_CONTENT_DEVICE_TYPE = 0x0;
 
 		// Where the the error code resides in the response content
-		public const int POSITION_CONTENT_POSITION_ERROR_TYPE = 0;
+		public const int POSITION_CONTENT_POSITION_ERROR_TYPE = 0x0;
 		// Where (potentional) additional error information resides int response content.
 		public const int POSITION_CONTENT_POSITION_ERROR_INFO = 0x1;
 
+		// Content positions for Sleep data
+		public const int POSITION_CONTENT_SLEEP_TOGGLE = 0x0;
+		public const int POSITION_CONTENT_SLEEP_CYCLES = 0x1;
 
 		public ArduinoSerialPackageFactory() {
 
@@ -66,6 +73,7 @@ namespace GPIO
 			int contentLength = response [POSITION_CONTENT_LENGTH];
 
 			return new DeviceResponsePackage () {
+				MessageId = response [POSITION_MESSAGE_ID],
 				NodeId = response [POSITION_HOST],
 				Action = (ActionType)response [POSITION_ACTION],
 				Id = response [POSITION_ID],
@@ -122,15 +130,17 @@ namespace GPIO
 
 		}
 
-		public DeviceRequestPackage Initialize (byte nodeId) {
+		public DeviceRequestPackage Sleep(byte nodeId, bool toggle, byte cycles) {
+		
+			byte[] content = new byte[2];
+			content [POSITION_CONTENT_SLEEP_TOGGLE] = (byte)(toggle ? 1 : 0);
+			content [POSITION_CONTENT_SLEEP_CYCLES] = (byte) cycles;
 
-			return new DeviceRequestPackage () { 
-				NodeId = nodeId, 
-				Action = (byte) ActionType.Initialization, 
-				Id = 0x0, 
-				Content = {} 
+			return new DeviceRequestPackage () {
+				NodeId = nodeId,
+				Action = (byte)ActionType.SendToSleep, 
+				Content = content
 			};
-
 		}
 
 		public DeviceRequestPackage SetNodeId (byte nodeId) {
@@ -138,17 +148,6 @@ namespace GPIO
 			return new DeviceRequestPackage () {
 				NodeId = 0x0, 
 				Action = (byte) ActionType.Initialization, 
-				Id = nodeId, 
-				Content = {} 
-			};
-
-		}
-
-		public DeviceRequestPackage IsNodeAvailable (byte nodeId) {
-
-			return new DeviceRequestPackage () { 
-				NodeId = 0x0, 
-				Action = (byte) ActionType.IsNodeAvailable, 
 				Id = nodeId, 
 				Content = {} 
 			};

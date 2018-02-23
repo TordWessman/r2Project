@@ -11,7 +11,10 @@
 
 // -- Variables
 Device devices[MAX_DEVICES];
-bool portsInUse[30];
+
+// Defines the maximum number of ports to be reserved
+#define MAX_PORTS 15
+byte portsInUse[MAX_PORTS];
 
 // -- Device handling
 
@@ -44,7 +47,15 @@ void deleteDevice(byte id) {
   for(int i = 0; i < DEVICE_MAX_PORTS; i++) {
     
     // Frees all ports with value != DEVICE_PORT_NOT_IN_USE
-    if (devices[id].IOPorts[i] != DEVICE_PORT_NOT_IN_USE) { portsInUse[devices[id].IOPorts[i]] = false; }
+    if (devices[id].IOPorts[i] != DEVICE_PORT_NOT_IN_USE) {
+      
+      for(int j = 0; j < MAX_PORTS; j++) {
+        
+          if (portsInUse[i] == devices[id].IOPorts[i]) { portsInUse[i] = DEVICE_PORT_NOT_IN_USE; }
+      
+      }  
+    
+    }
   
   }
   
@@ -54,9 +65,9 @@ void deleteDevice(byte id) {
   
 }
 
-// TODO: im
 bool reservePort(byte IOPort) {
-
+/*
+TODO: fix this...
   if (portsInUse[IOPort] == true) {
     
     err("Port in use.", ERROR_CODE_PORT_IN_USE);
@@ -68,6 +79,7 @@ bool reservePort(byte IOPort) {
   R2_LOG(IOPort);
   
   portsInUse[IOPort] = true;
+  */
   return true;
   
 }
@@ -115,7 +127,7 @@ void createDevice(byte id, DEVICE_TYPE type, byte* input) {
         pinMode(device.IOPorts[0], OUTPUT);
       
     } break;
-      
+   
   case DEVICE_TYPE_HCSR04_SONAR:
   
       if (reservePort(input[HCSR04_SONAR_TRIG_PORT]) && reservePort(input[HCSR04_SONAR_ECHO_PORT])) {
@@ -152,7 +164,7 @@ void createDevice(byte id, DEVICE_TYPE type, byte* input) {
          }
          
        } break;
-       
+   
   default:
   
     return err("Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND, type);

@@ -71,9 +71,15 @@ typedef struct Devices {
 // If the the master's read operation was unable to retrieve data.
 #define ERROR_RH24_NO_NETWORK_DATA 14
 // Routing through a node that is not the master is not supported.
-#define ERROR_RH24_ROUTING_THROUG_NON_MASTER 15
+#define ERROR_RH24_ROUTING_THROUGH_NON_MASTER 15
 // If the master receives two messages with the same id
 #define ERROR_RH24_DUPLICATE_MESSAGES 16
+// Internal error: Serial read timed out
+#define ERROR_SERIAL_TIMEOUT 17
+// Failed to make the node sleep
+#define ERROR_FAILED_TO_SLEEP 18
+// Messages are not in sync. Unrecieved messages found in the masters input buffer.
+#define ERROR_RH24_MESSAGE_SYNCHRONIZATION 19
 
 // Removes a device from list and free resources
 void deleteDevice(byte id);
@@ -96,7 +102,7 @@ int* getValue(Device* device);
 // REQUEST PARSING: ---------------------------
 
 // Maximum buffer for input packages
-#define MAX_RECEIZE_SIZE 100
+#define MAX_RECEIZE_SIZE 20
 
 // The maximum size (in bytes) for package content;
 #define MAX_CONTENT_SIZE 10
@@ -114,6 +120,8 @@ typedef byte ACTION_TYPE;
 
 //--- Actions:
 
+// If no action has been specified. Must be an error...
+#define ACTION_UNDEFINED 0x0
 // Creates a device
 #define ACTION_CREATE_DEVICE 0x1
 // Sets the value of a device
@@ -132,6 +140,10 @@ typedef byte ACTION_TYPE;
 #define ACTION_GET_NODES 0x8
 // Internally used by RH24 to distinguish regular messages from ping messages.
 #define ACTION_RH24_PING 0x9
+// Sends this node to sleep according to configuration
+#define ACTION_SEND_TO_SLEEP 0x0A
+// Internal action definition. Used to check that there were no unread message in the pipe.
+#define ACTION_RH24_NO_MESSAGE_READ 0xF0
 
 // Used by the create request.
 #define REQUEST_ARG_CREATE_TYPE_POSITION 0x0 // Position of the type to create.
@@ -165,6 +177,7 @@ typedef byte ACTION_TYPE;
 // Containing data which should be returned to host after a request.
 struct ResponsePackage {
 
+    byte messageId;
     HOST_ADDRESS host;
     ACTION_TYPE action;
     byte id;
