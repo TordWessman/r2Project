@@ -30,7 +30,7 @@ namespace GPIO
 		/// </summary>
 		/// <returns>The response.</returns>
 		/// <param name="response">Response.</param>
-		DeviceResponsePackage ParseResponse (byte[] response);
+		DeviceResponsePackage<T> ParseResponse<T> (byte[] response);
 
 		/// <summary>
 		/// Creates a "Create device package". ports-requirements must be applicable to the requirements of the device.  

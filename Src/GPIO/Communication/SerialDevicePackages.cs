@@ -52,7 +52,8 @@ namespace GPIO
 		SetNodeId = 0x6, // This action will cause the node to change it's id. This action should not be propagated.
 		IsNodeAvailable = 0x7, // Check if a specified host, determined by `Host` is currently connected.
 		GetNodes = 0x8, // Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
-		SendToSleep = 0x0A // Sends the node to sleep
+		SendToSleep = 0x0A, // Sends the node to sleep
+		CheckSleepState = 0x0B // Check if the node has been sent to sleep.
 	}
 
 	public enum ErrorType: byte {
@@ -73,8 +74,8 @@ namespace GPIO
 		DEVICE_TYPE_NOT_FOUND_READ_DEVICE = 6,
 		// Unknown action received
 		UNKNOWN_ACTION = 7,
-		// General device read error
-		DEVICE_READ_ERROR = 8,
+		// DHT11 read error (is it connected)
+		DHT11_READ_ERROR = 8,
 		// The node (during remote communication) was not available.
 		RH24_NODE_NOT_AVAILABLE = 9,
 		// Whenever a read did not return the expected size
@@ -97,8 +98,34 @@ namespace GPIO
 		ERROR_RH24_MESSAGE_SYNCHRONIZATION = 19
 	}
 
-	public struct DeviceResponsePackage {
+	public interface IDeviceResponsePackageErrorInformation {
 	
+		/// <summary>
+		/// If true, the request to slave generated an error.
+		/// </summary>
+		/// <value><c>true</c> if this instance is error; otherwise, <c>false</c>.</value>
+		bool IsError { get; }
+
+		/// <summary>
+		/// Returns the error type of the response (or Undefined if no error was received).
+		/// </summary>
+		/// <value>The error.</value>
+		ErrorType Error { get; }
+
+		/// <summary>
+		/// Helps identify the info part of the error message and parses it
+		/// </summary>
+		/// <returns>The error info as a string representation.</returns>
+		string ErrorInfo { get; }
+
+	}
+
+	/// <summary>
+	/// Response message from node. Besides response data, it contains helper functionality for evaluating the result of an operation (Value) and error-information.
+	/// The type ´T´ should normally be an array of either int[] (normal values, for sensors) or byte[] (everything else).
+	/// </summary>
+	public struct DeviceResponsePackage<T> : IDeviceResponsePackageErrorInformation {
+
 		// Id for a message. Used for debugging.
 		public byte MessageId;
 
@@ -117,38 +144,65 @@ namespace GPIO
 		// The number of int16 returned from slave upon a ActionType.Get request.
 		public const int NUMBER_OF_RETURN_VALUES = 2;
 
-		/// <summary>
-		/// If true, the request to slave generated an error.
-		/// </summary>
-		/// <value><c>true</c> if this instance is error; otherwise, <c>false</c>.</value>
 		public bool IsError { get { return Action == ActionType.Error || Action == ActionType.Unknown; } }
 
+		public ErrorType Error { 
+			
+			get { 
+		
+				if (IsError) {
+
+					return (Content?.Length ?? 0) > 0 ? (ErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : ErrorType.Undefined;
+
+				} else  { return ErrorType.Undefined; }
+
+			}
+
+		}
+
+		public string ErrorInfo { get {
+
+				int info = (Content?.Length ?? 0) > 1 ? Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
+
+				if (Error == ErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
+
+					// Will return the action of an unread message in the master node's pipe.
+					return $"Action from the previous message: `{(ActionType) info}`";
+
+				}
+
+				return info.ToString ();
+			}
+
+		}
+
 		/// <summary>
-		/// Contains the response. Normally it's an int16 containing some requested response data, but it can also conains a string (error message).
+		/// Contains the response. Normally it's an int16 containing some requested response data.
 		/// </summary>
 		/// <value>The value.</value>
-		public dynamic Value {
+		public T Value {
 		
 			get {
 			
-				if (IsError) {
-				
-					return (Content?.Length ?? 0) > 0 ? (ErrorType) Content[ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : ErrorType.Undefined;
-				
-				} else if (Action == ActionType.IsNodeAvailable) {
-
-					return Content [0] > 0; 
-
-				} else if (Action == ActionType.Get) {
-				
+				if (typeof(T) == typeof(bool)) {
+					
+					return (T)(object)(Content [0] > 0);
+	
+				} else if (typeof(T) == typeof(int[])) {
+						
 					int[] values = new int[NUMBER_OF_RETURN_VALUES];
 
 					for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt (i * 2, 2); }
 
-					return values;
+					return (T)(object)values;
+
+				} else if (typeof(T) != typeof(byte[])) {
+				
+					throw new InvalidCastException ($"Expected type constraint T to be of type ´byte[]´, but was ´{typeof(T)}´."); 
+
 				}
 
-				return null;
+				return (T)(object)Content;
 			
 			}
 		
@@ -207,27 +261,5 @@ namespace GPIO
 
 	}
 
-	public static class ResponsePackageExtensions {
-	
-		/// <summary>
-		/// Helps identify the info part of the error message 
-		/// </summary>
-		/// <returns>The error info.</returns>
-		/// <param name="response">Response.</param>
-		public static string GetErrorInfo(this DeviceResponsePackage response) {
-
-			int info = (response.Content?.Length ?? 0) > 1 ? response.Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
-
-			if (response.Value == ErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
-
-				// Will return the action of an unread message in the master node's pipe.
-				return $"Action from the previous message: `{(ActionType) info}`";
-
-			}
-
-			return info.ToString ();
-		}
-
-	}
 }
 

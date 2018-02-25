@@ -20,22 +20,20 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialDigitalOutput : SerialDeviceBase, IOutputPort
+	internal class SerialDigitalOutput : SerialDeviceBase<byte[]>, IOutputPort
 	{
-		private int m_port;
+		private byte m_port;
 		private bool m_value;
 
-		public SerialDigitalOutput (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
+		internal SerialDigitalOutput (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
 
-			m_port = port;
-
-		}
-			
-		protected override byte ReCreate() {
-
-			return Host.Create ((byte)NodeId, SerialDeviceType.DigitalOutput, new byte[]{  (byte)m_port  });
+			m_port = (byte)port;
 
 		}
+
+		protected override byte[] CreationParameters { get { return new byte[]{ m_port }; } }
+
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.DigitalOutput; } }
 
 		#region IOutputPort implementation
 

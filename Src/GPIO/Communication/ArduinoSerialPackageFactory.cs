@@ -68,11 +68,11 @@ namespace GPIO
 
 		}
 
-		public DeviceResponsePackage ParseResponse (byte[] response) {
+		public DeviceResponsePackage<T> ParseResponse<T> (byte[] response) {
 
 			int contentLength = response [POSITION_CONTENT_LENGTH];
 
-			return new DeviceResponsePackage () {
+			return new DeviceResponsePackage<T> () {
 				MessageId = response [POSITION_MESSAGE_ID],
 				NodeId = response [POSITION_HOST],
 				Action = (ActionType)response [POSITION_ACTION],

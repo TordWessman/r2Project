@@ -2,8 +2,6 @@
 #include "r2RH24.h"
 #include "r2Common.h"
 
-//#define RH24_DEBUG
-
 #ifdef USE_RH24
 
 #include "RF24.h"
@@ -11,6 +9,7 @@
 #include "RF24Mesh.h"
 #include <SPI.h>
 #include <avr/wdt.h>
+#include <EEPROM.h>
 
 #ifndef RH_24_CONFIGURED
 #define RH_24_CONFIGURED
@@ -43,6 +42,9 @@ uint32_t slaveRenewalFailures = 0;
 // Ping message from non-master nodes
 #define RH24_PING 'P'
 
+// Keeps track of the ping intervals.
+unsigned long pingTimer = 0;
+
 // -- Private method declarations:
 
 #endif
@@ -54,13 +56,22 @@ void rh24Slave();
 void rh24Master();
 
 // Blocks for RH24_READ_TIMEOUT ms and waits for a ResponsePackage from any node.
-ResponsePackage tryReadMessage();
+ResponsePackage master_tryReadMessage();
 
 // Reads the latest message from any node. 
-ResponsePackage readResponse();
+ResponsePackage master_readResponse();
 
-// Blocks until data is available from a node or when timeout has been reached.
-bool waitForResponse();
+// Slave run loop: check network status, send ping and renew address
+void slave_networkCheck();
+
+// Slave run loop: handle sleeping
+void slave_handleSleep();
+
+// Reads a ping from the network 
+void slave_readPing(RF24NetworkHeader header);
+
+// Reads a message from the network
+void slave_readMessage(RF24NetworkHeader header);
 
 // --- Debug
 
@@ -77,6 +88,14 @@ bool slaveSleepStarted = false;
 void rh24Setup() {
 
   byte id = getNodeId();
+  byte savedCycles = EEPROM.read(SLEEP_MODE_EEPROM_ADDRESS);
+  
+  if (savedCycles != 0x00) {
+  
+    sleepCycles = savedCycles;
+    shouldSleep = true;
+    
+  }
   
   R2_LOG(F("Start rh24Setup with id:"));
   R2_LOG(id);
@@ -134,15 +153,22 @@ HOST_ADDRESS* getNodes() {
 
 ResponsePackage rh24Send(RequestPackage* request) {
 
-  ResponsePackage response = readResponse();
+  ResponsePackage response = master_readResponse();
   
-  // Remove any messages still in the pipe (and return an error if there are any)
+  // Remove any messages still in the pipe (and return an error if there are any non-ping messages)
   while (response.action != ACTION_RH24_NO_MESSAGE_READ) {
   
-    // A message was read, which means that there was unread messages in the pipe. 
-    err("E: Sync", ERROR_RH24_MESSAGE_SYNCHRONIZATION, request->action);
-    response = readResponse();
-  
+    if (response.action != ACTION_RH24_NO_MESSAGE_READ && 
+        response.action != ACTION_RH24_PING) {
+    
+          // A message was read, which means that there was unread messages in the pipe. 
+      err("E: Sync", ERROR_RH24_MESSAGE_SYNCHRONIZATION, request->action);
+      break;
+      
+    }
+    
+    response = master_readResponse();
+    
   }
   
   // If synchronization issues occurred
@@ -161,10 +187,10 @@ ResponsePackage rh24Send(RequestPackage* request) {
             
         } else {
           
-             response = tryReadMessage();
+             response = master_tryReadMessage();
              
              // ignore ping messages:
-             while (!isError() && response.action == ACTION_RH24_PING) { response = tryReadMessage(); }
+             while (!isError() && response.action == ACTION_RH24_PING) { response = master_tryReadMessage(); }
              
              return response;
    
@@ -180,10 +206,7 @@ ResponsePackage rh24Send(RequestPackage* request) {
   
 }
 
-// -- Private method bodies
-
-
-bool isMaster() { return DEVICE_HOST_LOCAL == getNodeId(); }
+void sleep(bool on) { sleep(on, RH24_SLEEP_UNTIL_MESSAGE_RECEIVED); }
 
 void sleep(bool on, byte cycles) {
 
@@ -192,11 +215,18 @@ void sleep(bool on, byte cycles) {
   
   if (!on) { slaveSleepStarted = false; }
 
+  EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, on ? sleepCycles : 0x00);
+  
 }
 
-uint16_t previousReceivedId = 0;
 
-ResponsePackage readResponse() {
+bool isMaster() { return DEVICE_HOST_LOCAL == getNodeId(); }
+
+bool isSleeping() { return shouldSleep; }
+
+// -- Private method bodies
+
+ResponsePackage master_readResponse() {
 
    ResponsePackage response;
    response.id = 0;
@@ -206,38 +236,40 @@ ResponsePackage readResponse() {
   
         RF24NetworkHeader header;
         network.peek(header);
-        
-        if (previousReceivedId != 0 && header.id == previousReceivedId) {
-        
-           err("Duplicate msg", ERROR_RH24_DUPLICATE_MESSAGES);
-           return response;
-           
-        }
-        
-        previousReceivedId = header.id;
-        
-        R2_LOG(F("Received data of type:"));
-        R2_LOG(header.type);
-        
+
         switch (header.type) {
           
           case RH24_MESSAGE: {
-          
+        
              // Try to read the response from the slave
             byte readSize = network.read(header, &response, sizeof(ResponsePackage));
             
             if (readSize != sizeof(ResponsePackage)) {  err("Bad read size", ERROR_RH24_BAD_SIZE_READ, readSize); } 
             else { R2_LOG(F("Read data from network.")); }
             
-            return response;
-            
           } break; 
-      
+          
+          case RH24_PING: {
+            
+            R2_LOG(F("Ping!"));
+            
+            byte ping = 0;
+            network.read(header, &ping, 1);
+            
+            RF24NetworkHeader responseHeader(header.from_node, RH24_PING);
+            response.action = ACTION_RH24_PING;
+            
+            if (!network.write(responseHeader, &ping, 1)) {
+                R2_LOG(F("Ping reply failed"));
+                //TODO: ping failed
+            }
+            
+          } break;
+          
           default:
           
             err("Unknown msg", ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR, header.type);
             network.read(header, 0, 0);
-            return response;
             
         }
        
@@ -247,7 +279,7 @@ ResponsePackage readResponse() {
 
 }
 
-ResponsePackage tryReadMessage() {
+ResponsePackage master_tryReadMessage() {
   
    ResponsePackage response;
    response.id = 0;
@@ -258,7 +290,7 @@ ResponsePackage tryReadMessage() {
    // Try to fetch a response. The response will have the ACTION_RH24_NO_MESSAGE_READ action until it contains data.
    while (responseTimer + RH24_READ_TIMEOUT > millis()) { 
     
-     response = readResponse();
+     response = master_readResponse();
      mesh.update();
      mesh.DHCP();
      
@@ -280,6 +312,13 @@ void rh24Master() {
     mesh.update();
     mesh.DHCP();
   
+  ResponsePackage response = master_readResponse();
+  
+  if (response.action != ACTION_RH24_NO_MESSAGE_READ && response.action != ACTION_RH24_PING) {
+    R2_LOG(F("WTF!!"));
+    R2_LOG(response.action);
+  }
+  
   if (mesh.addrListTop > 0) {
     setStatus(blinkx);
     blinkx = true;
@@ -293,8 +332,55 @@ void rh24Slave() {
 
   mesh.update();
   
-  // --- BEGIN CHECK CONNECTION
+  slave_networkCheck();
   
+  while (network.available()) {
+
+      if (slaveSleepStarted) { R2_LOG(F("Waking up from sleep")); }
+      
+      slaveSleepStarted = false;
+      
+      RF24NetworkHeader header;
+      network.peek(header);
+      
+      switch(header.type) {
+        
+        case RH24_MESSAGE: {
+           
+          slave_readMessage(header);
+          
+        } break;
+        
+        case RH24_PING: {
+          
+          slave_readPing(header);
+          
+        } break;
+    
+      }
+      
+  } 
+   
+  slave_handleSleep(); 
+
+}
+
+void slave_networkCheck() {
+  
+#ifdef RH24_PING_ENABLED
+  if (millis() - pingTimer >= RH24_PING_INTERVAL) {
+    
+      byte slaveId = getNodeId();
+      
+      if (!mesh.write(&slaveId, RH24_PING, 1)) {
+        
+        R2_LOG(F("Ping failed. Renewing address."));
+        mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT);
+        
+      }
+  }
+#endif
+
   if (millis() - renewalTimer >= RH24_NETWORK_RENEWAL_TIME) {
   
     renewalTimer = millis();
@@ -303,56 +389,19 @@ void rh24Slave() {
     Serial.print("x");
     if (slaveDebugOutputCount++ > 30) { Serial.println(""); slaveDebugOutputCount = 0; }
     #endif
-
+    
     if ( !mesh.checkConnection() ) {
-        
-        R2_LOG(F("Renewing address."));
+      
+        R2_LOG(F("No connection. Renewing address."));
         mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT); 
         
     }
    
   }
-
-   // --- END CHECK CONNECTION
   
-   // -- BEGIN TRY READ
- 
-  while (network.available()) {
+}
 
-      if (slaveSleepStarted) { R2_LOG(F("Waking up from sleep")); }
-      
-      slaveSleepStarted = false;
-      
-      R2_LOG(F("Got message"));  
-      
-      RF24NetworkHeader header;
-      RequestPackage request;
-            
-      // Try to read the response from the slave
-      if (network.read(header, &request, sizeof(RequestPackage)) != sizeof(RequestPackage)) {
-        
-        err("E: Bad read size", ERROR_RH24_BAD_SIZE_READ);
-        
-      } else {
-        
-        ResponsePackage response = execute(&request);
-        R2_LOG(F("Writing response with action & id:"));
-        R2_LOG(response.action);
-        R2_LOG(response.id);
-        
-        if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
-    
-          err("E: Slave write", ERROR_RH24_WRITE_ERROR);
-        
-        }
-      
-      } 
-    
-  } 
-   
-   // --- END TRY READ
-   
-    // --- BEGIN CHECK SLEEP
+void slave_handleSleep() {
     
    if (shouldSleep == true) {
 
@@ -375,8 +424,54 @@ void rh24Slave() {
     
   }
   
-  // --- END CHECK SLEEP
-   
+}
+
+void slave_readPing(RF24NetworkHeader header) {
+
+  byte ping = 0;
+  
+  if (network.read(header, &ping, 1) != 1) { R2_LOG(F("Unable to read ping!")); } 
+  else {
+  
+    // TODO: Remove this...
+    R2_LOG(F("Got ping!"));
+    R2_LOG(ping);
+    
+  }
+  
+}
+
+void slave_readMessage(RF24NetworkHeader header) {
+
+   R2_LOG(F("Got message")); 
+  
+   RequestPackage request;
+          
+    // Try to read the response from the slave
+    if (network.read(header, &request, sizeof(RequestPackage)) != sizeof(RequestPackage)) {
+      
+      err("E: Bad read size", ERROR_RH24_BAD_SIZE_READ);
+      
+    } else {
+      
+      ResponsePackage response = execute(&request);
+      R2_LOG(F("Writing response with action & id:"));
+      R2_LOG(response.action);
+      
+      if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
+  
+        delay(RH24_SLAVE_WRITE_RETRY);
+        
+        if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
+  
+          err("E: Slave write", ERROR_RH24_WRITE_ERROR);
+      
+        }
+        
+      }
+    
+    } 
+    
 }
 
 #endif

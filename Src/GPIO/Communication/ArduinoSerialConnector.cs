@@ -32,22 +32,22 @@ namespace GPIO
 		/// <summary>
 		/// The package headers used as "checksum". Defined in the source code for the Arduino slave in r2I2CDeviceRouter.h (PACKAGE_HEADER_IDENTIFIER).
 		/// </summary>
-		public readonly byte[] PackageHeader = { 0xF0, 0x0F, 0xF1 };
+		private byte[] m_packageHeader;
 
 		private SerialPort m_serialPort;
-		public const int DEFAULT_BAUD_RATE = 115200;
-
-		// High timeout due to the fact that requests to mesh node might be slow.
-		private const int DEFAULT_TIMOUT_MS = 16000;
+		private int m_timeout = 0;
 
 		/// <summary>
 		/// portIdentifier is either an explicit name of the port (i.e. /dev/ttyACM0) or a regexp pattern (i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
 		/// </summary>
 		/// <param name="portIdentifier">Port identifier.</param>
 		/// <param name="baudRate">Baud rate.</param>
-		public ArduinoSerialConnector(string id, string portIdentifier, int baudRate = DEFAULT_BAUD_RATE): base(id) {
+		public ArduinoSerialConnector(string id, string portIdentifier, int baudRate): base(id) {
 
 			string portName = GetSerialPort(portIdentifier);
+
+			m_packageHeader = Settings.Consts.ArduinoSerialConnectorPackageHeader().Split(',').Select( b => byte.Parse(b, System.Globalization.NumberStyles.HexNumber)).ToArray();
+			m_timeout = Settings.Consts.ArduinoSerialConnectorTimeout ();
 
 			if (portName == null) {
 
@@ -63,8 +63,8 @@ namespace GPIO
 			m_serialPort.StopBits = StopBits.One;
 			m_serialPort.Handshake = Handshake.None;
 			m_serialPort.BaudRate = baudRate;
-			m_serialPort.ReadTimeout = DEFAULT_TIMOUT_MS;
-			m_serialPort.WriteTimeout = DEFAULT_TIMOUT_MS;
+			m_serialPort.ReadTimeout = m_timeout;
+			m_serialPort.WriteTimeout = m_timeout;
 
 		}
 
@@ -104,7 +104,7 @@ namespace GPIO
 			}
 			m_serialPort.DiscardOutBuffer ();
 			m_serialPort.DiscardInBuffer ();
-			System.Threading.Thread.Sleep (DEFAULT_TIMOUT_MS);
+			System.Threading.Thread.Sleep (m_timeout);
 
 		}
 
@@ -115,15 +115,15 @@ namespace GPIO
 			// Make sure the input buffer is empty before sending.
 			ClearPipe ();
 
-			byte[] requestPackage = new byte[request.Length + 1 + (PackageHeader?.Length ?? 0)];
+			byte[] requestPackage = new byte[request.Length + 1 + m_packageHeader.Length];
 
 			// First byte should have the value of the rest of the transaction.
-			requestPackage [PackageHeader?.Length ?? 0] = (byte) request.Length;
-			System.Buffer.BlockCopy (request, 0, requestPackage, 1 + (PackageHeader?.Length ?? 0), request.Length);
+			requestPackage [m_packageHeader.Length] = (byte) request.Length;
+			System.Buffer.BlockCopy (request, 0, requestPackage, 1 + m_packageHeader.Length, request.Length);
 
-			if (PackageHeader != null) {
+			if (m_packageHeader != null) {
 			
-				System.Buffer.BlockCopy (PackageHeader, 0, requestPackage, 0, PackageHeader.Length);
+				System.Buffer.BlockCopy (m_packageHeader, 0, requestPackage, 0, m_packageHeader.Length);
 			
 			}
 
@@ -135,13 +135,13 @@ namespace GPIO
 
 		public byte[] Read() {
 			
-			for (int i = 0; i < (PackageHeader?.Length ?? 0); i++) {
+			for (int i = 0; i < m_packageHeader.Length; i++) {
 
 				byte headerByte = (byte) m_serialPort.ReadByte ();
 
-				if (headerByte != PackageHeader [i]) {
+				if (headerByte != m_packageHeader [i]) {
 
-					throw new System.IO.IOException ($"Bad Package header: {headerByte} at {i} (should have been {PackageHeader [i]}).");
+					throw new System.IO.IOException ($"Bad Package header: {headerByte} at {i} (should have been {m_packageHeader [i]}).");
 				
 				}
 

@@ -56,8 +56,8 @@ typedef struct Devices {
 #define ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE 6
 // Unknown action received
 #define ERROR_CODE_UNKNOWN_ACTION 7
-// General device read error
-#define ERROR_CODE_DEVICE_READ_ERROR 8
+// DHT11 read error (is it connected)
+#define ERROR_CODE_DHT11_READ_ERROR 8
 // The node (during remote communication) was not available.
 #define ERROR_RH24_NODE_NOT_AVAILABLE 9
 // Whenever a read did not return the expected size
@@ -142,6 +142,8 @@ typedef byte ACTION_TYPE;
 #define ACTION_RH24_PING 0x9
 // Sends this node to sleep according to configuration
 #define ACTION_SEND_TO_SLEEP 0x0A
+// To find out if the is in sleep mode
+#define ACTION_CHECK_SLEEP_STATE 0x0B
 // Internal action definition. Used to check that there were no unread message in the pipe.
 #define ACTION_RH24_NO_MESSAGE_READ 0xF0
 

@@ -220,7 +220,7 @@ int* getValue(Device* device) {
           
             values[RESPONSE_POSITION_DHT11_TEMPERATURE] = 0;
             values[RESPONSE_POSITION_DHT11_HUMIDITY] = 0;
-            err("DHT Timeout", ERROR_CODE_DEVICE_READ_ERROR);
+            err("DHT Timeout", ERROR_CODE_DHT11_READ_ERROR);
             
             break;
             
@@ -228,18 +228,13 @@ int* getValue(Device* device) {
           
             values[RESPONSE_POSITION_DHT11_TEMPERATURE] = 0;
             values[RESPONSE_POSITION_DHT11_HUMIDITY] = 0;
-            err("DHT error.", ERROR_CODE_DEVICE_READ_ERROR);
+            err("DHT error.", ERROR_CODE_DHT11_READ_ERROR);
        
             break;
        
        }
        // silent error
    } break;
-   
-   default:
-   
-    err("Bad device type", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE);
-    break;
     
   }
   

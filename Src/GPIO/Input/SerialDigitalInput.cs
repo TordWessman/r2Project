@@ -20,38 +20,32 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialDigitalInput : DigitalInputBase, ISerialDevice
+	internal class SerialDigitalInput : SerialDeviceBase<bool>, IInputPort
 	{
-
-		// The id of the device at the slave device
-		private byte m_deviceId;
-		// The id for the host where the device resides
-		private byte m_nodeId;
-
 		// The I/O port on the device
-		private int m_port;
+		private byte m_port;
 
-		private ISerialHost m_host;
+		internal SerialDigitalInput  (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
 
-		// ISerialDevice implementation
-		public void Synchronize() {
-
-			m_deviceId = m_host.Create (m_nodeId, SerialDeviceType.DigitalInput, new byte[]{  (byte)m_port  });
+			m_port = (byte)port;
 
 		}
 
-		public SerialDigitalInput (string id, byte nodeId, ISerialHost host, int port): base(id)
-		{
-			m_port = port;
-			m_host = host;
-			m_nodeId = nodeId;
+		protected override byte[] CreationParameters { get { return new byte[]{ (byte)m_port }; } }
+
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.DigitalInput; } }
+
+		public bool Value { get { return GetValue (); } }
+
+		public void SetTrigger(Func<object> triggerFunc, bool pullUp = false, int interval = 100) {
+			//TODO:
+			throw new NotImplementedException();
 		}
 
-		#region IInputPort implementation
-
-		public override bool Value { get { return ((int[]) m_host.GetValue(m_deviceId, m_nodeId))[0] == 1; } }
-
-		#endregion
+		public void StopTrigger() {
+			//TODO:
+			throw new NotImplementedException();
+		}
 
 	}
 }

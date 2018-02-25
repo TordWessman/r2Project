@@ -1,5 +1,6 @@
 ﻿using System;
 using Core.Device;
+using Core;
 
 namespace GPIO
 {
@@ -17,8 +18,14 @@ namespace GPIO
 		/// <param name="id">Identifier.</param>
 		/// <param name="portIdentifier">Port identifier.</param>
 		/// <param name="baudRate">Baud rate.</param>
-		public ISerialHost CreateSerialConnection(string id, string portIdentifier = null, int baudRate = ArduinoSerialConnector.DEFAULT_BAUD_RATE) {
+		public ISerialHost CreateSerialConnection(string id, string portIdentifier = null, int baudRate = 0) {
 		
+			if (baudRate <= 0) {
+			
+				baudRate = Settings.Consts.ArduinoSerialConnectorBaudRate ();
+
+			}
+
 			ISerialConnection connection = new ArduinoSerialConnector (id, portIdentifier, baudRate);
 			return new SerialHost(id, connection, new ArduinoSerialPackageFactory());
 

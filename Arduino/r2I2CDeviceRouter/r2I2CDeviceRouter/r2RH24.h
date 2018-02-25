@@ -7,17 +7,28 @@
 #define SLEEP_MODE_TOGGLE_POSITION 0x0
 #define SLEEP_MODE_CYCLES_POSITION 0x1
 
-// Maximum number of nodes in the slave network
-#define MAX_NODES 20
+// Will the slave try to ping the master
+//#define RH24_PING_ENABLED
+
+// How often will the slave try to ping the master
+#define RH24_PING_INTERVAL 60000
 
 // If this amount is reached, the mest.begin() should be called on the slave
 #define MAX_RENEWAL_FAILURE_COUNT 5
 
 // How often the slave will try to renew it's address (in ms)
-#define RH24_NETWORK_RENEWAL_TIME 1000
+#define RH24_NETWORK_RENEWAL_TIME 3000
+
+// The timeout for a slave before it gives up it's renewal attempt
+#define RH24_SLAVE_RENEWAL_TIMEOUT 5000
+
+// Retry before a slave tries to rewrite a failed message
+#define RH24_SLAVE_WRITE_RETRY 500
 
 // Timeout in ms before a network read operation fails. Should be high, since sleeping nodes in a mesh might have a slow response time 
 #define RH24_READ_TIMEOUT 15000
+
+#define RH24_SLEEP_UNTIL_MESSAGE_RECEIVED 0xFF
 
 // Send a package!
 ResponsePackage rh24Send(RequestPackage* request);
@@ -42,6 +53,12 @@ bool isMaster();
 
 // Sets this nodes state to sleep state (until it's restarted).
 void sleep(bool on, byte cycles);
+
+// As with sleep above, but with the default cycles defaulting to RH24_SLEEP_UNTIL_MESSAGE_RECEIVED
+void sleep(bool on);
+
+// Returns true if this node is sleeping.
+bool isSleeping();
 
 #endif
 

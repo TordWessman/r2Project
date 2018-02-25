@@ -108,6 +108,11 @@ ResponsePackage execute(RequestPackage *request) {
        
     }
     
+  } else if (request->action == ACTION_CHECK_SLEEP_STATE) { 
+  
+    response.contentSize = 1;
+    response.content[0] = isSleeping();
+    
   } else {
   
   #endif
@@ -140,27 +145,12 @@ ResponsePackage execute(RequestPackage *request) {
         R2_LOG(response.id);
         createDevice(response.id, type, parameters);
         
-      } break;
-        
-      case ACTION_SET_DEVICE: {
-        
-          Device *device = getDevice(request->id);
-    
-          if (!device) {
-            
-            err("E: Device not found", ERROR_CODE_NO_DEVICE_FOUND, request->id);
-            
-          } else {
-            
-            R2_LOG(F("Setting device with id:"));
-            R2_LOG(request->id);
-            setValue(device, toInt16 ( request->args ));
-          
-          }
-          
-        } break;
-        
-        case ACTION_GET_DEVICE: {
+      }
+      
+      // Will fall through here from ACTION_CREATE_DEVICE in order to return the values.
+      request->id = response.id;
+      
+      case ACTION_GET_DEVICE: {
           
             R2_LOG(F("Retrieved device with id:"));
             R2_LOG(request->id);
@@ -184,12 +174,34 @@ ResponsePackage execute(RequestPackage *request) {
           
         } break;
         
+      case ACTION_SET_DEVICE: {
+        
+          Device *device = getDevice(request->id);
+    
+          if (!device) {
+            
+            err("E: Device not found", ERROR_CODE_NO_DEVICE_FOUND, request->id);
+            
+          } else {
+            
+            R2_LOG(F("Setting device with id:"));
+            R2_LOG(request->id);
+            setValue(device, toInt16 ( request->args ));
+          
+          }
+          
+        } break;
+        
         case ACTION_INITIALIZE:
+          
+          R2_LOG(F("Initializing"));
           
           deviceCount = 0;
           initialized = true;
           clearError();
-          R2_LOG(F("Initializing"));
+          
+          // Wake this node up if it has been sleeping
+          sleep(false);
           
           for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
   

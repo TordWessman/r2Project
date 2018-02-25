@@ -33,7 +33,7 @@ namespace Core.Scripting
 
 		private string m_stacktrace;
 
-		public ScriptException(Exception exception) : base(exception.Message, exception.InnerException) {
+		public ScriptException(Exception exception) : base($"\n[{exception.GetType()}]\n" + exception.Message, exception.InnerException) {
 			
 			m_stacktrace = String.Join(Environment.NewLine, exception.StackTrace.Split (new string[1] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToArray ().Where(line => !(new List<string> () { "Microsoft.Scripting.", "System.Dynamic.UpdateDelegates", ".Runtime.Calls.", "Microsoft.Scripting.Hosting", "(wrapper dynamic-method)", "(wrapper delegate-invoke)", "(wrapper remoting-invoke-with-check)" }).Any(l => line.Contains(l))).ToArray().Where(line => line != Environment.NewLine));
 

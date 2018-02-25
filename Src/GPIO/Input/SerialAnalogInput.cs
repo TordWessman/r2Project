@@ -20,23 +20,21 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialAnalogInput: SerialDeviceBase, IInputMeter<double>
+	internal class SerialAnalogInput: SerialDeviceBase<int[]>, IInputMeter<double>
 	{
 		private int m_port;
 
-		public SerialAnalogInput (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
+		internal SerialAnalogInput (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
 
 			m_port = port;
 
 		}
 
-		protected override byte ReCreate() {
-		
-			return Host.Create ((byte)NodeId, SerialDeviceType.AnalogueInput, new byte[]{ (byte)m_port });
+		protected override byte[] CreationParameters { get { return new byte[]{ (byte)m_port }; } }
 
-		}
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogueInput; } }
 
-		public double Value { get { return (double) ((int[]) Host.GetValue(DeviceId, NodeId))[0]; } }
+		public double Value { get { return (double)GetValue () [0]; } }
 	
 	}
 }

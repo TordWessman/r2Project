@@ -11,16 +11,16 @@
 #define USE_RH24
 
 #ifdef USE_RH24
-
-  // The timeout for a slave before it gives up it's renewal atempt
-  #define RH24_SLAVE_RENEWAL_TIMEOUT 3000
   
   #define RH24_PORT1 9
   #define RH24_PORT2 10
   
+  // If this value is set, the node should stay in sleep mode
+  #define SLEEP_MODE_EEPROM_ADDRESS 0x01
+  
 #endif
 
-#define SERIAL_BAUD_RATE 115200
+#define SERIAL_BAUD_RATE 9600
 
 // Maximum number of devices
 #define MAX_DEVICES 5
@@ -29,7 +29,7 @@
 #define R2_PRINT_DEBUG
 
 // The address position used to store the node id 
-#define NODE_ID_EEPROM_ADDRESS 0x0
+#define NODE_ID_EEPROM_ADDRESS 0x00
 
 // If defined, these leds will be used to communicate status and error 
 #define R2_STATUS_LED 0x2
