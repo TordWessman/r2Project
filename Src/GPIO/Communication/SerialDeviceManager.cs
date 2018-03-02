@@ -63,6 +63,12 @@ namespace GPIO
 
 			if (node == null) {
 
+				if (!m_host.IsNodeAvailable (nodeId)) {
+				
+					throw new System.IO.IOException ($"Unable to retrieve node {nodeId}. It seems like it's unavailable...");
+
+				}
+
 				node = new SerialNode ((byte) nodeId, m_host, m_updateInterval);
 				m_nodes.Add (node);
 

@@ -2,8 +2,9 @@
 #include "r2Common.h"
 
 #ifdef USE_SERIAL
+
 // Contains data during serial read.
-byte readBuffer[MAX_RECEIZE_SIZE + 1];
+byte readBuffer[MAX_RECEIVE_SIZE + 1];
 
 // read input size for serial communication.
 int rs = 0;
@@ -23,14 +24,11 @@ byte messageHeader[] = PACKAGE_HEADER_IDENTIFIER;
 // Size of header
 int headerLength = (sizeof(messageHeader)/sizeof(messageHeader[0]));
 
-bool apa = false;
-
 void loop_serial() {
   
   if (Serial.available() > 0) {
   
     if (!headerReceived) {
-      //setStatus(apa); apa = !apa; delay(100);
       
       rs = rx = 0;
       
@@ -53,20 +51,15 @@ void loop_serial() {
       }
       
     } else if (rs == 0) {
-    
-      //setStatus(apa); apa = !apa; delay(100);
+      
       rx = 0;
       rs = Serial.read();
       
     } else if (rx < rs - 1) {
       
-      //setStatus(apa); apa = !apa; delay(100);
-      
       readBuffer[rx++] = Serial.read();
       
     } else if (rx == rs - 1) {
-      
-      //setStatus(apa); apa = !apa; delay(100);
       
       readBuffer[rx] = Serial.read();
       

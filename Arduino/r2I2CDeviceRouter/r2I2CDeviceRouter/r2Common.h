@@ -25,7 +25,7 @@ void setError(bool on);
 
 void loop_common();
 
-// -- Various "helper" methods.
+// -- Various "helper" methods --
 
 // Returns the node id used (will default to DEVICE_HOST_LOCAL if not stored). 
 byte getNodeId();
@@ -41,6 +41,7 @@ byte *asInt16(int value);
 
 // Set error state with a message.
 void err (const char* msg, byte code);
+
 // Attach additional error information to a response.
 void err (const char* msg, byte code, byte info);
 

@@ -57,7 +57,7 @@ uint32_t slaveRenewalFailures = 0;
 // Keeps track of the ping intervals.
 unsigned long pingTimer = 0;
 
-// -- Private method declarations:
+// -- Private method declarations --
 
 #endif
 
@@ -88,7 +88,7 @@ void slave_readPing(RF24NetworkHeader header);
 // Reads a message from the network
 void slave_readMessage(RF24NetworkHeader header);
 
-// --- Debug
+// -- Debug --
 
 #ifdef R2_PRINT_DEBUG
     int slaveDebugOutputCount = 0;
@@ -99,7 +99,8 @@ bool slaveSleepStarted = false;
 
 // -- Public method bodies
 
-// ----------------------------------- SETUP
+// -- SETUP --
+
 void rh24Setup() {
 
   //if (!isMaster()) { setStatus(true); }
@@ -148,7 +149,21 @@ bool nodeAvailable(HOST_ADDRESS nodeId) {
 
   for (int i = 0; i < mesh.addrListTop; i++) {
   
-    if (nodeId == mesh.addrList[i].nodeID) { return true; }
+    if (nodeId == mesh.addrList[i].nodeID) { 
+    
+      return true;
+      
+      // TODO: 
+      RequestPackage *request = (RequestPackage*) malloc(sizeof(RequestPackage));
+      
+      request->host = nodeId;
+      request->action = ACTION_RH24_PING_SLAVE;
+      request->id = 0;
+      ResponsePackage response = rh24Send(request);
+      free(request);
+      return response.action == ACTION_RH24_PING_SLAVE;
+      
+    }
   
   }
   

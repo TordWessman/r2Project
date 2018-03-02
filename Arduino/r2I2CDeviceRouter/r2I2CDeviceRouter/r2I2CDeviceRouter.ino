@@ -75,6 +75,10 @@ ResponsePackage execute(RequestPackage *request) {
     response.contentSize = 1;
     response.content[RESPONSE_POSITION_HOST_AVAILABLE] = nodeAvailable(request->host);
   
+  } else if (request->action == ACTION_RH24_PING_SLAVE) {
+  
+      //TODO: if (isError(response)) { setError(response); }
+      
   } else if (request->action == ACTION_GET_NODES) {
   
     HOST_ADDRESS *nodes = getNodes();
@@ -250,6 +254,7 @@ void setup() {
 pinMode(R2_STATUS_LED, OUTPUT);
 reservePort(R2_STATUS_LED);
 #endif
+
 #ifdef R2_ERROR_LED
 pinMode(R2_ERROR_LED, OUTPUT);
 reservePort(R2_ERROR_LED);
