@@ -33,8 +33,8 @@ namespace GPIO
 		AnalogueInput = 0x3,	// Uses slave's AD converter to read a value
 		Servo = 0x4,			// PWM Servo
 		Sonar_HCSR04 = 0x5,		// HC-SR04 Sonar implementation
-		DHT11 = 0x6				// DHT11 Temperature/Humidity sensor
-			
+		DHT11 = 0x6,			// DHT11 Temperature/Humidity sensor
+		SimpleMoist = 0x7		// Moisture sensor using output port + ad port 
 	}
 
 	/// <summary>
@@ -48,13 +48,90 @@ namespace GPIO
 		Get = 0x3,		// Return the value of a device
 		Error = 0xF0,	// Yep, this was an error (only used by responses).
 		Initialization = 0x4, // As a request header, this tells the slave that it's ready for communication. As a response header, this indicate that the slave has been rebooted and needs to be reinitialized.
-		InitializationOk = 0x5 // Response header telling that the initialization was successfull.
+		InitializationOk = 0x5, // Response header telling that the initialization was successfull.
+		SetNodeId = 0x6, // This action will cause the node to change it's id. This action should not be propagated.
+		IsNodeAvailable = 0x7, // Check if a specified host, determined by `Host` is currently connected.
+		GetNodes = 0x8, // Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
+		SendToSleep = 0x0A, // Sends the node to sleep
+		CheckSleepState = 0x0B, // Check if the node has been sent to sleep.
+		PauseSleep = 0x0C // Pause the sleeping for up to 60 seconds.
 	}
 
-	public struct DeviceResponsePackage {
+	public enum ErrorType: byte {
 	
+		// No error status was received, but response indicated an error.
+		Undefined = 0,
+		// No device with the specified id was found.
+		NO_DEVICE_FOUND = 1,
+		// The port you're trying to assign is in use.
+		PORT_IN_USE = 2,
+		// The device type specified was not declared
+		DEVICE_TYPE_NOT_FOUND = 3,
+		// Too many devices has been allocated
+		MAX_DEVICES_IN_USE = 4,
+		// This device does not suport set operation
+		DEVICE_TYPE_NOT_FOUND_SET_DEVICE = 5,
+		// This device does not support read operation
+		DEVICE_TYPE_NOT_FOUND_READ_DEVICE = 6,
+		// Unknown action received
+		UNKNOWN_ACTION = 7,
+		// DHT11 read error (is it connected)
+		DHT11_READ_ERROR = 8,
+		// The node (during remote communication) was not available.
+		RH24_NODE_NOT_AVAILABLE = 9,
+		// Whenever a read did not return the expected size
+		RH24_BAD_SIZE_READ = 10,
+		// Called if a read-write timed out during RH24 communication
+		RH24_TIMEOUT = 11,
+		// If a write operation fails for RH24
+		RH24_WRITE_ERROR = 12,
+		// Unknown message. Returned if the host receives a message with an unexpected type.
+		RH24_UNKNOWN_MESSAGE_TYPE_ERROR = 13,
+		// If the the master's read operation was unable to retrieve data.
+		ERROR_RH24_NO_NETWORK_DATA = 14,
+		// Routing through a node that is not the master is not supported.
+		ERROR_RH24_ROUTING_THROUGH_NON_MASTER = 15,
+		// If the master receives two messages with the same id
+		ERROR_RH24_DUPLICATE_MESSAGES = 16,
+		// Failed to make the node sleep
+		ERROR_FAILED_TO_SLEEP = 18,
+		// Messages are not in sync. Unrecieved messages found in the masters input buffer.
+		ERROR_RH24_MESSAGE_SYNCHRONIZATION = 19
+	}
+
+	public interface IDeviceResponsePackageErrorInformation {
+	
+		/// <summary>
+		/// If true, the request to slave generated an error.
+		/// </summary>
+		/// <value><c>true</c> if this instance is error; otherwise, <c>false</c>.</value>
+		bool IsError { get; }
+
+		/// <summary>
+		/// Returns the error type of the response (or Undefined if no error was received).
+		/// </summary>
+		/// <value>The error.</value>
+		ErrorType Error { get; }
+
+		/// <summary>
+		/// Helps identify the info part of the error message and parses it
+		/// </summary>
+		/// <returns>The error info as a string representation.</returns>
+		string ErrorInfo { get; }
+
+	}
+
+	/// <summary>
+	/// Response message from node. Besides response data, it contains helper functionality for evaluating the result of an operation (Value) and error-information.
+	/// The type ´T´ should normally be an array of either int[] (normal values, for sensors) or byte[] (everything else).
+	/// </summary>
+	public struct DeviceResponsePackage<T> : IDeviceResponsePackageErrorInformation {
+
+		// Id for a message. Used for debugging.
+		public byte MessageId;
+
 		// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
-		public byte Host;
+		public byte NodeId;
 
 		// Action required by slave.
 		public ActionType Action;
@@ -68,34 +145,65 @@ namespace GPIO
 		// The number of int16 returned from slave upon a ActionType.Get request.
 		public const int NUMBER_OF_RETURN_VALUES = 2;
 
-		/// <summary>
-		/// If true, the request to slave generated an error.
-		/// </summary>
-		/// <value><c>true</c> if this instance is error; otherwise, <c>false</c>.</value>
 		public bool IsError { get { return Action == ActionType.Error || Action == ActionType.Unknown; } }
 
+		public ErrorType Error { 
+			
+			get { 
+		
+				if (IsError) {
+
+					return (Content?.Length ?? 0) > 0 ? (ErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : ErrorType.Undefined;
+
+				} else  { return ErrorType.Undefined; }
+
+			}
+
+		}
+
+		public string ErrorInfo { get {
+
+				int info = (Content?.Length ?? 0) > 1 ? Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
+
+				if (Error == ErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
+
+					// Will return the action of an unread message in the master node's pipe.
+					return $"Action from the previous message: `{(ActionType) info}`";
+
+				}
+
+				return info.ToString ();
+			}
+
+		}
+
 		/// <summary>
-		/// Contains the response. Normally it's an int16 containing some requested response data, but it can also conains a string (error message).
+		/// Contains the response. Normally it's an int16 containing some requested response data.
 		/// </summary>
 		/// <value>The value.</value>
-		public dynamic Value {
+		public T Value {
 		
 			get {
 			
-				if (IsError) {
-				
-					return System.Text.Encoding.Default.GetString (Content);
-				
-				} else if (Action == ActionType.Get) {
-				
+				if (typeof(T) == typeof(bool)) {
+					
+					return (T)(object)(Content [0] > 0);
+	
+				} else if (typeof(T) == typeof(int[])) {
+						
 					int[] values = new int[NUMBER_OF_RETURN_VALUES];
 
 					for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt (i * 2, 2); }
 
-					return values;
+					return (T)(object)values;
+
+				} else if (typeof(T) != typeof(byte[])) {
+				
+					throw new InvalidCastException ($"Expected type constraint T to be of type ´byte[]´, but was ´{typeof(T)}´."); 
+
 				}
 
-				return null;
+				return (T)(object)Content;
 			
 			}
 		
@@ -110,10 +218,10 @@ namespace GPIO
 	public struct DeviceRequestPackage
 	{
 		// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
-		public byte Host;
+		public byte NodeId;
 
 		// Action required by slave.
-		public byte Action;
+		public ActionType Action;
 
 		// Id of an affected device on slave. A slave have a limited range of id:s (i.e. 0-19).
 		public byte Id;
@@ -121,38 +229,7 @@ namespace GPIO
 		// Additional data sent to slave.
 		public byte[] Content;
 
-		/// <summary>
-		/// Converts the package to a byte array before transmission.
-		/// </summary>
-		/// <returns>The bytes.</returns>
-		public byte[] ToBytes()
-		{  
-
-			Console.WriteLine(Marshal.SizeOf(typeof(DeviceRequestPackage)));
-			Byte[] structData = new Byte[3 + (Content?.Length ?? 0)]; 
-
-			GCHandle pinStructure = GCHandle.Alloc(this, GCHandleType.Pinned);  
-
-			try {  
-
-				Marshal.Copy(pinStructure.AddrOfPinnedObject(), structData, 0, structData.Length); 
-
-				if (Content?.Length > 0) {
-
-					Array.Copy(Content,0,structData,3, Content.Length);
-
-				}
-
-				return structData;  
-
-			} finally {  
-
-				pinStructure.Free();  
-
-			}  
-
-		}  
-
 	}
+
 }
 

@@ -23,35 +23,48 @@ namespace GPIO
 {
 	public class ArduinoSerialPackageFactory: ISerialPackageFactory
 	{
-		// Default local host value. (Not used).
-		public const byte DEVICE_HOST_LOCAL = 0xFF;
+		// Default local nodeId value. This is the default nodeId used. Data sent to other nodeIds requires a RH24 enabled slave (configured as RH24 master).
+		public const byte DEVICE_NODE_LOCAL = 0x0;
 
-		const int MAX_CONTENT_SIZE = 100;
+		// Max size for content in packages
+		const int MAX_CONTENT_SIZE = 10;
 
 		// ATMEGA 328-specific constraints. 18 & 19 will not be available if running I2C, since they are used as SDA and SCL on the ATMEGA 328 board.
 		public readonly byte[] VALID_ANALOGUE_PORTS_ON_ARDUINO = { 14, 15, 16, 17, 18, 19 };
 
-		/// <summary>
-		/// Keeps track of the devcie number for each host.
-		/// </summary>
+		/// Keeps track of the devcie number for each host. This values does not correspond to the id's of the host.
 		private byte[] m_deviceCount;
 
 		/// <summary>
 		/// Defines the maximum number of devices possible to allocate on each host
 		/// </summary>
-		private const byte MAXIMUM_NUMBER_OF_DEVICES_PER_HOST = 20;
+		private const byte MAXIMUM_NUMBER_OF_DEVICES_PER_HOST = 5;
 
-		public const int POSITION_HOST = 0;
-		public const int POSITION_ACTION = 1;
-		public const int POSITION_ID = 2;
-		public const int POSITION_CONTENT_LENGTH = 3;
-		public const int POSITION_CONTENT = 4;
+		// During SendToSleep, this amount of cycles forces the node to sleep until woken up by tranciever
+		public const int RH24_SLEEP_UNTIL_MESSAGE_RECEIVED = 0xFF;
+
+		// The maximum interval allowed for the PauseSleep action.
+		public const int RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL = 60;
+
+		// Below are the positions for Response messages. Request messages do no have the message id, and is thus 1 byte `lower`.
+		public const int POSITION_MESSAGE_ID = 0x0;
+		public const int POSITION_HOST = 0x1;
+		public const int POSITION_ACTION = 0x2;
+		public const int POSITION_ID = 0x3;
+		public const int POSITION_CONTENT_LENGTH = 0x4;
+		public const int POSITION_CONTENT = 0x5;
 
 		// In the content part of the (create) message, here be the Type
-		public const int POSITION_CONTENT_DEVICE_TYPE = 0;
+		public const int POSITION_CONTENT_DEVICE_TYPE = 0x0;
 
-		// If the POSITION_ACTION bart has this value, the response was an error.
-		public const byte ACTION_ERROR = 0xF0;
+		// Where the the error code resides in the response content
+		public const int POSITION_CONTENT_POSITION_ERROR_TYPE = 0x0;
+		// Where (potentional) additional error information resides int response content.
+		public const int POSITION_CONTENT_POSITION_ERROR_INFO = 0x1;
+
+		// Content positions for Sleep data
+		public const int POSITION_CONTENT_SLEEP_TOGGLE = 0x0;
+		public const int POSITION_CONTENT_SLEEP_CYCLES = 0x1;
 
 		public ArduinoSerialPackageFactory() {
 
@@ -59,12 +72,32 @@ namespace GPIO
 
 		}
 
-		public DeviceResponsePackage ParseResponse (byte[] response) {
+		public byte[] SerializeRequest(DeviceRequestPackage request) {
+		
+			byte[] requestData = new byte[POSITION_CONTENT_LENGTH + (request.Content?.Length ?? 0)];
+
+			requestData[POSITION_HOST - 1] = request.NodeId;
+			requestData[POSITION_ACTION - 1] = (byte)request.Action;
+			requestData[POSITION_ID - 1] = request.Id;
+			requestData [POSITION_CONTENT_LENGTH - 1] = (byte)(request.Content?.Length ?? 0);
+
+			if (requestData [POSITION_CONTENT_LENGTH - 1] > 0) {
+			
+				Array.Copy (request.Content, 0, requestData, POSITION_CONTENT - 1, requestData [POSITION_CONTENT_LENGTH - 1]);
+
+			}
+
+			return requestData;
+
+		}
+
+		public DeviceResponsePackage<T> ParseResponse<T> (byte[] response) {
 
 			int contentLength = response [POSITION_CONTENT_LENGTH];
 
-			return new DeviceResponsePackage () {
-				Host = response [POSITION_HOST],
+			return new DeviceResponsePackage<T> () {
+				MessageId = response [POSITION_MESSAGE_ID],
+				NodeId = response [POSITION_HOST],
 				Action = (ActionType)response [POSITION_ACTION],
 				Id = response [POSITION_ID],
 				Content = contentLength > 0 ? response.Skip (POSITION_CONTENT).Take (contentLength)?.ToArray () ?? new byte[]{ } : new byte[]{ }
@@ -72,23 +105,23 @@ namespace GPIO
 
 		}
 
-		public DeviceRequestPackage CreateDevice(byte hostId, SerialDeviceType type, byte[] ports) {
+		public DeviceRequestPackage CreateDevice(byte nodeId, SerialDeviceType type, byte[] ports) {
 
 			// Slave expects <device type><IOPort1><IOPort2> ...
 			byte[] content = new byte[1 + ports.Length];
 			content [POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
 			Array.Copy (ports, 0, content, 1, ports.Length);
 
-			if (type == SerialDeviceType.AnalogueInput && !(VALID_ANALOGUE_PORTS_ON_ARDUINO.Contains(ports[0]))) {
+			if ((type == SerialDeviceType.AnalogueInput || type == SerialDeviceType.SimpleMoist) && !(VALID_ANALOGUE_PORTS_ON_ARDUINO.Contains(ports[0]))) {
 
 				throw new System.IO.IOException ($"Not a valid analogue port: '{ports[0]}'. Use: {string.Concat (VALID_ANALOGUE_PORTS_ON_ARDUINO.Select (b => b.ToString () + ' '))}");
 
 			}
 
 			DeviceRequestPackage package = new DeviceRequestPackage () { 
-				Host = hostId, 
-				Action = (byte) ActionType.Create, 
-				Id = m_deviceCount[hostId]++,
+				NodeId = nodeId, 
+				Action = ActionType.Create, 
+				Id = m_deviceCount[nodeId]++, //Actually decided by the node...
 				Content = content
 			};
 
@@ -96,40 +129,54 @@ namespace GPIO
 
 		}
 
-		public DeviceRequestPackage SetDevice(byte deviceId, byte hostId, int value) {
+		public DeviceRequestPackage SetDevice(byte deviceId, byte nodeId, int value) {
 
 			byte[] content = { (byte) (value & 0xFF) , (byte) ((value >> 8) & 0xFF) };
 
 			return new DeviceRequestPackage () { 
-				Host = hostId, 
-				Action = (byte) ActionType.Set, 
+				NodeId = nodeId, 
+				Action = ActionType.Set, 
 				Id = deviceId, 
 				Content = content 
 			};
 
 		}
 
-		public DeviceRequestPackage GetDevice(byte deviceId, byte hostId) {
+		public DeviceRequestPackage GetDevice(byte deviceId, byte nodeId) {
 
 			return new DeviceRequestPackage () { 
-				Host = hostId, 
-				Action = (byte) ActionType.Get, 
+				NodeId = nodeId, 
+				Action = ActionType.Get, 
 				Id = deviceId, 
 				Content = {} 
 			};
 
 		}
 
-		public DeviceRequestPackage Initialize (byte host) {
+		public DeviceRequestPackage Sleep(byte nodeId, bool toggle, byte cycles) {
+		
+			byte[] content = new byte[2];
+			content [POSITION_CONTENT_SLEEP_TOGGLE] = (byte)(toggle ? 1 : 0);
+			content [POSITION_CONTENT_SLEEP_CYCLES] = (byte) cycles;
 
-			return new DeviceRequestPackage () { 
-				Host = host, 
-				Action = (byte) ActionType.Initialization, 
-				Id = 0x0, 
+			return new DeviceRequestPackage () {
+				NodeId = nodeId,
+				Action = ActionType.SendToSleep, 
+				Content = content
+			};
+		}
+
+		public DeviceRequestPackage SetNodeId (byte nodeId) {
+
+			return new DeviceRequestPackage () {
+				NodeId = 0x0, 
+				Action = ActionType.Initialization, 
+				Id = nodeId, 
 				Content = {} 
 			};
 
 		}
+
 	}
 }
 

@@ -21,9 +21,27 @@ using System.Dynamic;
 using Core.Device;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Core.Scripting
 {
+
+	/// <summary>
+	/// In order to remove a lot of anoying debug output. Should not be used.
+	/// </summary>
+	public class ScriptException: Exception {
+
+		private string m_stacktrace;
+
+		public ScriptException(Exception exception) : base($"\n[{exception.GetType()}]\n" + exception.Message, exception.InnerException) {
+			
+			m_stacktrace = String.Join(Environment.NewLine, exception.StackTrace.Split (new string[1] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToArray ().Where(line => !(new List<string> () { "Microsoft.Scripting.", "System.Dynamic.UpdateDelegates", ".Runtime.Calls.", "Microsoft.Scripting.Hosting", "(wrapper dynamic-method)", "(wrapper delegate-invoke)", "(wrapper remoting-invoke-with-check)" }).Any(l => line.Contains(l))).ToArray().Where(line => line != Environment.NewLine));
+
+		}
+
+		public override string StackTrace  { get { return m_stacktrace; } }
+
+	}
 	
 	/// <summary>
 	/// IScript implementations should inherit from ScriptBase, since it's usingthe DynamicObject features for method and member access.
@@ -104,7 +122,6 @@ namespace Core.Scripting
 
 				}
 
-
 				m_isRunning = false;
 
 				foreach (IScriptObserver observer in m_scriptObservers) {
@@ -151,10 +168,10 @@ namespace Core.Scripting
 				m_isRunning = false;
 
 				foreach (IScriptObserver observer in m_scriptObservers) { observer?.OnScriptErrors (this); }
-				Log.x (ex);
+				ScriptException exception = new ScriptException (ex);
+				Log.x (exception);
 
-
-				throw ex;
+				throw exception;
 
 			}
 

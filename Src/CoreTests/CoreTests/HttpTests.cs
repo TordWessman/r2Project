@@ -25,7 +25,6 @@ using System.Threading;
 using Core.Data;
 using Core.Scripting;
 using System.Collections.Generic;
-using Core.Network;
 
 namespace CoreTests
 {

@@ -21,25 +21,23 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialHCSR04Sonar: SerialDeviceBase, IInputMeter<int>
+	internal class SerialHCSR04Sonar: SerialDeviceBase<int[]>, IInputMeter<int>
 	{
-		private int m_echoPort;
-		private int m_triggerPort;
+		private byte m_echoPort;
+		private byte m_triggerPort;
 
-		public SerialHCSR04Sonar (string id, byte hostId, ISerialHost host, int triggerPort, int echoPort): base(id, hostId, host) {
+		internal SerialHCSR04Sonar (string id, ISerialNode node, ISerialHost host, int triggerPort, int echoPort): base(id, node, host) {
 
-			m_echoPort = echoPort;
-			m_triggerPort = triggerPort;
+			m_echoPort = (byte) echoPort;
+			m_triggerPort = (byte) triggerPort;
 		
 		}
 
-		protected override byte Update() {
+		protected override byte[] CreationParameters { get { return new byte[]{ m_triggerPort, m_echoPort }; } }
 
-			return Host.Create ((byte)HostId, SerialDeviceType.Sonar_HCSR04, new byte[]{  (byte)m_triggerPort, (byte)m_echoPort  });
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.Sonar_HCSR04; } }
 
-		}
-
-		public int Value { get { return ((int[]) Host.GetValue(DeviceId, HostId))[0]; } }
+		public int Value { get { return GetValue () [0]; } }
 
 	}
 }

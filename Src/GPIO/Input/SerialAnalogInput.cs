@@ -17,26 +17,34 @@
 // 
 using System;
 using Core.Device;
+using System.Linq;
 
 namespace GPIO
 {
-	public class SerialAnalogInput: SerialDeviceBase, IInputMeter<double>
+	internal class SerialAnalogInput: SerialDeviceBase<int[]>, IInputMeter<double>
 	{
-		private int m_port;
+		protected byte[] m_ports;
 
-		public SerialAnalogInput (string id, byte hostId, ISerialHost host, int port): base(id, hostId, host) {
+		internal SerialAnalogInput (string id, ISerialNode node, ISerialHost host, int[] ports): base(id, node, host) {
 
-			m_port = port;
-
-		}
-
-		protected override byte Update() {
-		
-			return Host.Create ((byte)HostId, SerialDeviceType.AnalogueInput, new byte[]{ (byte)m_port });
+			m_ports = new byte[ports.Length];
+			for (int i = 0; i < ports.Length; i++) { m_ports[i] = (byte) ports[i]; }
 
 		}
 
-		public double Value { get { return (double) ((int[]) Host.GetValue(DeviceId, HostId))[0]; } }
+		protected override byte[] CreationParameters { get { return m_ports; } }
+
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogueInput; } }
+
+		public double Value { get { return (double)GetValue () [0]; } }
 	
+	}
+
+	internal class SimpleAnalogueHumiditySensor: SerialAnalogInput {
+
+		internal SimpleAnalogueHumiditySensor (string id, ISerialNode node, ISerialHost host, int[] ports): base(id, node, host, ports) {}
+
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.SimpleMoist; } }
+
 	}
 }

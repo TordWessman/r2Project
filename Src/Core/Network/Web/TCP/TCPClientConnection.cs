@@ -27,6 +27,7 @@ using System.Threading;
 
 namespace Core.Network
 {
+	
 	public class TCPClientConnection : DeviceBase, IClientConnection
 	{
 		private TcpClient m_client;
@@ -60,6 +61,7 @@ namespace Core.Network
 
 			ShouldRun = true;
 
+			Log.d ($"Connecting to {m_client.GetDescription()}.");
 			m_listener = Task.Factory.StartNew(() => {
 			
 				using (m_client) {
@@ -125,7 +127,7 @@ namespace Core.Network
 
 				if (ex is SocketException) {
 					
-					Log.w($"TCP connection aborted. Code: '{(ex as SocketException).SocketErrorCode}'.");
+					Log.d($"TCPClientConnection `{m_client.GetDescription()}` aborted. Code: `{(ex as SocketException).SocketErrorCode}`.");
 					Disconnect (this);
 
 				} else {

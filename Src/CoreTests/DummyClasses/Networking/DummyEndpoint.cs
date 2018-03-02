@@ -18,7 +18,6 @@
 //
 using System;
 using Core.Network;
-using Core.Network;
 using NUnit.Framework;
 
 namespace Core.Tests

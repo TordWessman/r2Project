@@ -1,291 +1,290 @@
-#ifndef USE_SERIAL
-#include <Wire.h> // Must be included
-#include <r2I2C.h>
+#include "r2I2C_config.h"
+#include "r2I2CDeviceRouter.h"
+#include "r2Common.h"
+#include <string.h>
+#include "Dht11.h"
+#include <Servo.h>
+#include <EEPROM.h>
+#ifdef RH24
+#include "RF24.h"
+#include "RF24Network.h"
+#include "RF24Mesh.h"
+#include <SPI.h>
 #endif
 
-#include "r2I2CDeviceRouter.h"
+#ifdef USE_SERIAL
+  #include "r2I2CSerial.h"
+#endif
 
-#include <Servo.h>
-#include <string.h>
+#ifdef USE_I2C
+  #include <Wire.h> // Must be included
+  #include <r2I2C.h>
+#endif
 
-// If defined, serial communication (not I2C) will be used for master/slave communication. 
-#define USE_SERIAL
-
-// Use with caution. If defined, serial errors will be printed through serial port.
-//#define PRINT_ERRORS_AND_FUCK_UP_SERIAL_COMMUNICATION
-
-// -- Private method declarations
-
-// Decides what to do with the incoming data. Preferably, it should call "execute".
-ResponsePackage interpret(byte* input);
-
-// Performs the actions requested by the RequestPackage.>
-ResponsePackage execute(RequestPackage *request);
-
-// Intializes the host if host is DEVICE_HOST_LOCAL, the host affected is self.
-void initialize(byte host);
-
-// Keeps track of the available devices.
-byte deviceCount = 0;
+#ifdef USE_RH24
+  #include "r2RH24.h"
+#endif
 
 // If true, the host is ready for operation. This flag is set after ACTION_INITIALIZE has been received.
 bool initialized = false;
 
-// -- Variables used by serial communication
+// Keeps track of the devices (and thus their id's).
+byte deviceCount = 0;
 
-byte readBuffer[MAX_RECEIZE_SIZE];
+// Counter for messages. For debuging purposes only.
+byte messageId = 0;
 
-// read input size for serial communication.
-int rs = 0;
+#ifdef USE_I2C
 
-// read input counter for serial communication.
-int rx = 0;
+// Delegate method for I2C event communication.
+void i2cReceive(byte* data, int data_size) {
 
-// Flag telling that the header ("checksum") was received.
-bool headerReceived = false;
+  ResponsePackage out = interpret((RequestPackage*)data); 
+  byte *response = (byte *)&out;
+  R2I2C.setResponse(response, RESPONSE_PACKAGE_SIZE(out));
+  
+}
 
-// Header read counter
-int rh;
-
-// This is my ID
-byte hostId = DEVICE_HOST_LOCAL;
-
-// Response/Request header
-byte messageHeader[] = PACKAGE_HEADER_IDENTIFIER;
-
-// Size of header
-int headerLength = (sizeof(messageHeader)/sizeof(messageHeader[0]));
+#endif
 
 ResponsePackage execute(RequestPackage *request) {
-
+  
   ResponsePackage response;
-  
-   response.id = request->id;
-   response.action = request->action;
-   response.host = request->host;
-   response.contentSize = 0;
-
-   if (!initialized && request->action != ACTION_INITIALIZE) {
    
-     // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
-     response.action = ACTION_INITIALIZE;
-     return response;
-     
-   }
-   
-  switch(request->action) {
+  response.id = request->id;
+  response.action = request->action;
+  response.host = request->host;
+  response.contentSize = 0;
+  response.messageId = messageId++;
   
-    case ACTION_CREATE_DEVICE:
-    {
-      response.id = deviceCount++;
-
-       byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
-   
-      if (!createDevice(response.id, request->args[REQUEST_ARG_CREATE_TYPE_POSITION], parameters)) {
-        
-        response.action = ACTION_ERROR;
-        
-      }
+  // If the ACTION_SET_NODE_ID is called, this node will be "configured" with a new id. Intended for setting up nodes only.
+  if (request->action == ACTION_SET_NODE_ID) {
       
-    }
-     
-    break;
+      response.host = request->id;
       
-    case ACTION_SET_DEVICE:
-      {
-        Device *device = getDevice(request->id);
+        // Store the id. This host will now be known as 'request->id'.
+      saveNodeId(request->id);
+      return response;
+        
+  }  
   
-        if (!device || !setValue(device, toInt16 ( request->args ))) {
-          
-          response.action = ACTION_ERROR;
-          
-        } 
-        
-      }
-      
-      break;
-      
-      case ACTION_GET_DEVICE:
-      {
-        Device *device = getDevice(request->id);
+  #ifdef USE_RH24
   
-        if (device) {
+  if (request->action == ACTION_CHECK_NODE) {
+  
+    response.contentSize = 1;
+    response.content[RESPONSE_POSITION_HOST_AVAILABLE] = nodeAvailable(request->host);
+  
+  } else if (request->action == ACTION_RH24_PING_SLAVE) {
+  
+      //TODO: if (isError(response)) { setError(response); }
       
-          response.contentSize = RESPONSE_VALUE_CONTENT_SIZE;
-          byte *result = (byte *)getValue(device);
-          
-          for (int i = 0; i < response.contentSize; i++) { response.content[i] = result[i]; }
-          
-          free (result);
-          
-        } else {
-        
-          response.action = ACTION_ERROR;
-          
-        }
-        
-      }
-      break;
-      case ACTION_INITIALIZE:
-      
-        initialize(request->host);
-        response.action = ACTION_INITIALIZATION_OK;
-        return response;
-        
-      break;
+  } else if (request->action == ACTION_GET_NODES) {
+  
+    HOST_ADDRESS *nodes = getNodes();
+    int count = nodeCount() > MAX_CONTENT_SIZE ? MAX_CONTENT_SIZE : nodeCount();
     
-     default:
-     
-        err("Unknown action sent to device router.", ERROR_CODE_UNKNOWN_ACTION);
+    response.contentSize = count;
+    
+    for (int i = 0; i < count; i++) { response.content[i] = nodes[i];  }
+    
+    free(nodes);
+  
+  } else if (isMaster() && request->host != getNodeId()) {
+  
+    R2_LOG(F("SENDING RH24 PACKAGE TO:"));
+    R2_LOG(request->host);
+    response = rh24Send(request);
+    if (isError(response)) { setError(response); }
+    
+  } else if (!isMaster() && request->host != getNodeId()) {
+    
+    err("E: Routing", ERROR_RH24_ROUTING_THROUGH_NON_MASTER, request->host);
+
+  } else if (request->action == ACTION_SEND_TO_SLEEP) {
+  
+    if (isMaster()) {
       
-  }
+      err("E: I'm master.", ERROR_FAILED_TO_SLEEP);
+      
+    } else {
+    
+       sleep(request->args[SLEEP_MODE_TOGGLE_POSITION], request->args[SLEEP_MODE_CYCLES_POSITION]);
+       
+    }
+    
+  } else if (request->action == ACTION_CHECK_SLEEP_STATE) { 
   
-  if (getError()) {
+    response.contentSize = 1;
+    response.content[0] = isSleeping();
+    
+  } else if (request->action == ACTION_PAUSE_SLEEP) {
   
-    response.action = ACTION_ERROR;
+    pauseSleep(request->args[SLEEP_MODE_TOGGLE_POSITION]);
+    
+  } else {
+  
+  #endif
+  
+     if (!initialized && request->action != ACTION_INITIALIZE) {
+     
+       R2_LOG(F("I'm not initialized. Please do so..."));
+       R2_LOG(request->host);
+       // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
+       response.action = ACTION_INITIALIZE;
+       
+       if (isSleeping()) {
+         
+          // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)
+          pauseSleep();
           
+       }
+       
+       return response;
+       
+     }
+     
+    switch(request->action) {
+    
+      case ACTION_CREATE_DEVICE: {
+        
+        response.id = deviceCount++;
+  
+        // Get the type of the device to create from the args.
+        DEVICE_TYPE type = request->args[REQUEST_ARG_CREATE_TYPE_POSITION];
+        
+        // The parameters are everything (mainly port information) that comes after the type parameter.    
+        byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
+        
+        R2_LOG(F("Creating device of type:"));
+        R2_LOG(type);
+        R2_LOG(F("With id:"));
+        R2_LOG(response.id);
+        createDevice(response.id, type, parameters);
+        
+      }
+      
+      // Will fall through here from ACTION_CREATE_DEVICE in order to return the values.
+      request->id = response.id;
+      
+      case ACTION_GET_DEVICE: {
+          
+            R2_LOG(F("Retrieved device with id:"));
+            R2_LOG(request->id);
+         
+           Device *device = getDevice(request->id);
+         
+          if (device) {
+        
+            response.contentSize = RESPONSE_VALUE_CONTENT_SIZE;
+            byte *result = (byte *)getValue(device);
+            
+            for (int i = 0; i < response.contentSize; i++) { response.content[i] = result[i]; }
+            
+            free (result);
+            
+          } else {
+          
+            err("E: Device not found", ERROR_CODE_NO_DEVICE_FOUND, request->id);
+            
+          }
+          
+        } break;
+        
+      case ACTION_SET_DEVICE: {
+        
+          Device *device = getDevice(request->id);
+    
+          if (!device) {
+            
+            err("E: Device not found", ERROR_CODE_NO_DEVICE_FOUND, request->id);
+            
+          } else {
+            
+            R2_LOG(F("Setting device with id:"));
+            R2_LOG(request->id);
+            setValue(device, toInt16 ( request->args ));
+          
+          }
+          
+        } break;
+        
+        case ACTION_INITIALIZE:
+          
+          R2_LOG(F("Initializing"));
+          
+          deviceCount = 0;
+          initialized = true;
+          clearError();
+          
+          for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
+  
+          response.action = ACTION_INITIALIZATION_OK;
+          
+          // Ehh.. return the first analogue port name here...
+          response.content[0] = A0;
+          response.contentSize = 1;
+          
+          return response;
+          
+        break;
+        
+       default:
+       
+          err("Unknown action", ERROR_CODE_UNKNOWN_ACTION, request->action);
+          
+    }
+  
+#ifdef USE_RH24
   }
+#endif
+  if (isError()) { response = createErrorPackage(response.host); }
+  
+  // Reset error state
+  clearError();
   
   return response;
   
 }
 
-void initialize(byte host) {
-
-  if (host == hostId) {
-  
-    initialized = true;
-    err(NULL, 0x0);
-    deviceCount = 0;
-    
-    for (int i = 0; i < MAX_DEVICES; i++) { void deleteDevice(byte i); }
-    
-  } else {
-  
-    
-    // TODO: send to remote host
-    
-  }
-  
-}
-
-ResponsePackage interpret(byte* input) {
-
-  RequestPackage *request = (RequestPackage*) input;
-
-  ResponsePackage out = execute(request);
-
-  if (out.action == ACTION_ERROR) {
-  
-    out.contentSize = strlen(getError());
-    
-    for (int i = 0; i < out.contentSize; i++) { out.content[i] = ((byte*) getError())[i]; }
-    
-  }
-  
-  // Reset error state
-  err(NULL, 0x0);
-
-  return out;
-  
-}
 
 void setup() {
+
+#ifdef R2_STATUS_LED
+pinMode(R2_STATUS_LED, OUTPUT);
+reservePort(R2_STATUS_LED);
+#endif
+
+#ifdef R2_ERROR_LED
+pinMode(R2_ERROR_LED, OUTPUT);
+reservePort(R2_ERROR_LED);
+#endif
+
+  Serial.begin(SERIAL_BAUD_RATE);
+  clearError();
   
-#ifdef USE_SERIAL
-  Serial.begin(9600);
-#else
-  Serial.begin(9600);
+#ifdef USE_I2C  
   R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
 #endif
- 
+
+#ifdef USE_RH24
+  rh24Setup();
+#endif
+   
 }
 
 void loop() {
   
+  loop_common();
+  
   #ifdef USE_SERIAL
-  serialCommunicate();
-  #else
-	//TODO: Add radio here?
-  delay(2000);
-  Serial.print(".");
+    loop_serial();
+  #endif
+  
+  //Serial.println("Starting RH24");
+  
+  #ifdef USE_RH24
+    loop_rh24();
   #endif
   
 }
-
-#ifndef USE_SERIAL
-
-// Delegate method for I2C event communication.
-void i2cReceive(byte* data, int data_size) {
-
-  ResponsePackage out = interpret(data); 
-  byte *response = (byte *)&out;
-  int responseSize = PACKAGE_SIZE + out.contentSize;
-  R2I2C.setResponse(response, responseSize);
-  
-}
-
-#else
-
-// Handles the serial read/write operations. Prefarbly used in run loop.
-void serialCommunicate() {
-  
-  if (Serial.available() > 0) {
-
-    if (!headerReceived) {
-      
-      rs = rx = 0;
-      
-      if ((byte) Serial.read() == messageHeader[rh]) {
-       
-        rh++;
-       
-       if (rh == headerLength) {
-        
-         rh = 0;
-         headerReceived = true;
-        
-       }
-       
-      } else {
-        
-        rh = 0;
-        
-      }
-      
-    } else if (rs == 0) {
-    
-      rx = 0;
-      rs = Serial.read();
-      
-    } else if (rx < rs - 1) {
-    
-      readBuffer[rx++] = Serial.read();
-      
-    } else if (rx == rs - 1) {
-  
-      readBuffer[rx] = Serial.read();
-      
-      headerReceived = false;
-      
-      rs = rx = 0;
-      
-      ResponsePackage out = interpret(readBuffer); 
-      byte *outputBuffer = (byte *)&out;
-      int outputSize = PACKAGE_SIZE + out.contentSize;
-  
-      // Header
-      for (byte i = 0; i < headerLength; i++) {Serial.write(messageHeader[i]); } 
-      
-      // Size of response
-      Serial.write((byte) outputSize);
-      
-      // Content
-      for (int i = 0; i < outputSize; i++) { Serial.write(outputBuffer[i]); }
-      
-    }
-    
-  }
-}
-
-#endif

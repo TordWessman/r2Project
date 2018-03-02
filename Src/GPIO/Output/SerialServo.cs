@@ -20,22 +20,20 @@ using Core.Device;
 
 namespace GPIO
 {
-	public class SerialServo: SerialDeviceBase, IServo
+	internal class SerialServo: SerialDeviceBase<byte[]>, IServo
 	{
-		private int m_port;
+		private byte m_port;
 		private float m_value;
 
-		public SerialServo  (string id, byte hostId, ISerialHost host, int port): base(id, hostId, host) {
+		internal SerialServo  (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
 
-			m_port = port;
+			m_port = (byte) port;
 		
 		}
 
-		protected override byte Update() {
+		protected override byte[] CreationParameters { get { return new byte[]{ m_port }; } }
 
-			return Host.Create ((byte)HostId, SerialDeviceType.Servo, new byte[]{  (byte)m_port  });
-
-		}
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.Servo; } }
 
 		#region IOutputPort implementation
 
@@ -44,7 +42,7 @@ namespace GPIO
 			set {
 
 				m_value = value;
-				Host.Set (DeviceId, HostId, (int) value);
+				Host.Set (DeviceId, NodeId, (int) value);
 
 			}
 

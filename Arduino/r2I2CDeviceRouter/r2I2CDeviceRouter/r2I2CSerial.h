@@ -1,0 +1,9 @@
+#ifndef R2I2C_SERIAL_H
+#define R2I2C_SERIAL_H
+
+#include "r2I2CDeviceRouter.h"
+
+// Handles the serial read/write operations. Prefarbly used in run loop.
+void loop_serial();
+
+#endif
