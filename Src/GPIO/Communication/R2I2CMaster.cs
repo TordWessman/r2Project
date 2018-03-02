@@ -29,6 +29,8 @@ namespace GPIO
 		// Delay before starting to read from slave. Usefull if slave response is slow.
 		public int ReadDelay = Settings.Consts.I2CReadDelay();
 
+		private static readonly object m_lock = new object();
+
 		/// <summary>
 		/// Defined in r2I2C.h
 		/// </summary>
@@ -79,14 +81,18 @@ namespace GPIO
 
 		public byte [] Send (byte []data) {
 		
-			int status = r2I2C_send(data, data.Length);
-			if (status < 0) {
+			lock (m_lock) {
 
-				throw new System.IO.IOException ($"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
+				int status = r2I2C_send(data, data.Length);
+				if (status < 0) {
 
-			} 
-			
-			return Read ();
+					throw new System.IO.IOException ($"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
+
+				} 
+
+				return Read ();
+
+			}
 
 		}
 

@@ -70,7 +70,17 @@ namespace GPIO
 		/// </summary>
 		void Sleep(int nodeId, bool toggle, int cycles = ArduinoSerialPackageFactory.RH24_SLEEP_UNTIL_MESSAGE_RECEIVED);
 
-		// Permanently name this node `nodeId`. This method is not propagated. 
+		/// <summary>
+		/// Allows the node to stay awake for up to 60 seconds. Use this method if multiple actions are required (i.e. synchronization and value updates) in order to lower the writing to the nodes EEPROM.
+		/// </summary>
+		/// <param name="nodeId">Node identifier.</param>
+		/// <param name="seconds">Seconds.</param>
+		void PauseSleep(int nodeId, int seconds);
+
+		/// <summary>
+		/// Permanently name this node `nodeId`. This method is not propagated.
+		/// </summary>
+		/// <param name="nodeId">Node identifier.</param>
 		void SetNodeId(int nodeId);
 
 		/// <summary>

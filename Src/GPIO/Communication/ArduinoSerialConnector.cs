@@ -37,6 +37,8 @@ namespace GPIO
 		private SerialPort m_serialPort;
 		private int m_timeout = 0;
 
+		private static readonly object m_lock = new object();
+
 		/// <summary>
 		/// portIdentifier is either an explicit name of the port (i.e. /dev/ttyACM0) or a regexp pattern (i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
 		/// </summary>
@@ -112,24 +114,28 @@ namespace GPIO
 
 		public byte[] Send(byte[] request) {
 
-			// Make sure the input buffer is empty before sending.
-			ClearPipe ();
+			lock (m_lock) {
 
-			byte[] requestPackage = new byte[request.Length + 1 + m_packageHeader.Length];
+				// Make sure the input buffer is empty before sending.
+				ClearPipe ();
 
-			// First byte should have the value of the rest of the transaction.
-			requestPackage [m_packageHeader.Length] = (byte) request.Length;
-			System.Buffer.BlockCopy (request, 0, requestPackage, 1 + m_packageHeader.Length, request.Length);
+				byte[] requestPackage = new byte[request.Length + 1 + m_packageHeader.Length];
 
-			if (m_packageHeader != null) {
-			
-				System.Buffer.BlockCopy (m_packageHeader, 0, requestPackage, 0, m_packageHeader.Length);
-			
+				// First byte should have the value of the rest of the transaction.
+				requestPackage [m_packageHeader.Length] = (byte) request.Length;
+				System.Buffer.BlockCopy (request, 0, requestPackage, 1 + m_packageHeader.Length, request.Length);
+
+				if (m_packageHeader != null) {
+
+					System.Buffer.BlockCopy (m_packageHeader, 0, requestPackage, 0, m_packageHeader.Length);
+
+				}
+
+				m_serialPort.Write (requestPackage, 0, requestPackage.Length);
+
+				return Read ();
+
 			}
-
-			m_serialPort.Write (requestPackage, 0, requestPackage.Length);
-
-			return Read ();
 
 		}
 

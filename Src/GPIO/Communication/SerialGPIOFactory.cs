@@ -48,7 +48,7 @@ namespace GPIO
 		/// If the node to which this device is attached is in sleep mode.
 		/// </summary>
 		/// <value><c>true</c> if this instance is sleeping; otherwise, <c>false</c>.</value>
-		bool IsSleeping { get; set; }
+		bool IsSleeping { get; }
 
 	}
 
@@ -65,7 +65,6 @@ namespace GPIO
 
 			m_connection = connection;
 			m_devices = new SerialDeviceManager (connection);
-			m_connection.HostDidReset = m_devices.NodeDidReset;
 
 		}
 
@@ -98,53 +97,60 @@ namespace GPIO
 
 		public IInputMeter<double> CreateAnalogInput (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialAnalogInput (id, (byte)nodeId, m_connection, port); 
-			m_devices.Add (device);
-			return device; 
+			return InstantiateDevice(new SerialAnalogInput (id, m_devices.GetNode(nodeId), m_connection, new int[1] {port})); 
+
+
+		}
+
+		public IInputMeter<double> CreateMoisture (string id, int analogueInput, int digitalOutput, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+			return InstantiateDevice(new SimpleAnalogueHumiditySensor (id, m_devices.GetNode(nodeId), m_connection, new int[2] {analogueInput, digitalOutput})); 
 
 		}
 
 		public IInputPort CreateInputPort (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 		
-			var device = new SerialDigitalInput (id, (byte)nodeId, m_connection, port); 
-			m_devices.Add (device);
-			return device; 
+			return InstantiateDevice(new SerialDigitalInput (id, m_devices.GetNode(nodeId), m_connection, port)); 
 
 		}
 
 
 		public IOutputPort CreateOutputPort (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialDigitalOutput (id, (byte)nodeId, m_connection, port); 
-			m_devices.Add (device);
-			return device; 
+			return InstantiateDevice(new SerialDigitalOutput (id, m_devices.GetNode(nodeId), m_connection, port)); 
 
 		}
 
 		public IServo CreateServo (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialServo (id, (byte)nodeId, m_connection, port); 
-			m_devices.Add (device);
-			return device; 
-
+			return InstantiateDevice(new SerialServo (id, m_devices.GetNode(nodeId), m_connection, port)); 
 		}
 
 		public IInputMeter<int> CreateSonar (string id, int triggerPort, int echoPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialHCSR04Sonar (id, (byte)nodeId, m_connection, triggerPort, echoPort); 
-			m_devices.Add (device);
-			return device; 
+			return InstantiateDevice(new SerialHCSR04Sonar (id, m_devices.GetNode(nodeId), m_connection, triggerPort, echoPort)); 
 
 		}
 
 		public IDHT11 CreateDht11 (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			var device = new SerialDHT11(id, (byte)nodeId, m_connection, port); 
-			m_devices.Add (device);
-			return device; 
+			return InstantiateDevice(new SerialDHT11(id, m_devices.GetNode(nodeId), m_connection, port)); 
 
 		}
 
+
+		/// <summary>
+		/// Synchronizes (remotely creates) the device.
+		/// </summary>
+		/// <returns>The device.</returns>
+		/// <param name="device">Device.</param>
+		/// <typeparam name="T">The 1st type parameter.</typeparam>
+		private T InstantiateDevice<T>(T device) where T: ISerialDevice {
+
+			device.Synchronize ();
+			return device;
+
+		}
 	}
 
 }

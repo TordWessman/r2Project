@@ -55,6 +55,18 @@ void err (const char* msg, byte code, byte info) {
     
 }
 
+bool isError(ResponsePackage response) {
+
+  return response.action == ACTION_ERROR;
+
+}
+
+void setError(ResponsePackage response) {
+
+   err("E: from node", response.content[RESPONSE_POSITION_ERROR_TYPE], response.content[RESPONSE_POSITION_ERROR_INFO]);
+   
+}
+
 ResponsePackage createErrorPackage(HOST_ADDRESS host) {
 
   ResponsePackage response;

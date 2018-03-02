@@ -25,7 +25,7 @@ namespace GPIO
 		private byte m_port;
 		private float m_value;
 
-		internal SerialServo  (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
+		internal SerialServo  (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
 
 			m_port = (byte) port;
 		

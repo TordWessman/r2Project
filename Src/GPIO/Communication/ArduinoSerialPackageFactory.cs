@@ -43,6 +43,10 @@ namespace GPIO
 		// During SendToSleep, this amount of cycles forces the node to sleep until woken up by tranciever
 		public const int RH24_SLEEP_UNTIL_MESSAGE_RECEIVED = 0xFF;
 
+		// The maximum interval allowed for the PauseSleep action.
+		public const int RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL = 60;
+
+		// Below are the positions for Response messages. Request messages do no have the message id, and is thus 1 byte `lower`.
 		public const int POSITION_MESSAGE_ID = 0x0;
 		public const int POSITION_HOST = 0x1;
 		public const int POSITION_ACTION = 0x2;
@@ -68,6 +72,25 @@ namespace GPIO
 
 		}
 
+		public byte[] SerializeRequest(DeviceRequestPackage request) {
+		
+			byte[] requestData = new byte[POSITION_CONTENT_LENGTH + (request.Content?.Length ?? 0)];
+
+			requestData[POSITION_HOST - 1] = request.NodeId;
+			requestData[POSITION_ACTION - 1] = (byte)request.Action;
+			requestData[POSITION_ID - 1] = request.Id;
+			requestData [POSITION_CONTENT_LENGTH - 1] = (byte)(request.Content?.Length ?? 0);
+
+			if (requestData [POSITION_CONTENT_LENGTH - 1] > 0) {
+			
+				Array.Copy (request.Content, 0, requestData, POSITION_CONTENT - 1, requestData [POSITION_CONTENT_LENGTH - 1]);
+
+			}
+
+			return requestData;
+
+		}
+
 		public DeviceResponsePackage<T> ParseResponse<T> (byte[] response) {
 
 			int contentLength = response [POSITION_CONTENT_LENGTH];
@@ -89,7 +112,7 @@ namespace GPIO
 			content [POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
 			Array.Copy (ports, 0, content, 1, ports.Length);
 
-			if (type == SerialDeviceType.AnalogueInput && !(VALID_ANALOGUE_PORTS_ON_ARDUINO.Contains(ports[0]))) {
+			if ((type == SerialDeviceType.AnalogueInput || type == SerialDeviceType.SimpleMoist) && !(VALID_ANALOGUE_PORTS_ON_ARDUINO.Contains(ports[0]))) {
 
 				throw new System.IO.IOException ($"Not a valid analogue port: '{ports[0]}'. Use: {string.Concat (VALID_ANALOGUE_PORTS_ON_ARDUINO.Select (b => b.ToString () + ' '))}");
 
@@ -97,8 +120,8 @@ namespace GPIO
 
 			DeviceRequestPackage package = new DeviceRequestPackage () { 
 				NodeId = nodeId, 
-				Action = (byte) ActionType.Create, 
-				Id = m_deviceCount[nodeId]++,
+				Action = ActionType.Create, 
+				Id = m_deviceCount[nodeId]++, //Actually decided by the node...
 				Content = content
 			};
 
@@ -112,7 +135,7 @@ namespace GPIO
 
 			return new DeviceRequestPackage () { 
 				NodeId = nodeId, 
-				Action = (byte) ActionType.Set, 
+				Action = ActionType.Set, 
 				Id = deviceId, 
 				Content = content 
 			};
@@ -123,7 +146,7 @@ namespace GPIO
 
 			return new DeviceRequestPackage () { 
 				NodeId = nodeId, 
-				Action = (byte) ActionType.Get, 
+				Action = ActionType.Get, 
 				Id = deviceId, 
 				Content = {} 
 			};
@@ -138,7 +161,7 @@ namespace GPIO
 
 			return new DeviceRequestPackage () {
 				NodeId = nodeId,
-				Action = (byte)ActionType.SendToSleep, 
+				Action = ActionType.SendToSleep, 
 				Content = content
 			};
 		}
@@ -147,7 +170,7 @@ namespace GPIO
 
 			return new DeviceRequestPackage () {
 				NodeId = 0x0, 
-				Action = (byte) ActionType.Initialization, 
+				Action = ActionType.Initialization, 
 				Id = nodeId, 
 				Content = {} 
 			};

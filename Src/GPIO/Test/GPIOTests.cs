@@ -73,6 +73,44 @@ namespace GPIO.Tests
 
 			}
 		}
+
+		[Test]
+		public void TestSerialDeviceManager() {
+
+			// For testing purposes, set the update interval to 1 second
+			Settings.Consts.SerialNodeUpdateTime (1);
+
+			var host = new SerialHost ("h", mock_connection, m_packageFactory);
+
+			// No device added, so host should not be available
+			Assert.IsFalse(host.IsNodeAvailable(3));
+
+			var factory = new SerialGPIOFactory ("f", host);
+			var sensor = factory.CreateAnalogInput ("inp", 14, 3);
+
+			// The host should have been created at the mock node.
+			Assert.IsTrue(host.IsNodeAvailable(3));
+
+			var remoteMock = mock_connection.Devices.Last ();
+			remoteMock.IntValues [0] = 42;
+
+			Assert.AreEqual (42, sensor.Value);
+
+			// Send node 3 to sleep and start update cycle.
+			factory[3].Sleep = true;
+
+			// Change value. This should not affect the sensor value immediately
+			remoteMock.IntValues [0] = 543;
+
+			// Now we should use the cached value
+			Assert.AreEqual (42, sensor.Value);
+
+			// Wait for the next update cycle
+			Thread.Sleep (2500);
+
+			// Enough time has passed for an update cycle. The value should have been updated
+			Assert.AreEqual (543, sensor.Value);
+		}
 	}
 }
 

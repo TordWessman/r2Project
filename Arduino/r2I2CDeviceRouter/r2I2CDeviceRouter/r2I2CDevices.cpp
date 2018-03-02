@@ -152,7 +152,6 @@ void createDevice(byte id, DEVICE_TYPE type, byte* input) {
          
        } break;
        
-       
   case DEVICE_TYPE_DHT11: { 
     
          if (reservePort(input[0])) {
@@ -164,6 +163,21 @@ void createDevice(byte id, DEVICE_TYPE type, byte* input) {
          }
          
        } break;
+       
+  case DEVICE_TYPE_SIMPLE_MOIST:
+  
+      if (reservePort(input[SIMPLE_MOIST_ANALOGUE_IN]) && reservePort(input[SIMPLE_MOIST_DIGITAL_OUT])) {
+        
+        device.IOPorts[SIMPLE_MOIST_ANALOGUE_IN] = input[SIMPLE_MOIST_ANALOGUE_IN];
+        device.IOPorts[SIMPLE_MOIST_DIGITAL_OUT] = input[SIMPLE_MOIST_DIGITAL_OUT];
+        
+         R2_LOG(F("Creating moist from port/port/value"));
+    R2_LOG(input[SIMPLE_MOIST_ANALOGUE_IN]);
+    R2_LOG(input[SIMPLE_MOIST_DIGITAL_OUT]);
+    
+        pinMode(device.IOPorts[SIMPLE_MOIST_DIGITAL_OUT], OUTPUT);
+      
+    } break;
    
   default:
   
@@ -209,7 +223,7 @@ int* getValue(Device* device) {
          
           case Dht11::OK: {
             
-            int temp = sensor->getTemperature();;
+            int temp = sensor->getTemperature();
             int humid = sensor->getHumidity(); 
             values[RESPONSE_POSITION_DHT11_TEMPERATURE] = temp;
             values[RESPONSE_POSITION_DHT11_HUMIDITY] = humid;
@@ -235,7 +249,21 @@ int* getValue(Device* device) {
        }
        // silent error
    } break;
+   
+   
+  case DEVICE_TYPE_SIMPLE_MOIST: {
     
+    digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], HIGH); //Trigger ultrasonic detection 
+    delayMicroseconds(20); 
+    values[0] = analogRead(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]);
+    //R2_LOG(F("Reading moist from port/port/value"));
+    //R2_LOG(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]);
+    //R2_LOG(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT]);
+    //R2_LOG(values[0]);
+    digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], LOW); 
+    
+  } break;
+  
   }
   
   return values;

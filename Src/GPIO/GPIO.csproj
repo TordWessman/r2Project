@@ -111,6 +111,8 @@
     <Compile Include="Test\GPIOTests.cs" />
     <Compile Include="Test\MockSerialConnection.cs" />
     <Compile Include="Communication\SerialDeviceManager.cs" />
+    <Compile Include="Communication\SerialNode.cs" />
+    <Compile Include="Communication\ISerialNode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

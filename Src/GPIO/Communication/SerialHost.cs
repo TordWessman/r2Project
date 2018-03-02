@@ -81,7 +81,7 @@ namespace GPIO
 
 		public bool IsNodeAvailable(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = (byte)ActionType.IsNodeAvailable, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.IsNodeAvailable, NodeId = (byte) nodeId };
 			DeviceResponsePackage<bool> response = Send<bool> (request);
 
 			return response.Value;
@@ -90,7 +90,7 @@ namespace GPIO
 
 		public bool IsNodeSleeping(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = (byte)ActionType.CheckSleepState, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.CheckSleepState, NodeId = (byte) nodeId };
 			DeviceResponsePackage<bool> response = Send<bool> (request);
 
 			return response.Value;
@@ -99,7 +99,7 @@ namespace GPIO
 
 		public byte[] GetNodes() {
 		
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = (byte)ActionType.GetNodes };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.GetNodes };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 			return response.Value;
@@ -113,9 +113,22 @@ namespace GPIO
 
 		}
 
+		public void PauseSleep(int nodeId, int seconds) {
+
+			if (seconds > ArduinoSerialPackageFactory.RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL) {
+			
+				throw new ArgumentException ($"`seconds` ({seconds}) exceeds the maximum pause sleep interval of { ArduinoSerialPackageFactory.RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL}.");
+			
+			}
+
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.PauseSleep, NodeId = (byte) nodeId, Content = new byte[1] {(byte) seconds} };
+			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+
+		}
+
 		public void SetNodeId(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = (byte)ActionType.SetNodeId, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.SetNodeId, NodeId = (byte) nodeId };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 		}
@@ -137,16 +150,18 @@ namespace GPIO
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
 		private DeviceResponsePackage<T> _Send<T>(DeviceRequestPackage request) {
 		
-			byte[] responseData = m_connection.Send (request.ToBytes ());
+			byte[] requestData = m_packageFactory.SerializeRequest (request);
+			byte[] responseData = m_connection.Send (requestData);
+
 			DeviceResponsePackage<T> response = m_packageFactory.ParseResponse<T> (responseData);
 
 			// TODO: make this ok..
 			for (int i = 0; i < 3; i++) {
 
 				// Never re-send create packages
-				if (response.Error != ErrorType.RH24_TIMEOUT || (ActionType)request.Action == ActionType.Create) { break; }
-				Log.d ($"SerialHost got timeout from node. Will retry action '{(ActionType)request.Action}'...");
-				response = m_packageFactory.ParseResponse<T> (m_connection.Send (request.ToBytes ()));
+				if (response.Error != ErrorType.RH24_TIMEOUT || request.Action == ActionType.Create) { break; }
+				Log.d ($"SerialHost got timeout from node. Will retry action '{request.Action}'...");
+				response = m_packageFactory.ParseResponse<T> (m_connection.Send (requestData));
 
 			}
 
@@ -162,7 +177,7 @@ namespace GPIO
 
 			if (!Ready) { throw new System.IO.IOException ("Communication not started."); }
 
-			Log.t ($"Sending package: {(ActionType) request.Action} to node: {request.NodeId}.");
+			Log.t ($"Sending package: {request.Action} to node: {request.NodeId}.");
 
 			DeviceResponsePackage<T> response = _Send<T> (request);
 
@@ -181,13 +196,13 @@ namespace GPIO
 
 			} else if (response.IsError) { 
 				
-				throw new System.IO.IOException ($"Response contained an error for action '{(ActionType) request.Action}': '{response.Error}'. Info: {response.ErrorInfo}. NodeId: {request.NodeId}.");
+				throw new System.IO.IOException ($"Response contained an error for action '{request.Action}': '{response.Error}'. Info: {response.ErrorInfo}. NodeId: {request.NodeId}.");
 			
-			} else if (!((ActionType) request.Action == ActionType.Initialization && response.Action == ActionType.InitializationOk) &&
-				response.Action != (ActionType) request.Action) {
+			} else if (!(request.Action == ActionType.Initialization && response.Action == ActionType.InitializationOk) &&
+				response.Action != request.Action) {
 
 				// The .InitializationOk is a response to a successfull .Initialization. Other successfull requests should return the requested Action.
-				throw new System.IO.IOException ($"Response action missmatch: Expected '{(ActionType) request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.");
+				throw new System.IO.IOException ($"Response action missmatch: Expected '{request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.");
 
 			}
 
@@ -201,7 +216,7 @@ namespace GPIO
 		/// <param name="host">Host.</param>
 		private void ResetSlave(byte nodeId) {
 
-			Send<byte[]> (new DeviceRequestPackage() {Action = (byte) ActionType.Initialization, NodeId = nodeId});
+			Send<byte[]> (new DeviceRequestPackage() {Action = ActionType.Initialization, NodeId = nodeId});
 
 		}
 

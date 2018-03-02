@@ -33,6 +33,13 @@ namespace GPIO
 		DeviceResponsePackage<T> ParseResponse<T> (byte[] response);
 
 		/// <summary>
+		/// Serializes a request package into a byte array representation before transmission.
+		/// </summary>
+		/// <returns>The request.</returns>
+		/// <param name="request">Request.</param>
+		byte[] SerializeRequest (DeviceRequestPackage request);
+
+		/// <summary>
 		/// Creates a "Create device package". ports-requirements must be applicable to the requirements of the device.  
 		/// </summary>
 		/// <returns>The device.</returns>
@@ -62,6 +69,7 @@ namespace GPIO
 		/// <param name="toggle">If set to <c>true</c> toggle.</param>
 		/// <param name="cycles">Cycles.</param>
 		DeviceRequestPackage Sleep(byte nodeId, bool toggle, byte cycles);
+
 	}
 
 }

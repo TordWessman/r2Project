@@ -26,7 +26,7 @@ namespace GPIO
 		private byte m_echoPort;
 		private byte m_triggerPort;
 
-		internal SerialHCSR04Sonar (string id, byte nodeId, ISerialHost host, int triggerPort, int echoPort): base(id, nodeId, host) {
+		internal SerialHCSR04Sonar (string id, ISerialNode node, ISerialHost host, int triggerPort, int echoPort): base(id, node, host) {
 
 			m_echoPort = (byte) echoPort;
 			m_triggerPort = (byte) triggerPort;

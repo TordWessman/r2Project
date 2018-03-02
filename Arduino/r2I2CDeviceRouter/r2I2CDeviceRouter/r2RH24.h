@@ -28,7 +28,8 @@
 // Timeout in ms before a network read operation fails. Should be high, since sleeping nodes in a mesh might have a slow response time 
 #define RH24_READ_TIMEOUT 15000
 
-#define RH24_SLEEP_UNTIL_MESSAGE_RECEIVED 0xFF
+// The number of second which is the default interval for pause sleep actions
+#define PAUSE_SLEEP_DEFAULT_INTERVAL 30
 
 // Send a package!
 ResponsePackage rh24Send(RequestPackage* request);
@@ -54,10 +55,18 @@ bool isMaster();
 // Sets this nodes state to sleep state (until it's restarted).
 void sleep(bool on, byte cycles);
 
-// As with sleep above, but with the default cycles defaulting to RH24_SLEEP_UNTIL_MESSAGE_RECEIVED
+// As with sleep above, but with the default cycles defaulting to RH24_SLEEP_UNTIL_MESSAGE_RECEIVED. The sleep state will be stored on the EEPROM and the node will remain in sleep upon reboot.
 void sleep(bool on);
 
-// Returns true if this node is sleeping.
+// Will pause the sleep state of a node, allowing access for a limited time period. Currently, the maximum sleep time is 60 seconds.
+void pauseSleep(byte seconds);
+
+// As above, but with the default parameter 'PAUSE_SLEEP_DEFAULT_INTERVAL'.
+void pauseSleep();
+
+// Returns true if this node is sleeping.NODE_void pauseSleep(byte seconds);
+
+// Returns true if this node is sleeping.NODE_
 bool isSleeping();
 
 #endif

@@ -25,7 +25,7 @@ namespace GPIO
 		private byte m_port;
 		private bool m_value;
 
-		internal SerialDigitalOutput (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
+		internal SerialDigitalOutput (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
 
 			m_port = (byte)port;
 

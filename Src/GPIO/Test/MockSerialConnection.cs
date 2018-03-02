@@ -81,12 +81,15 @@ namespace GPIO.Tests
 		// Simulate message id:s
 		public byte messageId;
 
+		public IList<byte> nodes;
+
 		private readonly object m_lock = new object (); 
+
 		public MockSerialConnection (string id, ISerialPackageFactory factory) : base (id)
 		{
 			CreatedId = 0;
 			m_factory = factory;
-
+			nodes = new List<byte> ();
 		}
 
 		public MockSlaveDevice GetMockDevice(byte id) {
@@ -101,26 +104,44 @@ namespace GPIO.Tests
 				byte host = data [ArduinoSerialPackageFactory.POSITION_HOST - 1];
 				byte action = data [ArduinoSerialPackageFactory.POSITION_ACTION - 1];
 				byte id = data [ArduinoSerialPackageFactory.POSITION_ID - 1];
-				byte[] content = new byte[data.Length - 3];
+				byte contentLength = data [ArduinoSerialPackageFactory.POSITION_CONTENT_LENGTH - 1];
+				byte[] content = new byte[2];
 
-				byte[] response = new byte[data.Length + 1];
+				if (contentLength > 0) { 
+				
+					Array.Copy (data, ArduinoSerialPackageFactory.POSITION_CONTENT - 1, content, 0, contentLength);
+
+				}
+
+				byte[] response = new byte[4 + 1 + 3];
 				response [ArduinoSerialPackageFactory.POSITION_MESSAGE_ID] = messageId++;
 
-				Array.Copy (data, 0, response, 1, data.Length);
+				response[ArduinoSerialPackageFactory.POSITION_HOST] = data [ArduinoSerialPackageFactory.POSITION_HOST - 1];
+				response[ArduinoSerialPackageFactory.POSITION_ACTION] = data [ArduinoSerialPackageFactory.POSITION_ACTION - 1];
+				response[ArduinoSerialPackageFactory.POSITION_ID] = data [ArduinoSerialPackageFactory.POSITION_ID - 1];
+				response [ArduinoSerialPackageFactory.POSITION_CONTENT_LENGTH] = 2;
 
 				if ((ActionType)action == ActionType.Get) {
 
 					response = GetMockDevice (id).ToBytes;
 
-				}  else if ((ActionType)action == ActionType.Create) {
+				} else if ((ActionType)action == ActionType.Create) {
+
+					if (!nodes.Contains (host)) {
+						nodes.Add (host);
+					}
 
 					byte type = content [ArduinoSerialPackageFactory.POSITION_CONTENT_DEVICE_TYPE];
 					response [ArduinoSerialPackageFactory.POSITION_ID] = CreatedId++;
-					Devices.Add(MockSlaveDevice.Create(host, type, response [ArduinoSerialPackageFactory.POSITION_ID], 0));
+					Devices.Add (MockSlaveDevice.Create (host, type, response [ArduinoSerialPackageFactory.POSITION_ID], 0));
 
 				} else if ((ActionType)action == ActionType.Initialization) {
 
-					response[ArduinoSerialPackageFactory.POSITION_ACTION] = (byte) ActionType.InitializationOk;
+					response [ArduinoSerialPackageFactory.POSITION_ACTION] = (byte)ActionType.InitializationOk;
+
+				} else if ((ActionType)action == ActionType.IsNodeAvailable) {
+				
+					response [ArduinoSerialPackageFactory.POSITION_CONTENT] = nodes.Contains (host) ? (byte) 1 :  (byte) 0;
 
 				}
 
@@ -140,7 +161,7 @@ namespace GPIO.Tests
 
 			if (ReadResponsePackage.Content != null) {
 			
-				Array.Copy (ReadResponsePackage.Content, 0, response, 3, ReadResponsePackage.Content.Length);
+				Array.Copy (ReadResponsePackage.Content, 0, response, 4, ReadResponsePackage.Content.Length);
 
 			}
 

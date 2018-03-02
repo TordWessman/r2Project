@@ -91,6 +91,7 @@ ResponsePackage execute(RequestPackage *request) {
     R2_LOG(F("SENDING RH24 PACKAGE TO:"));
     R2_LOG(request->host);
     response = rh24Send(request);
+    if (isError(response)) { setError(response); }
     
   } else if (!isMaster() && request->host != getNodeId()) {
     
@@ -113,6 +114,10 @@ ResponsePackage execute(RequestPackage *request) {
     response.contentSize = 1;
     response.content[0] = isSleeping();
     
+  } else if (request->action == ACTION_PAUSE_SLEEP) {
+  
+    pauseSleep(request->args[SLEEP_MODE_TOGGLE_POSITION]);
+    
   } else {
   
   #endif
@@ -123,6 +128,14 @@ ResponsePackage execute(RequestPackage *request) {
        R2_LOG(request->host);
        // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
        response.action = ACTION_INITIALIZE;
+       
+       if (isSleeping()) {
+         
+          // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)
+          pauseSleep();
+          
+       }
+       
        return response;
        
      }
@@ -200,12 +213,14 @@ ResponsePackage execute(RequestPackage *request) {
           initialized = true;
           clearError();
           
-          // Wake this node up if it has been sleeping
-          sleep(false);
-          
           for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
   
           response.action = ACTION_INITIALIZATION_OK;
+          
+          // Ehh.. return the first analogue port name here...
+          response.content[0] = A0;
+          response.contentSize = 1;
+          
           return response;
           
         break;

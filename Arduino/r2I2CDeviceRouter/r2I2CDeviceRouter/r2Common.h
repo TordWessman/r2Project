@@ -56,4 +56,10 @@ bool isError();
 // Clears any error data
 void clearError();
 
+// Returns true if a response is an error
+bool isError(ResponsePackage response);
+
+// Sets the error state using a response.
+void setError(ResponsePackage response);
+
 #endif

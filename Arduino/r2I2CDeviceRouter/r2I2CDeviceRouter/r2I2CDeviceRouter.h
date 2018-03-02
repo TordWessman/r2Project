@@ -5,9 +5,16 @@
 #include "r2I2C_config.h"
 #include <stdbool.h>
 
+// The type of a device (being created)
 typedef byte DEVICE_TYPE;
+
+// The address to a slave node
 typedef byte HOST_ADDRESS;
 
+// Type of action to invoke durng requests.
+typedef byte ACTION_TYPE;
+
+// The maximum number of ports a device can occupy
 #define DEVICE_MAX_PORTS 2
 
 typedef struct Devices {
@@ -39,8 +46,9 @@ typedef struct Devices {
 #define DEVICE_TYPE_SERVO 4
 #define DEVICE_TYPE_HCSR04_SONAR 5
 #define DEVICE_TYPE_DHT11 6
-// Used by responses to indicate an error.
-#define DEVICE_TYPE_ERROR 250
+#define DEVICE_TYPE_SIMPLE_MOIST 7
+
+// -- Error codes --
 
 // No device with the specified id was found.
 #define ERROR_CODE_NO_DEVICE_FOUND 1
@@ -81,6 +89,8 @@ typedef struct Devices {
 // Messages are not in sync. Unrecieved messages found in the masters input buffer.
 #define ERROR_RH24_MESSAGE_SYNCHRONIZATION 19
 
+// -- Private methods --
+
 // Removes a device from list and free resources
 void deleteDevice(byte id);
 
@@ -99,26 +109,14 @@ void setValue(Device* device, int value);
 // Returns the value(s) of a device
 int* getValue(Device* device);
 
-// REQUEST PARSING: ---------------------------
-
-// Maximum buffer for input packages
-#define MAX_RECEIZE_SIZE 20
-
-// The maximum size (in bytes) for package content;
-#define MAX_CONTENT_SIZE 10
-
-// Package "checksum" headers. Shuld initially be sent in the beginning of every transaction. 
-#define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
-
-// Type of action to invoke durng requests.
-typedef byte ACTION_TYPE;
+// -- Response Actions --
 
 // Just to communicate that something went wrong.
 #define ACTION_ERROR 0xF0
 // The slave has been restarted and requires reinitialization.
 #define ACTION_REQUIRE_INITIALIZATION 0xF0
 
-//--- Actions:
+// -- Request Actions --
 
 // If no action has been specified. Must be an error...
 #define ACTION_UNDEFINED 0x0
@@ -142,10 +140,30 @@ typedef byte ACTION_TYPE;
 #define ACTION_RH24_PING 0x9
 // Sends this node to sleep according to configuration
 #define ACTION_SEND_TO_SLEEP 0x0A
-// To find out if the is in sleep mode
+// To find out if a is in sleep mode
 #define ACTION_CHECK_SLEEP_STATE 0x0B
+// Pauses the sleep state of a node. Use this to minimize EEPROM writings if multiple requests are made to this node.
+#define ACTION_PAUSE_SLEEP 0x0C
+
+// -- Internal Actions --
+
 // Internal action definition. Used to check that there were no unread message in the pipe.
-#define ACTION_RH24_NO_MESSAGE_READ 0xF0
+#define ACTION_RH24_NO_MESSAGE_READ 0xF1
+// Ping message from master node to slave in order to find out if the slave is available
+#define ACTION_RH24_PING_SLAVE 0xF2
+
+// -- Request parameters
+
+// Maximum buffer for input packages
+#define MAX_RECEIVE_SIZE 20
+
+// The maximum size (in bytes) for package content;
+#define MAX_CONTENT_SIZE 10
+
+// Package "checksum" headers. Shuld initially be sent in the beginning of every transaction. 
+#define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
+
+// -- Request port positions --
 
 // Used by the create request.
 #define REQUEST_ARG_CREATE_TYPE_POSITION 0x0 // Position of the type to create.
@@ -156,7 +174,11 @@ typedef byte ACTION_TYPE;
 #define HCSR04_SONAR_ECHO_PORT 0x1
 #define HCSR04_SONAR_DISTANCE_DENOMIATOR 58 // I found this number somewhere
 
-// -- RESPONSE POSITIONS FOR ResponsePackage.content:
+// Port positions for simple moisture sensors
+#define SIMPLE_MOIST_ANALOGUE_IN 0x0 // The analogue input port used for the actual reading.
+#define SIMPLE_MOIST_DIGITAL_OUT 0x1 // The digital output port used to enable reading.
+
+// -- Response positions for ResponsePackage.content --
 
 // Here be response positions for DHT11
 #define RESPONSE_POSITION_DHT11_TEMPERATURE 0x0

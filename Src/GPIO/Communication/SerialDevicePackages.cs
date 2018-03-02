@@ -33,8 +33,8 @@ namespace GPIO
 		AnalogueInput = 0x3,	// Uses slave's AD converter to read a value
 		Servo = 0x4,			// PWM Servo
 		Sonar_HCSR04 = 0x5,		// HC-SR04 Sonar implementation
-		DHT11 = 0x6				// DHT11 Temperature/Humidity sensor
-			
+		DHT11 = 0x6,			// DHT11 Temperature/Humidity sensor
+		SimpleMoist = 0x7		// Moisture sensor using output port + ad port 
 	}
 
 	/// <summary>
@@ -53,7 +53,8 @@ namespace GPIO
 		IsNodeAvailable = 0x7, // Check if a specified host, determined by `Host` is currently connected.
 		GetNodes = 0x8, // Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
 		SendToSleep = 0x0A, // Sends the node to sleep
-		CheckSleepState = 0x0B // Check if the node has been sent to sleep.
+		CheckSleepState = 0x0B, // Check if the node has been sent to sleep.
+		PauseSleep = 0x0C // Pause the sleeping for up to 60 seconds.
 	}
 
 	public enum ErrorType: byte {
@@ -220,44 +221,13 @@ namespace GPIO
 		public byte NodeId;
 
 		// Action required by slave.
-		public byte Action;
+		public ActionType Action;
 
 		// Id of an affected device on slave. A slave have a limited range of id:s (i.e. 0-19).
 		public byte Id;
 
 		// Additional data sent to slave.
 		public byte[] Content;
-
-		/// <summary>
-		/// Converts the package to a byte array before transmission.
-		/// </summary>
-		/// <returns>The bytes.</returns>
-		public byte[] ToBytes()
-		{  
-
-			Byte[] structData = new Byte[3 + (Content?.Length ?? 0)]; 
-
-			GCHandle pinStructure = GCHandle.Alloc(this, GCHandleType.Pinned);  
-
-			try {  
-
-				Marshal.Copy(pinStructure.AddrOfPinnedObject(), structData, 0, structData.Length); 
-
-				if (Content?.Length > 0) {
-
-					Array.Copy(Content,0,structData,3, Content.Length);
-
-				}
-
-				return structData;  
-
-			} finally {  
-
-				pinStructure.Free();  
-
-			}  
-
-		}  
 
 	}
 

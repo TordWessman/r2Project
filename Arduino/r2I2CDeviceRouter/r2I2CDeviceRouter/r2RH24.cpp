@@ -24,11 +24,23 @@
 // The default sleep cycles used by the WDT 
 #define RH24_SLEEP_CYCLES WDTO_8S
 
+// Maximum number of seconds for the paus sleep interval.
+#define MAX_PAUSE_SLEEP_SECONDS 60
+
+// Message definition forcing the node to sleep until the next message is available.
+#define RH24_SLEEP_UNTIL_MESSAGE_RECEIVED 0xFF
+
 // Used to determine if the node should sleep or not (done during the run loop).
 bool shouldSleep = false;
 
 // If sleep mode is enabled, the sleepCycles define the number of cycles the node should sleep. If it's set to RH24_SLEEP_FOREVER, the node will sleep until woken up by new data
 byte sleepCycles = 0;
+
+// Used to pause sleep cycles.
+unsigned long pauseSleepTimer = 0;
+
+// The interval for which the sleep state of this node will stay awake if the sleep state has been paused.
+uint32_t pauseSleepInterval = 0;
 
 // Keeps track of the slave's address renewal timeout 
 uint32_t renewalTimer = 0;
@@ -39,8 +51,8 @@ uint32_t slaveRenewalFailures = 0;
 // Message type sent over mesh considered to be device requests
 #define RH24_MESSAGE 'M'
 
-// Ping message from non-master nodes
-#define RH24_PING 'P'
+// Ping message from non-master nodes to master node
+#define RH24_MESSAGE_PING 'P'
 
 // Keeps track of the ping intervals.
 unsigned long pingTimer = 0;
@@ -60,6 +72,9 @@ ResponsePackage master_tryReadMessage();
 
 // Reads the latest message from any node. 
 ResponsePackage master_readResponse();
+
+// Will clean the buffer and hopefully return a "ACTION_RH24_NO_MESSAGE_READ" if the buffer was empty. Run this method prior to any transmission.
+ResponsePackage master_readClean(RequestPackage* request);
 
 // Slave run loop: check network status, send ping and renew address
 void slave_networkCheck();
@@ -87,6 +102,8 @@ bool slaveSleepStarted = false;
 // ----------------------------------- SETUP
 void rh24Setup() {
 
+  //if (!isMaster()) { setStatus(true); }
+  //saveNodeId(3);
   byte id = getNodeId();
   byte savedCycles = EEPROM.read(SLEEP_MODE_EEPROM_ADDRESS);
   
@@ -151,7 +168,7 @@ HOST_ADDRESS* getNodes() {
   
 }
 
-ResponsePackage rh24Send(RequestPackage* request) {
+ResponsePackage master_readClean(RequestPackage* request) {
 
   ResponsePackage response = master_readResponse();
   
@@ -170,6 +187,15 @@ ResponsePackage rh24Send(RequestPackage* request) {
     response = master_readResponse();
     
   }
+  
+  return response;
+  
+}
+
+ResponsePackage rh24Send(RequestPackage* request) {
+
+  // Make sure there are nothing unread in the input buffer (will cause an error if there is).
+  ResponsePackage response = master_readClean(request);
   
   // If synchronization issues occurred
   if (isError()) { return response; }
@@ -207,6 +233,25 @@ ResponsePackage rh24Send(RequestPackage* request) {
 }
 
 void sleep(bool on) { sleep(on, RH24_SLEEP_UNTIL_MESSAGE_RECEIVED); }
+
+void pauseSleep() { pauseSleep(PAUSE_SLEEP_DEFAULT_INTERVAL); }
+
+void pauseSleep(byte seconds) { 
+
+  if (seconds > 0) {
+  
+    pauseSleepTimer = millis();
+    pauseSleepInterval = 1000 * (seconds > MAX_PAUSE_SLEEP_SECONDS ? MAX_PAUSE_SLEEP_SECONDS : seconds);
+    R2_LOG(F("Sleep paused for milliseconds:"));
+    R2_LOG(pauseSleepInterval);
+ 
+  } else {
+  
+    pauseSleepTimer = 0;
+    pauseSleepInterval = 0;
+  
+  }
+}
 
 void sleep(bool on, byte cycles) {
 
@@ -249,14 +294,14 @@ ResponsePackage master_readResponse() {
             
           } break; 
           
-          case RH24_PING: {
+          case RH24_MESSAGE_PING: {
             
             R2_LOG(F("Ping!"));
             
             byte ping = 0;
             network.read(header, &ping, 1);
             
-            RF24NetworkHeader responseHeader(header.from_node, RH24_PING);
+            RF24NetworkHeader responseHeader(header.from_node, RH24_MESSAGE_PING);
             response.action = ACTION_RH24_PING;
             
             if (!network.write(responseHeader, &ping, 1)) {
@@ -305,8 +350,6 @@ ResponsePackage master_tryReadMessage() {
     
 }
 
-bool blinkx = false;
-
 void rh24Master() {
   
     mesh.update();
@@ -320,8 +363,7 @@ void rh24Master() {
   }
   
   if (mesh.addrListTop > 0) {
-    setStatus(blinkx);
-    blinkx = true;
+    setStatus(true);
   } else {
     setStatus(false);
   }
@@ -351,7 +393,7 @@ void rh24Slave() {
           
         } break;
         
-        case RH24_PING: {
+        case RH24_MESSAGE_PING: {
           
           slave_readPing(header);
           
@@ -365,11 +407,27 @@ void rh24Slave() {
 
 }
 
+unsigned long blinkTimer = 0;
+bool blinx;
+
 void slave_networkCheck() {
+
+#ifdef R2_STATUS_LED
+  if (millis() - blinkTimer >= 5000) {
   
+      blinkTimer = millis();
+      //setStatus(blinx);
+      //blinx = !blinx;
+      setStatus(true);
+      delay(100);
+      setStatus(false);      
+  }
+#endif
+
 #ifdef RH24_PING_ENABLED
   if (millis() - pingTimer >= RH24_PING_INTERVAL) {
     
+      pingTimer = millis();
       byte slaveId = getNodeId();
       
       if (!mesh.write(&slaveId, RH24_PING, 1)) {
@@ -402,7 +460,19 @@ void slave_networkCheck() {
 }
 
 void slave_handleSleep() {
-    
+   
+  // Handle sleep pausing:
+   if (pauseSleepInterval > 0 && pauseSleepTimer + pauseSleepInterval > millis()) {
+   
+     return;
+     
+   } else {
+   
+     pauseSleepTimer = 0;
+     pauseSleepInterval = 0;
+     
+   }
+   
    if (shouldSleep == true) {
 
      if (!slaveSleepStarted) { 
@@ -455,7 +525,7 @@ void slave_readMessage(RF24NetworkHeader header) {
     } else {
       
       ResponsePackage response = execute(&request);
-      R2_LOG(F("Writing response with action & id:"));
+      R2_LOG(F("Writing response with action:"));
       R2_LOG(response.action);
       
       if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {

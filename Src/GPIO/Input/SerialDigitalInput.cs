@@ -25,7 +25,7 @@ namespace GPIO
 		// The I/O port on the device
 		private byte m_port;
 
-		internal SerialDigitalInput  (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
+		internal SerialDigitalInput  (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
 
 			m_port = (byte)port;
 

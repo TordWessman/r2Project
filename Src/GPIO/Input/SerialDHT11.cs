@@ -27,7 +27,7 @@ namespace GPIO
 		private const int DHT11_TEMPERATURE_POSITION = 0x0;
 		private const int DHT11_HUMIDITY_POSITION = 0x1;
 
-		internal SerialDHT11  (string id, byte nodeId, ISerialHost host, int port): base(id, nodeId, host) {
+		internal SerialDHT11  (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
 
 			m_port = port;
 
