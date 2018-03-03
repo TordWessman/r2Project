@@ -36,7 +36,7 @@
 #define R2I2C_MAX_BUFFER_SIZE 0xFF
 
 // If true, the receive call expects the R2I2C_READY_TO_READ_FLAG to be read from slave prior to transmission.
-#define R2I2C_USE_READY_FLAG true
+#define R2I2C_USE_READY_FLAG false
 
 // The I2C slave should begin every response with R2I2C_READY_TO_READ_FLAG, telling the receive operation that it's ready to receive data.
 #define R2I2C_READY_TO_READ_FLAG 0xF0
@@ -45,8 +45,8 @@
 int r2I2C_init (int bus, int address);
 
 // Requests data from slave. Returns 0 if successful. Will block until R2I2C_READY_TO_READ_FLAG has been received from slave.
-// Waits `wait` ms before trying to retrieve data (usefull for delayed callbacks).
-int r2I2C_receive(int wait);
+// ´timeout´ is the the timeout in ms before a transmission fails.
+int r2I2C_receive(long timeout);
 
 // Returns the size of the last successfull transmission.
 uint8_t r2I2C_get_response_size();
