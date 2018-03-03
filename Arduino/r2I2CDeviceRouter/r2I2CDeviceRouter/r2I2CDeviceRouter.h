@@ -54,25 +54,25 @@ typedef struct Devices {
 #define ERROR_CODE_NO_DEVICE_FOUND 1
 // The port you're trying to assign is in use.
 #define ERROR_CODE_PORT_IN_USE 2
-// The device type specified was not declared
+// The device type specified was not declared.
 #define ERROR_CODE_DEVICE_TYPE_NOT_FOUND 3
-// Too many devices has been allocated
+// Too many devices has been allocated.
 #define ERROR_CODE_MAX_DEVICES_IN_USE 4
-// This device does not suport set operation
+// This device does not suport set operation.
 #define ERROR_CODE_DEVICE_TYPE_NOT_FOUND_SET_DEVICE 5
-// This device does not support read operation
+// This device does not support read operation.
 #define ERROR_CODE_DEVICE_TYPE_NOT_FOUND_READ_DEVICE 6
-// Unknown action received
+// Unknown action received.
 #define ERROR_CODE_UNKNOWN_ACTION 7
-// DHT11 read error (is it connected)
+// DHT11 read error (is it connected).
 #define ERROR_CODE_DHT11_READ_ERROR 8
 // The node (during remote communication) was not available.
 #define ERROR_RH24_NODE_NOT_AVAILABLE 9
-// Whenever a read did not return the expected size
+// Whenever a read did not return the expected size.
 #define ERROR_RH24_BAD_SIZE_READ 10
-// Called if a read-write timed out during RH24 communication
+// Called if a read-write timed out during RH24 communication.
 #define ERROR_RH24_TIMEOUT 11
-// If a write operation fails for RH24
+// If a write operation fails for RH24.
 #define ERROR_RH24_WRITE_ERROR 12
 // Unknown message. Returned if the host receives a message with an unexpected type.
 #define ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR 13
@@ -80,14 +80,16 @@ typedef struct Devices {
 #define ERROR_RH24_NO_NETWORK_DATA 14
 // Routing through a node that is not the master is not supported.
 #define ERROR_RH24_ROUTING_THROUGH_NON_MASTER 15
-// If the master receives two messages with the same id
+// If the master receives two messages with the same id.
 #define ERROR_RH24_DUPLICATE_MESSAGES 16
-// Internal error: Serial read timed out
+// Internal error: Serial read timed out.
 #define ERROR_SERIAL_TIMEOUT 17
-// Failed to make the node sleep
+// Failed to make the node sleep.
 #define ERROR_FAILED_TO_SLEEP 18
 // Messages are not in sync. Unrecieved messages found in the masters input buffer.
 #define ERROR_RH24_MESSAGE_SYNCHRONIZATION 19
+// If the size of the incomming data is invalid.
+#define ERROR_INVALID_REQUEST_PACKAGE_SIZE 20
 
 // -- Private methods --
 
@@ -227,6 +229,8 @@ struct RequestPackage {
     byte args[MAX_CONTENT_SIZE];
     
 } __attribute__((__packed__));
+
+#define MIN_REQUEST_SIZE (sizeof(RequestPackage) - MAX_CONTENT_SIZE)
 
 typedef struct RequestPackage RequestPackage;
 

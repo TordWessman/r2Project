@@ -39,7 +39,20 @@ byte messageId = 0;
 // Delegate method for I2C event communication.
 void i2cReceive(byte* data, int data_size) {
 
-  ResponsePackage out = interpret((RequestPackage*)data); 
+  ResponsePackage out;
+  
+  if (data_size < MIN_REQUEST_SIZE || data_size > sizeof(RequestPackage)) {
+    
+    err("E: size", ERROR_INVALID_REQUEST_PACKAGE_SIZE, data_size);
+    out = createErrorPackage(0x0);
+    
+  } else {
+  
+    out = execute((RequestPackage*)data);
+    
+  }
+  
+  R2_LOG(RESPONSE_PACKAGE_SIZE(out));
   byte *response = (byte *)&out;
   R2I2C.setResponse(response, RESPONSE_PACKAGE_SIZE(out));
   
@@ -133,12 +146,10 @@ ResponsePackage execute(RequestPackage *request) {
        // If initialization wasn't done and if the request was not an initialization request. The remote must initialize prior to any other action.
        response.action = ACTION_INITIALIZE;
        
-       if (isSleeping()) {
-         
-          // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)
-          pauseSleep();
-          
-       }
+#ifdef USE_RH24
+       // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)
+       if (isSleeping()) { pauseSleep(); }
+#endif
        
        return response;
        
@@ -265,6 +276,7 @@ reservePort(R2_ERROR_LED);
   
 #ifdef USE_I2C  
   R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
+  R2_LOG(F("Initialized I2C."));
 #endif
 
 #ifdef USE_RH24

@@ -328,7 +328,9 @@ ResponsePackage master_readResponse() {
           
           default:
           
-            err("Unknown msg", ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR, header.type);
+            if (header.type != 0) { err("E: header.type", ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR, header.type); }
+            else {R2_LOG(F("Unknown message type (0). Should this be ignored?"));}
+             
             network.read(header, 0, 0);
             
         }

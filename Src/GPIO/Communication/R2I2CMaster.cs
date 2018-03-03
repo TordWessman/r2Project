@@ -55,10 +55,14 @@ namespace GPIO
 			m_bus = bus ?? Settings.Consts.I2CDefaultBus();
 			m_port = port ?? Settings.Consts.I2CDefaultPort();
 
+		}
+
+		public override void Start () {
+
 			int status = r2I2C_init (m_bus, m_port);
 
 			if (status < 0) {
-			
+
 				throw new System.IO.IOException ($"Unable to open I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
 
 			}
@@ -106,14 +110,6 @@ namespace GPIO
 
 			}
 
-
-			byte[] b = Response;
-
-			Log.t ($"Got size: {b.Length}, expected: {r2I2C_get_response_size ()}");
-			for (int i = 0; i < r2I2C_get_response_size (); i++) {
-				byte bbb = Response [i];
-				Log.t ($"Got response : {bbb}");
-			}
 			return Response.Take (r2I2C_get_response_size()).ToArray();
 
 		}

@@ -4,7 +4,7 @@
 #ifdef USE_SERIAL
 
 // Contains data during serial read.
-byte readBuffer[MAX_RECEIVE_SIZE + 1];
+byte readBuffer[sizeof(RequestPackage) + 1];
 
 // read input size for serial communication.
 int rs = 0;
@@ -23,6 +23,9 @@ byte messageHeader[] = PACKAGE_HEADER_IDENTIFIER;
 
 // Size of header
 int headerLength = (sizeof(messageHeader)/sizeof(messageHeader[0]));
+ 
+// Reset the read flags and writes "out" to serial.
+void writeResponse(ResponsePackage out);
 
 void loop_serial() {
   
@@ -55,6 +58,14 @@ void loop_serial() {
       rx = 0;
       rs = Serial.read();
       
+       if (rs < MIN_REQUEST_SIZE || rs > sizeof(RequestPackage)) {
+    
+        err("E: size", ERROR_INVALID_REQUEST_PACKAGE_SIZE, rs);
+        ResponsePackage out = createErrorPackage(0x0);
+        writeResponse(out);
+        
+       }
+       
     } else if (rx < rs - 1) {
       
       readBuffer[rx++] = Serial.read();
@@ -63,27 +74,33 @@ void loop_serial() {
       
       readBuffer[rx] = Serial.read();
       
-      headerReceived = false;
-      
-      rs = rx = rh = 0;
-      
       ResponsePackage out = execute((RequestPackage*)readBuffer); 
       
-      byte *outputBuffer = (byte *)&out;
-      int outputSize = RESPONSE_PACKAGE_SIZE(out);
-  
-      // Header
-      for (byte i = 0; i < headerLength; i++) {Serial.write(messageHeader[i]); } 
-      
-      // Size of response
-      Serial.write((byte) outputSize);
-      
-      // Content
-      for (int i = 0; i < outputSize; i++) { Serial.write(outputBuffer[i]); }
+      writeResponse(out);
       
     }
     
   }
+
+}
+
+void writeResponse(ResponsePackage out) {
+  
+  headerReceived = false;
+  
+  rs = rx = rh = 0;
+
+  byte *outputBuffer = (byte *)&out;
+  int outputSize = RESPONSE_PACKAGE_SIZE(out);
+  
+  // Header
+  for (byte i = 0; i < headerLength; i++) {Serial.write(messageHeader[i]); } 
+  
+  // Size of response
+  Serial.write((byte) outputSize);
+  
+  // Content
+  for (int i = 0; i < outputSize; i++) { Serial.write(outputBuffer[i]); }
 
 }
 #endif

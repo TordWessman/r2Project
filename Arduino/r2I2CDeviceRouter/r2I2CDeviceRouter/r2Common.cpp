@@ -61,7 +61,8 @@ void setError(ResponsePackage response) {
 ResponsePackage createErrorPackage(HOST_ADDRESS host) {
 
   ResponsePackage response;
-    
+  
+  response.messageId = 0x0;
   response.host = host;
   response.action = ACTION_ERROR;
   response.id = 42;

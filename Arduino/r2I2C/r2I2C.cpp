@@ -51,7 +51,7 @@ void _initialize(int slave_address, void (*onProcess)(byte*, int)) {
 	onProcessI2C = onProcess;
 	Wire.onReceive(_receiveData);
 	Wire.onRequest(_sendData);
-  
+
 }
 
 void _receiveData(int data_size){
@@ -60,7 +60,7 @@ void _receiveData(int data_size){
 
   if (data_size == 0) { return; }
 
-  byte received_data[data_size];
+  byte* received_data = (byte*)malloc(sizeof(byte) * data_size);
   int i = 0;
 
   while(Wire.available() && i < data_size) {
@@ -68,10 +68,11 @@ void _receiveData(int data_size){
   }
 
   if (onProcessI2C) {
-
     onProcessI2C(received_data, i);
+ 
+  } 
 
-  }
+   free(received_data);
 
 }
 
@@ -82,12 +83,12 @@ void _sendData() {
 
   if (response_ready) {
 
-    if (!ready_to_send_flag_sent) {
+    //if (!ready_to_send_flag_sent) {
 
-        ready_to_send_flag_sent = true;
-        Wire.write(READY_TO_SEND_FLAG);
+      //  ready_to_send_flag_sent = true;
+      //  Wire.write(READY_TO_SEND_FLAG);
 
-    } else {
+    //} else {
 
 	if (!size_sent_flag) {
 
@@ -101,13 +102,9 @@ void _sendData() {
 
 	}
 
-    }
+    //}
 
-  } else {
-
-     Wire.write(0);
-
-  }
+  } 
 
 }
 

@@ -96,7 +96,9 @@ namespace GPIO
 		// Failed to make the node sleep
 		ERROR_FAILED_TO_SLEEP = 18,
 		// Messages are not in sync. Unrecieved messages found in the masters input buffer.
-		ERROR_RH24_MESSAGE_SYNCHRONIZATION = 19
+		ERROR_RH24_MESSAGE_SYNCHRONIZATION = 19,
+		// If the size of the incomming data is invalid
+		ERROR_INVALID_REQUEST_PACKAGE_SIZE = 20
 	}
 
 	public interface IDeviceResponsePackageErrorInformation {

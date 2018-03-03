@@ -2,7 +2,7 @@
 #define R2I2C_CONFIG_H
 
 // If defined, I2C communication will be enabled
-//#define USE_I2C
+#define USE_I2C
 
 // If defined, serial communication will be enabled 
 //#define USE_SERIAL
