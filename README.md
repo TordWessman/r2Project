@@ -4,17 +4,19 @@
 
 ### Project structure
 
- - **[Application layer (Python/Ruby/Lua)]**
+The project is organized in a three-tier structure, separating application logic (configuration & behaviour) and framework implementation (core libraries and their native dependencies).
+
+ - **[Application Layer (Python/Ruby/Lua)]**
 
 	Here be all application logic, setup etc.
 
 
  - **[Framework layer (C# Projects)]**
 
-	This layer should be static through a projects lifecycle and only provide the modules the Application layer requires.
+	This layer should be static through a projects lifecycle and only provide the modules the Application Layer requires.
 
 
- - **[Native layer (Various native submodules required by the Framework layer)]**
+ - **[Native Layer (Various native submodules required by the Framework layer)]**
 
 	Here be the frameworks connection to various third part libraries, I/O-functionality etc.
 
@@ -23,13 +25,13 @@
 
 ./Src - *contains r2Project source code.*
 
-./Src/[XYZ]/Native - *contains native for the project [XYZ].*
+./Src/[XYZ]/Native - *contains native code. Each project has it's own native dependencies and thus its own native folder.*
 
-./Lib - *contains r2Project compile native libraries.*
+./Lib - *Should contain the compiled native libraries mentioned above.*
 
-./Common - *shared files.*
+./Common - *Shared files, such as shared scripts, templates, test data etc.*
 
-./3rdParty - *third party libraries.*
+./3rdParty - *Third party libraries.*
  
 ./Arduino - *Arduino related projects.*
 
@@ -89,6 +91,14 @@ Enable i2c/spi drivers through the advanced settings in raspi-config
 	$ sudo raspi-config
 ```
 
+Make sure the i2c and spi functionality is enabled in '/boot/config.txt' and '/etc/modules', but commented out (if present) in '/etc/modprobe.d/raspi-blacklist.conf'. 
+
+Your '/etc/modules' should look something like this:
+```bash
+	i2c-bcm2708
+	i2c-dev
+	spi-dev
+```
 ### Libraries required for shared I/O-functionality.
 
 Download the from C library for Broadcom BCM 2835 http://www.open.com.au/mikem/bcm2835/index.html
