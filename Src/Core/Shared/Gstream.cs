@@ -69,8 +69,6 @@ namespace Core
 
 			m_ptr = _ext_create_gstream (pipeline);
 
-			Log.t ("INITIALIZE pipe");
-
 			if (m_ptr == System.IntPtr.Zero) {
 
 				throw new OutOfMemoryException ("Unable to create pipeline: " + pipeline);
@@ -108,16 +106,11 @@ namespace Core
 			}
 
 			//Monitor.Enter (m_startLock);
-
-			Log.t ("Will start");
 			m_task = Task.Factory.StartNew (() => {
 
 				m_isRunning = true;
-
-				Log.t ("task start");
 				//Monitor.Exit(m_startLock);
 
-				Log.t ("task continue");
 				if (_ext_play_gstream(m_ptr) != 1) {
 
 					m_isRunning = false;
