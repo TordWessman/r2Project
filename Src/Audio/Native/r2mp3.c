@@ -102,10 +102,10 @@ int mp3_init() {
 
 	//initializing elements
 	mp3_file_src = gst_element_factory_make ("filesrc", "file_src");
-	mp3_decoder = gst_element_factory_make ("flump3dec", "flump3dec");
+	mp3_decoder = gst_element_factory_make ("mad", "mad_decoder");
 	mp3_alsa_sink = gst_element_factory_make ("alsasink", "alsasink");
 	mp3_echo = gst_element_factory_make("audioecho", "echo");
-	g_object_set (G_OBJECT (mp3_echo), "delay", 900000000, NULL);
+	//g_object_set (G_OBJECT (mp3_echo), "delay", 9000000, NULL);
 
 	//check for successfull creation of elements
 	if(!mp3_file_src)

@@ -21,7 +21,7 @@ dht11:
 
 
 r2I2C::
-	gcc $(r2I2C).c -o $(r2I2C_LIB) -Wall -fPIC -I /usr/include -L /usr/lib -shared
+	gcc $(r2I2C).c -o $(r2I2C_LIB) -Wall -fPIC -I /usr/include -L /usr/lib -lm -shared
 	cp $(r2I2C_LIB) $(R2_LIB_DIR)
 
 clean:
