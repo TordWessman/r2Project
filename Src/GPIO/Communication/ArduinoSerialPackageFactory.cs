@@ -47,12 +47,18 @@ namespace GPIO
 		public const int RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL = 60;
 
 		// Below are the positions for Response messages. Request messages do no have the message id, and is thus 1 byte `lower`.
-		public const int POSITION_MESSAGE_ID = 0x0;
-		public const int POSITION_HOST = 0x1;
-		public const int POSITION_ACTION = 0x2;
-		public const int POSITION_ID = 0x3;
-		public const int POSITION_CONTENT_LENGTH = 0x4;
-		public const int POSITION_CONTENT = 0x5;
+		public const int RESPONSE_POSITION_MESSAGE_ID = 0x0;
+		public const int RESPONSE_POSITION_HOST = 0x1;
+		public const int RESPONSE_POSITION_ACTION = 0x2;
+		public const int RESPONSE_POSITION_ID = 0x3;
+		public const int RESPONSE_POSITION_CONTENT_LENGTH = 0x4;
+		public const int RESPONSE_POSITION_CONTENT = 0x5;
+
+		// Request package positions:
+		public const int REQUEST_POSITION_HOST = 0x0;
+		public const int REQUEST_POSITION_ACTION = 0x1;
+		public const int REQUEST_POSITION_ID = 0x2;
+		public const int REQUEST_POSITION_CONTENT = 0x3;
 
 		// In the content part of the (create) message, here be the Type
 		public const int POSITION_CONTENT_DEVICE_TYPE = 0x0;
@@ -74,16 +80,16 @@ namespace GPIO
 
 		public byte[] SerializeRequest(DeviceRequestPackage request) {
 		
-			byte[] requestData = new byte[POSITION_CONTENT_LENGTH + (request.Content?.Length ?? 0)];
+			byte[] requestData = new byte[REQUEST_POSITION_CONTENT + (request.Content?.Length ?? 0)];
 
-			requestData[POSITION_HOST - 1] = request.NodeId;
-			requestData[POSITION_ACTION - 1] = (byte)request.Action;
-			requestData[POSITION_ID - 1] = request.Id;
-			requestData [POSITION_CONTENT_LENGTH - 1] = (byte)(request.Content?.Length ?? 0);
-
-			if (requestData [POSITION_CONTENT_LENGTH - 1] > 0) {
+			requestData[REQUEST_POSITION_HOST] = request.NodeId;
+			requestData[REQUEST_POSITION_ACTION] = (byte)request.Action;
+			requestData[REQUEST_POSITION_ID] = request.Id;
+			int contentLength = (request.Content?.Length ?? 0); 
+				
+			if (contentLength > 0) {
 			
-				Array.Copy (request.Content, 0, requestData, POSITION_CONTENT - 1, requestData [POSITION_CONTENT_LENGTH - 1]);
+				Array.Copy (request.Content, 0, requestData, REQUEST_POSITION_CONTENT, contentLength);
 
 			}
 
@@ -93,14 +99,14 @@ namespace GPIO
 
 		public DeviceResponsePackage<T> ParseResponse<T> (byte[] response) {
 
-			int contentLength = response [POSITION_CONTENT_LENGTH];
+			int contentLength = response [RESPONSE_POSITION_CONTENT_LENGTH];
 
 			return new DeviceResponsePackage<T> () {
-				MessageId = response [POSITION_MESSAGE_ID],
-				NodeId = response [POSITION_HOST],
-				Action = (ActionType)response [POSITION_ACTION],
-				Id = response [POSITION_ID],
-				Content = contentLength > 0 ? response.Skip (POSITION_CONTENT).Take (contentLength)?.ToArray () ?? new byte[]{ } : new byte[]{ }
+				MessageId = response [RESPONSE_POSITION_MESSAGE_ID],
+				NodeId = response [RESPONSE_POSITION_HOST],
+				Action = (SerialActionType)response [RESPONSE_POSITION_ACTION],
+				Id = response [RESPONSE_POSITION_ID],
+				Content = contentLength > 0 ? response.Skip (RESPONSE_POSITION_CONTENT).Take (contentLength)?.ToArray () ?? new byte[]{ } : new byte[]{ }
 			};
 
 		}
@@ -120,7 +126,7 @@ namespace GPIO
 
 			DeviceRequestPackage package = new DeviceRequestPackage () { 
 				NodeId = nodeId, 
-				Action = ActionType.Create, 
+				Action = SerialActionType.Create, 
 				Id = m_deviceCount[nodeId]++, //Actually decided by the node...
 				Content = content
 			};
@@ -135,7 +141,7 @@ namespace GPIO
 
 			return new DeviceRequestPackage () { 
 				NodeId = nodeId, 
-				Action = ActionType.Set, 
+				Action = SerialActionType.Set, 
 				Id = deviceId, 
 				Content = content 
 			};
@@ -146,7 +152,7 @@ namespace GPIO
 
 			return new DeviceRequestPackage () { 
 				NodeId = nodeId, 
-				Action = ActionType.Get, 
+				Action = SerialActionType.Get, 
 				Id = deviceId, 
 				Content = {} 
 			};
@@ -161,7 +167,7 @@ namespace GPIO
 
 			return new DeviceRequestPackage () {
 				NodeId = nodeId,
-				Action = ActionType.SendToSleep, 
+				Action = SerialActionType.SendToSleep, 
 				Content = content
 			};
 		}
@@ -170,7 +176,7 @@ namespace GPIO
 
 			return new DeviceRequestPackage () {
 				NodeId = 0x0, 
-				Action = ActionType.Initialization, 
+				Action = SerialActionType.Initialization, 
 				Id = nodeId, 
 				Content = {} 
 			};

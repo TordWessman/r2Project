@@ -2,15 +2,32 @@
 using Core.Device;
 using System.Collections.Generic;
 using Core;
+using System.IO;
 
 namespace GPIO
 {
+
+	public class SerialConnectionException : IOException {
+	
+		private SerialErrorType m_errorType;
+
+		public SerialErrorType ErrorType { get { return m_errorType; } } 
+
+		public SerialConnectionException(string message, SerialErrorType type) : base (message, (int) type) {
+		
+			m_errorType = type;
+		
+		}
+	}
+
 	public class SerialHost: DeviceBase, ISerialHost
 	{
 		private ISerialConnection m_connection;
 		private ISerialPackageFactory m_packageFactory;
 
 		private Action<byte> m_delegate;
+
+		private readonly object m_lock = new object();
 
 		/// <summary>
 		/// Informs that a host has been reinitialized and need to be reconfigured (i.e. add devices). 
@@ -79,9 +96,16 @@ namespace GPIO
 
 		}
 
+		public void Reset(int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+		
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.Reset, NodeId = (byte) nodeId };
+			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+
+		}
+
 		public bool IsNodeAvailable(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.IsNodeAvailable, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.IsNodeAvailable, NodeId = (byte) nodeId };
 			DeviceResponsePackage<bool> response = Send<bool> (request);
 
 			return response.Value;
@@ -90,7 +114,7 @@ namespace GPIO
 
 		public bool IsNodeSleeping(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.CheckSleepState, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.CheckSleepState, NodeId = (byte) nodeId };
 			DeviceResponsePackage<bool> response = Send<bool> (request);
 
 			return response.Value;
@@ -99,7 +123,7 @@ namespace GPIO
 
 		public byte[] GetNodes() {
 		
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.GetNodes };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.GetNodes };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 			return response.Value;
@@ -121,14 +145,14 @@ namespace GPIO
 			
 			}
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.PauseSleep, NodeId = (byte) nodeId, Content = new byte[1] {(byte) seconds} };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.PauseSleep, NodeId = (byte) nodeId, Content = new byte[1] {(byte) seconds} };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 		}
 
 		public void SetNodeId(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = ActionType.SetNodeId, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.SetNodeId, NodeId = (byte) nodeId };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 		}
@@ -159,7 +183,7 @@ namespace GPIO
 			for (int i = 0; i < 3; i++) {
 
 				// Never re-send create packages
-				if (response.Error != ErrorType.RH24_TIMEOUT || request.Action == ActionType.Create) { break; }
+				if (response.Error != SerialErrorType.RH24_TIMEOUT || request.Action == SerialActionType.Create) { break; }
 				Log.d ($"SerialHost got timeout from node. Will retry action '{request.Action}'...");
 				response = m_packageFactory.ParseResponse<T> (m_connection.Send (requestData));
 
@@ -175,38 +199,42 @@ namespace GPIO
 		/// <param name="request">Request.</param>
 		public DeviceResponsePackage<T> Send<T>(DeviceRequestPackage request) {
 
-			if (!Ready) { throw new System.IO.IOException ("Communication not started."); }
+			lock (m_lock) {
 
-			Log.t ($"Sending package: {request.Action} to node: {request.NodeId}.");
+				if (!Ready) { throw new System.IO.IOException ("Communication busy/not started."); }
 
-			DeviceResponsePackage<T> response = _Send<T> (request);
+				Log.t ($"Sending package: {request.Action} to node: {request.NodeId}.");
 
-			Log.t ($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
+				DeviceResponsePackage<T> response = _Send<T> (request);
 
-			if (response.Action == ActionType.Initialization) {
+				Log.t ($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
 
-				// The slave needs to be reset. Reset the slave and notify delegate, allowing it to re-create and/or re-send
-				ResetSlave (response.NodeId);
-				Log.t ($"Resetting slave with id: {response.NodeId}.");
+				if (response.Action == SerialActionType.Initialization) {
 
-				if (HostDidReset != null) { HostDidReset (response.NodeId); }
+					// The slave needs to be reset. Reset the slave and notify delegate, allowing it to re-create and/or re-send
+					ResetSlave (response.NodeId);
+					Log.t ($"Resetting slave with id: {response.NodeId}.");
 
-				// Resend the current request
-				response = _Send<T>(request);
+					if (HostDidReset != null) { HostDidReset (response.NodeId); }
 
-			} else if (response.IsError) { 
-				
-				throw new System.IO.IOException ($"Response contained an error for action '{request.Action}': '{response.Error}'. Info: {response.ErrorInfo}. NodeId: {request.NodeId}.");
-			
-			} else if (!(request.Action == ActionType.Initialization && response.Action == ActionType.InitializationOk) &&
-				response.Action != request.Action) {
+					// Resend the current request
+					response = _Send<T>(request);
 
-				// The .InitializationOk is a response to a successfull .Initialization. Other successfull requests should return the requested Action.
-				throw new System.IO.IOException ($"Response action missmatch: Expected '{request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.");
+				} else if (response.IsError) { 
+
+					throw new SerialConnectionException ($"Response contained an error for action '{request.Action}': '{response.Error}'. Info: {response.ErrorInfo}. NodeId: {request.NodeId}.", response.Error);
+
+				} else if (!(request.Action == SerialActionType.Initialization && response.Action == SerialActionType.InitializationOk) &&
+					response.Action != request.Action) {
+
+					// The .InitializationOk is a response to a successfull .Initialization. Other successfull requests should return the requested Action.
+					throw new System.IO.IOException ($"Response action missmatch: Expected '{request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.");
+
+				}
+
+				return response;
 
 			}
-
-			return response;
 
 		}
 
@@ -216,7 +244,7 @@ namespace GPIO
 		/// <param name="host">Host.</param>
 		private void ResetSlave(byte nodeId) {
 
-			Send<byte[]> (new DeviceRequestPackage() {Action = ActionType.Initialization, NodeId = nodeId});
+			Send<byte[]> (new DeviceRequestPackage() {Action = SerialActionType.Initialization, NodeId = nodeId});
 
 		}
 

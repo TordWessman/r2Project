@@ -147,6 +147,8 @@ void loop_rh24() {
 
 bool nodeAvailable(HOST_ADDRESS nodeId) {
 
+  if (nodeId == DEVICE_HOST_LOCAL) { return true; }
+  
   for (int i = 0; i < mesh.addrListTop; i++) {
   
     if (nodeId == mesh.addrList[i].nodeID) { 

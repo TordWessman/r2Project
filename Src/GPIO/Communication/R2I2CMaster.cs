@@ -24,7 +24,10 @@ namespace GPIO
 		private static extern byte r2I2C_get_response_size();
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		private static extern  byte r2I2C_get_response(int position);
+		private static extern byte r2I2C_get_response(int position);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		private static extern bool r2I2C_is_ready ();
 
 		// Delay before starting to read from slave. Usefull if slave response is slow.
 		public int ReadDelay = Settings.Consts.I2CReadDelay();
@@ -56,6 +59,8 @@ namespace GPIO
 			m_port = port ?? Settings.Consts.I2CDefaultPort();
 
 		}
+
+		public override bool Ready { get { return r2I2C_is_ready (); } }
 
 		public override void Start () {
 

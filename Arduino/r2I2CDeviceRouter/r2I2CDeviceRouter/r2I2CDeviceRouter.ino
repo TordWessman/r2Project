@@ -240,6 +240,16 @@ ResponsePackage execute(RequestPackage *request) {
           
         break;
         
+       case ACTION_RESET:
+        
+          deviceCount = 0;
+          initialized = false;
+          clearError();
+          
+          for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
+       
+       break;
+          
        default:
        
           err("Unknown action", ERROR_CODE_UNKNOWN_ACTION, request->action);

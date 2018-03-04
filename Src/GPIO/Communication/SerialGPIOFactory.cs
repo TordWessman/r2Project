@@ -23,34 +23,6 @@ using System.Linq;
 
 namespace GPIO
 {
-	/// <summary>
-	/// Represents a device available through the serial bus (i.e. I2C or Serial)
-	/// </summary>
-	public interface ISerialDevice: IDevice {
-
-		/// <summary>
-		/// (Re)creates the device representation on the node, typically after slave reboot.
-		/// </summary>
-		void Synchronize ();
-
-		/// <summary>
-		/// Allows the device to retrieve it's value from the node. 
-		/// </summary>
-		void Update();
-
-		/// <summary>
-		/// The node to which this device belongs
-		/// </summary>
-		/// <value>The node identifier.</value>
-		byte NodeId { get; }
-
-		/// <summary>
-		/// If the node to which this device is attached is in sleep mode.
-		/// </summary>
-		/// <value><c>true</c> if this instance is sleeping; otherwise, <c>false</c>.</value>
-		bool IsSleeping { get; }
-
-	}
 
 	public class SerialGPIOFactory: DeviceBase
 	{
@@ -137,7 +109,6 @@ namespace GPIO
 			return InstantiateDevice(new SerialDHT11(id, m_devices.GetNode(nodeId), m_connection, port)); 
 
 		}
-
 
 		/// <summary>
 		/// Synchronizes (remotely creates) the device.

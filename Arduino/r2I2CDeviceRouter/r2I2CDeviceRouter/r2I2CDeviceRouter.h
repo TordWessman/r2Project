@@ -36,6 +36,7 @@ typedef struct Devices {
   
 } Device;
 
+// The id for the mastel node.
 #define DEVICE_HOST_LOCAL 0x0
 
 // Available device types
@@ -146,6 +147,8 @@ int* getValue(Device* device);
 #define ACTION_CHECK_SLEEP_STATE 0x0B
 // Pauses the sleep state of a node. Use this to minimize EEPROM writings if multiple requests are made to this node.
 #define ACTION_PAUSE_SLEEP 0x0C
+// Will reset this node to a state where it's no longer is initialized
+#define ACTION_RESET 0x0D
 
 // -- Internal Actions --
 

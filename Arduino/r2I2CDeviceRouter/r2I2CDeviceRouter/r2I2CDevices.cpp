@@ -253,14 +253,10 @@ int* getValue(Device* device) {
    
   case DEVICE_TYPE_SIMPLE_MOIST: {
     
-    digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], HIGH); //Trigger ultrasonic detection 
+    digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], HIGH); // Start measurement cycle
     delayMicroseconds(20); 
     values[0] = analogRead(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]);
-    //R2_LOG(F("Reading moist from port/port/value"));
-    //R2_LOG(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]);
-    //R2_LOG(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT]);
-    //R2_LOG(values[0]);
-    digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], LOW); 
+    digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], LOW); // End measurement
     
   } break;
   
