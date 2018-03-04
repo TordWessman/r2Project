@@ -32,7 +32,9 @@ namespace GPIO
 
 		}
 
-		protected override byte[] CreationParameters { get { return m_ports; } }
+		protected override byte[] CreationParameters { get { 
+				return m_ports;
+			} }
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogueInput; } }
 

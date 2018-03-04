@@ -40,7 +40,7 @@ namespace GPIO
 	/// <summary>
 	/// Actions defined in r2I2CDeviceRouter.h
 	/// </summary>
-	public enum ActionType: byte {
+	public enum SerialActionType: byte {
 		
 		Unknown = 0x0,	// Hmm... This must be an error 
 		Create = 0x1,	// Tell the slave to create a device
@@ -54,10 +54,11 @@ namespace GPIO
 		GetNodes = 0x8, // Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
 		SendToSleep = 0x0A, // Sends the node to sleep
 		CheckSleepState = 0x0B, // Check if the node has been sent to sleep.
-		PauseSleep = 0x0C // Pause the sleeping for up to 60 seconds.
+		PauseSleep = 0x0C, // Pause the sleeping for up to 60 seconds.
+		Reset = 0x0D // Pause the sleeping for up to 60 seconds.
 	}
 
-	public enum ErrorType: byte {
+	public enum SerialErrorType: byte {
 	
 		// No error status was received, but response indicated an error.
 		Undefined = 0,
@@ -113,7 +114,7 @@ namespace GPIO
 		/// Returns the error type of the response (or Undefined if no error was received).
 		/// </summary>
 		/// <value>The error.</value>
-		ErrorType Error { get; }
+		SerialErrorType Error { get; }
 
 		/// <summary>
 		/// Helps identify the info part of the error message and parses it
@@ -136,7 +137,7 @@ namespace GPIO
 		public byte NodeId;
 
 		// Action required by slave.
-		public ActionType Action;
+		public SerialActionType Action;
 
 		// Id of an affected device on slave. A slave have a limited range of id:s (i.e. 0-19).
 		public byte Id;
@@ -147,17 +148,17 @@ namespace GPIO
 		// The number of int16 returned from slave upon a ActionType.Get request.
 		public const int NUMBER_OF_RETURN_VALUES = 2;
 
-		public bool IsError { get { return Action == ActionType.Error || Action == ActionType.Unknown; } }
+		public bool IsError { get { return Action == SerialActionType.Error || Action == SerialActionType.Unknown; } }
 
-		public ErrorType Error { 
+		public SerialErrorType Error { 
 			
 			get { 
 		
 				if (IsError) {
 
-					return (Content?.Length ?? 0) > 0 ? (ErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : ErrorType.Undefined;
+					return (Content?.Length ?? 0) > 0 ? (SerialErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : SerialErrorType.Undefined;
 
-				} else  { return ErrorType.Undefined; }
+				} else  { return SerialErrorType.Undefined; }
 
 			}
 
@@ -167,10 +168,10 @@ namespace GPIO
 
 				int info = (Content?.Length ?? 0) > 1 ? Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
 
-				if (Error == ErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
+				if (Error == SerialErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
 
 					// Will return the action of an unread message in the master node's pipe.
-					return $"Action from the previous message: `{(ActionType) info}`";
+					return $"Action from the previous message: `{(SerialActionType) info}`";
 
 				}
 
@@ -223,7 +224,7 @@ namespace GPIO
 		public byte NodeId;
 
 		// Action required by slave.
-		public ActionType Action;
+		public SerialActionType Action;
 
 		// Id of an affected device on slave. A slave have a limited range of id:s (i.e. 0-19).
 		public byte Id;

@@ -46,6 +46,12 @@ namespace GPIO
 		void Initialize(int nodeId);
 
 		/// <summary>
+		/// Resets the node. Set state to uninitialized and remove all devices.
+		/// </summary>
+		/// <param name="nodeId">Node identifier.</param>
+		void Reset(int nodeId);
+
+		/// <summary>
 		/// Returns true if the specified node is currently registered at the master (not to be confused with sleep mode).
 		/// </summary>
 		/// <returns><c>true</c> if this instance is node available the specified host; otherwise, <c>false</c>.</returns>

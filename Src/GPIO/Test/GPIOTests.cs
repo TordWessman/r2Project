@@ -40,6 +40,29 @@ namespace GPIO.Tests
 		}
 
 		[Test]
+		public void TestPackageSerialization() {
+		
+			DeviceRequestPackage request = new DeviceRequestPackage () {
+				Action = SerialActionType.Create,
+				Id = 42,
+				Content = new byte[2] {
+					10,
+					20
+				},
+				NodeId = 99
+			};
+
+			byte[] serialized = m_packageFactory.SerializeRequest (request);
+
+			Assert.AreEqual ((byte)SerialActionType.Create, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION]);
+			Assert.AreEqual (42, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_ID]);
+			Assert.AreEqual (10, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT]);
+			Assert.AreEqual (20, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT + 1]);
+			Assert.AreEqual (99, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_HOST]);
+
+		}
+
+		[Test]
 		public void TestSerial() {
 			
 			var host = new SerialHost ("h", mock_connection, m_packageFactory);
@@ -86,6 +109,11 @@ namespace GPIO.Tests
 			Assert.IsFalse(host.IsNodeAvailable(3));
 
 			var factory = new SerialGPIOFactory ("f", host);
+
+			// Let the mock behave like there's a node with the id 3.
+			mock_connection.nodes.Add (3);
+
+			// Creates an input on node 3
 			var sensor = factory.CreateAnalogInput ("inp", 14, 3);
 
 			// The host should have been created at the mock node.
