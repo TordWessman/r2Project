@@ -44,16 +44,42 @@ namespace GPIO
 		private AutoResetEvent m_release;
 		// Will be true if an Update event is running for this node.
 		private bool m_isUpdating;
+		// If true, the node will try to update it's devices if it's in sleep mode.
+		private bool m_shouldUpdate;
+
+		// Increased every exception
+		private int m_failCount;
 
 		/// <summary>
 		/// Interval used for update frequencies. If value < 0, the timer will not execute. 
 		/// </summary>
 		private int m_updateInterval;
 
+		// Set upon successful Update
+		private DateTime m_lastUpdate;
+
 		public byte NodeId { get { return m_nodeId; } }
 
 		// Will be true if this node is being updated.
 		public bool IsUpdating { get { return m_isUpdating; } }
+
+		/// <summary>
+		/// Returns the timestamp of the time when this node did complete a successful synchronization.
+		/// </summary>
+		/// <value>The last update.</value>
+		public DateTime LastUpdate { get { return m_lastUpdate; } }
+
+		/// <summary>
+		/// Returns the number of failures this node has encountered during Update.
+		/// </summary>
+		/// <value>The fail count.</value>
+		public int FailCount { get { return m_failCount; } }
+
+		/// <summary>
+		/// If the node should perpetually be trying to fetch the values (Update) it's associated devices if in sleep mode. Defaults to true.
+		/// </summary>
+		/// <value><c>true</c> if should update; otherwise, <c>false</c>.</value>
+		public bool ShouldUpdate { get { return m_shouldUpdate; } set { m_shouldUpdate = value; } }
 
 		/// <summary>
 		/// `nodeID` is the remote id of the node. ISerialHost is used for communication to remote. ISerialHost used for serial communication. `updateInterval`: how often should the nodes update if in sleep mode (if zero, do not update. if below zero, use default value).
@@ -62,16 +88,22 @@ namespace GPIO
 		/// <param name="host">Host.</param>
 		/// <param name="updateInterval">Update interval.</param>
 		internal SerialNode(byte nodeId, ISerialHost host, int updateInterval) : base ($"{Settings.Consts.SerialNodeIdPrefix()}{nodeId}") {
-
+			
 			m_host = host;
 			m_nodeId = nodeId;
 			m_devices = new List<ISerialDevice> ();
 			m_updateInterval = updateInterval;
+			m_shouldUpdate = true;
 			m_shouldSleep = host.IsNodeSleeping (nodeId);
 
 			if (m_shouldSleep) {
 
+				m_lastUpdate = DateTime.MinValue;
 				StartScheduledSynchronization ();
+
+			} else {
+			
+				m_lastUpdate = DateTime.Now;
 
 			}
 
@@ -92,17 +124,10 @@ namespace GPIO
 		}
 
 		public override bool Ready { get { return m_host.IsNodeAvailable (m_nodeId); } }
-
 		public override void Start () { StartScheduledSynchronization (); }
 		public override void Stop () { StopScheduledSynchronization (); }
-
 		public void Synchronize() { m_devices.ForEach (device => device.Synchronize ()); }
-
-		public void Track (ISerialDevice device) {
-
-			m_devices.Add (device); 
-
-		}
+		public void Track (ISerialDevice device) { m_devices.Add (device);  }
 
 		private void StopScheduledSynchronization () {
 
@@ -115,12 +140,8 @@ namespace GPIO
 
 		private void StartScheduledSynchronization() {
 
-			if (m_timer != null) {
-
-				m_timer.Change (0, 0);
-				m_timer.Dispose();
-
-			}
+			m_timer?.Change (0, 0);
+			m_timer?.Dispose();
 
 			m_release = new AutoResetEvent(false);
 
@@ -133,6 +154,9 @@ namespace GPIO
 		/// </summary>
 		/// <param name="obj">Object.</param>
 		private void Update(object obj) {
+
+			// abort if the m_shouldUpdate flag is set to false.
+			if (!m_shouldUpdate) { return; }
 
 			// yield if an update is in progress or if scheduling has been stopped.
 			if (IsUpdating || m_timer == null) { return; }
@@ -147,11 +171,17 @@ namespace GPIO
 				// Update the values of tracked devices
 				m_devices.ForEach (device => device.Update());
 
-			} catch (Exception ex) { Log.w ($"Node ({m_nodeId}) update error: {ex.Message}"); }
-			finally { m_isUpdating = false; } 
+				m_lastUpdate = DateTime.Now;
+
+			} catch (Exception ex) {
+				
+				Log.w ($"Node ({m_nodeId}) update error: {ex.Message}.");
+				m_failCount++;
+
+			} finally { m_isUpdating = false; } 
 
 		}
 
 	}
-}
 
+}

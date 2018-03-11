@@ -74,8 +74,6 @@ namespace GPIO
 			m_deviceId = info.Id;
 			InternalValue = info.Value;
 
-			Core.Log.t ($"Created device and got id: {m_deviceId}");
-
 		}
 
 	}

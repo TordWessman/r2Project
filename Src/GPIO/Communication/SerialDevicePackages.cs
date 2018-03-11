@@ -56,6 +56,7 @@ namespace GPIO
 		CheckSleepState = 0x0B, // Check if the node has been sent to sleep.
 		PauseSleep = 0x0C, // Pause the sleeping for up to 60 seconds.
 		Reset = 0x0D // Pause the sleeping for up to 60 seconds.
+
 	}
 
 	public enum SerialErrorType: byte {

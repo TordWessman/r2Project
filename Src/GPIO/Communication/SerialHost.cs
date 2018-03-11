@@ -203,17 +203,17 @@ namespace GPIO
 
 				if (!Ready) { throw new System.IO.IOException ("Communication busy/not started."); }
 
-				Log.t ($"Sending package: {request.Action} to node: {request.NodeId}.");
+				//Log.t ($"Sending package: {request.Action} to node: {request.NodeId}.");
 
 				DeviceResponsePackage<T> response = _Send<T> (request);
 
-				Log.t ($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
+				//Log.t ($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
 
 				if (response.Action == SerialActionType.Initialization) {
 
 					// The slave needs to be reset. Reset the slave and notify delegate, allowing it to re-create and/or re-send
 					ResetSlave (response.NodeId);
-					Log.t ($"Resetting slave with id: {response.NodeId}.");
+					//Log.t ($"Resetting slave with id: {response.NodeId}.");
 
 					if (HostDidReset != null) { HostDidReset (response.NodeId); }
 
