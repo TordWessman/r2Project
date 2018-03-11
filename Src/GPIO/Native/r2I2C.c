@@ -66,7 +66,8 @@ uint8_t* r2I2C_read(int fd, long timout, int size);
 
 int r2I2C_init (int bus, int address) {
 
-	R2_LOG("Initializing R2I2C...\n");
+	R2_LOG2("Initializing R2I2C using bus `%d` and address `%d`\n", bus, address);
+	usleep(1000 * 1000);
 	_r2I2C_i2cbus = bus;
 	_r2I2C_i2caddr = address;
 	snprintf(_r2I2C_busfile, sizeof(_r2I2C_busfile), "/dev/i2c-%d", bus);
@@ -153,22 +154,29 @@ uint8_t* r2I2C_read(int fd, long timeout, int size) {
 
 		} else if (bytesRead < 0) { 
 
-			transmission_failed = true;
-			R2_LOG1("Error: Transmission failed. Returned error: '%s'. \n", strerror(errno));
-			break;
+			if (errno == 121 || errno == 5) {
+	
+				// sleep for 50 ms.			
+				usleep(50 * 1000);
+
+			} else {
+				
+				transmission_failed = true;
+				R2_LOG2("Error: Transmission failed. Returned error: '%s' (code: %d). \n", strerror(errno), errno);
+				break;
+			
+			}
 
 		}
 
 	} while (true);
 	
-	R2_LOG(" - reading done. \n");
 	return response;
 
 }
  
 int r2I2C_receive(long timeout) {
 
-	usleep(16000 * 1000);
 	R2_LOG1("Will try to read data from slave using timeout: '%ld'\n", timeout);
 
 	if (!_r2I2C_should_run) {
@@ -206,7 +214,7 @@ int r2I2C_receive(long timeout) {
 	// Wait for the R2I2C_READY_TO_READ_FLAG from slave prior to data fetching.
 	if (R2I2C_USE_READY_FLAG) {
 		
-		buffer = r2I2C_read(fd, timeout,1);
+		buffer = r2I2C_read(fd, timeout, 1);
 
 		if (!transmission_failed && buffer[0] != R2I2C_READY_TO_READ_FLAG) {
 
