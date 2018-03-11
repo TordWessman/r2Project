@@ -29,6 +29,9 @@ namespace GPIO
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		private static extern bool r2I2C_is_ready ();
 
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		private static extern void r2I2C_should_run (bool shouldRun);
+
 		// Delay before starting to read from slave. Usefull if slave response is slow.
 		public int ReadDelay = Settings.Consts.I2CReadDelay();
 
@@ -68,10 +71,18 @@ namespace GPIO
 
 			if (status < 0) {
 
+				r2I2C_should_run (false);
 				throw new System.IO.IOException ($"Unable to open I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
 
 			}
 
+			r2I2C_should_run (true);
+
+		}
+
+		public override void Stop ()
+		{
+			r2I2C_should_run (false);
 		}
 
 		private byte[] Response {
