@@ -138,6 +138,18 @@ namespace GPIO.Tests
 
 			// Enough time has passed for an update cycle. The value should have been updated
 			Assert.AreEqual (543, sensor.Value);
+
+			// The update should now be disabled
+			((SerialNode) factory [3]).ShouldUpdate = false;
+
+			// This value should therefore never be read
+			remoteMock.IntValues [0] = 43;
+
+			// Wait for the next update cycle (which should not occur)
+			Thread.Sleep (2500);
+
+			// The update cycle should not have occured, and the device should still have it's previous value. 
+			Assert.AreEqual (543, sensor.Value);
 		}
 	}
 }
