@@ -11,7 +11,7 @@
 
 #else
 
-#define R2_LOG(msg) (msg == 0)
+#define R2_LOG(msg) ;
 
 #endif
 

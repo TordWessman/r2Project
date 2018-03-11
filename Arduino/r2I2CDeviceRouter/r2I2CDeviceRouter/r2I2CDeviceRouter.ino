@@ -37,11 +37,11 @@ byte messageId = 0;
 #ifdef USE_I2C
 
 // Delegate method for I2C event communication.
-void i2cReceive(byte* data, int data_size) {
+void i2cReceive(byte* data, size_t data_size) {
 
   ResponsePackage out;
   
-  if (data_size < MIN_REQUEST_SIZE || data_size > sizeof(RequestPackage)) {
+  if (data == NULL || data_size < MIN_REQUEST_SIZE || data_size > sizeof(RequestPackage)) {
     
     err("E: size", ERROR_INVALID_REQUEST_PACKAGE_SIZE, data_size);
     out = createErrorPackage(0x0);
@@ -52,7 +52,9 @@ void i2cReceive(byte* data, int data_size) {
     
   }
   
-  R2_LOG(RESPONSE_PACKAGE_SIZE(out));
+  R2_LOG(F("Will write response with action/size:"));
+  Serial.println(out.action);
+  Serial.println(RESPONSE_PACKAGE_SIZE(out));
   byte *response = (byte *)&out;
   R2I2C.setResponse(response, RESPONSE_PACKAGE_SIZE(out));
   
@@ -107,6 +109,11 @@ ResponsePackage execute(RequestPackage *request) {
   
     R2_LOG(F("SENDING RH24 PACKAGE TO:"));
     R2_LOG(request->host);
+    
+    if (request->action == ACTION_SEND_TO_SLEEP && isSleeping()) {
+        pauseSleep();
+    }
+    
     response = rh24Send(request);
     if (isError(response)) { setError(response); }
     
@@ -139,7 +146,7 @@ ResponsePackage execute(RequestPackage *request) {
   
   #endif
   
-     if (!initialized && request->action != ACTION_INITIALIZE) {
+     if (!initialized && !(request->action == ACTION_INITIALIZE || request->action == ACTION_RESET)) {
      
        R2_LOG(F("I'm not initialized. Please do so..."));
        R2_LOG(request->host);
@@ -236,6 +243,11 @@ ResponsePackage execute(RequestPackage *request) {
           response.content[0] = A0;
           response.contentSize = 1;
           
+          #ifdef USE_RH24
+             // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)
+             if (isSleeping()) { pauseSleep(); }
+          #endif
+          
           return response;
           
         break;
@@ -245,6 +257,12 @@ ResponsePackage execute(RequestPackage *request) {
           deviceCount = 0;
           initialized = false;
           clearError();
+          
+          #ifdef USE_RH24
+             // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)
+             if (isSleeping()) { pauseSleep(); }
+          #endif
+          
           
           for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
        
@@ -271,6 +289,8 @@ ResponsePackage execute(RequestPackage *request) {
 
 void setup() {
 
+  saveNodeId(7);
+  
 #ifdef R2_STATUS_LED
 pinMode(R2_STATUS_LED, OUTPUT);
 reservePort(R2_STATUS_LED);
@@ -295,6 +315,8 @@ reservePort(R2_ERROR_LED);
    
 }
 
+unsigned long blinkTimer = 0;
+
 void loop() {
   
   loop_common();
@@ -303,10 +325,32 @@ void loop() {
     loop_serial();
   #endif
   
+  #ifdef USE_RH24
+  if (!isMaster())
+  #endif
+  {
+    
+    #ifdef R2_STATUS_LED
+    
+    if (millis() - blinkTimer >= 10000) {
+  
+      blinkTimer = millis();
+      setStatus(true);
+      delay(50);
+      setStatus(false);
+      
+    }
+    
+    #endif
+
+  }
   //Serial.println("Starting RH24");
   
   #ifdef USE_RH24
     loop_rh24();
   #endif
-  
+ 
+  #ifdef USE_I2C
+    R2I2C.loop();
+  #endif 
 }

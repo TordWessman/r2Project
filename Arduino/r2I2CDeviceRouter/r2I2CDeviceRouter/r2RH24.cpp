@@ -22,7 +22,7 @@
 #define RH24_SLEEP_FOREVER 0xFF
 
 // The default sleep cycles used by the WDT 
-#define RH24_SLEEP_CYCLES WDTO_8S
+#define RH24_SLEEP_CYCLES WDTO_2S
 
 // Maximum number of seconds for the paus sleep interval.
 #define MAX_PAUSE_SLEEP_SECONDS 60
@@ -102,9 +102,7 @@ bool slaveSleepStarted = false;
 // -- SETUP --
 
 void rh24Setup() {
-
-  //if (!isMaster()) { setStatus(true); }
-  //saveNodeId(3);
+  
   byte id = getNodeId();
   byte savedCycles = EEPROM.read(SLEEP_MODE_EEPROM_ADDRESS);
   
@@ -272,13 +270,18 @@ void pauseSleep(byte seconds) {
 
 void sleep(bool on, byte cycles) {
 
-  shouldSleep = on;
   sleepCycles = cycles;
   
-  if (!on) { slaveSleepStarted = false; }
-
-  EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, on ? sleepCycles : 0x00);
+  // Avoid retundant EEPROM writes:
+  if (on != shouldSleep) {
   
+    shouldSleep = on;
+    if (!on) { slaveSleepStarted = false; }
+
+    EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, on ? sleepCycles : 0x00);
+
+  }
+    
 }
 
 
@@ -306,8 +309,15 @@ ResponsePackage master_readResponse() {
              // Try to read the response from the slave
             byte readSize = network.read(header, &response, sizeof(ResponsePackage));
             
-            if (readSize != sizeof(ResponsePackage)) {  err("Bad read size", ERROR_RH24_BAD_SIZE_READ, readSize); } 
-            else { R2_LOG(F("Read data from network.")); }
+            if (readSize != sizeof(ResponsePackage)) {  err("E: read size", ERROR_RH24_BAD_SIZE_READ, readSize); } 
+            else { 
+                
+              R2_LOG(F("Read m/a/ui:"));
+              R2_LOG(response.messageId); 
+              R2_LOG(response.action);
+              R2_LOG(response.host);
+              
+            }
             
           } break; 
           
@@ -322,7 +332,7 @@ ResponsePackage master_readResponse() {
             response.action = ACTION_RH24_PING;
             
             if (!network.write(responseHeader, &ping, 1)) {
-                R2_LOG(F("Ping reply failed"));
+                R2_LOG(F("E: Ping reply failed"));
                 //TODO: ping failed
             }
             
@@ -331,7 +341,7 @@ ResponsePackage master_readResponse() {
           default:
           
             if (header.type != 0) { err("E: header.type", ERROR_RH24_UNKNOWN_MESSAGE_TYPE_ERROR, header.type); }
-            else {R2_LOG(F("Unknown message type (0). Should this be ignored?"));}
+            //else {R2_LOG(F("Unknown message type (0). Should this be ignored?"));}
              
             network.read(header, 0, 0);
             
@@ -369,8 +379,22 @@ ResponsePackage master_tryReadMessage() {
     
 }
 
+#ifdef R2_PRINT_DEBUG
+unsigned long masterDebugTimer = 0;
+#endif
+
 void rh24Master() {
   
+  #ifdef R2_PRINT_DEBUG
+  
+  // Check if i'm alive.
+  if (millis() - masterDebugTimer >= 5000) {
+  
+    masterDebugTimer = millis();
+    Serial.print(F("x"));
+  }
+  
+  #endif
     mesh.update();
     mesh.DHCP();
   
@@ -426,22 +450,7 @@ void rh24Slave() {
 
 }
 
-unsigned long blinkTimer = 0;
-bool blinx;
-
 void slave_networkCheck() {
-
-#ifdef R2_STATUS_LED
-  if (millis() - blinkTimer >= 5000) {
-  
-      blinkTimer = millis();
-      //setStatus(blinx);
-      //blinx = !blinx;
-      setStatus(true);
-      delay(100);
-      setStatus(false);      
-  }
-#endif
 
 #ifdef RH24_PING_ENABLED
   if (millis() - pingTimer >= RH24_PING_INTERVAL) {
