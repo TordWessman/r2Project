@@ -5,7 +5,7 @@
 //#define USE_I2C
 
 // If defined, serial communication will be enabled 
-//#define USE_SERIAL
+#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
 #define USE_RH24

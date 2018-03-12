@@ -87,8 +87,8 @@ TODO: fix this...
 void createDevice(byte id, DEVICE_TYPE type, byte* input) {
 
   if (id >= MAX_DEVICES) {
-  
-    return err("Id > MAX_DEVICES", ERROR_CODE_MAX_DEVICES_IN_USE);
+    
+    return err("MAX_DEVICES", ERROR_CODE_MAX_DEVICES_IN_USE);
     
   } 
   
@@ -170,10 +170,6 @@ void createDevice(byte id, DEVICE_TYPE type, byte* input) {
         
         device.IOPorts[SIMPLE_MOIST_ANALOGUE_IN] = input[SIMPLE_MOIST_ANALOGUE_IN];
         device.IOPorts[SIMPLE_MOIST_DIGITAL_OUT] = input[SIMPLE_MOIST_DIGITAL_OUT];
-        
-         R2_LOG(F("Creating moist from port/port/value"));
-    R2_LOG(input[SIMPLE_MOIST_ANALOGUE_IN]);
-    R2_LOG(input[SIMPLE_MOIST_DIGITAL_OUT]);
     
         pinMode(device.IOPorts[SIMPLE_MOIST_DIGITAL_OUT], OUTPUT);
       

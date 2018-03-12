@@ -5,6 +5,27 @@
 #include "r2I2C_config.h"
 #include <stdbool.h>
 
+// -- Public properties --
+
+// Keeps track of the devices (and thus their id's).
+static byte deviceCount = 0;
+
+// -- Configurations
+
+// The maximum number of ports a device can occupy
+#define DEVICE_MAX_PORTS 2
+
+// The id for the mastel node.
+#define DEVICE_HOST_LOCAL 0x0
+
+// Maximum buffer for input packages
+#define MAX_RECEIVE_SIZE 20
+
+// The maximum size (in bytes) for package content;
+#define MAX_CONTENT_SIZE 10
+
+// -- Type definitions --
+
 // The type of a device (being created)
 typedef byte DEVICE_TYPE;
 
@@ -13,9 +34,6 @@ typedef byte HOST_ADDRESS;
 
 // Type of action to invoke durng requests.
 typedef byte ACTION_TYPE;
-
-// The maximum number of ports a device can occupy
-#define DEVICE_MAX_PORTS 2
 
 typedef struct Devices {
 
@@ -36,8 +54,37 @@ typedef struct Devices {
   
 } Device;
 
-// The id for the mastel node.
-#define DEVICE_HOST_LOCAL 0x0
+// -- Package definitions --
+
+// Containing data which should be returned to host after a request.
+struct ResponsePackage {
+
+    byte messageId;
+    HOST_ADDRESS host;
+    ACTION_TYPE action;
+    byte id;
+    byte contentSize;
+    byte content[MAX_CONTENT_SIZE];
+    
+} __attribute__((__packed__));
+
+typedef struct ResponsePackage ResponsePackage;
+
+// Request data from host.
+struct RequestPackage {
+
+    HOST_ADDRESS host;
+    ACTION_TYPE action;
+    byte id;
+    byte args[MAX_CONTENT_SIZE];
+    
+} __attribute__((__packed__));
+
+#define MIN_REQUEST_SIZE (sizeof(RequestPackage) - MAX_CONTENT_SIZE)
+
+typedef struct RequestPackage RequestPackage;
+
+// -- Device types --
 
 // Available device types
 #define DEVICE_TYPE_UNDEFINED 0
@@ -92,26 +139,6 @@ typedef struct Devices {
 // If the size of the incomming data is invalid.
 #define ERROR_INVALID_REQUEST_PACKAGE_SIZE 20
 
-// -- Private methods --
-
-// Removes a device from list and free resources
-void deleteDevice(byte id);
-
-// Creates and stores a Device using the specified parameters.
-void createDevice(byte id, DEVICE_TYPE type, byte* input);
-
-// Tries to reserve the IO-Port. if reserved: return false and sets the error flag if port was already reserved.
-bool reservePort(byte IOPort);
-
-// Returns a pointer to a device with the specified id
-Device* getDevice(byte id);
-
-// Tries to set the value of a device. Returns true if successfull
-void setValue(Device* device, int value);
-
-// Returns the value(s) of a device
-int* getValue(Device* device);
-
 // -- Response Actions --
 
 // Just to communicate that something went wrong.
@@ -157,18 +184,10 @@ int* getValue(Device* device);
 // Ping message from master node to slave in order to find out if the slave is available
 #define ACTION_RH24_PING_SLAVE 0xF2
 
-// -- Request parameters
+// -- Request & response parameter definitions
 
-// Maximum buffer for input packages
-#define MAX_RECEIVE_SIZE 20
-
-// The maximum size (in bytes) for package content;
-#define MAX_CONTENT_SIZE 10
-
-// Package "checksum" headers. Shuld initially be sent in the beginning of every transaction. 
-#define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
-
-// -- Request port positions --
+// Number of 16-bit arguments to return in response
+#define RESPONSE_VALUE_COUNT 2
 
 // Used by the create request.
 #define REQUEST_ARG_CREATE_TYPE_POSITION 0x0 // Position of the type to create.
@@ -197,25 +216,10 @@ int* getValue(Device* device);
 // The response position containing host availability information
 #define RESPONSE_POSITION_HOST_AVAILABLE 0x0
 
-// Number of arguments to return in response
-#define RESPONSE_VALUE_COUNT 2
+// -- Public methods and macros--
 
 // The size of the response on ACTION_GET_DEVICE requests
 #define RESPONSE_VALUE_CONTENT_SIZE (sizeof(int) * RESPONSE_VALUE_COUNT)
-
-// Containing data which should be returned to host after a request.
-struct ResponsePackage {
-
-    byte messageId;
-    HOST_ADDRESS host;
-    ACTION_TYPE action;
-    byte id;
-    byte contentSize;
-    byte content[MAX_CONTENT_SIZE];
-    
-} __attribute__((__packed__));
-
-typedef struct ResponsePackage ResponsePackage;
 
 // Decides what to do with the incoming data.
 ResponsePackage interpret(byte* input);
@@ -223,19 +227,23 @@ ResponsePackage interpret(byte* input);
 // The base size of response packages (without additional output stored in "content").
 #define RESPONSE_PACKAGE_SIZE(responsePackage) (sizeof(ResponsePackage) - MAX_CONTENT_SIZE + responsePackage.contentSize)
 
-// Request data from host.
-struct RequestPackage {
+// Removes a device from list and free resources
+void deleteDevice(byte id);
 
-    HOST_ADDRESS host;
-    ACTION_TYPE action;
-    byte id;
-    byte args[MAX_CONTENT_SIZE];
-    
-} __attribute__((__packed__));
+// Creates and stores a Device using the specified parameters.
+void createDevice(byte id, DEVICE_TYPE type, byte* input);
 
-#define MIN_REQUEST_SIZE (sizeof(RequestPackage) - MAX_CONTENT_SIZE)
+// Tries to reserve the IO-Port. if reserved: return false and sets the error flag if port was already reserved.
+bool reservePort(byte IOPort);
 
-typedef struct RequestPackage RequestPackage;
+// Returns a pointer to a device with the specified id
+Device* getDevice(byte id);
+
+// Tries to set the value of a device. Returns true if successfull
+void setValue(Device* device, int value);
+
+// Returns the value(s) of a device
+int* getValue(Device* device);
 
 // Performs the actions requested by the RequestPackage.
 ResponsePackage execute(RequestPackage *request);

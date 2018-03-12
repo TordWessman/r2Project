@@ -3,6 +3,27 @@
 #include <EEPROM.h>
 #include "r2Common.h"
 
+// If true, the host is ready for operation. This flag is set after ACTION_INITIALIZE has been received.
+bool initialized = false;
+
+void reset(bool isInitialized) {
+          
+          R2_LOG(F("Initializing"));
+          
+          deviceCount = 0;
+          initialized = isInitialized;
+          clearError();
+          
+          for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
+          
+}
+
+bool isInitialized() {
+
+    return initialized;
+    
+}
+
 // -- Conversions --
 
 int toInt16(byte *bytes) { return bytes[0] + (bytes[1] << 8);  }

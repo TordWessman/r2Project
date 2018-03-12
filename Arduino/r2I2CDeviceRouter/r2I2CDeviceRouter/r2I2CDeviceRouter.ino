@@ -25,12 +25,6 @@
   #include "r2RH24.h"
 #endif
 
-// If true, the host is ready for operation. This flag is set after ACTION_INITIALIZE has been received.
-bool initialized = false;
-
-// Keeps track of the devices (and thus their id's).
-byte deviceCount = 0;
-
 // Counter for messages. For debuging purposes only.
 byte messageId = 0;
 
@@ -146,7 +140,7 @@ ResponsePackage execute(RequestPackage *request) {
   
   #endif
   
-     if (!initialized && !(request->action == ACTION_INITIALIZE || request->action == ACTION_RESET)) {
+     if (!isInitialized() && !(request->action == ACTION_INITIALIZE || request->action == ACTION_RESET)) {
      
        R2_LOG(F("I'm not initialized. Please do so..."));
        R2_LOG(request->host);
@@ -228,14 +222,8 @@ ResponsePackage execute(RequestPackage *request) {
         } break;
         
         case ACTION_INITIALIZE:
-          
-          R2_LOG(F("Initializing"));
-          
-          deviceCount = 0;
-          initialized = true;
-          clearError();
-          
-          for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
+        
+          reset(true);
   
           response.action = ACTION_INITIALIZATION_OK;
           
@@ -254,18 +242,13 @@ ResponsePackage execute(RequestPackage *request) {
         
        case ACTION_RESET:
         
-          deviceCount = 0;
-          initialized = false;
-          clearError();
+          reset(false);
           
           #ifdef USE_RH24
              // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)
              if (isSleeping()) { pauseSleep(); }
           #endif
           
-          
-          for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
-       
        break;
           
        default:
@@ -289,7 +272,7 @@ ResponsePackage execute(RequestPackage *request) {
 
 void setup() {
 
-  saveNodeId(7);
+  //saveNodeId(0);
   
 #ifdef R2_STATUS_LED
 pinMode(R2_STATUS_LED, OUTPUT);

@@ -33,6 +33,12 @@ byte getNodeId();
 // Store the node id permanently.
 void saveNodeId(HOST_ADDRESS id);
 
+// Resets (erasing all devices) and sets the initialized state to 'isInitialized'. If isInitialized is false, any master have to re-create all devices on this host. 
+void reset(bool isInitialized);
+
+// Return the initialization state of this node.
+bool isInitialized();
+
 // Converts a big endian 16-bit int contained in a byte array.
 int toInt16(byte *bytes);
 
