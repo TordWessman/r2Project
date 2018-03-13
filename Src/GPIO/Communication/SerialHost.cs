@@ -157,6 +157,15 @@ namespace GPIO
 
 		}
 
+		public byte[] GetChecksum(int nodeId) {
+
+			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.GetChecksum, NodeId = (byte) nodeId };
+			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+
+			return response.Value;
+
+		}
+
 		// For debugging...
 		public void WaitFor(int nodeId) {
 		
@@ -179,16 +188,6 @@ namespace GPIO
 
 			DeviceResponsePackage<T> response = m_packageFactory.ParseResponse<T> (responseData);
 
-			// TODO: make this ok..
-			for (int i = 0; i < 3; i++) {
-
-				// Never re-send create packages
-				if (response.Error != SerialErrorType.RH24_TIMEOUT || request.Action == SerialActionType.Create) { break; }
-				Log.d ($"SerialHost got timeout from node. Will retry action '{request.Action}'...");
-				response = m_packageFactory.ParseResponse<T> (m_connection.Send (requestData));
-
-			}
-
 			return response;
 
 		}
@@ -197,7 +196,7 @@ namespace GPIO
 		/// Sends the request to host, converts it to a DeviceResponsePackage, checks for errors and returns the package.
 		/// </summary>
 		/// <param name="request">Request.</param>
-		public DeviceResponsePackage<T> Send<T>(DeviceRequestPackage request) {
+		private DeviceResponsePackage<T> Send<T>(DeviceRequestPackage request) {
 
 			lock (m_lock) {
 
@@ -224,11 +223,15 @@ namespace GPIO
 
 					throw new SerialConnectionException ($"Response contained an error for action '{request.Action}': '{response.Error}'. Info: {response.ErrorInfo}. NodeId: {request.NodeId}.", response.Error);
 
+				} else if (response.NodeId != request.NodeId) {
+
+					throw new SerialConnectionException ($"Response node id missmatch: Requested '{request.NodeId}'. Got: '{response.NodeId}'. Request action: '{request.Action}'. Response action: '{response.Action}'.", SerialErrorType.ERROR_DATA_MISMATCH);
+
 				} else if (!(request.Action == SerialActionType.Initialization && response.Action == SerialActionType.InitializationOk) &&
 					response.Action != request.Action) {
 
 					// The .InitializationOk is a response to a successfull .Initialization. Other successfull requests should return the requested Action.
-					throw new System.IO.IOException ($"Response action missmatch: Expected '{request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.");
+					throw new SerialConnectionException ($"Response action missmatch: Expected '{request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.", SerialErrorType.ERROR_DATA_MISMATCH);
 
 				}
 

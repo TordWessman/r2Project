@@ -22,7 +22,7 @@ static byte deviceCount = 0;
 #define MAX_RECEIVE_SIZE 20
 
 // The maximum size (in bytes) for package content;
-#define MAX_CONTENT_SIZE 10
+#define MAX_CONTENT_SIZE (MAX_DEVICES * 2 + 1)
 
 // -- Type definitions --
 
@@ -45,9 +45,6 @@ typedef struct Devices {
   
   // What I/O ports is used for the device. (max DEVICE_MAX_PORTS)
   byte IOPorts[DEVICE_MAX_PORTS];
-  
-  // The host containing this device (DEVICE_HOST_LOCAL if not remote).
-  HOST_ADDRESS host;
   
   // Object specific data.
   void* object;
@@ -176,6 +173,8 @@ typedef struct RequestPackage RequestPackage;
 #define ACTION_PAUSE_SLEEP 0x0C
 // Will reset this node to a state where it's no longer is initialized
 #define ACTION_RESET 0x0D
+// Returns a checksum of configuration and devices.
+#define ACTION_CHECK_INTEGRITY 0x0E
 
 // -- Internal Actions --
 

@@ -182,6 +182,31 @@ namespace GPIO
 
 		}
 
+		public bool Validate() {
+
+			byte[] checksum = m_host.GetChecksum (m_nodeId);
+
+			if ((checksum [0] & 63) != m_devices.Count) {
+			
+				Log.e ($"Checksum failed for device count (was {(checksum [0] & 63)}).");
+				return false;
+			}
+
+			for (int i = 0; i < m_devices.Count; i++) {
+			
+				if (checksum [i + 1] != m_devices [i].Checksum) {
+
+					Log.e ($"Checksum failed for serial device '{m_devices[i].Identifier}'.");
+					return false;
+
+				}
+
+			}
+
+			return true;
+
+		}
+
 	}
 
 }

@@ -64,9 +64,7 @@ void pauseSleep(byte seconds);
 // As above, but with the default parameter 'PAUSE_SLEEP_DEFAULT_INTERVAL'.
 void pauseSleep();
 
-// Returns true if this node is sleeping.NODE_void pauseSleep(byte seconds);
-
-// Returns true if this node is sleeping.NODE_
+// Returns true if this node is sleeping.
 bool isSleeping();
 
 #endif

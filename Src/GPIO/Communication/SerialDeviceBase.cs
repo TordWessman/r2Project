@@ -1,5 +1,6 @@
 ﻿using System;
 using Core.Device;
+using System.Linq;
 
 namespace GPIO
 {
@@ -8,6 +9,9 @@ namespace GPIO
 	/// </summary>
 	internal abstract class SerialDeviceBase<T>: DeviceBase, ISerialDevice
 	{
+
+		// Defined by the host application. A port with this value is not in use.
+		private const byte DEVICE_PORT_NOT_IN_USE = 0xFF;
 
 		// The id of the device at the slave device
 		private byte m_deviceId;
@@ -75,6 +79,9 @@ namespace GPIO
 			InternalValue = info.Value;
 
 		}
+
+		// Calculation is defined by the node application
+		public byte Checksum { get { return (byte) (((int)DeviceType << 4) + m_deviceId + ((CreationParameters.Length == 0 ? DEVICE_PORT_NOT_IN_USE : CreationParameters[0]) ^ 0xFF)) ; } }
 
 	}
 

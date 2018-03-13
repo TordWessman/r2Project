@@ -181,10 +181,10 @@ ResponsePackage execute(RequestPackage *request) {
       
       case ACTION_GET_DEVICE: {
           
-            R2_LOG(F("Retrieved device with id:"));
-            R2_LOG(request->id);
+          R2_LOG(F("Retrieved device with id:"));
+          R2_LOG(request->id);
          
-           Device *device = getDevice(request->id);
+          Device *device = getDevice(request->id);
          
           if (device) {
         
@@ -203,6 +203,23 @@ ResponsePackage execute(RequestPackage *request) {
           
         } break;
         
+      case ACTION_CHECK_INTEGRITY: {
+        
+        response.contentSize = deviceCount + 1;
+        
+        response.content[0] = isSleeping() << 7 + isInitialized() << 6 + deviceCount; 
+        
+        for (int i = 0; i < deviceCount; i++) {
+        
+          Device *device = getDevice(request->id);
+          
+          // Verify a devicy using it's type, id and first port.
+          response.content[i + 1] = (device->type << 4) + (device->id) + (device->IOPorts[0] ^ 0xFF);
+          
+        }
+        
+      } break;
+      
       case ACTION_SET_DEVICE: {
         
           Device *device = getDevice(request->id);

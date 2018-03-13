@@ -48,6 +48,12 @@ namespace GPIO
 		/// <value><c>true</c> if this instance is sleeping; otherwise, <c>false</c>.</value>
 		bool IsSleeping { get; }
 
+		/// <summary>
+		/// Used for verifying the integrity of a device
+		/// </summary>
+		/// <value>The checksum.</value>
+		byte Checksum { get; }
+
 	}
 
 }

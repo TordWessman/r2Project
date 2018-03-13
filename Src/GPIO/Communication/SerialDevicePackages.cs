@@ -55,7 +55,8 @@ namespace GPIO
 		SendToSleep = 0x0A, // Sends the node to sleep
 		CheckSleepState = 0x0B, // Check if the node has been sent to sleep.
 		PauseSleep = 0x0C, // Pause the sleeping for up to 60 seconds.
-		Reset = 0x0D // Pause the sleeping for up to 60 seconds.
+		Reset = 0x0D, // Pause the sleeping for up to 60 seconds.
+		GetChecksum = 0x0E // Returns the checksum of a node.
 
 	}
 
@@ -100,7 +101,10 @@ namespace GPIO
 		// Messages are not in sync. Unrecieved messages found in the masters input buffer.
 		ERROR_RH24_MESSAGE_SYNCHRONIZATION = 19,
 		// If the size of the incomming data is invalid
-		ERROR_INVALID_REQUEST_PACKAGE_SIZE = 20
+		ERROR_INVALID_REQUEST_PACKAGE_SIZE = 20,
+
+		// Internally created error. If the response data mismatched the expected data.
+		ERROR_DATA_MISMATCH = 0xF0
 	}
 
 	public interface IDeviceResponsePackageErrorInformation {

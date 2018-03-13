@@ -90,6 +90,13 @@ namespace GPIO
 		void SetNodeId(int nodeId);
 
 		/// <summary>
+		/// Returns the checksum calculated by the node with id ´nodeId´.
+		/// </summary>
+		/// <returns>The checksum.</returns>
+		/// <param name="nodeId">Node identifier.</param>
+		byte[] GetChecksum(int nodeId);
+
+		/// <summary>
 		/// Delegate called whenever a host replied that it will be reset. The argument is the host name.
 		/// </summary>
 		Action<byte> HostDidReset { get; set; }
