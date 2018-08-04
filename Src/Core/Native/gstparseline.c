@@ -208,8 +208,9 @@ int playGstPipeLine(struct PLC *plc) {
 
 	gst_element_set_state(GST_ELEMENT(plc->pipeline), GST_STATE_PLAYING);
 	g_main_loop_run(plc->loop);
-	gst_object_unref(GST_OBJECT(plc->pipeline));
-	g_main_loop_unref (plc->loop);
+	gst_element_set_state(GST_ELEMENT(plc->pipeline), GST_STATE_NULL);
+	//gst_object_unref(GST_OBJECT(plc->pipeline));
+	//g_main_loop_unref (plc->loop);
 
 	plc->is_playing = false;
 	

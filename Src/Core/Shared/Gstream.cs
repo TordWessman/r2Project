@@ -67,31 +67,61 @@ namespace Core
 
 			m_pipeLine = pipeline;
 
-			m_ptr = _ext_create_gstream (pipeline);
+		}
+
+		~Gstream() {
+		
+			_ext_destroy_gstream (m_ptr);
+
+		}
+
+		private void CreatePipeline() {
+		
+			m_ptr = _ext_create_gstream (m_pipeLine);
 
 			if (m_ptr == System.IntPtr.Zero) {
 
-				throw new OutOfMemoryException ("Unable to create pipeline: " + pipeline);
+				throw new ApplicationException ("Unable to create pipeline: " + m_pipeLine);
 
 			}
 
 
 			if (_ext_init_gstream (m_ptr) != 1) {
 
-				Log.e ("Gstream '" + Identifier + "' Unable to parse pipeline: " + pipeline);
-			
+				Log.e ("Gstream '" + Identifier + "' Unable to parse pipeline: " + m_pipeLine);
+
 			}
-		
-		}
-
-		~Gstream() {
-
-			_ext_destroy_gstream (m_ptr);
 
 		}
+
+		public void SetPipeline(string pipeline) {
+
+			if (!Ready) { 
+			
+				Stop ();
+
+			}
+
+			if (m_ptr != System.IntPtr.Zero) {
+
+				_ext_destroy_gstream (m_ptr);
+
+			}
+
+			m_pipeLine = pipeline;
+			m_ptr = System.IntPtr.Zero;
+
+		}
+
 
 		public override void Start ()
 		{
+
+			if (m_ptr == System.IntPtr.Zero) {
+			
+				CreatePipeline ();
+
+			}
 
 			if (_ext_is_initialized_gstream (m_ptr) == 0) {
 			
