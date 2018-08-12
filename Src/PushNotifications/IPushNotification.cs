@@ -19,7 +19,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PushNotifications
+namespace R2Core.PushNotifications
 {
 
 	/// <summary>

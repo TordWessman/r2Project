@@ -17,7 +17,7 @@
 // 
 
 using System;
-namespace GPIO
+namespace R2Core.GPIO
 {
 	public enum GPIOTypes
 	{

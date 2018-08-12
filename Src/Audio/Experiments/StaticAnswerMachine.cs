@@ -23,9 +23,9 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-using Core.Device;
+using R2Core.Device;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class StaticAnswerMachine : DeviceBase, ISpeechInterpreter
 	{

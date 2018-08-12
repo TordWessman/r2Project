@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public interface IASRObserver
 	{

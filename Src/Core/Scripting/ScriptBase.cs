@@ -18,12 +18,12 @@
 //
 using System;
 using System.Dynamic;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 
 	/// <summary>

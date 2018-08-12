@@ -18,7 +18,7 @@
 //
 using System;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// The default implementaiton of the (intermediate) INetworkMessage implementation.

@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Net;
 using MemoryType = System.String;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 
 	/// <summary>

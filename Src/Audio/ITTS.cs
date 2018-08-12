@@ -17,9 +17,9 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace Audio
+namespace R2Core.Audio
 {
 	public interface ITTS : IDevice
 	{

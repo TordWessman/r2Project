@@ -17,11 +17,11 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using NLua;
 using System.Linq;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	public class LuaScript : ScriptBase, IScript
 	{

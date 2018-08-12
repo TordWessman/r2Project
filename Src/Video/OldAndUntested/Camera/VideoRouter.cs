@@ -18,12 +18,12 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Core.Device;
-using Core;
+using R2Core.Device;
+using R2Core;
 using System.Threading;
-using Video;
+using R2Core.Video;
 
-namespace Video
+namespace R2Core.Video
 {
 	/// <summary>
 	/// Represents a remote video source using the VideoServer native components (using a gstreamer pipe)

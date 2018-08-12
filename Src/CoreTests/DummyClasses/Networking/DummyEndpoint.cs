@@ -17,10 +17,10 @@
 //
 //
 using System;
-using Core.Network;
+using R2Core.Network;
 using NUnit.Framework;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	public class DummyEndpoint : IWebEndpoint
 	{

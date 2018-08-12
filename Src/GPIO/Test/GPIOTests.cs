@@ -18,14 +18,14 @@
 //
 using System;
 using NUnit.Framework;
-using Core.Tests;
+using R2Core.Tests;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 using System.Threading;
 
-namespace GPIO.Tests
+namespace R2Core.GPIO.Tests
 {
 	[TestFixture]
 	public class GPIOTests: TestBase

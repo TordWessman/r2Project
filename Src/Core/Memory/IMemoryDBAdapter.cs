@@ -17,9 +17,9 @@
 // 
 
 using System;
-using Core.Data;
+using R2Core.Data;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	public interface IMemoryDBAdapter : IDBAdapter
 	{

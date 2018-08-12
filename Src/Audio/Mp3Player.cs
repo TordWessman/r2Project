@@ -17,15 +17,15 @@
 // 
 
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.IO;
-using Core;
+using R2Core;
 using System.Linq;
 
-namespace Audio
+namespace R2Core.Audio
 {
 
 	public class Mp3Player : DeviceBase, IAudioPlayer

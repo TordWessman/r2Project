@@ -17,14 +17,14 @@
 // 
 
 ﻿using System;
-using Core.Device;
-using Video;
+using R2Core.Device;
+using R2Core.Video;
 using System.Threading;
 using System.Runtime.InteropServices;
-using Core;
+using R2Core;
 using System.Threading.Tasks;
 
-namespace Video
+namespace R2Core.Video
 {
 	public class GstWebCam: DeviceBase, IFrameSource
 	{

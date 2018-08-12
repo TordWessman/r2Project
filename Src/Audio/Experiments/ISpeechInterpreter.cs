@@ -17,9 +17,9 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public interface ISpeechInterpreter : ILanguageUpdated, IDevice
 	{

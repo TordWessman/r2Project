@@ -17,9 +17,9 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core
+namespace R2Core
 {
 	
 	public interface IRunLoop : IDevice

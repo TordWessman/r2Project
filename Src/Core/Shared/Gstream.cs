@@ -17,12 +17,12 @@
 // 
 
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace Core
+namespace R2Core
 {
 	/// <summary>
 	/// Represent a gstreamer pipeline object. Use this object to create a simple gstreamer pipline. 

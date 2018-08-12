@@ -19,7 +19,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Video
+namespace R2Core.Video
 {
 
 	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto), Serializable]

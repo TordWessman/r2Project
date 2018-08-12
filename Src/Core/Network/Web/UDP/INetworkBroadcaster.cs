@@ -17,11 +17,11 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Threading.Tasks;
 using MessageIdType = System.String;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Represents a broadcast client, capable of sending INetworkMessages

@@ -17,7 +17,7 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
@@ -28,7 +28,7 @@ using System.IO;
 using System.Runtime.Remoting.Messaging;
 using MessageIdType = System.String;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// "Raw" UDP broadcasting. Should be able to handle errors and distinguish it's own messages if the server is set up correctly...

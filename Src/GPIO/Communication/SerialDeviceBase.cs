@@ -1,8 +1,8 @@
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using System.Linq;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	/// <summary>
 	/// Base implementation for serial devices. Contains standard functionality including access to the ISerialHost and slaveId management.

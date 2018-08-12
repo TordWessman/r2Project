@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Core.Device
+namespace R2Core.Device
 {
 	/// <summary>
 	/// Implementations are required to be able to inform observers upon mutation.

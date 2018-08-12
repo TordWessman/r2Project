@@ -22,10 +22,10 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net;
 using System.IO;
-using Core.Device;
+using R2Core.Device;
 using System.Threading;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	
 	public class TCPClientConnection : DeviceBase, IClientConnection

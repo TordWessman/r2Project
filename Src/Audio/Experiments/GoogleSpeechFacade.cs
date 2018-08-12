@@ -20,11 +20,11 @@ using System;
 using System.Net;
 using System.IO;
 using Newtonsoft;
-using Core;
+using R2Core;
 using Newtonsoft.Json.Linq;
 
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class GoogleSpeechFacade
 	{

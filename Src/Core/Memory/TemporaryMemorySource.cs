@@ -1,10 +1,10 @@
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using MemoryType = System.String;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 
 	public class TemporaryMemoryReference: IMemoryReference {

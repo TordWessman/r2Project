@@ -17,19 +17,19 @@
 // 
 
 using System;
-using Core.Device;
-using Core.Network;
+using R2Core.Device;
+using R2Core.Network;
 using System.Net;
-using Core.Data;
-using Core.Memory;
+using R2Core.Data;
+using R2Core.Memory;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Core.Scripting;
+using R2Core.Scripting;
 using System.IO;
 using System.Linq;
 
 
-namespace Core
+namespace R2Core
 {
 
 	/// <summary>

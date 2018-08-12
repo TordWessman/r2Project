@@ -20,7 +20,7 @@ using System;
 using System.Dynamic;
 using System.Collections.Generic;
 
-namespace Core
+namespace R2Core
 {
 	public static class ExpandoObjectExtensions
 	{

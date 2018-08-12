@@ -21,9 +21,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Text.RegularExpressions;
-using Core;
+using R2Core;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	/// <summary>
 	/// Aiml to sphinx converter used to 

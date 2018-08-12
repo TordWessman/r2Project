@@ -18,10 +18,10 @@
 
 using System;
 using System.Collections.Generic;
-using Core.Device;
+using R2Core.Device;
 
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	public interface IScriptFactory<T>: IDevice where T: IScript
 	{

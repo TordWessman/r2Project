@@ -19,11 +19,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Core.Device;
+using R2Core.Device;
 using System.Threading;
-using Core;
+using R2Core;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	
 	internal class SerialDeviceManager

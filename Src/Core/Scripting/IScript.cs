@@ -17,11 +17,11 @@
 // 
 
 using System;
-using Core.Device;
-using Core;
+using R2Core.Device;
+using R2Core;
 
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	/// <summary>
 	/// Base interface for scripting 

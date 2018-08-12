@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public interface IModelCreator
 	{

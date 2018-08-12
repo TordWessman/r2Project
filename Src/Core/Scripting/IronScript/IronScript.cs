@@ -26,7 +26,7 @@ using System.Collections.Generic;
 using IronPython.Runtime;
 using System.Linq;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	/// <summary>
 	/// Default script implementation for IronRuby & IronPython

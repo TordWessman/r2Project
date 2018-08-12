@@ -17,12 +17,12 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using TrackerPtr = System.IntPtr;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 
-namespace Video
+namespace R2Core.Video
 {
 	public class PtTracker : DeviceBase
 	{

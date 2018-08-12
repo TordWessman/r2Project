@@ -19,11 +19,11 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using Core;
-using Core.Device;
+using R2Core;
+using R2Core.Device;
 using System.Threading.Tasks;
 
-namespace Audio.TTS
+namespace R2Core.Audio.TTS
 {
 	public class EspeakTTS : DeviceBase, ITTS
 	{

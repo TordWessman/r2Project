@@ -19,7 +19,7 @@
 using NUnit.Framework;
 using System;
 
-namespace CoreTests
+namespace R2CoreTests
 {
 	[TestFixture ()]
 	public class Test

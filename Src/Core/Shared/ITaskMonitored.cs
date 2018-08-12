@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 
-namespace Core
+namespace R2Core
 {
 	public interface ITaskMonitored
 	{

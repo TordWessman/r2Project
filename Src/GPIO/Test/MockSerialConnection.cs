@@ -19,9 +19,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Core.Data;
+using R2Core.Data;
 
-namespace GPIO.Tests
+namespace R2Core.GPIO.Tests
 {
 	public class MockSlaveDevice {
 	
@@ -66,7 +66,7 @@ namespace GPIO.Tests
 
 	}
 
-	public class MockSerialConnection: Core.Device.DeviceBase, ISerialConnection
+	public class MockSerialConnection: R2Core.Device.DeviceBase, ISerialConnection
 	{
 		ISerialPackageFactory m_factory;
 

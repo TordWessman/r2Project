@@ -17,11 +17,11 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.IO;
 using System.Collections.Generic;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	public abstract class ScriptFactoryBase<T>: DeviceBase, IScriptFactory<T> where T: IScript
 	{

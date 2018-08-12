@@ -21,10 +21,10 @@ using IronPython.Hosting;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
-using Core.Device;
+using R2Core.Device;
 using System.Linq;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	public class PythonScriptFactory: ScriptFactoryBase<IronScript>
 	{

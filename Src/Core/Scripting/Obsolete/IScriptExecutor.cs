@@ -17,9 +17,9 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	/// <summary>
 	/// Object representation of a IScript. Contains methods for communicating with the script.

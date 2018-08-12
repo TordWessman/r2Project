@@ -17,10 +17,10 @@
 // 
 
 using System;
-using Core.Device;
-using Core.Scripting;
+using R2Core.Device;
+using R2Core.Scripting;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	/// <summary>
 	/// Allows creation of script executors. This can be handly if remote access to scripts on other machines is needed.

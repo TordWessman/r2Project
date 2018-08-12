@@ -17,10 +17,10 @@
 // 
 
 using System;
-using Core;
-using Core.Device;
+using R2Core;
+using R2Core.Device;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public interface IASR : ITaskMonitored, IDevice, ILanguageUpdated
 	{

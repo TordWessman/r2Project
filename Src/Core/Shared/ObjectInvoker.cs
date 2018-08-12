@@ -20,9 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using Core.Data;
+using R2Core.Data;
 
-namespace Core
+namespace R2Core
 {
 	/// <summary>
 	/// Capable of invoking methods, properties and members of objects.

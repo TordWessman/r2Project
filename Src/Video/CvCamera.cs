@@ -17,10 +17,10 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.InteropServices;
 
-namespace Video
+namespace R2Core.Video
 {
 	public class CvCamera : DeviceBase, IFrameSource
 	{

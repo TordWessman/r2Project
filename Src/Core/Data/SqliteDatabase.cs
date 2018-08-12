@@ -22,9 +22,9 @@ using Mono.Data;
 using System.IO;
 using System.Collections.Generic;
 using System.Data;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Data
+namespace R2Core.Data
 {
 	public class SqliteDatabase : DeviceBase, IDatabase
 	{

@@ -17,9 +17,9 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	/// <summary>
 	/// Represents a device available through the serial bus (i.e. I2C or Serial)

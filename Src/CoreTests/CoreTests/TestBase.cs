@@ -17,14 +17,14 @@
 //
 //
 using System;
-using Core.Device;
-using Core.Network;
+using R2Core.Device;
+using R2Core.Network;
 using NUnit.Framework;
-using Core.Memory;
-using Core.Data;
+using R2Core.Memory;
+using R2Core.Data;
 using System.Diagnostics;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 
 	public abstract class TestBase

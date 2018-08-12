@@ -17,9 +17,9 @@ if (config.Length == 2) {
 
 XmlDocument doc = GetConfigXml(config[CFILE]); #>
 using System;
-using Core;
+using R2Core;
 
-namespace Video {
+namespace R2Core.Video {
 
 <#= GetPathsForDoc(configFileName, doc, baseDir, true) #>
 

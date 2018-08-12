@@ -19,12 +19,12 @@
 using System;
 using NUnit.Framework;
 using System.Threading;
-using Core.Network;
-using Core.Data;
+using R2Core.Network;
+using R2Core.Data;
 using System.Threading.Tasks;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	[TestFixture]
 	public class UDPTests: NetworkTests

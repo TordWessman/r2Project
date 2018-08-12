@@ -22,11 +22,11 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 using System.Threading;
 
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class SphinxModelCreator : IModelCreator
 	{
@@ -141,7 +141,7 @@ namespace Audio.ASR
 				
 				return responseData;
 			} catch (Exception ex) {
-				Core.Log.x (ex);
+				R2Core.Log.x (ex);
 			} 
 			
 			return null;

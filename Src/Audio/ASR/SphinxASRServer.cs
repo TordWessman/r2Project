@@ -19,13 +19,13 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Net;
-using Core;
+using R2Core;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Core.Device;
-using Core.Network;
+using R2Core.Device;
+using R2Core.Network;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class SphinxASRServer : DeviceBase, IASR
 	{

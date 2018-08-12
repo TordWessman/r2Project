@@ -19,12 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using Core.Device;
-using Core.Data;
+using R2Core.Device;
+using R2Core.Data;
 using System.Linq;
 using System.IO;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	internal static class StreamExtensions {
 	

@@ -17,11 +17,11 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Core
+namespace R2Core
 {
 	public class FileLogger: DeviceBase, IMessageLogger
 	{

@@ -19,14 +19,14 @@
 using System;
 using WebSocketSharp;
 using WebSocketSharp.Net;
-using Core;
-using Core.Device;
+using R2Core;
+using R2Core.Device;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using Core.Data;
+using R2Core.Data;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	internal class WebSocketHandler: WebSocketSharp.Server.WebSocketBehavior, IWebSocketSenderDelegate {
 	
@@ -86,7 +86,7 @@ namespace Core.Network
 
 				} catch (Exception ex) {
 
-					Core.Log.x (ex);
+					R2Core.Log.x (ex);
 
 				}
 
@@ -96,14 +96,14 @@ namespace Core.Network
 
 		protected override void OnClose (CloseEventArgs e)
 		{
-			Core.Log.d ("Web socket: OnClose");
+			R2Core.Log.d ("Web socket: OnClose");
 
 			//Sessions.Broadcast (String.Format ("{0} got logged off...", _name));
 		}
 
 		protected override void OnOpen ()
 		{
-			Core.Log.d ("Web socket: OnOpen");
+			R2Core.Log.d ("Web socket: OnOpen");
 		}
 
 		public void OnSend (byte[] data) {

@@ -19,7 +19,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Linq;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	public class ArduinoSerialPackageFactory: ISerialPackageFactory
 	{

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Core.Data
+namespace R2Core.Data
 {
 	public interface ILinearDataSet<T>
 	{

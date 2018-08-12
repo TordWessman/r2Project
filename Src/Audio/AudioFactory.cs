@@ -17,12 +17,12 @@
 // 
 
 ﻿using System;
-using Audio.TTS;
-using Core.Device;
-using Audio.ASR;
-using Core.Scripting;
+using R2Core.Audio.TTS;
+using R2Core.Device;
+using R2Core.Audio.ASR;
+using R2Core.Scripting;
 
-namespace Audio
+namespace R2Core.Audio
 {
 	public class AudioFactory : DeviceBase, IDevice
 	{

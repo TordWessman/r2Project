@@ -1,0 +1,19 @@
+﻿<Properties StartupConfiguration="{20F7565B-91DE-40F9-80BE-C83D1B93C537}|Unit Tests">
+  <MonoDevelop.Ide.Workbench>
+    <Files>
+      <File FileName="Settings/CoreConfigurationTemplate.cs" Line="1" Column="1" />
+      <File FileName="Settings/CoreConfigurationTemplate.tt" Line="22" Column="1" />
+      <File FileName="Network/Web/DeviceRouter.cs" Line="1" Column="1" />
+      <File FileName="Network/Web/Scripting/RubyWebIntermediate.cs" Line="1" Column="1" />
+      <File FileName="Network/Web/Scripting/ScriptObjectReceiver.cs" Line="1" Column="1" />
+      <File FileName="Shared/Gstream.cs" Line="24" Column="23" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.ItemProperties.Core PreferredExecutionTarget="MonoDevelop.Default" />
+  <MultiItemStartupConfigurations />
+</Properties>

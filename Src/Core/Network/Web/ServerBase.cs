@@ -17,14 +17,14 @@
 //
 //
 using System;
-using Core.Network;
+using R2Core.Network;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Core.Device;
+using R2Core.Device;
 using System.Net;
 using System.Linq;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Contains some general functionality used by all IServers

@@ -16,9 +16,9 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	internal class SerialServo: SerialDeviceBase<byte[]>, IServo
 	{

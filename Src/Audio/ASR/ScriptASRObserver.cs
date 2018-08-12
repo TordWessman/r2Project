@@ -17,12 +17,12 @@
 //
 //
 using System;
-using Core.Device;
-using Audio.ASR;
-using Core.Scripting;
-using Audio.TTS;
+using R2Core.Device;
+using R2Core.Audio.ASR;
+using R2Core.Scripting;
+using R2Core.Audio.TTS;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class ScriptASRObserver: DeviceBase, IASRObserver, ITTSObserver
 	{

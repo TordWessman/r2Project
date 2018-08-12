@@ -16,12 +16,12 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 using System;
-using Core.Device;
-using Core;
+using R2Core.Device;
+using R2Core;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 
 	public class SerialGPIOFactory: DeviceBase

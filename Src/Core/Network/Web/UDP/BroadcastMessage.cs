@@ -21,7 +21,7 @@ using System.Net;
 using System.Collections.Generic;
 using MessageIdType = System.String;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Broadcast message containing Identifier in order for receiver to identify messages. 

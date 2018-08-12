@@ -17,10 +17,10 @@
 // 
 
 using System;
-using Video;
-using Core.Device;
+using R2Core.Video;
+using R2Core.Device;
 
-namespace Video
+namespace R2Core.Video
 {
 	public interface IFrameSource : IDevice
 	{

@@ -19,12 +19,12 @@
 using System;
 using NUnit;
 using NUnit.Framework;
-using Core.Device;
-using Core.Network;
-using Core.Scripting;
+using R2Core.Device;
+using R2Core.Network;
+using R2Core.Scripting;
 using System.Collections.Generic;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	
 	[TestFixture]

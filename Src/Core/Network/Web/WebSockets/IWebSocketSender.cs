@@ -18,9 +18,9 @@
 //
 using System;
 using System.Dynamic;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Capable of listening to IWebSocketSender messages.

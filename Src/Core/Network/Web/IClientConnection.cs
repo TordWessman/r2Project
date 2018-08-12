@@ -18,10 +18,10 @@
 //
 using System;
 using System.Net;
-using Core.Device;
+using R2Core.Device;
 using Newtonsoft.Json;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Called whenever the connection receives an INetworkMessage.

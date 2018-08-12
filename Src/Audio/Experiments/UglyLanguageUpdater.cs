@@ -21,13 +21,13 @@ using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 using System.Text.RegularExpressions;
 using System.Xml.XPath;
 using System.Xml;
-using Core.Device;
+using R2Core.Device;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class UglyLanguageUpdater : DeviceBase, ILanguageUpdater
 	{

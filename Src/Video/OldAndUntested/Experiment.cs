@@ -17,14 +17,14 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.InteropServices;
-using Core.Memory;
+using R2Core.Memory;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 using System.Linq;
 
-namespace Video
+namespace R2Core.Video
 {
 	public class Experiment : DeviceBase, IDevice
 	{

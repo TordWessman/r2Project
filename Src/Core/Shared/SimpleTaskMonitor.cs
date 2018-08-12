@@ -20,10 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Threading;
-using Core.Device;
+using R2Core.Device;
 
 
-namespace Core
+namespace R2Core
 {
 	public class SimpleTaskMonitor: DeviceBase, ITaskMonitor	
 	{

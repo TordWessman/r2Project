@@ -17,9 +17,9 @@
 // 
 
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Basic interface for a web server

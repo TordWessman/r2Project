@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using MemoryType = System.String;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	/// <summary>
 	/// The IMemory is a "less abstract embodiment"  of

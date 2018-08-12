@@ -22,10 +22,10 @@ using System.Data;
 /// <summary>
 /// Irrational implementation.
 /// </summary>
-using Core.Device;
+using R2Core.Device;
 
 
-namespace Core.Data
+namespace R2Core.Data
 {
 	public interface IDatabase : IDevice
 	{

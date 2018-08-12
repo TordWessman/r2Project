@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Core
+namespace R2Core
 {
 	public enum LogType {
 		Message,

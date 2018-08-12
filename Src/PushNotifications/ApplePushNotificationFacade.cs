@@ -17,17 +17,17 @@
 // 
 
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using PushSharp;
 using PushSharp.Apple;
 using System.IO;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 
 
-namespace PushNotifications
+namespace R2Core.PushNotifications
 {
 	public class ApplePushNotificationFacade: DeviceBase, IPushNotificationFacade
 	{

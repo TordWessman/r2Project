@@ -17,12 +17,12 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.InteropServices;
-using Core;
+using R2Core;
 
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	
 	public class PCA9685ServoController : DeviceBase, IServoController

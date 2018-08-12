@@ -19,13 +19,13 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Core.Device;
+using R2Core.Device;
 using System.Threading.Tasks;
 using Microsoft.Scripting.Hosting;
 using IronRuby;
 using System.Linq;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	/// <summary>
 	/// Implementation of a script factory. Used to create ruby scripts.

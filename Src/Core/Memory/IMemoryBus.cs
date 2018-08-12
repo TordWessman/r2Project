@@ -17,12 +17,12 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Net;
 using System.Collections.Generic;
 using MemoryType = System.String;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	/// <summary>
 	/// The IMemoryBus deals with low-level memories (IMemoryReferences).

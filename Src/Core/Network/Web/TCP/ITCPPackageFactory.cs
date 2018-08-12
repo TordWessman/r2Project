@@ -18,7 +18,7 @@
 //
 using System;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Implementations handles the serialization & deserialization of TCPMessages.

@@ -17,11 +17,11 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	/// <summary>
 	/// Implementation of an IScriptExecutor. Remotely accissble (which allows communication with scripts created on other instances).

@@ -17,7 +17,7 @@
 //
 //
 using System;
-using Core.Network;
+using R2Core.Network;
 using System.Net.Sockets;
 using System.Net;
 using System.IO;
@@ -26,7 +26,7 @@ using System.IO;
 using System.Collections.Generic;
 
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	public class UDPServer: ServerBase
 	{

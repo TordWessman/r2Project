@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	
 	/// <summary>

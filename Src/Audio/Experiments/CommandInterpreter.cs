@@ -20,9 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Xml.XPath;
 using System.Linq;
-using Core.Scripting;
+using R2Core.Scripting;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class CommandInterpreter<T> : ILanguageUpdated where T: IScript
 	{

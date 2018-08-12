@@ -19,10 +19,10 @@ using System;
 using System.IO.Ports;
 using System.Text.RegularExpressions;
 using System.Linq;
-using Core.Device;
-using Core;
+using R2Core.Device;
+using R2Core;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	/// <summary>
 	/// Used to interact with a device running a device router (see r2I2CDeviceRouter.ino). Currently only supports packages smaller than 256 bytes.

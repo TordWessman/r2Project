@@ -18,10 +18,10 @@
 
 using System;
 using System.Threading.Tasks;
-using Core.Device;
+using R2Core.Device;
 
 
-namespace Core
+namespace R2Core
 {
 	/// <summary>
 	/// The task monitor is a primitive tool used to monitor tasks and to 

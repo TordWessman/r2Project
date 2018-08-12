@@ -20,12 +20,12 @@ using System;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	[TestFixture]
-	public class CoreTests: TestBase
+	public class R2CoreTests: TestBase
 	{
-		public CoreTests ()
+		public R2CoreTests ()
 		{
 		}
 

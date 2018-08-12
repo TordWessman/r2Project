@@ -17,11 +17,11 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using Raspberry.IO.GeneralPurpose;
 using System.Collections.Generic;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	/// <summary>
 	/// This factory should replace PiGPIOFactory, since it's using the newer libraries.

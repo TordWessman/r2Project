@@ -17,12 +17,12 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 using System.IO;
 
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	/// <summary>
 	/// Remotly accessible implementation of a IScriptExecutorFactory. Use the Create on a remote ScriptExecutorFactory in order to create a (remotly accessible) script on a remote machine.

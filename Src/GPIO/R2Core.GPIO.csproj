@@ -129,13 +129,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj">
+    <ProjectReference Include="..\Core\R2Core.csproj">
       <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
-      <Name>Core</Name>
+      <Name>R2Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CoreTests\CoreTests.csproj">
+    <ProjectReference Include="..\CoreTests\R2Core.Tests.csproj">
       <Project>{B6397024-E95C-43D8-8CDF-0EB826804949}</Project>
-      <Name>CoreTests</Name>
+      <Name>R2Core.Tests</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

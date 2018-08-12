@@ -19,12 +19,12 @@
 using System.Collections.Generic;
 using System;
 using System.Threading;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Core
+namespace R2Core
 {
 	public class Log: DeviceBase, IMessageLogger
 	{

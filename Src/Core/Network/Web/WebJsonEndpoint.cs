@@ -27,9 +27,9 @@ using System.Dynamic;
 using Newtonsoft.Json.Converters;
 using System.Web;
 using System.Linq;
-using Core.Data;
+using R2Core.Data;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 
 	/// <summary>

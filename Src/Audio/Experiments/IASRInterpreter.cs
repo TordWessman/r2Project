@@ -17,11 +17,11 @@
 // 
 
 using System;
-using Core.Device;
-using Core.Scripting;
+using R2Core.Device;
+using R2Core.Scripting;
 
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public interface IASRInterpreter :  IASRObserver, ILanguageUpdated, IDevice
 	{

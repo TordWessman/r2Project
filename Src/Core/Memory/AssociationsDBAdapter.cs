@@ -17,10 +17,10 @@
 // 
 
 using System;
-using Core.Data;
+using R2Core.Data;
 using System.Data;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	public class AssociationsDBAdapter : IAssociationsDBAdapter
 	{

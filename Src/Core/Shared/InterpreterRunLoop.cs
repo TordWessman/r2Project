@@ -17,12 +17,12 @@
 //
 //
 using System;
-using Core.Device;
-using Core.Scripting;
+using R2Core.Device;
+using R2Core.Scripting;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Core
+namespace R2Core
 {
 	
 	public class InterpreterRunLoop : DeviceBase, IRunLoop, IDeviceObserver

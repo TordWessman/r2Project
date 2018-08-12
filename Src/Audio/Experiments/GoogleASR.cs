@@ -17,14 +17,14 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
-using Core;
+using R2Core;
 using System.IO;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class GoogleASR : DeviceBase, IASR
 	{

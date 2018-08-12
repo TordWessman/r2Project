@@ -1,9 +1,9 @@
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	public class DHT11: DeviceBase, IDHT11
 	{

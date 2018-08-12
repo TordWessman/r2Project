@@ -18,18 +18,18 @@
 
 ﻿using System;
 using System.IO;
-using Core.Device;
+using R2Core.Device;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Core.Memory;
+using R2Core.Memory;
 
-namespace PushNotifications
+namespace R2Core.PushNotifications
 {
 	/// <summary>
 	/// Factory methods for creating push notification messages as well as facades
 	/// </summary>
-	public class PushNotificationFactory : Core.Device.DeviceBase
+	public class PushNotificationFactory : R2Core.Device.DeviceBase
 	{
 		private string m_certPath;
 

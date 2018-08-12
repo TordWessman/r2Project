@@ -18,12 +18,12 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Core.Device;
-using Core;
+using R2Core.Device;
+using R2Core;
 using System.Threading;
 using IplImage = System.IntPtr;
 
-namespace Video
+namespace R2Core.Video
 {
 
 	public class Vision

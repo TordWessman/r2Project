@@ -17,13 +17,13 @@
 // 
 
 using System;
-using Core.Data;
+using R2Core.Data;
 using System.Collections.Generic;
 using System.Data;
 using MemoryType = System.String;
 using System.Linq;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	public class MemoryDBAdapter : IMemoryDBAdapter
 	{

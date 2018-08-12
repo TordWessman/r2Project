@@ -17,10 +17,10 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using NUnit.Framework;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	public class DummyDevice: DeviceBase
 	{

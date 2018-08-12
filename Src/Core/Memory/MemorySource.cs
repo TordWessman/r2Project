@@ -17,16 +17,16 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.IO;
-using Core.Network;
+using R2Core.Network;
 using System.Net;
 using System.Collections.Generic;
-using Core.Data;
+using R2Core.Data;
 using MemoryType = System.String;
 using System.Linq;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	public class MemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver
 	{

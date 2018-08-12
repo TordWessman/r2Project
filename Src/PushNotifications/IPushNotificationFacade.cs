@@ -17,9 +17,9 @@
 // 
 
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace PushNotifications
+namespace R2Core.PushNotifications
 {
 	/// <summary>
 	/// Represent a host environment specific push notification sender. Implementations should be specific for each host type (Apple, Google etc)

@@ -19,7 +19,7 @@
 ﻿using System;
 using System.Dynamic;
 
-namespace Core.Network {
+namespace R2Core.Network {
 
 	/// <summary>
 	/// Response for object requests.

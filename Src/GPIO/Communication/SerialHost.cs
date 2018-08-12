@@ -1,10 +1,10 @@
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 using System.IO;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 
 	public class SerialConnectionException : IOException {

@@ -18,15 +18,15 @@
 //
 using System;
 using NUnit.Framework;
-using Core.Network;
-using Core.Data;
+using R2Core.Network;
+using R2Core.Data;
 using System.Collections.Generic;
-using Core.Device;
+using R2Core.Device;
 using System.Threading;
 using System.Net;
-using Core.Scripting;
+using R2Core.Scripting;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	class DummyReceiver: IWebObjectReceiver {
 

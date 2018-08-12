@@ -1,9 +1,9 @@
 ﻿using System;
-using Core.Tests;
-using Core;
+using R2Core.Tests;
+using R2Core;
 using NUnit.Framework;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 
 	[TestFixture]

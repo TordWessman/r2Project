@@ -17,12 +17,12 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Threading;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	/// <summary>
 	/// Default ISerialNode implementation. Capable of synchronizing devices on associated node.

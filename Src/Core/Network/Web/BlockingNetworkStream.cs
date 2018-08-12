@@ -20,7 +20,7 @@ using System;
 using System.Net.Sockets;
 using System.IO;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 
 	/// <summary>

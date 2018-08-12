@@ -17,11 +17,11 @@
 // 
 
 using System;
-using Core.Network;
+using R2Core.Network;
 using System.Net;
 
 
-namespace Core.Device
+namespace R2Core.Device
 {
 	/// <summary>
 	/// A devcie manager is respnsible for keepin track of all available IDevices

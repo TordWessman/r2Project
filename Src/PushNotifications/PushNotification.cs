@@ -18,7 +18,7 @@
 
 ﻿using System;
 
-namespace PushNotifications
+namespace R2Core.PushNotifications
 {
 	/// <summary>
 	/// Generic Push notification message

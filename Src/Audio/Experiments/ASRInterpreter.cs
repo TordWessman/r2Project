@@ -17,13 +17,13 @@
 // 
 
 using System;
-using Core.Device;
-using Core;
+using R2Core.Device;
+using R2Core;
 using AIMLbot;
-using Core.Scripting;
+using R2Core.Scripting;
 using System.Threading.Tasks;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class ASRInterpreter<T> : DeviceBase, IASRInterpreter where T: IScript
 	{

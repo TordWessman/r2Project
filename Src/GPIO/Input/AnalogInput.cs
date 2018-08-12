@@ -17,12 +17,12 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using RaspberryPiDotNet;
-using Core;
-using Core.Data;
+using R2Core;
+using R2Core.Data;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	public class AnalogInput: DeviceBase, IInputMeter<double>
 	{

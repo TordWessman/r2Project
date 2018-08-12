@@ -21,7 +21,7 @@ using System.Dynamic;
 using System.Collections.Specialized;
 using System.Collections.Generic;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Implementations might i.e. be capable of transcribing data between the server and the sub system parser.

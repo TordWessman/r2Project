@@ -17,11 +17,11 @@
 // 
 
 using System;
-using Core.Device;
-using Core.Memory;
+using R2Core.Device;
+using R2Core.Memory;
 using System.Drawing;
 
-namespace Video
+namespace R2Core.Video
 {
 	public interface IImageStorage : IDevice
 	{

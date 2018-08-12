@@ -21,9 +21,9 @@ using System.Collections.Generic;
 using System.Linq;
 
 using MemoryType = System.String;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	public class Memory : IMemory
 	{

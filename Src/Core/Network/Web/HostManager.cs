@@ -17,14 +17,14 @@
 //
 //
 using System;
-using Core.Device;
-using Core.Network;
+using R2Core.Device;
+using R2Core.Network;
 using System.Threading.Tasks;
 using System.Net;
-using Core.Data;
+using R2Core.Data;
 using MessageIdType = System.String;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Binds the network to the DeviceManager

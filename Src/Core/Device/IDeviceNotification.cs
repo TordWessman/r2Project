@@ -18,7 +18,7 @@
 //
 using System;
 
-namespace Core.Device
+namespace R2Core.Device
 {
 	/// <summary>
 	/// A notification about a change in a device

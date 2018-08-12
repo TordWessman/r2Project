@@ -17,13 +17,13 @@
 // 
 
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
-using Core.Data;
+using R2Core.Data;
 using MemoryType = System.String;
 using System.Linq;
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	/// <summary>
 	/// Shared memory source is a possibly inter connected memory source (can be chained and combined with other sources). Deletions, updates etc will affect linked sources.

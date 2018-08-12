@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Data
+namespace R2Core.Data
 {
 	/// <summary>
 	/// Use this factory to create data containers

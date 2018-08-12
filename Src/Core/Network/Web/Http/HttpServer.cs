@@ -21,15 +21,15 @@ using System.Net;
 using System.Threading.Tasks;
 using System.IO;
 using System.Text;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Specialized;
 using System.Web;
-using Core.Data;
+using R2Core.Data;
 using System.Text.RegularExpressions;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 
 	/// <summary>

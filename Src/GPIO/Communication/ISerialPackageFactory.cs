@@ -17,7 +17,7 @@
 // 
 using System;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	/// <summary>
 	/// Creates device packages used for serial communication. Implementations are tightly coupled to the target platform.

@@ -17,9 +17,9 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	public interface IServo : IDevice
 	{

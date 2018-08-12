@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	public interface IScriptObserver
 	{

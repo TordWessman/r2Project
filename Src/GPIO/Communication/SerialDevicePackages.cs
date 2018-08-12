@@ -18,9 +18,9 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Linq;
-using Core.Data;
+using R2Core.Data;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	/// <summary>
 	/// Device types defined in r2I2CDeviceRouter.h

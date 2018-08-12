@@ -18,7 +18,7 @@
 //
 using System;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Represents the core features requirements of a network message sent/received by IWebServer or IMessageClient implementations
@@ -54,11 +54,11 @@ namespace Core.Network
 
 }
 
-namespace Core.Network.Extensions {
+namespace R2Core.Network.Extensions {
 
 	public static class INetworkMessage {
 
-		public static bool IsPrimitive(this Core.Network.INetworkMessage self) {
+		public static bool IsPrimitive(this R2Core.Network.INetworkMessage self) {
 
 			return self.Payload is sbyte
 				|| self.Payload is byte

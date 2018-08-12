@@ -18,10 +18,10 @@
 
 using System;
 using IplImage = System.IntPtr;
-using Core.Memory;
+using R2Core.Memory;
 using System.Collections.Generic;
 
-namespace Video
+namespace R2Core.Video
 {
 	public interface IImagePointerManager
 	{

@@ -18,10 +18,10 @@
 //
 using System;
 using System.Dynamic;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Abstracts details of a network connection

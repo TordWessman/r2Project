@@ -16,9 +16,9 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using Core.Device;
+﻿using R2Core.Device;
 
-namespace PushNotifications {
+namespace R2Core.PushNotifications {
 
 	/// <summary>
 	/// A generic interface providing functionality for sending push notifications through its IPushNotificationFacades

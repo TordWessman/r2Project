@@ -17,15 +17,15 @@
 //
 //
 using System;
-using Core.Device;
-using Core.Data;
+using R2Core.Device;
+using R2Core.Data;
 using System.Net;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	public class HttpClient: DeviceBase, IMessageClient
 	{

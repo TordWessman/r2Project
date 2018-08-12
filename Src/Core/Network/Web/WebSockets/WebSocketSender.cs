@@ -17,12 +17,12 @@
 //
 //
 using System;
-using Core.Device;
-using Core.Scripting;
+using R2Core.Device;
+using R2Core.Scripting;
 using Newtonsoft.Json;
-using Core.Data;
+using R2Core.Data;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	public class WebSocketSender: DeviceBase, IWebSocketSender
 	{

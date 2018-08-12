@@ -17,17 +17,17 @@
 // 
 
 using System;
-using Core.Memory;
-using Core;
+using R2Core.Memory;
+using R2Core;
 using MemoryType = System.String;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using Core.Device;
+using R2Core.Device;
 using System.IO;
 using System.Drawing;
 using System.Threading;
 
-namespace Video
+namespace R2Core.Video
 {
 	public class ImageStorage : DeviceBase, IImagePointerManager, IImageStorage
 	{

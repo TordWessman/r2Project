@@ -17,11 +17,11 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 using NLua;
 
-namespace Core.Scripting
+namespace R2Core.Scripting
 {
 	public class LuaScriptFactory: ScriptFactoryBase<LuaScript>
 	{

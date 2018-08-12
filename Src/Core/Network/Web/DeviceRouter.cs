@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Specialized;
 using System.Collections.Generic;
-using Core.Device;
+using R2Core.Device;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Security;
@@ -27,7 +27,7 @@ using System.Dynamic;
 using System.Reflection;
 using System.Net;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// A DeviceRouter is a specialized helper IWebObjectReceiver usable for dealing with devices using the a WebJsonEndpoint. It's onReceive method requires a JsonObjectRequest formatted message, evaluates it's device id, values and actions, perform the requested action on the requested device and returns the device object affected. It keeps track of devices requested and will communicate changes.

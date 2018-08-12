@@ -18,7 +18,7 @@
 
 ﻿using System;
 
-namespace Core
+namespace R2Core
 {
 	public static class StringExtensions
 	{

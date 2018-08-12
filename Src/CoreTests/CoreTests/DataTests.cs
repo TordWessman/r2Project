@@ -1,13 +1,13 @@
 ﻿using System;
 using NUnit.Framework;
-using Core.Data;
-using Core.Device;
+using R2Core.Data;
+using R2Core.Device;
 using System.Linq;
 using System.Dynamic;
-using Core.Network;
+using R2Core.Network;
 using System.Collections.Generic;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	[TestFixture]
 	public class DataTests: TestBase

@@ -18,11 +18,11 @@
 
 using System;
 using System.Collections.Generic;
-using Core.Device;
+using R2Core.Device;
 using System.Threading.Tasks;
 
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public interface ILanguageUpdater : IDevice
 	{

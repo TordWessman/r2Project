@@ -18,9 +18,9 @@
 //
 using System;
 using System.Dynamic;
-using Core.Network;
+using R2Core.Network;
 
-namespace Core.Device
+namespace R2Core.Device
 {
 	/// <summary>
 	/// A RemoteDevice represents a device not present in this instance. It's heavily coupled with the message strategies of the `DeviceRouter`

@@ -21,9 +21,9 @@ using System.Dynamic;
 using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Runtime.Remoting;
-using Core.Data;
+using R2Core.Data;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 
 	/// <summary>

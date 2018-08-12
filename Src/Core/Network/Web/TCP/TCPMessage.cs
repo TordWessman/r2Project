@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 
 	public struct TCPMessage: INetworkMessage

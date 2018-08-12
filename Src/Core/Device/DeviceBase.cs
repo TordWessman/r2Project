@@ -25,7 +25,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Dynamic;
 
-namespace Core.Device
+namespace R2Core.Device
 {
 	/// <summary>
 	/// Base class usable by IDevice implementations. Providing some standard properties and functionality

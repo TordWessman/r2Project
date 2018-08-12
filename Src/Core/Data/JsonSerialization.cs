@@ -20,9 +20,9 @@ using System;
 using Newtonsoft.Json;
 using System.Dynamic;
 using Newtonsoft.Json.Converters;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Data
+namespace R2Core.Data
 {
 	/// <summary>
 	/// Allows serialization of (generic) non-primitive data types.

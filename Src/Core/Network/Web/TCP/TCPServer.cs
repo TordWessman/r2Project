@@ -17,18 +17,18 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Net.Sockets;
 using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using Core.Data;
-using Core.Network;
+using R2Core.Data;
+using R2Core.Network;
 using System.IO;
 using MessageIdType = System.String;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	public class TCPServer : ServerBase, IServer, INetworkBroadcaster
 	{

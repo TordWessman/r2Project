@@ -18,7 +18,7 @@
 
 ﻿using System;
 
-namespace PushNotifications
+namespace R2Core.PushNotifications
 {
 	public enum PushNotificationClientType : int
 	{

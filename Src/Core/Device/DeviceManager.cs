@@ -18,13 +18,13 @@
 
 using System;
 using System.Collections.Generic;
-using Core.Network;
+using R2Core.Network;
 using System.Net;
 using System.Linq;
 
 using System.Threading.Tasks;
 
-namespace Core.Device
+namespace R2Core.Device
 {
 	/// <summary>
 	/// Implementation of IDeviceManager. Able to handle remote devices.

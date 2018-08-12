@@ -18,11 +18,11 @@
 
 using System;
 using TrackerPtr = System.IntPtr;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.InteropServices;
-using Core;
+using R2Core;
 
-namespace Video
+namespace R2Core.Video
 {
 	public class PointsTracker : IPointsTracker
 	{

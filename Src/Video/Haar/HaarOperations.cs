@@ -18,11 +18,11 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Core;
+using R2Core;
 using System.Collections.Generic;
-using Core.Device;
+using R2Core.Device;
 
-namespace Video
+namespace R2Core.Video
 {
 	public class HaarOperations : DeviceBase
 	{

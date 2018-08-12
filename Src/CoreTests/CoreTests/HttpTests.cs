@@ -18,15 +18,15 @@
 //
 using System;
 using NUnit.Framework;
-using Core.Tests;
-using Core;
-using Core.Network;
+using R2Core.Tests;
+using R2Core;
+using R2Core.Network;
 using System.Threading;
-using Core.Data;
-using Core.Scripting;
+using R2Core.Data;
+using R2Core.Scripting;
 using System.Collections.Generic;
 
-namespace CoreTests
+namespace R2CoreTests
 {
 	[TestFixture]
 	public class HttpTests: NetworkTests

@@ -1,10 +1,10 @@
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using Raspberry.IO.GeneralPurpose;
 using System.Threading;
-using Core;
+using R2Core;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	public class InputPort2: DeviceBase, IInputPort
 	{

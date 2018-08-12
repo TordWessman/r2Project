@@ -1,10 +1,10 @@
 ﻿using System;
-using Core.Device;
+using R2Core.Device;
 using System.Runtime.InteropServices;
 using System.Linq;
-using Core;
+using R2Core;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	public class R2I2CMaster: DeviceBase, ISerialConnection
 	{

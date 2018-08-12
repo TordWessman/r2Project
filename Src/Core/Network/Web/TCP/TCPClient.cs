@@ -17,15 +17,15 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Linq;
-using Core.Network;
+using R2Core.Network;
 using System.Threading;
 using System.IO;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// TCP transceiver.

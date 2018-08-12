@@ -17,9 +17,9 @@
 // 
 
 using System;
-using Core.Network;
+using R2Core.Network;
 using System.Collections.Specialized;
-using Core.Scripting;
+using R2Core.Scripting;
 using IronRuby.Builtins;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
@@ -27,7 +27,7 @@ using System.Dynamic;
 using System.Collections.Generic;
 using System.Net;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// <para>Uses an IScript implementation to handle input. The receiver objects MainClass must implement the on_receive(dynamic inputObject, string path, IDictionary<string, object> metadata, IWebIntermediate outputObject).</para>

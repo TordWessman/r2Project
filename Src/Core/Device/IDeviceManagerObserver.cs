@@ -18,7 +18,7 @@
 
 ﻿using System;
 
-namespace Core.Device
+namespace R2Core.Device
 {
 	public interface IDeviceManagerObserver
 	{

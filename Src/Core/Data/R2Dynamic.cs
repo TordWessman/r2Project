@@ -23,7 +23,7 @@ using TKey = System.String;
 using TValue = System.Object;
 using System.Collections;
 
-namespace Core.Data
+namespace R2Core.Data
 {
 	/// <summary>
 	/// Represents a dynamic object which implements IDictionary and whose dynamic properties are exposed through the IDictionary interface..

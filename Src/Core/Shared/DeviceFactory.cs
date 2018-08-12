@@ -17,18 +17,18 @@
 // 
 
 ﻿using System;
-using Core.Device;
-using Core.Network;
-using Core.Memory;
+using R2Core.Device;
+using R2Core.Network;
+using R2Core.Memory;
 using MemoryType = System.String;
 using System.Linq;
 using System.Dynamic;
 using System.Text.RegularExpressions;
 using System.IO;
-using Core.Data;
+using R2Core.Data;
 using System.Collections.Generic;
 
-namespace Core
+namespace R2Core
 {
 	/// <summary>
 	/// Device factory for the creation of uncategorized shared devices. Most of the factory methods should be moved to a more domain specific factory.

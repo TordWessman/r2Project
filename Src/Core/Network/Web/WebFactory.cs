@@ -17,15 +17,15 @@
 // 
 
 ﻿using System;
-using Core.Memory;
-using Core.Device;
+using R2Core.Memory;
+using R2Core.Device;
 using System.Linq;
-using Core.Scripting;
+using R2Core.Scripting;
 using System.Dynamic;
-using Core.Data;
+using R2Core.Data;
 using System.Collections.Generic;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	/// <summary>
 	/// Creates various http components
@@ -62,9 +62,9 @@ namespace Core.Network
 
 		}
 
-		public Core.Network.HttpMessage CreateHttpMessage(string url) {
+		public R2Core.Network.HttpMessage CreateHttpMessage(string url) {
 		
-			return new Core.Network.HttpMessage () { Destination = url };
+			return new R2Core.Network.HttpMessage () { Destination = url };
 
 		}
 

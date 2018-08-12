@@ -20,7 +20,7 @@ using System;
 using System.Threading.Tasks;
 
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class FlacConverter
 	{

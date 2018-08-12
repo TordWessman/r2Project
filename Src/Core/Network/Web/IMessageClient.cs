@@ -17,9 +17,9 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 
 	public interface IMessageClient: IDevice {
@@ -41,7 +41,7 @@ namespace Core.Network
 		MessageType Send (MessageType message);
 
 		/// <summary>
-		/// Asynchronous communication. The action delegate will have to take a Core.Network.HttpResponse parameter. 
+		/// Asynchronous communication. The action delegate will have to take a R2Core.Network.HttpResponse parameter. 
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="responseDelegate">Response delegate.</param>

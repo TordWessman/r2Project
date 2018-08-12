@@ -17,10 +17,10 @@
 //
 //
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Threading.Tasks;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	public class DummyTaskMonitor: DeviceBase, ITaskMonitor
 	{

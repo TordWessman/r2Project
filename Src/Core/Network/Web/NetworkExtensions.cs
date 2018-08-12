@@ -20,7 +20,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Core.Network
+namespace R2Core.Network
 {
 	
 	public static class EndpointExtensions {

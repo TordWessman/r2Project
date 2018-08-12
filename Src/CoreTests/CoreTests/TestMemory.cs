@@ -1,10 +1,10 @@
 ﻿using System;
 using NUnit.Framework;
-using Core.Device;
-using Core.Memory;
+using R2Core.Device;
+using R2Core.Memory;
 using System.Linq;
 
-namespace Core.Tests
+namespace R2Core.Tests
 {
 	[TestFixture]
 	public class TestMemory: TestBase

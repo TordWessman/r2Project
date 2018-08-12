@@ -16,9 +16,9 @@ if (config.Length == 2) {
 
 XmlDocument doc = GetConfigXml(config[CFILE]); #>
 using System;
-using Core;
+using R2Core;
 
-namespace GPIO {
+namespace R2Core.GPIO {
 
 <#= GetPathsForDoc(configFileName, doc, baseDir, true) #>
 

@@ -17,11 +17,11 @@
 // 
 
 using System;
-using Core.Scripting;
-using Core;
+using R2Core.Scripting;
+using R2Core;
 using System.Dynamic;
 
-namespace Audio.ASR
+namespace R2Core.Audio.ASR
 {
 	public class ScriptConversationLock : IConversationLock
 	{

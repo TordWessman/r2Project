@@ -17,14 +17,14 @@
 // 
 
 ﻿using System;
-using Core.Device;
-using Core.Memory;
+using R2Core.Device;
+using R2Core.Memory;
 using System.Collections.Generic;
-using Core;
+using R2Core;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PushNotifications
+namespace R2Core.PushNotifications
 {
 	/// <summary>
 	/// Uses the IMemorySource to keep track of and send push notifications.

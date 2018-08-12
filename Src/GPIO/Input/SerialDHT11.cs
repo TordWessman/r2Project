@@ -18,7 +18,7 @@
 //
 using System;
 
-namespace GPIO
+namespace R2Core.GPIO
 {
 	internal class SerialDHT11: SerialDeviceBase<int[]>, IDHT11
 	{

@@ -17,14 +17,14 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 using System.Collections.Generic;
 using RaspberryPiDotNet;
-using Core;
+using R2Core;
 using System.IO;
 using System.Linq;
 
-namespace GPIO 
+namespace R2Core.GPIO 
 {
 	/// <summary>
 	/// PRimitive raspberry pi implementation of an IGPIOFactory

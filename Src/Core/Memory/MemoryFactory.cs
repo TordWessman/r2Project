@@ -17,10 +17,10 @@
 // 
 
 using System;
-using Core.Device;
+using R2Core.Device;
 
 
-namespace Core.Memory
+namespace R2Core.Memory
 {
 	public class MemoryFactory
 	{
