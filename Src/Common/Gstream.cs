@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Threading;
 
-namespace R2Core
+namespace R2Core.Common
 {
 	/// <summary>
 	/// Represent a gstreamer pipeline object. Use this object to create a simple gstreamer pipline. 
@@ -71,7 +71,11 @@ namespace R2Core
 
 		~Gstream() {
 		
-			_ext_destroy_gstream (m_ptr);
+			if (m_ptr != System.IntPtr.Zero) {
+			
+				_ext_destroy_gstream (m_ptr);
+
+			}
 
 		}
 
@@ -157,6 +161,7 @@ namespace R2Core
 
 		public override void Stop ()
 		{
+
 			m_isRunning = false;
 
 			//if (Monitor.IsEntered (m_startLock)) {
@@ -165,7 +170,7 @@ namespace R2Core
 
 			//}
 
-			if (!Ready && _ext_stop_gstream(m_ptr) != 1) {
+			if (Ready && _ext_stop_gstream(m_ptr) != 1) {
 
 				Log.e ("Gstream '" + Identifier + "' Unable to stop pipeline: " + m_pipeLine);
 
@@ -191,7 +196,7 @@ namespace R2Core
 		
 			get {
 
-				return _ext_is_playing_gstream(m_ptr) != 1;
+				return m_ptr != System.IntPtr.Zero && _ext_is_playing_gstream(m_ptr) != 1;
 			
 			}
 		

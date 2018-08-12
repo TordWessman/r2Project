@@ -28,7 +28,7 @@ using System.IO;
 using R2Core.Data;
 using System.Collections.Generic;
 
-namespace R2Core
+namespace R2Core.Common
 {
 	/// <summary>
 	/// Device factory for the creation of uncategorized shared devices. Most of the factory methods should be moved to a more domain specific factory.

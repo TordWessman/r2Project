@@ -47,35 +47,8 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.core">
-      <HintPath>..\..\3rdParty\nunit\nunit.core.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\3rdParty\nunit\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="NLua">
-      <HintPath>..\..\3rdParty\NLua.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython">
-      <HintPath>..\..\3rdParty\IronLanguages\IronPython.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Modules">
-      <HintPath>..\..\3rdParty\IronLanguages\IronPython.Modules.dll</HintPath>
-    </Reference>
-    <Reference Include="IronRuby">
-      <HintPath>..\..\3rdParty\IronLanguages\IronRuby.dll</HintPath>
-    </Reference>
-    <Reference Include="IronRuby.Libraries">
-      <HintPath>..\..\3rdParty\IronLanguages\IronRuby.Libraries.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Dynamic">
       <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting">
-      <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="policy.2.7.IronPython.Modules">
-      <HintPath>..\..\3rdParty\IronLanguages\policy.2.7.IronPython.Modules.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -97,11 +70,8 @@
     <Compile Include="Memory\IMemory.cs" />
     <Compile Include="Memory\MemoryDBAdapter.cs" />
     <Compile Include="Memory\AssociationsDBAdapter.cs" />
-    <Compile Include="Scripting\IScript.cs" />
-    <Compile Include="Scripting\IScriptFactory.cs" />
     <Compile Include="Device\DeviceBase.cs" />
     <Compile Include="Device\IDevice.cs" />
-    <Compile Include="Scripting\IScriptObserver.cs" />
     <Compile Include="Settings\CoreConfigurationTemplate.cs">
       <DependentUpon>CoreConfigurationTemplate.tt</DependentUpon>
     </Compile>
@@ -109,10 +79,6 @@
     <Compile Include="Device\IDeviceManagerObserver.cs" />
     <Compile Include="Memory\SharedMemorySource.cs" />
     <Compile Include="Log\SimpleConsoleLogger.cs" />
-    <Compile Include="Shared\DeviceFactory.cs" />
-    <Compile Include="Shared\Gstream.cs" />
-    <Compile Include="Shared\BaseContainer.cs" />
-    <Compile Include="Shared\IGstream.cs" />
     <Compile Include="Shared\IStartable.cs" />
     <Compile Include="Shared\IStopable.cs" />
     <Compile Include="Shared\ITaskMonitor.cs" />
@@ -122,12 +88,10 @@
     <Compile Include="Network\Web\Messages\JsonMessageFactory.cs" />
     <Compile Include="Network\Web\Messages\JsonBaseMessage.cs" />
     <Compile Include="Network\Web\Messages\JsonAddRecordMessage.cs" />
-    <Compile Include="Network\Web\Scripting\ScriptObjectReceiver.cs" />
     <Compile Include="Network\Web\JsonExportObject.cs" />
     <Compile Include="Network\Web\WebFactory.cs" />
     <Compile Include="Network\Web\IWebIntermediate.cs" />
     <Compile Include="Network\Web\IWebEndpoint.cs" />
-    <Compile Include="Network\Web\Scripting\RubyWebIntermediate.cs" />
     <Compile Include="Network\Web\WebSockets\WebSocketServer.cs" />
     <Compile Include="Network\Web\WebFileEndpoint.cs" />
     <Compile Include="Network\Web\WebJsonEndpoint.cs" />
@@ -136,20 +100,13 @@
     <Compile Include="Network\Web\WebSockets\IWebSocketServer.cs" />
     <Compile Include="Network\Web\WebSockets\WebSocketSender.cs" />
     <Compile Include="Extensions\ExpandoObjectExtensions.cs" />
-    <Compile Include="Shared\IRunLoop.cs" />
-    <Compile Include="Shared\InterpreterRunLoop.cs" />
     <Compile Include="Device\IDeviceObserver.cs" />
     <Compile Include="Device\IDeviceNotification.cs" />
     <Compile Include="Device\DeviceNotification.cs" />
     <Compile Include="Network\Web\DeviceRouter.cs" />
-    <Compile Include="Shared\IConsole.cs" />
     <Compile Include="Log\LogMessage.cs" />
-    <Compile Include="Scripting\IScriptInterpreter.cs" />
     <Compile Include="Network\Web\TCP\TCPServer.cs" />
-    <Compile Include="Scripting\Lua\LuaScript.cs" />
-    <Compile Include="Scripting\Lua\LuaScriptFactory.cs" />
     <Compile Include="Log\FileLogger.cs" />
-    <Compile Include="Scripting\ScriptBase.cs" />
     <Compile Include="Data\ILinearDataSet.cs" />
     <Compile Include="Data\LinearDataSet.cs" />
     <Compile Include="Memory\TemporaryMemorySource.cs" />
@@ -157,7 +114,6 @@
     <Compile Include="Data\IDBAdapter.cs" />
     <Compile Include="Data\SqliteDatabase.cs" />
     <Compile Include="Data\DataFactory.cs" />
-    <Compile Include="Scripting\ScriptFactoryBase.cs" />
     <Compile Include="Data\R2Dynamic.cs" />
     <Compile Include="Network\Web\TCP\TCPPackageFactory.cs" />
     <Compile Include="Shared\ObjectInvoker.cs" />
@@ -171,14 +127,6 @@
     <Compile Include="Network\Web\TCP\TCPClient.cs" />
     <Compile Include="Network\Web\Http\HttpMessage.cs" />
     <Compile Include="Network\Web\TCP\TCPMessage.cs" />
-    <Compile Include="Scripting\IronScript\RubyScriptFactory.cs" />
-    <Compile Include="Scripting\IronScript\IronScriptInterpreter.cs" />
-    <Compile Include="Scripting\IronScript\PythonScriptFactory.cs" />
-    <Compile Include="Scripting\IronScript\IronScript.cs" />
-    <Compile Include="Scripting\Obsolete\IScriptExecutor.cs" />
-    <Compile Include="Scripting\Obsolete\IScriptExecutorFactory.cs" />
-    <Compile Include="Scripting\Obsolete\ScriptExecutor.cs" />
-    <Compile Include="Scripting\Obsolete\ScriptExecutorFactory.cs" />
     <Compile Include="Network\Web\TCP\ITCPPackageFactory.cs" />
     <Compile Include="Network\Web\UDP\UDPServer.cs" />
     <Compile Include="Network\Web\ServerBase.cs" />
@@ -208,20 +156,15 @@
     <Folder Include="Network\" />
     <Folder Include="Device\" />
     <Folder Include="Memory\" />
-    <Folder Include="Scripting\" />
     <Folder Include="Shared\" />
     <Folder Include="Settings\" />
     <Folder Include="Extensions\" />
     <Folder Include="Network\Web\" />
     <Folder Include="Network\Web\Messages\" />
-    <Folder Include="Network\Web\Scripting\" />
     <Folder Include="Network\Web\Http\" />
     <Folder Include="Network\Web\WebSockets\" />
     <Folder Include="Network\Web\TCP\" />
-    <Folder Include="Scripting\Lua\" />
     <Folder Include="Data\" />
-    <Folder Include="Scripting\IronScript\" />
-    <Folder Include="Scripting\Obsolete\" />
     <Folder Include="Network\Web\UDP\" />
   </ItemGroup>
   <ItemGroup>

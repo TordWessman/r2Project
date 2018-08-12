@@ -24,6 +24,8 @@ using System.Threading.Tasks;
 using Microsoft.Scripting.Hosting;
 using IronRuby;
 using System.Linq;
+using R2Core.Network;
+using R2Core.Scripting.Network;
 
 namespace R2Core.Scripting
 {
@@ -86,6 +88,16 @@ namespace R2Core.Scripting
 		public override IScriptInterpreter CreateInterpreter(IronScript script) {
 
 			return new IronScriptInterpreter (script);
+
+		}
+
+		/// <summary>
+		/// Creates an instance of IHttpObjectReceiver capable of handling input through an IScript.
+		/// </summary>
+		/// <returns>The script object receiver.</returns>
+		public IWebObjectReceiver CreateRubyScriptObjectReceiver(IScript script) {
+
+			return new ScriptObjectReceiver<RubyWebIntermediate> (script);
 
 		}
 

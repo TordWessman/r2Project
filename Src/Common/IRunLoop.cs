@@ -17,14 +17,13 @@
 //
 //
 using System;
+using R2Core.Device;
 
-namespace Scripting
+namespace R2Core.Common
 {
-	public class MyClass
+	
+	public interface IRunLoop : IDevice
 	{
-		public MyClass ()
-		{
-		}
 	}
 }
 

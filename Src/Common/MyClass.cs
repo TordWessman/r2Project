@@ -18,16 +18,13 @@
 //
 using System;
 
-namespace R2Core
+namespace R2Project.Common
 {
-	public interface IConsole
+	public class MyClass
 	{
-		/// <summary>
-		/// Returns the history
-		/// </summary>
-		/// <returns>The history.</returns>
-		/// <param name="lineCount">Line count.</param>
-		string[] GetHistory(int lineCount);
+		public MyClass ()
+		{
+		}
 	}
 }
 

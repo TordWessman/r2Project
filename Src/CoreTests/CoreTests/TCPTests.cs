@@ -25,6 +25,7 @@ using R2Core.Device;
 using System.Threading;
 using System.Net;
 using R2Core.Scripting;
+using R2Core.Common;
 
 namespace R2Core.Tests
 {
@@ -154,7 +155,7 @@ namespace R2Core.Tests
 
 			// see test_server.rb
 			dynamic script = scriptFactory.CreateScript("test_server");
-			var receiver = factory.CreateRubyScriptObjectReceiver (script);
+			var receiver = scriptFactory.CreateRubyScriptObjectReceiver (script);
 			var jsonEndpoint = factory.CreateJsonEndpoint (@"/test", receiver);
 			s.AddEndpoint (jsonEndpoint);
 

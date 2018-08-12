@@ -88,6 +88,10 @@
       <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
       <Name>R2Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Scripting\R2Core.Scripting.csproj">
+      <Project>{2E07EACB-D0FB-415F-A497-8D57DE3D2D5C}</Project>
+      <Name>R2Core.Scripting</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="AudioConfigurationTemplate.tt">

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{2E07EACB-D0FB-415F-A497-8D57DE3D2D5C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Scripting</RootNamespace>
+    <AssemblyName>R2Core.Scripting</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="IronPython">
+      <HintPath>..\..\3rdParty\IronLanguages\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Modules">
+      <HintPath>..\..\3rdParty\IronLanguages\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby">
+      <HintPath>..\..\3rdParty\IronLanguages\IronRuby.dll</HintPath>
+    </Reference>
+    <Reference Include="IronRuby.Libraries">
+      <HintPath>..\..\3rdParty\IronLanguages\IronRuby.Libraries.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="policy.2.7.IronPython.Modules">
+      <HintPath>..\..\3rdParty\IronLanguages\policy.2.7.IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="NLua">
+      <HintPath>..\..\3rdParty\NLua.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IronScript\IronScript.cs" />
+    <Compile Include="IronScript\IronScriptInterpreter.cs" />
+    <Compile Include="IronScript\PythonScriptFactory.cs" />
+    <Compile Include="IronScript\RubyScriptFactory.cs" />
+    <Compile Include="Lua\LuaScript.cs" />
+    <Compile Include="Lua\LuaScriptFactory.cs" />
+    <Compile Include="Obsolete\IScriptExecutor.cs" />
+    <Compile Include="Obsolete\IScriptExecutorFactory.cs" />
+    <Compile Include="Obsolete\ScriptExecutor.cs" />
+    <Compile Include="Obsolete\ScriptExecutorFactory.cs" />
+    <Compile Include="IScript.cs" />
+    <Compile Include="IScriptFactory.cs" />
+    <Compile Include="IScriptInterpreter.cs" />
+    <Compile Include="IScriptObserver.cs" />
+    <Compile Include="ScriptBase.cs" />
+    <Compile Include="ScriptFactoryBase.cs" />
+    <Compile Include="Network\RubyWebIntermediate.cs" />
+    <Compile Include="Network\ScriptObjectReceiver.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\Core\R2Core.csproj">
+      <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
+      <Name>R2Core</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ProjectExtensions>
+    <MonoDevelop>
+      <Properties>
+        <Deployment.LinuxDeployData scriptName="scripting" />
+      </Properties>
+    </MonoDevelop>
+  </ProjectExtensions>
+  <ItemGroup>
+    <Folder Include="IronScript\" />
+    <Folder Include="Lua\" />
+    <Folder Include="Network\" />
+    <Folder Include="Obsolete\" />
+  </ItemGroup>
+</Project>

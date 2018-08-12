@@ -25,6 +25,8 @@ using System.Threading;
 using R2Core.Data;
 using R2Core.Scripting;
 using System.Collections.Generic;
+using R2Core.Scripting.Network;
+using R2Core.Common;
 
 namespace R2CoreTests
 {
@@ -160,7 +162,7 @@ namespace R2CoreTests
 			scriptFactory.AddSourcePath (Settings.Paths.TestData ());
 
 			var file_server_script = scriptFactory.CreateScript("file_server");
-			var file_server_receiver = factory.CreateRubyScriptObjectReceiver (file_server_script);
+			var file_server_receiver = scriptFactory.CreateRubyScriptObjectReceiver (file_server_script);
 			var file_server_endpoint = factory.CreateJsonEndpoint (@"/test2", file_server_receiver);
 
 			webServer.AddEndpoint (file_server_endpoint);

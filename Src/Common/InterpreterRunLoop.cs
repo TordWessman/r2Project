@@ -22,7 +22,7 @@ using R2Core.Scripting;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace R2Core
+namespace R2Core.Common
 {
 	
 	public class InterpreterRunLoop : DeviceBase, IRunLoop, IDeviceObserver

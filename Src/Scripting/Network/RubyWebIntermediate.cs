@@ -22,8 +22,9 @@ using System.Collections.Specialized;
 using System.Collections.Generic;
 using System.Runtime.Remoting;
 using R2Core.Data;
+using R2Core.Network;
 
-namespace R2Core.Network
+namespace R2Core.Scripting.Network
 {
 
 	/// <summary>

@@ -29,7 +29,7 @@ using System.IO;
 using System.Linq;
 
 
-namespace R2Core
+namespace R2Core.Common
 {
 
 	/// <summary>

@@ -18,7 +18,6 @@
 //
 using System;
 using R2Core.Device;
-using R2Core.Scripting;
 using Newtonsoft.Json;
 using R2Core.Data;
 

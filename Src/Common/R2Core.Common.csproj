@@ -5,10 +5,10 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B6397024-E95C-43D8-8CDF-0EB826804949}</ProjectGuid>
+    <ProjectGuid>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>CoreTests</RootNamespace>
-    <AssemblyName>CoreTests</AssemblyName>
+    <RootNamespace>Common</RootNamespace>
+    <AssemblyName>Common</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -31,40 +31,18 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\3rdParty\nunit\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Dynamic" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="NLua">
-      <HintPath>..\..\3rdParty\NLua.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Test.cs" />
-    <Compile Include="DummyClasses\DummyDevice.cs" />
-    <Compile Include="DummyClasses\DummyTaskMonitor.cs" />
-    <Compile Include="CoreTests\CoreTests.cs" />
-    <Compile Include="CoreTests\DataTests.cs" />
-    <Compile Include="CoreTests\NetworkTests.cs" />
-    <Compile Include="CoreTests\ScriptTests.cs" />
-    <Compile Include="CoreTests\TestBase.cs" />
-    <Compile Include="CoreTests\TestMemory.cs" />
-    <Compile Include="GPIOTests\GPIOTests.cs" />
-    <Compile Include="CoreTests\TCPTests.cs" />
-    <Compile Include="CoreTests\HttpTests.cs" />
-    <Compile Include="CoreTests\UDPTests.cs" />
-    <Compile Include="DummyClasses\Networking\DummyEndpoint.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="InterpreterRunLoop.cs" />
+    <Compile Include="BaseContainer.cs" />
+    <Compile Include="Gstream.cs" />
+    <Compile Include="IGstream.cs" />
+    <Compile Include="IRunLoop.cs" />
+    <Compile Include="DeviceFactory.cs" />
+    <Compile Include="IConsole.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Folder Include="DummyClasses\" />
-    <Folder Include="CoreTests\" />
-    <Folder Include="GPIOTests\" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\R2Core.csproj">
       <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
@@ -73,10 +51,6 @@
     <ProjectReference Include="..\Scripting\R2Core.Scripting.csproj">
       <Project>{2E07EACB-D0FB-415F-A497-8D57DE3D2D5C}</Project>
       <Name>R2Core.Scripting</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Common\R2Core.Common.csproj">
-      <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
-      <Name>R2Core.Common</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>
