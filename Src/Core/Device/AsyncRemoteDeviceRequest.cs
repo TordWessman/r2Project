@@ -23,15 +23,80 @@ using System.Threading.Tasks;
 
 namespace R2Core.Device
 {
-	public class AsyncDeviceRetriever {
+
+	/// <summary>
+	/// Provides mechanisms for dynamic asynchronous invocation.
+	/// </summary>
+	public class AsyncRemoteDeviceRequest: DynamicObject
+	{
+		private RemoteDevice m_device;
+		private Action<dynamic, Exception> m_callback;
+
+		/// <summary>
+		/// An instance of a <see cref="R2Core.Device.AsyncRemoteDeviceRequest"/> is intended
+		/// to be used for (an) asynchronous invocation. Get and Invoke
+		/// will return the Task performing the invocation.
+		/// </summary>
+		/// <param name="callback">Callback.</param>
+		/// <param name="remoteDevice">Remote device.</param>
+		public AsyncRemoteDeviceRequest (Action<dynamic, Exception> callback, RemoteDevice remoteDevice)
+		{
+
+			m_device = remoteDevice;
+			m_callback = callback;
+
+		}
+
+		public override bool TrySetMember (SetMemberBinder binder, object value) {
+
+			AsyncRemoteDeviceRequestTask request = new AsyncRemoteDeviceRequestTask (m_callback, m_device, binder, value);
+			request.Set ();
+
+			return true;
+
+		}
+
+		public override bool TryGetMember (GetMemberBinder binder, out object result) {
+
+			AsyncRemoteDeviceRequestTask request = new AsyncRemoteDeviceRequestTask (m_callback, m_device, binder);
+			result = request.Get ();
+
+			return true;
+
+		}
+
+		public override bool TryInvokeMember (InvokeMemberBinder binder, object[] args, out object result) {
+
+			AsyncRemoteDeviceRequestTask request = new AsyncRemoteDeviceRequestTask (m_callback, m_device, binder, args); 
+			result = request.Invoke ();
+
+			return true;
+
+		}
+
+	}
+
+	public class AsyncRemoteDeviceRequestTask {
 
 		private RemoteDevice m_device;
-		private Action<dynamic> m_callback;
+		private Action<dynamic, Exception> m_callback;
 		private GetMemberBinder m_getBinder;
 		private InvokeMemberBinder m_invokeBinder;
 		private object[] m_invokeArgs;
+		private SetMemberBinder m_setBinder;
+		private object m_setArg;
 
-		public AsyncDeviceRetriever(Action<dynamic> callback, RemoteDevice remoteDevice, GetMemberBinder binder)
+		public AsyncRemoteDeviceRequestTask(Action<dynamic, Exception> callback, RemoteDevice remoteDevice, SetMemberBinder binder, object arg)
+		{
+
+			m_device = remoteDevice;
+			m_callback = callback;
+			m_setBinder = binder;
+			m_setArg = arg;
+
+		}
+
+		public AsyncRemoteDeviceRequestTask(Action<dynamic, Exception> callback, RemoteDevice remoteDevice, GetMemberBinder binder)
 		{
 
 			m_device = remoteDevice;
@@ -40,7 +105,7 @@ namespace R2Core.Device
 
 		}
 
-		public AsyncDeviceRetriever(Action<dynamic> callback, RemoteDevice remoteDevice, InvokeMemberBinder binder, object[] args)
+		public AsyncRemoteDeviceRequestTask(Action<dynamic, Exception> callback, RemoteDevice remoteDevice, InvokeMemberBinder binder, object[] args)
 		{
 
 			m_device = remoteDevice;
@@ -55,8 +120,18 @@ namespace R2Core.Device
 			return Task.Factory.StartNew (() => {
 
 				object asyncResult = default(dynamic);
-				m_device.TryGetMember (m_getBinder, out asyncResult);
-				m_callback(asyncResult);
+
+				try {
+
+					m_device.TryGetMember (m_getBinder, out asyncResult);
+					m_callback(asyncResult, null);
+
+				} catch (Exception ex) {
+
+					m_callback(asyncResult, ex);
+
+				}
+
 
 			});
 
@@ -67,59 +142,41 @@ namespace R2Core.Device
 			return Task.Factory.StartNew (() => {
 				
 				object asyncResult = default(dynamic);
-				m_device.TryInvokeMember (m_invokeBinder, m_invokeArgs, out asyncResult);
-				m_callback(asyncResult);
+
+				try {
+
+					m_device.TryInvokeMember (m_invokeBinder, m_invokeArgs, out asyncResult);
+					m_callback(asyncResult, null);
+
+				} catch (Exception ex) {
+
+					m_callback(asyncResult, ex);
+
+				}
 
 			});
 
 		}
 
-	}
-
-	public class AsyncRemoteDeviceRequest: DynamicObject
-	{
-		private RemoteDevice m_device;
-		private Action<dynamic> m_callback;
-
-		public AsyncRemoteDeviceRequest (Action<dynamic> callback, RemoteDevice remoteDevice)
-		{
+		public Task Set() {
 		
-			m_device = remoteDevice;
-			m_callback = callback;
+			return Task.Factory.StartNew( () => {
 
-		}
+				try {
 
-		public override bool TrySetMember (SetMemberBinder binder, object value) {
+					m_device.TrySetMember (m_setBinder, m_setArg);
+					m_callback(true, null);
 
-			Task.Factory.StartNew( () => {
-			
-				m_device.TrySetMember (binder, value);
-				m_callback(true);
+				} catch (Exception ex) {
+
+					m_callback(false, ex);
+
+				}
 
 			});
-
-			return true;
-
-		}
-
-		public override bool TryGetMember (GetMemberBinder binder, out object result) {
-
-			result = new AsyncDeviceRetriever (m_callback, m_device, binder);
-
-			return true;
-
-		}
-
-		public override bool TryInvokeMember (InvokeMemberBinder binder, object[] args, out object result) {
-			
-			result = new AsyncDeviceRetriever (m_callback, m_device, binder, args);
-
-			return true;
-
 		}
 
 	}
-
 
 }
 

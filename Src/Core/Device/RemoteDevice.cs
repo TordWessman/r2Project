@@ -54,8 +54,8 @@ namespace R2Core.Device
 
 		public Guid Guid { get { return m_guid; } }
 
-		public dynamic Async(Action<dynamic> callback) {
-		
+		public dynamic Async(Action<dynamic, Exception> callback) {
+
 			return new AsyncRemoteDeviceRequest (callback, this);
 
 		}

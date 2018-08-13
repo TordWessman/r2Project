@@ -54,38 +54,47 @@ namespace R2Core.Tests
 
 			IHostConnection connection = new HostConnection ("hc", "/test", client);
 
-			dynamic remoteDummy = new RemoteDevice ("dummy_device", dummyObject.Guid, connection);
-
-			Assert.AreEqual (dummyObject.Bar, remoteDummy.Bar);
+			RemoteDevice remoteDummy = new RemoteDevice ("dummy_device", dummyObject.Guid, connection);
 
 			// Test method with result
-			int hundred = 10;
+			Task invokeTask = remoteDummy.Async ((result, ex) => { 
+				
+				Assert.IsNull (ex);
+				Assert.AreEqual (100, result);
 
-			Task invokeTask = remoteDummy.Async (
-				new Action<dynamic> ( (result) =>  {
-					hundred = (int)result;
-				})
-			).MultiplyByTen(10).Invoke();
+			}).MultiplyByTen(10);
 
 			invokeTask.Wait ();
 
-			Assert.AreEqual (100, hundred);
+			// Test invoking non-returning method
+			Task invokeTask2 = remoteDummy.Async ((result, ex) => { 
 
-			string bar = "wrong";
+				Assert.IsNull (ex);
+
+			}).NoParamsNoNothing();
+
+			invokeTask2.Wait ();
 
 			// Test get property:
-			Task retrieveTask = remoteDummy.Async (
-				new Action<dynamic>(
-					(response) => {
-
-						bar = response;}
-				)
-			).Bar.Get();
+			Task retrieveTask = remoteDummy.Async ((response, ex) => {
+				Assert.IsNull(ex);
+				Assert.AreEqual(dummyObject.Bar, response);
+			}).Bar;
 
 			retrieveTask.Wait ();
 
-			Assert.AreEqual (dummyObject.Bar, bar);
+			remoteDummy.Async ((response, ex) => {
+				Assert.IsNull(ex);
+
+			}).HAHA = 1111;
+
+			Thread.Sleep (100);
+
+			Assert.AreEqual(dummyObject.HAHA, 1111);
+
 		}
+
 	}
+
 }
 
