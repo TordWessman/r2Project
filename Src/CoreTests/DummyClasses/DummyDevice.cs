@@ -55,7 +55,7 @@ namespace R2Core.Tests
 		}
 
 		public int MultiplyByTen(int value) {
-		
+
 			return value * 10;
 
 		}

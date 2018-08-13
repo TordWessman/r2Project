@@ -118,6 +118,7 @@
     <Compile Include="Shared\Int32Converter.cs" />
     <Compile Include="Shared\LinearDataSet.cs" />
     <Compile Include="Shared\R2Dynamic.cs" />
+    <Compile Include="Device\AsyncRemoteDeviceRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

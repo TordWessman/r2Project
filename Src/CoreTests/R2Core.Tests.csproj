@@ -58,6 +58,7 @@
     <Compile Include="CoreTests\HttpTests.cs" />
     <Compile Include="CoreTests\UDPTests.cs" />
     <Compile Include="DummyClasses\Networking\DummyEndpoint.cs" />
+    <Compile Include="CoreTests\TestAsyncRemoteDevice.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

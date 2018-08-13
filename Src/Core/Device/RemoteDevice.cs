@@ -27,16 +27,65 @@ namespace R2Core.Device
 	/// </summary>
 	public class RemoteDevice : DynamicObject, IRemoteDevice
 	{
-		private string m_identifier;
-		private IHostConnection m_host;
-		private Guid m_guid;
+		protected string m_identifier;
+		protected IHostConnection m_host;
+		protected Guid m_guid;
 
 		public string Identifier { get { return m_identifier; } }
-		public bool Ready { get { return m_host.Ready; } }
+
+		public bool Ready { 
+
+			get { 
+
+				if (!m_host.Ready) { return false; }
+
+				DeviceRequest request = new DeviceRequest () {
+					Action = "Ready",
+					Params = new object[] {},
+					ActionType = DeviceRequest.ObjectActionType.Get,
+					Identifier = m_identifier
+				};
+
+				return m_host.Send (request) == true;
+
+			} 
+		
+		}
+
 		public Guid Guid { get { return m_guid; } }
 
-		public void Start() {}
-		public void Stop() {}
+		public dynamic Async(Action<dynamic> callback) {
+		
+			return new AsyncRemoteDeviceRequest (callback, this);
+
+		}
+
+		public void Start() {
+
+			DeviceRequest request = new DeviceRequest () {
+				Action = "Start",
+				Params = null,
+				ActionType = DeviceRequest.ObjectActionType.Invoke,
+				Identifier = m_identifier
+			};
+
+			m_host.Send (request);
+
+		}
+
+		public void Stop() {
+		
+			DeviceRequest request = new DeviceRequest () {
+				Action = "Stop",
+				Params = null,
+				ActionType = DeviceRequest.ObjectActionType.Invoke,
+				Identifier = m_identifier
+			};
+
+			m_host.Send (request);
+
+		}
+
 		public void AddObserver (IDeviceObserver observer) {}
 
 		public RemoteDevice (string id, Guid guid, IHostConnection host)

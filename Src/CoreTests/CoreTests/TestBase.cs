@@ -24,6 +24,7 @@ using R2Core.Data;
 using System.Diagnostics;
 using R2Core.Common;
 using R2Core.DataManagement.Memory;
+using System.Threading;
 
 namespace R2Core.Tests
 {
@@ -39,6 +40,7 @@ namespace R2Core.Tests
 		[TestFixtureTearDown]
 		public virtual void Teardown() {
 
+			Thread.Sleep (200);
 			Log.d ($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` FINISHED ---");
 
 		}
@@ -49,8 +51,7 @@ namespace R2Core.Tests
 			try {
 				
 				if (Log.Instance == null) {
-
-
+					
 					Log.Instantiate(Settings.Identifiers.Logger ());
 
 					console = new ConsoleLogger (Settings.Identifiers.ConsoleLogger());
