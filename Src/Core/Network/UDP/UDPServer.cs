@@ -1,0 +1,143 @@
+﻿// This file is part of r2Poject.
+//
+// Copyright 2016 Tord Wessman
+//
+// r2Project is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// r2Project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with r2Project. If not, see <http://www.gnu.org/licenses/>.
+//
+//
+using System;
+using System.Net.Sockets;
+using System.Net;
+using System.IO;
+
+//TODO: add support for UDP signatures (create a new UDP package factory capable of distinguishing package identifiers)
+using System.Collections.Generic;
+
+
+namespace R2Core.Network
+{
+	public class UDPServer: ServerBase
+	{
+
+		private UdpClient m_listener;
+		private IPEndPoint m_groupEndpoint;
+		private ITCPPackageFactory<TCPMessage> m_packageFactory;
+
+		public UDPServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base (id, port) {
+			
+			m_groupEndpoint = new IPEndPoint(IPAddress.Any, Port);
+			m_packageFactory = packageFactory;
+
+		}
+
+		public override bool Ready { get { return ShouldRun && m_listener != null; } }
+
+		/// <summary>
+		/// If true, server NOT ignore requests sent from the same IP.
+		/// </summary>
+		public bool AllowLocalRequests = false;
+
+		protected override void Service() {
+
+			m_listener = new UdpClient ();
+			m_listener.EnableBroadcast = true;
+			m_listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+			m_listener.Client.Bind (m_groupEndpoint);
+
+			while (ShouldRun) {
+			
+				TCPMessage response = new TCPMessage();
+				IPEndPoint client = null;
+
+				// Any request should contain this identifier. It will automatically be bundled with the reply.
+				string broadcastMessageUniqueIdentifierHeaderValue = ""; 
+
+				try {
+
+					byte [] requestData = m_listener.Receive (ref client);
+					if (!AllowLocalRequests && IPAddress.IsLoopback(client.Address)) {
+					
+						// Ignore requests sent by the same Ip
+						continue;
+
+					}
+
+					using (MemoryStream requestDataStream = new MemoryStream (requestData)) {
+
+						TCPMessage request = m_packageFactory.DeserializePackage (requestDataStream);
+
+						broadcastMessageUniqueIdentifierHeaderValue = request.GetBroadcastMessageKey();
+
+						IWebEndpoint ep = GetEndpoint (request.Destination);
+
+						if (ep != null) {
+
+							response = new TCPMessage(ep.Interpret (request, client));
+
+						} else {
+
+							response = new TCPMessage() {
+								Code = WebStatusCode.NotFound.Raw(),
+								Payload =  new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}")
+							};
+
+						}
+					}
+
+				} catch (Exception ex) {
+				
+					if (ShouldRun) {
+
+						Log.x(ex);
+
+						response = new TCPMessage() {
+							Code = WebStatusCode.ServerError.Raw(),
+
+							#if DEBUG
+							Payload = ex.ToString()
+							#endif
+
+						};
+
+						response.PayloadType = TCPPackageFactory.PayloadType.String;
+
+					}
+
+				}
+
+				if (ShouldRun) {
+				
+					// Make sure the request returns the expected broadcast key.
+					BroadcastMessage responseBroadcast = new BroadcastMessage(response);
+					responseBroadcast.Identifier = broadcastMessageUniqueIdentifierHeaderValue;
+
+					byte[] responseData = m_packageFactory.SerializeMessage (new TCPMessage(responseBroadcast)); 
+					m_listener.Send (responseData, responseData.Length, client);
+
+				}
+
+			}
+		
+		}
+
+		protected override void Cleanup () {
+			
+			m_listener.Close ();
+			m_listener = null;
+
+		}
+
+	}
+
+}

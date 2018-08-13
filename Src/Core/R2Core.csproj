@@ -35,21 +35,13 @@
     <Reference Include="Mono.Data.Sqlite" />
     <Reference Include="System.Data" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Dynamic" />
-    <Reference Include="websocket-sharp">
-      <HintPath>..\..\3rdParty\websocket-sharp.dll</HintPath>
-    </Reference>
     <Reference Include="System.Web" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -84,28 +76,11 @@
     <Compile Include="Shared\ITaskMonitor.cs" />
     <Compile Include="Shared\ITaskMonitored.cs" />
     <Compile Include="Shared\SimpleTaskMonitor.cs" />
-    <Compile Include="Network\Web\Messages\JsonRegisterMessage.cs" />
-    <Compile Include="Network\Web\Messages\JsonMessageFactory.cs" />
-    <Compile Include="Network\Web\Messages\JsonBaseMessage.cs" />
-    <Compile Include="Network\Web\Messages\JsonAddRecordMessage.cs" />
-    <Compile Include="Network\Web\JsonExportObject.cs" />
-    <Compile Include="Network\Web\WebFactory.cs" />
-    <Compile Include="Network\Web\IWebIntermediate.cs" />
-    <Compile Include="Network\Web\IWebEndpoint.cs" />
-    <Compile Include="Network\Web\WebSockets\WebSocketServer.cs" />
-    <Compile Include="Network\Web\WebFileEndpoint.cs" />
-    <Compile Include="Network\Web\WebJsonEndpoint.cs" />
-    <Compile Include="Network\Web\IWebObjectReceiver.cs" />
-    <Compile Include="Network\Web\WebSockets\IWebSocketSender.cs" />
-    <Compile Include="Network\Web\WebSockets\IWebSocketServer.cs" />
-    <Compile Include="Network\Web\WebSockets\WebSocketSender.cs" />
     <Compile Include="Extensions\ExpandoObjectExtensions.cs" />
     <Compile Include="Device\IDeviceObserver.cs" />
     <Compile Include="Device\IDeviceNotification.cs" />
     <Compile Include="Device\DeviceNotification.cs" />
-    <Compile Include="Network\Web\DeviceRouter.cs" />
     <Compile Include="Log\LogMessage.cs" />
-    <Compile Include="Network\Web\TCP\TCPServer.cs" />
     <Compile Include="Log\FileLogger.cs" />
     <Compile Include="Data\ILinearDataSet.cs" />
     <Compile Include="Data\LinearDataSet.cs" />
@@ -115,40 +90,53 @@
     <Compile Include="Data\SqliteDatabase.cs" />
     <Compile Include="Data\DataFactory.cs" />
     <Compile Include="Data\R2Dynamic.cs" />
-    <Compile Include="Network\Web\TCP\TCPPackageFactory.cs" />
     <Compile Include="Shared\ObjectInvoker.cs" />
     <Compile Include="Data\Int32Converter.cs" />
-    <Compile Include="Network\Web\Messages\WebErrorMessage.cs" />
-    <Compile Include="Network\Web\WebStatusCode.cs" />
-    <Compile Include="Network\Web\Http\HttpServer.cs" />
-    <Compile Include="Network\Web\Http\HttpClient.cs" />
     <Compile Include="Data\ISerialization.cs" />
     <Compile Include="Data\JsonSerialization.cs" />
-    <Compile Include="Network\Web\TCP\TCPClient.cs" />
-    <Compile Include="Network\Web\Http\HttpMessage.cs" />
-    <Compile Include="Network\Web\TCP\TCPMessage.cs" />
-    <Compile Include="Network\Web\TCP\ITCPPackageFactory.cs" />
-    <Compile Include="Network\Web\UDP\UDPServer.cs" />
-    <Compile Include="Network\Web\ServerBase.cs" />
-    <Compile Include="Network\Web\Messages\INetworkMessage.cs" />
-    <Compile Include="Network\Web\Messages\NetworkMessage.cs" />
-    <Compile Include="Network\Web\IMessageClient.cs" />
-    <Compile Include="Network\Web\UDP\BroadcastMessage.cs" />
     <Compile Include="Memory\IMemorySource.cs" />
     <Compile Include="Device\IRemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice.cs" />
-    <Compile Include="Network\Web\NetworkConnection.cs" />
-    <Compile Include="Network\Web\HostManager.cs" />
-    <Compile Include="Network\Web\UDP\UDPBroadcaster.cs" />
-    <Compile Include="Network\Web\UDP\INetworkBroadcaster.cs" />
-    <Compile Include="Network\Web\Messages\DeviceRequest.cs" />
-    <Compile Include="Network\Web\IMessageClientObserver.cs" />
-    <Compile Include="Network\Web\BlockingNetworkStream.cs" />
-    <Compile Include="Network\Web\IHostConnection.cs" />
-    <Compile Include="Network\Web\IClientConnection.cs" />
-    <Compile Include="Network\Web\TCP\TCPClientConnection.cs" />
-    <Compile Include="Network\Web\IServer.cs" />
-    <Compile Include="Network\Web\NetworkExtensions.cs" />
+    <Compile Include="Network\Http\HttpClient.cs" />
+    <Compile Include="Network\Http\HttpMessage.cs" />
+    <Compile Include="Network\Http\HttpServer.cs" />
+    <Compile Include="Network\Messages\DeviceRequest.cs" />
+    <Compile Include="Network\Messages\INetworkMessage.cs" />
+    <Compile Include="Network\Messages\JsonAddRecordMessage.cs" />
+    <Compile Include="Network\Messages\JsonBaseMessage.cs" />
+    <Compile Include="Network\Messages\JsonMessageFactory.cs" />
+    <Compile Include="Network\Messages\JsonRegisterMessage.cs" />
+    <Compile Include="Network\Messages\NetworkMessage.cs" />
+    <Compile Include="Network\Messages\WebErrorMessage.cs" />
+    <Compile Include="Network\TCP\ITCPPackageFactory.cs" />
+    <Compile Include="Network\TCP\TCPClient.cs" />
+    <Compile Include="Network\TCP\TCPClientConnection.cs" />
+    <Compile Include="Network\TCP\TCPMessage.cs" />
+    <Compile Include="Network\TCP\TCPPackageFactory.cs" />
+    <Compile Include="Network\TCP\TCPServer.cs" />
+    <Compile Include="Network\UDP\BroadcastMessage.cs" />
+    <Compile Include="Network\UDP\INetworkBroadcaster.cs" />
+    <Compile Include="Network\UDP\UDPBroadcaster.cs" />
+    <Compile Include="Network\UDP\UDPServer.cs" />
+    <Compile Include="Network\BlockingNetworkStream.cs" />
+    <Compile Include="Network\NetworkExtensions.cs" />
+    <Compile Include="Network\WebFactory.cs" />
+    <Compile Include="Network\WebStatusCode.cs" />
+    <Compile Include="Network\Server\DeviceRouter.cs" />
+    <Compile Include="Network\Server\HostManager.cs" />
+    <Compile Include="Network\Server\IHostConnection.cs" />
+    <Compile Include="Network\Server\IServer.cs" />
+    <Compile Include="Network\Server\IWebEndpoint.cs" />
+    <Compile Include="Network\Server\IWebIntermediate.cs" />
+    <Compile Include="Network\Server\IWebObjectReceiver.cs" />
+    <Compile Include="Network\Server\ServerBase.cs" />
+    <Compile Include="Network\Server\WebFileEndpoint.cs" />
+    <Compile Include="Network\Server\WebJsonEndpoint.cs" />
+    <Compile Include="Network\Server\HostConnection.cs" />
+    <Compile Include="Network\Client\IClientConnection.cs" />
+    <Compile Include="Network\Client\IMessageClient.cs" />
+    <Compile Include="Network\Client\IMessageClientObserver.cs" />
+    <Compile Include="Network\Server\JsonExportObject.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -159,13 +147,14 @@
     <Folder Include="Shared\" />
     <Folder Include="Settings\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Network\Web\" />
-    <Folder Include="Network\Web\Messages\" />
-    <Folder Include="Network\Web\Http\" />
-    <Folder Include="Network\Web\WebSockets\" />
-    <Folder Include="Network\Web\TCP\" />
     <Folder Include="Data\" />
-    <Folder Include="Network\Web\UDP\" />
+    <Folder Include="Network\Http\" />
+    <Folder Include="Network\Messages\" />
+    <Folder Include="Network\TCP\" />
+    <Folder Include="Network\UDP\" />
+    <Folder Include="Network\WebSockets\" />
+    <Folder Include="Network\Server\" />
+    <Folder Include="Network\Client\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">
