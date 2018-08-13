@@ -21,12 +21,13 @@ using R2Core.Device;
 using R2Core.Network;
 using System.Net;
 using R2Core.Data;
-using R2Core.Memory;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using R2Core.Scripting;
 using System.IO;
 using System.Linq;
+using R2Core.DataManagement.Memory;
+using R2Core.DataManagement;
 
 
 namespace R2Core.Common
@@ -89,7 +90,7 @@ namespace R2Core.Common
 			m_devices = new DeviceManager (Settings.Identifiers.DeviceManager ());
 
 			// Creating a device factory used for the creation of yet uncategorized devices...
-			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices, m_memory);
+			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices);
 
 			m_devices.Add (m_taskMonitor);
 			m_devices.Add (Settings.Instance);
@@ -125,11 +126,12 @@ namespace R2Core.Common
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
 			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoop (), runLoopInterpreter, consoleLogger);
 			var dataFactory = m_deviceFactory.CreateDataFactory (Settings.Identifiers.DataFactory(), new List<string> () {Settings.Paths.Databases()});
-			var serializer = dataFactory.CreateSerialization (Settings.Identifiers.Serializer(), System.Text.Encoding.UTF8);
 
 			// Set up database and memory
 			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbFile);
 			m_memory = new SharedMemorySource (Settings.Identifiers.Memory(), m_devices, m_db);
+
+			var serializer = new JsonSerialization(Settings.Identifiers.Serializer(), System.Text.Encoding.UTF8);
 
 			// Creating a web factory used to create http/websocket related endpoints etc.
 			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory(), serializer);

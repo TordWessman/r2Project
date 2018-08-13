@@ -1,8 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
 using R2Core.Device;
-using R2Core.Memory;
 using System.Linq;
+using R2Core.DataManagement.Memory;
 
 namespace R2Core.Tests
 {

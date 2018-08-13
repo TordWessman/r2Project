@@ -65,7 +65,7 @@ namespace R2Core.Tests
 		public override void Setup() {
 		
 			base.Setup ();
-			serialization = m_dataFactory.CreateSerialization ("serializer", System.Text.Encoding.UTF8);
+			serialization = new JsonSerialization ("serializer", System.Text.Encoding.UTF8);
 			factory = new WebFactory ("wf", m_deviceManager, serialization);
 
 			DummyDevice d = new DummyDevice ("dummy_device");

@@ -19,7 +19,6 @@
 ﻿using System;
 using R2Core.Device;
 using R2Core.Network;
-using R2Core.Memory;
 using MemoryType = System.String;
 using System.Linq;
 using System.Dynamic;
@@ -36,16 +35,13 @@ namespace R2Core.Common
 	public class DeviceFactory : DeviceBase
 	{
 		private IDeviceManager m_deviceManager;
-		private IMemorySource m_memory;
 
-		public DeviceFactory (string id, IDeviceManager deviceManager, IMemorySource memory) : base (id)
+		public DeviceFactory (string id, IDeviceManager deviceManager) : base (id)
 		{
 			m_deviceManager = deviceManager;
-			m_memory = memory;
 		}
 
 		public IDeviceManager DeviceManager { get { return m_deviceManager; } }
-		public IMemorySource Memory { get { return m_memory; } }
 
 		/// <summary>
 		/// Creates a simple gstreamer pipeline. Requires libr2gstparseline.so to be compiled and installed into your system library directory.

@@ -21,7 +21,7 @@ using System.Runtime.InteropServices;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace R2Core.Data
+namespace R2Core
 {
 
 	public static class IntConversionExtensions {

@@ -22,9 +22,8 @@ using R2Core.Network;
 using System.Net;
 using System.Collections.Generic;
 using MemoryType = System.String;
-using R2Core.Memory;
-	
-namespace R2Core.Memory
+
+namespace R2Core.DataManagement.Memory
 {
 	/// <summary>
 	/// Interface providing methods for interacting with the shared memory. 

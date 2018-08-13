@@ -18,7 +18,7 @@
 
 using System;
 
-namespace R2Core.Data
+namespace R2Core.DataManagement
 {
 	public interface IDBAdapter
 	{

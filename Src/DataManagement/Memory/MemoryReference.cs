@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using MemoryType = System.String;
 
-namespace R2Core.Memory
+namespace R2Core.DataManagement.Memory
 {
 	[Serializable]
 	public class MemoryReference : IMemoryReference

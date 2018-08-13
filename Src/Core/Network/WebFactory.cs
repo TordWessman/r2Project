@@ -17,7 +17,6 @@
 // 
 
 ﻿using System;
-using R2Core.Memory;
 using R2Core.Device;
 using System.Linq;
 using System.Dynamic;
@@ -151,6 +150,18 @@ namespace R2Core.Network
 		
 			return new HostManager (id, port, destination, deviceManager, this);
 		
+		}
+
+		/// <summary>
+		/// Creates a dynamic seralizer/deserializer
+		/// </summary>
+		/// <returns>The serialization.</returns>
+		/// <param name="id">Identifier.</param>
+		/// <param name="encoding">Encoding.</param>
+		public ISerialization CreateSerialization(string id, System.Text.Encoding encoding) {
+
+			return new JsonSerialization (id, encoding);
+
 		}
 
 	}

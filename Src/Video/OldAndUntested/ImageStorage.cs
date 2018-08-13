@@ -17,7 +17,7 @@
 // 
 
 using System;
-using R2Core.Memory;
+using R2Core.DataManagement.Memory;
 using R2Core;
 using MemoryType = System.String;
 using System.Runtime.InteropServices;

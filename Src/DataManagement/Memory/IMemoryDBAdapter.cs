@@ -19,7 +19,7 @@
 using System;
 using R2Core.Data;
 
-namespace R2Core.Memory
+namespace R2Core.DataManagement.Memory
 {
 	public interface IMemoryDBAdapter : IDBAdapter
 	{

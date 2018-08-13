@@ -23,7 +23,7 @@ using System.Linq;
 using MemoryType = System.String;
 using R2Core.Device;
 
-namespace R2Core.Memory
+namespace R2Core.DataManagement.Memory
 {
 	public class Memory : IMemory
 	{

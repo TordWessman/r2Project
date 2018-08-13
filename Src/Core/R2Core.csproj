@@ -32,8 +32,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Mono.Data.Sqlite" />
-    <Reference Include="System.Data" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Dynamic" />
@@ -51,17 +49,6 @@
     <Compile Include="Device\DeviceManager.cs" />
     <Compile Include="Device\IDeviceManager.cs" />
     <Compile Include="Device\DeviceException.cs" />
-    <Compile Include="Memory\MemorySource.cs" />
-    <Compile Include="Memory\IMemoryDBAdapter.cs" />
-    <Compile Include="Memory\MemoryFactory.cs" />
-    <Compile Include="Memory\IMemoryReference.cs" />
-    <Compile Include="Memory\MemoryReference.cs" />
-    <Compile Include="Memory\IMemoryBus.cs" />
-    <Compile Include="Memory\IAssociationsDBAdapter.cs" />
-    <Compile Include="Memory\Memory.cs" />
-    <Compile Include="Memory\IMemory.cs" />
-    <Compile Include="Memory\MemoryDBAdapter.cs" />
-    <Compile Include="Memory\AssociationsDBAdapter.cs" />
     <Compile Include="Device\DeviceBase.cs" />
     <Compile Include="Device\IDevice.cs" />
     <Compile Include="Settings\CoreConfigurationTemplate.cs">
@@ -69,7 +56,6 @@
     </Compile>
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Device\IDeviceManagerObserver.cs" />
-    <Compile Include="Memory\SharedMemorySource.cs" />
     <Compile Include="Log\SimpleConsoleLogger.cs" />
     <Compile Include="Shared\IStartable.cs" />
     <Compile Include="Shared\IStopable.cs" />
@@ -82,19 +68,7 @@
     <Compile Include="Device\DeviceNotification.cs" />
     <Compile Include="Log\LogMessage.cs" />
     <Compile Include="Log\FileLogger.cs" />
-    <Compile Include="Data\ILinearDataSet.cs" />
-    <Compile Include="Data\LinearDataSet.cs" />
-    <Compile Include="Memory\TemporaryMemorySource.cs" />
-    <Compile Include="Data\IDatabase.cs" />
-    <Compile Include="Data\IDBAdapter.cs" />
-    <Compile Include="Data\SqliteDatabase.cs" />
-    <Compile Include="Data\DataFactory.cs" />
-    <Compile Include="Data\R2Dynamic.cs" />
     <Compile Include="Shared\ObjectInvoker.cs" />
-    <Compile Include="Data\Int32Converter.cs" />
-    <Compile Include="Data\ISerialization.cs" />
-    <Compile Include="Data\JsonSerialization.cs" />
-    <Compile Include="Memory\IMemorySource.cs" />
     <Compile Include="Device\IRemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice.cs" />
     <Compile Include="Network\Http\HttpClient.cs" />
@@ -137,22 +111,26 @@
     <Compile Include="Network\Client\IMessageClient.cs" />
     <Compile Include="Network\Client\IMessageClientObserver.cs" />
     <Compile Include="Network\Server\JsonExportObject.cs" />
+    <Compile Include="Network\ISerialization.cs" />
+    <Compile Include="Network\JsonSerialization.cs" />
+    <Compile Include="Shared\DataFactory.cs" />
+    <Compile Include="Shared\ILinearDataSet.cs" />
+    <Compile Include="Shared\Int32Converter.cs" />
+    <Compile Include="Shared\LinearDataSet.cs" />
+    <Compile Include="Shared\R2Dynamic.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Log\" />
     <Folder Include="Network\" />
     <Folder Include="Device\" />
-    <Folder Include="Memory\" />
     <Folder Include="Shared\" />
     <Folder Include="Settings\" />
     <Folder Include="Extensions\" />
-    <Folder Include="Data\" />
     <Folder Include="Network\Http\" />
     <Folder Include="Network\Messages\" />
     <Folder Include="Network\TCP\" />
     <Folder Include="Network\UDP\" />
-    <Folder Include="Network\WebSockets\" />
     <Folder Include="Network\Server\" />
     <Folder Include="Network\Client\" />
   </ItemGroup>

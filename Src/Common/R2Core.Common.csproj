@@ -52,5 +52,9 @@
       <Project>{2E07EACB-D0FB-415F-A497-8D57DE3D2D5C}</Project>
       <Name>R2Core.Scripting</Name>
     </ProjectReference>
+    <ProjectReference Include="..\DataManagement\R2Core.DataManagement.csproj">
+      <Project>{F56DA65F-26BB-47FB-8CA2-4A7699F98DF2}</Project>
+      <Name>R2Core.DataManagement</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

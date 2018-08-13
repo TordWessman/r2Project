@@ -25,7 +25,7 @@ using System.Data;
 using R2Core.Device;
 
 
-namespace R2Core.Data
+namespace R2Core.DataManagement
 {
 	public interface IDatabase : IDevice
 	{

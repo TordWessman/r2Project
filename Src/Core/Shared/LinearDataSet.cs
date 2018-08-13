@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace R2Core.Data
+namespace R2Core
 {
 	public class LinearDataSet: ILinearDataSet<double>
 	{

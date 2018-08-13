@@ -19,7 +19,7 @@
 using System;
 using R2Core.Device;
 using System.Runtime.InteropServices;
-using R2Core.Memory;
+using R2Core.DataManagement.Memory;
 using System.Collections.Generic;
 using R2Core;
 using System.Linq;

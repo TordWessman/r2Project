@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Data;
 using R2Core.Device;
 
-namespace R2Core.Data
+namespace R2Core.DataManagement
 {
 	public class SqliteDatabase : DeviceBase, IDatabase
 	{

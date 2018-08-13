@@ -18,7 +18,7 @@
 
 using System;
 using R2Core.Device;
-using R2Core.Memory;
+using R2Core.DataManagement.Memory;
 using System.Drawing;
 
 namespace R2Core.Video

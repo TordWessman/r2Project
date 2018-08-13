@@ -20,7 +20,7 @@ namespace R2Core.Tests
 		
 			base.Setup ();
 
-			serializer = m_dataFactory.CreateSerialization ("serializer", System.Text.Encoding.UTF8);
+			serializer = new JsonSerialization ("serializer", System.Text.Encoding.UTF8);
 
 		}
 		public DataTests ()

@@ -22,7 +22,7 @@ using System.Net;
 using System.Collections.Generic;
 using MemoryType = System.String;
 
-namespace R2Core.Memory
+namespace R2Core.DataManagement.Memory
 {
 	/// <summary>
 	/// The IMemoryBus deals with low-level memories (IMemoryReferences).

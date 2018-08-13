@@ -18,11 +18,11 @@
 
 ﻿using System;
 using R2Core.Device;
-using R2Core.Memory;
 using System.Collections.Generic;
 using R2Core;
 using System.Linq;
 using System.Threading.Tasks;
+using R2Core.DataManagement.Memory;
 
 namespace R2Core.PushNotifications
 {

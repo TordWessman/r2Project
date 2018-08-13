@@ -26,7 +26,7 @@ using R2Core.Data;
 using MemoryType = System.String;
 using System.Linq;
 
-namespace R2Core.Memory
+namespace R2Core.DataManagement.Memory
 {
 	public class MemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver
 	{

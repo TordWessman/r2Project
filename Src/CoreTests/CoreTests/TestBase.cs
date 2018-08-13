@@ -20,10 +20,10 @@ using System;
 using R2Core.Device;
 using R2Core.Network;
 using NUnit.Framework;
-using R2Core.Memory;
 using R2Core.Data;
 using System.Diagnostics;
 using R2Core.Common;
+using R2Core.DataManagement.Memory;
 
 namespace R2Core.Tests
 {
@@ -67,7 +67,7 @@ namespace R2Core.Tests
 				m_deviceManager.Add (Settings.Instance);
 				m_deviceManager.Add (Log.Instance);
 
-				m_deviceFactory = new DeviceFactory ("device_factory", m_deviceManager, new TemporaryMemorySource("ms"));
+				m_deviceFactory = new DeviceFactory ("device_factory", m_deviceManager);
 
 				m_dataFactory = new DataFactory("f", new System.Collections.Generic.List<string>() {Settings.Paths.TestData()});
 
