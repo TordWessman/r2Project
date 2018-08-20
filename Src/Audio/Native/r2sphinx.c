@@ -127,11 +127,11 @@ GstCaps* asr_create_caps(int rate) {
 
 	return gst_caps_new_simple("audio/x-raw",
 		"rate", G_TYPE_INT, rate,
-		"depth", G_TYPE_INT, 8,	
-		"width", G_TYPE_INT, 8,
+//		"depth", G_TYPE_INT, 8,	
+//		"width", G_TYPE_INT, 8,
 		"channels", G_TYPE_INT, 1,
 		//"endianess", G_TYPE_INT, 1234,
-		"signed", G_TYPE_BOOLEAN, true,
+//		"signed", G_TYPE_BOOLEAN, true,
 		"layout", G_TYPE_STRING, "interleaved",
 		"format", G_TYPE_STRING, "S16LE",
 		NULL);

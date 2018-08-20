@@ -37,6 +37,12 @@ namespace R2Core.Audio
 			return new EspeakTTS (id);
 		}
 
+		public ITTS CreateGoogle(string id, R2Core.Network.WebFactory webFactory) {
+		
+			return new GoogleTTS (id, webFactory);
+
+		}
+
 		public IAudioPlayer CreateMp3Player(string id) {
 			return new Mp3Player (id, m_basePath);
 		}

@@ -34,7 +34,7 @@ namespace R2Core.Audio
 		private const string dllPath = "libr2mp3.so";
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_init_mp3();
+		protected static extern int _ext_init_mp3_file();
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern void _ext_play_file_mp3(string fileName);
@@ -109,7 +109,7 @@ namespace R2Core.Audio
 		
 			if (_ext_is_initialized_mp3 () != 1) {
 
-				if (_ext_init_mp3 () != 1) {
+				if (_ext_init_mp3_file () != 1) {
 			
 					throw new DeviceException("Unable to initialize mp3 player.");
 				
