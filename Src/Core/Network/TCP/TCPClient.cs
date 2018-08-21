@@ -60,8 +60,6 @@ namespace R2Core.Network
 
 			m_host = host;
 			m_port = port;
-			m_client = new TcpClient ();
-			m_client.SendTimeout = Timeout;
 			m_serializer = serializer;
 			m_observers = new List<IMessageClientObserver> ();
 
@@ -76,12 +74,14 @@ namespace R2Core.Network
 
 		public string Host { get { return m_host; } }
 		public int Port { get { return m_port; } }
-		public override bool Ready { get { return m_shouldRun && m_client.Connected; } }
+		public override bool Ready { get { return m_shouldRun && m_client?.Connected == true; } }
 
 		public override void Start() {
 		
 			m_readError = null;
 			m_shouldRun = true;
+            m_client = new TcpClient();
+            m_client.SendTimeout = Timeout;
 			m_client.Connect (m_host, m_port);
 			m_receiverTask = Receive ();
 
