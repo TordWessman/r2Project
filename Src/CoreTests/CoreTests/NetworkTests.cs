@@ -60,13 +60,12 @@ namespace R2Core.Tests
 
 		protected WebFactory factory;
 
-
 		[TestFixtureSetUp]
 		public override void Setup() {
 		
 			base.Setup ();
 			serialization = new JsonSerialization ("serializer", System.Text.Encoding.UTF8);
-			factory = new WebFactory ("wf", m_deviceManager, serialization);
+			factory = new WebFactory ("wf", serialization);
 
 			DummyDevice d = new DummyDevice ("dummy_device");
 			m_deviceManager.Add (d);
