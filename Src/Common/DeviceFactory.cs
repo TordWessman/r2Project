@@ -57,7 +57,7 @@ namespace R2Core.Common
 
 		public WebFactory CreateWebFactory(string id, ISerialization serializer) {
 		
-			return new WebFactory (id, m_deviceManager, serializer);
+			return new WebFactory (id, serializer);
 
 		}
 

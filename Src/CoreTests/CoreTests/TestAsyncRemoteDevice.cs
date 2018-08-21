@@ -54,7 +54,7 @@ namespace R2Core.Tests
 
 			IHostConnection connection = new HostConnection ("hc", "/test", client);
 
-			RemoteDevice remoteDummy = new RemoteDevice ("dummy_device", dummyObject.Guid, connection);
+			RemoteDevice remoteDummy = new RemoteDevice ("dummy_device", Guid.Empty, connection);
 
 			// Test method with result
 			Task invokeTask = remoteDummy.Async ((result, ex) => { 
@@ -83,6 +83,7 @@ namespace R2Core.Tests
 
 			retrieveTask.Wait ();
 
+			// Test set property
 			remoteDummy.Async ((response, ex) => {
 				Assert.IsNull(ex);
 
@@ -91,6 +92,14 @@ namespace R2Core.Tests
 			Thread.Sleep (100);
 
 			Assert.AreEqual(dummyObject.HAHA, 1111);
+
+			Task failTask = remoteDummy.Async ((response, ex) => {
+
+				Assert.NotNull(ex);
+
+			}).ThisMethodDoesNotExist();
+		
+			failTask.Wait ();
 
 		}
 

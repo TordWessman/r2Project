@@ -19,16 +19,18 @@
 // (c) tord wessman 2012
 
 #include "r2mp3.h"
+#include <gio/gio.h>
 
 static GMainLoop *mp3_loop;
 
 static GstElement *mp3_bin, 	// the containing all the elements
 		*mp3_pipeline, 	 		// the pipeline for the bin
-		*mp3_file_src, 	 		
+		*mp3_src, 	 		
 		*mp3_decoder, 
 		*mp3_echo,	
 		*mp3_alsa_sink;
 
+GMemoryInputStream *mistream; //Used for playing from a memory pointer
 static GstBus *mp3_bus;	//the bus element te transport messages from/to the pipeline
 
 static int mp3_is_playing = 0; //indicates that the player is busy
@@ -90,9 +92,7 @@ static gboolean mp3_bus_call(GstBus *bus, GstMessage *msg, void *user_data)
 }
 
 //this method initiates the gobjects, the pipeline, the bus and the entire bin
-int mp3_init() {
-
-	gst_init (NULL, NULL);
+int mp3_init(GstElement *src) {
 
 	// create the main loop
 	mp3_loop = g_main_loop_new(NULL, FALSE);
@@ -101,14 +101,14 @@ int mp3_init() {
 	mp3_bin = gst_bin_new ("mp3_bin");
 
 	//initializing elements
-	mp3_file_src = gst_element_factory_make ("filesrc", "file_src");
-	mp3_decoder = gst_element_factory_make ("mad", "mad_decoder");
+	mp3_src = src;
+	mp3_decoder = gst_element_factory_make ("mad", "decoder");
 	mp3_alsa_sink = gst_element_factory_make ("alsasink", "alsasink");
 	mp3_echo = gst_element_factory_make("audioecho", "echo");
 	//g_object_set (G_OBJECT (mp3_echo), "delay", 9000000, NULL);
 
 	//check for successfull creation of elements
-	if(!mp3_file_src)
+	if(!mp3_src)
 		g_critical("Unable to create filesrc!\n");
 	if(!mp3_decoder)
 		g_critical( "Unable create mp3 decoder\n");
@@ -125,7 +125,7 @@ int mp3_init() {
 
 	// Add the elements to the bin
 	gst_bin_add_many (GST_BIN (mp3_bin), 
-		mp3_file_src,
+		mp3_src,
 		mp3_decoder, 
 		//echo,
 		mp3_alsa_sink,
@@ -136,7 +136,7 @@ int mp3_init() {
 
 	// link the elements and check for success
 	if (!gst_element_link_many (
-		mp3_file_src, 
+		mp3_src, 
 		mp3_decoder,
 		//echo,
 		mp3_alsa_sink,
@@ -165,7 +165,16 @@ void mp3_stop_playback() {
 	g_main_loop_quit(mp3_loop);
 }
 
-void mp3_play(const char* mp3_file) {
+void mp3_play() {
+
+	gst_element_set_state(GST_ELEMENT(mp3_pipeline), GST_STATE_PLAYING);
+	g_main_loop_run(mp3_loop);
+	gst_element_set_state(GST_ELEMENT(mp3_pipeline), GST_STATE_NULL);
+	mp3_is_playing = 0;
+
+}
+
+void mp3_file_play(const char* mp3_file) {
 
 	if (!mp3_is_initialized) {
 		g_critical ("Mp3 player Unable to play. You have to initialize first!");
@@ -174,12 +183,26 @@ void mp3_play(const char* mp3_file) {
 
 
 	mp3_is_playing = 1;
-	g_object_set (G_OBJECT (mp3_file_src), "location", mp3_file, NULL);
+	g_object_set (G_OBJECT (mp3_src), "location", mp3_file, NULL);
 
-	gst_element_set_state(GST_ELEMENT(mp3_pipeline), GST_STATE_PLAYING);
-	g_main_loop_run(mp3_loop);
-	gst_element_set_state(GST_ELEMENT(mp3_pipeline), GST_STATE_NULL);
-	mp3_is_playing = 0;
+	mp3_play();
+
+}
+
+
+void mp3_memory_play(uint8_t* mp3_pointer, int size) {
+
+	if (!mp3_is_initialized) {
+		g_critical ("Mp3 player Unable to play. You have to initialize first!");
+		return; 
+	}
+
+
+	mp3_is_playing = 1;
+	mistream = G_MEMORY_INPUT_STREAM(g_memory_input_stream_new_from_data(mp3_pointer, size, (GDestroyNotify) g_free));
+	g_object_set (G_OBJECT (mp3_src), "stream", mistream, NULL);
+	mp3_play();
+
 }
 
 void _ext_stop_mp3() {
@@ -190,14 +213,30 @@ void _ext_stop_playback_mp3() {
 	mp3_stop_playback();
 }
 
-int _ext_init_mp3 () {
+int _ext_init_mp3_file () {
 
-	return mp3_init();
+	gst_init (NULL, NULL);
+	return mp3_init(gst_element_factory_make ("filesrc", "src"));
+
+}
+
+int _ext_init_mp3_memory () {
+
+	gst_init (NULL, NULL);
+	return mp3_init(gst_element_factory_make ("giostreamsrc", "src"));
+
 }
 
 void _ext_play_file_mp3(const char* mp3_file) {
-	if (mp3_is_playing == 0)
-		mp3_play(mp3_file);
+
+	if (mp3_is_playing == 0) { mp3_file_play(mp3_file); }
+
+}
+
+void _ext_play_memory_mp3(uint8_t* mp3_pointer, int size) {
+
+	if (mp3_is_playing == 0) { mp3_memory_play(mp3_pointer, size); }
+
 }
 
 void _ext_pause_mp3() {
@@ -215,11 +254,14 @@ int _ext_is_initialized_mp3 () {
 
 int main (int argc, char *argv[]) {
 
-	mp3_is_playing = 1;
-	if (mp3_init()) {
+	if (_ext_init_mp3_file()) {
+
 		if (argc > 1) {
-			mp3_play (argv[1]);
+
+			g_print("Now playing file: '%s'", argv[1]);
+			mp3_file_play (argv[1]);
 			mp3_stop();
+
 		}
 		else 
 			printf ("Nothing to play...");

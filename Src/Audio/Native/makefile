@@ -1,6 +1,11 @@
 CC=gcc
-PREFIX=`pkg-config gstreamer-1.0 --cflags`
-CFLAGS=-Wall -fPIC -shared `pkg-config gstreamer-1.0 --libs` -I /usr/include -L /usr/lib -lgstapp-1.0  `pkg-config glib-2.0 gobject-2.0 --libs --cflags`
+ifdef test
+SHARED_FLAG=
+else
+SHARED_FLAG=-shared
+endif
+PREFIX=
+CFLAGS=-Wall -fPIC -lgstapp-1.0 $(SHARED_FLAG) `pkg-config gstreamer-1.0 gio-2.0 --libs --cflags`
 R2_LIB_DIR=../../../Lib/
 ESPEAK=r2espeak
 MP3=r2mp3
@@ -8,7 +13,6 @@ SPHINX=r2sphinx
 ESPEAK_LIB=lib$(ESPEAK).so
 MP3_LIB=lib$(MP3).so
 SPHINX_LIB=lib$(SPHINX).so
-
 
 all: espeak mp3 sphinx
 
@@ -26,7 +30,5 @@ sphinx:
 
 clean:
 	rm *.so
-	rm $(R2_LIB_DIR)$(MP3_LIB)
-	rm $(R2_LIB_DIR)$(ESPEAK_LIB)
-	rm $(R2_LIB_DIR)$(SPHINX_LIB)
+	
 

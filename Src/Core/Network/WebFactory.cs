@@ -31,13 +31,10 @@ namespace R2Core.Network
 	public class WebFactory : DeviceBase
 	{
 		
-		private IDeviceManager m_deviceManager;
-
 		private ISerialization m_serialization;
 
-		public WebFactory (string id, IDeviceManager deviceManager, ISerialization serialization) : base (id) {
-		
-			m_deviceManager = deviceManager;
+		public WebFactory (string id, ISerialization serialization) : base (id) {
+
 			m_serialization = serialization;
 
 		}
