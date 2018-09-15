@@ -23,6 +23,8 @@
 
 static GMainLoop *mp3_loop;
 
+GMemoryInputStream *mistream;
+
 static GstElement *mp3_bin, 	// the containing all the elements
 		*mp3_pipeline, 	 		// the pipeline for the bin
 		*mp3_src, 	 		
@@ -30,7 +32,6 @@ static GstElement *mp3_bin, 	// the containing all the elements
 		*mp3_echo,	
 		*mp3_alsa_sink;
 
-GMemoryInputStream *mistream; //Used for playing from a memory pointer
 static GstBus *mp3_bus;	//the bus element te transport messages from/to the pipeline
 
 static int mp3_is_playing = 0; //indicates that the player is busy
@@ -42,9 +43,10 @@ static gboolean mp3_bus_call(GstBus *bus, GstMessage *msg, void *user_data)
 
 	switch (GST_MESSAGE_TYPE(msg)) {
 	case GST_MESSAGE_EOS: {
-		//g_message("End-of-stream");
+		g_message("End-of-stream");
 		//report the end of stream
 		g_main_loop_quit(mp3_loop);
+		
 		break;
 	}
 	case GST_MESSAGE_ERROR: {
@@ -58,29 +60,6 @@ static gboolean mp3_bus_call(GstBus *bus, GstMessage *msg, void *user_data)
 		
 		break;
 	} 
-	case GST_MESSAGE_ELEMENT: {
-		const GstStructure *str;
-		str = gst_message_get_structure (msg);
-		
-		if (gst_structure_has_name(str,"espeak-mark") || 
-			gst_structure_has_name(str,"espeak-word")) {
-			//espeak messages
-		}
-		break;
-	}
-	//onther element specific message
-
-	case GST_MESSAGE_APPLICATION: {
-
-		const GstStructure *str;
-		str = gst_message_get_structure (msg);
-		 if (gst_structure_has_name(str,"turn_off"))
-			{
-				g_main_loop_quit(mp3_loop);
-			}
-
-		break;
-	}
 	default:
 	
 		break;
@@ -93,6 +72,8 @@ static gboolean mp3_bus_call(GstBus *bus, GstMessage *msg, void *user_data)
 
 //this method initiates the gobjects, the pipeline, the bus and the entire bin
 int mp3_init(GstElement *src) {
+
+	mp3_is_initialized = 0;
 
 	// create the main loop
 	mp3_loop = g_main_loop_new(NULL, FALSE);
@@ -108,14 +89,28 @@ int mp3_init(GstElement *src) {
 	//g_object_set (G_OBJECT (mp3_echo), "delay", 9000000, NULL);
 
 	//check for successfull creation of elements
-	if(!mp3_src)
+	if(!mp3_src) {
+
 		g_critical("Unable to create filesrc!\n");
-	if(!mp3_decoder)
+		return false;
+
+	} else if(!mp3_decoder) {
+
 		g_critical( "Unable create mp3 decoder\n");
-	if(!mp3_alsa_sink)
+		return false;
+
+	} else if(!mp3_alsa_sink) {
+
 		g_critical("Unable create sink.");
-	if(!mp3_echo)
+		return false;
+
+	} else if(!mp3_echo) {
+
 		g_critical("Unable to create echo!\n");
+		return false;
+	
+	}
+
 	// create the bus for the pipeline:
 	mp3_bus = gst_pipeline_get_bus(GST_PIPELINE(mp3_pipeline));
 	//add the bus handler method:
@@ -140,14 +135,18 @@ int mp3_init(GstElement *src) {
 		mp3_decoder,
 		//echo,
 		mp3_alsa_sink,
-	NULL))
+	NULL)) {
+
 		g_critical("Unable to link elements!\n");
+		return false;
+
+	}
 
 	mp3_is_initialized = 1;
 
 
 	//creation successfull
-	return mp3_is_initialized ;
+	return true;
 	
 }
 
@@ -170,6 +169,7 @@ void mp3_play() {
 	gst_element_set_state(GST_ELEMENT(mp3_pipeline), GST_STATE_PLAYING);
 	g_main_loop_run(mp3_loop);
 	gst_element_set_state(GST_ELEMENT(mp3_pipeline), GST_STATE_NULL);
+	
 	mp3_is_playing = 0;
 
 }
@@ -189,6 +189,7 @@ void mp3_file_play(const char* mp3_file) {
 
 }
 
+int apa = 0;
 
 void mp3_memory_play(uint8_t* mp3_pointer, int size) {
 
@@ -199,10 +200,20 @@ void mp3_memory_play(uint8_t* mp3_pointer, int size) {
 
 
 	mp3_is_playing = 1;
-	mistream = G_MEMORY_INPUT_STREAM(g_memory_input_stream_new_from_data(mp3_pointer, size, (GDestroyNotify) g_free));
-	g_object_set (G_OBJECT (mp3_src), "stream", mistream, NULL);
-	mp3_play();
+	g_print("Pointer: %p. ", mp3_pointer);
+	g_print("A value: %d \n", mp3_pointer[100]);
+	
+	if (mistream != NULL) {
 
+		g_input_stream_close ((GInputStream *)mistream, NULL, NULL);
+		
+	}
+
+	mistream = G_MEMORY_INPUT_STREAM(g_memory_input_stream_new_from_data(mp3_pointer, size, (GDestroyNotify) g_free));
+	g_print("Input stream pointer: %p. ", mistream);
+	g_object_set (G_OBJECT (mp3_src), "stream", G_INPUT_STREAM(mistream), NULL);
+	mp3_play();
+	
 }
 
 void _ext_stop_mp3() {
@@ -250,7 +261,6 @@ int _ext_is_playing_mp3 () {
 int _ext_is_initialized_mp3 () {
 	return mp3_is_initialized;
 }
-// sudo apt-get install portaudio19-dev
 
 int main (int argc, char *argv[]) {
 

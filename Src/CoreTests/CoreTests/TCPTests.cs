@@ -254,27 +254,6 @@ namespace R2Core.Tests
 
 		}
 
-		public class DummyClientObserver : IMessageClientObserver {
-
-			private string m_destination;
-
-			public DummyClientObserver(string destination = null) {
-			
-				m_destination = destination;
-
-			}
-
-			public void OnReceive (INetworkMessage message, Exception ex) {
-			
-				Asserter (message);
-
-			}
-
-			public Action<INetworkMessage> Asserter;
-
-			public string Destination { get { return m_destination; } }
-
-		}
 		[Test]
 		public void TestTCP_Server_broadcast() {
 

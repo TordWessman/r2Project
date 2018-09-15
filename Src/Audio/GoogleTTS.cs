@@ -80,11 +80,14 @@ namespace R2Core.Audio
 				Destination = $"http://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&q={System.Uri.EscapeDataString(text)}&tl={m_language}"
 			};
 
+			Log.t($"Sending: {message.Destination}");
+
 			m_sendTask = m_client.SendAsync (message, (response) => {
 			
 				if (response.Payload is byte[]) {
-				
+
 					byte[] mp3Data = (byte[]) response.Payload;
+					Log.t($"Got reply with length: {mp3Data.Length}!");
 					_ext_play_memory_mp3 (mp3Data, mp3Data.Length);
 
 				} else {
