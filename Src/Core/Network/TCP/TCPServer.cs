@@ -151,7 +151,13 @@ namespace R2Core.Network
 			m_listener.Stop ();
 			m_listener = null;
 
-			IList<IClientConnection> connections = m_connections;
+			IList<IClientConnection> connections = new List<IClientConnection>();
+
+			// Avouid conncurrency issues.
+			m_connections.All ((c) => {
+				connections.Add (c); 
+				return true;
+			});
 
 			connections.AsParallel ().ForAll ((client) => {
 			

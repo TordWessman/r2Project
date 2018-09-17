@@ -271,10 +271,30 @@ namespace R2Core.Tests
 			devices2.HostManager.Start ();
 
 			// Sleep enough time for both host managers to be synchronized
-			Thread.Sleep (4000);
+			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
 
+			// The device should be available
 			Assert.NotNull (devices1.DeviceManager.Get ("dummy2"));
 			Assert.NotNull (devices2.DeviceManager.Get ("dummy1"));
+
+			// Change the value of a property @ instance 1
+			dummy1.Bar = "KATT";
+
+			// Add a new device to instance 2
+			var dummy3 = new DummyDevice ("dummy3");
+			devices2.DeviceRouter.AddDevice (dummy3);
+			devices2.DeviceManager.Add (dummy3);
+
+			// They should be synchronized after this...
+			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
+
+			// The new device should be available
+			Assert.NotNull (devices1.DeviceManager.Get ("dummy3"));
+
+			// Check the changed property of dummy1
+			dynamic dummy1_remote = devices2.DeviceManager.Get ("dummy1");
+
+			Assert.AreEqual ("KATT", dummy1_remote.Bar);
 
 			devices2.Stop ();
 			devices1.Stop ();

@@ -184,12 +184,19 @@ namespace R2Core.Network
 
 		}
 
+		/// <summary>
+		/// Fires of a broadcast and initiate the perpetual broadcaster
+		/// </summary>
 		public override void Start () {
 
-			m_broadcaster.Start ();
+			Broadcast ();
+			m_broadcastTimer.Start ();
 
 		}
 
+		/// <summary>
+		/// Stop the broadcast timer and disconnect all hosts.
+		/// </summary>
 		public override void Stop () {
 
 			m_broadcastTimer.Stop ();
