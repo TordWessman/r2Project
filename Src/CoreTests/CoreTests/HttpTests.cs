@@ -73,7 +73,7 @@ namespace R2CoreTests
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";
 
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
 			rec.AddDevice (dummyObject);
 
 			var request = new DeviceRequest() {
@@ -125,7 +125,7 @@ namespace R2CoreTests
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.HAHA = 0;
 
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
 			rec.AddDevice (dummyObject);
 
 			string jsonString = 
@@ -237,7 +237,7 @@ namespace R2CoreTests
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";
 
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
 			rec.AddDevice (dummyObject);
 
 			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);

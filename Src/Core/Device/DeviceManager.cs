@@ -63,7 +63,7 @@ namespace R2Core.Device
 			lock (m_lock) {
 
 				IDevice existingDevice = m_devices.Values.Where (d => d.Identifier == device.Identifier).FirstOrDefault ();
-				if (existingDevice != null) {
+				if (existingDevice != null && !(existingDevice is IRemoteDevice)) {
 
 					Log.w ($"Replacing device duplicated device with id `{device.Identifier}`");
 					m_devices.Remove (existingDevice.Guid);
@@ -112,17 +112,22 @@ namespace R2Core.Device
 
 		public T GetByGuid<T> (Guid guid) {
 
-			IDevice device = m_devices [guid];
-
+			IDevice device = m_devices.Select (d => d.Value).Where(dv => dv.Guid == guid).FirstOrDefault ();
+		
 			if (device != null && device is T) {
 
+				// Device found
 				return  (T) device;
 
-			} else {
+			} else if (device != null) {
 
+				// Device found but of wrong type
 				throw new InvalidCastException ("Device with Guid: " + guid.ToString() + " cannot be retrieved, is correct type: " + (device is T).ToString());
 
 			}
+
+			// No device found
+			return default(T);
 
 		}
 

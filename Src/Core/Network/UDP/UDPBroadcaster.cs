@@ -168,7 +168,7 @@ namespace R2Core.Network
 				responseDelegate?.BeginInvoke(new BroadcastMessage(response, (IPEndPoint) remoteHost), null, (asyncResult) => {
 					
 					try {
-
+						
 						// Make sure we log exceptions in delegates, at least...
 						((asyncResult as AsyncResult).AsyncDelegate as Action<BroadcastMessage, Exception>).EndInvoke(asyncResult);
 

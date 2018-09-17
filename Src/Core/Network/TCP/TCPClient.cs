@@ -42,7 +42,7 @@ namespace R2Core.Network
 		private AutoResetEvent m_writeLock;
 		private AutoResetEvent m_readLock;
 
-		// Contains the latest previous response
+		// Contains the latest preTcpClientvious response
 		TCPMessage m_latestResponse;
 
 		// Contains an Exception from the Received if thrown there.

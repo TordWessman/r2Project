@@ -202,7 +202,7 @@ namespace R2Core.Tests
 			s.Start ();
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
 			rec.AddDevice (dummyObject);
 			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
 			s.AddEndpoint (ep);

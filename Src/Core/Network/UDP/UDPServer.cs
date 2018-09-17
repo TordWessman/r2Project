@@ -86,7 +86,7 @@ namespace R2Core.Network
 							response = new TCPMessage(ep.Interpret (request, client));
 
 						} else {
-
+							
 							response = new TCPMessage() {
 								Code = WebStatusCode.NotFound.Raw(),
 								Payload =  new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}")

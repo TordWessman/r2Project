@@ -64,7 +64,7 @@ namespace R2Core.Network
 		/// </summary>
 		/// <returns>The device object receiver.</returns>
 		/// <param name="security">Security.</param>
-		public IWebObjectReceiver CreateDeviceObjectReceiver() {
+		public IWebObjectReceiver CreateDeviceRouter() {
 		
 			return new DeviceRouter ();
 
@@ -143,9 +143,9 @@ namespace R2Core.Network
 		/// <param name="id">Identifier.</param>
 		/// <param name="port">Port.</param>
 		/// <param name="destination">Destination.</param>
-		public HostManager CreateHostManager(string id, int port, string destination, IDeviceManager deviceManager) {
+		public HostManager CreateHostManager(string id, int port, IDeviceManager deviceManager) {
 		
-			return new HostManager (id, port, destination, deviceManager, this);
+			return new HostManager (id, port, deviceManager, this);
 		
 		}
 
