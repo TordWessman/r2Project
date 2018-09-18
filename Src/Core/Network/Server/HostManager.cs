@@ -146,7 +146,7 @@ namespace R2Core.Network
 			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
 
 				if (WebStatusCode.Ok.Is(response?.Code)) {
-					
+
 					DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
 					dynamic endpoint = deviceResponse.Object;
 
@@ -277,10 +277,6 @@ namespace R2Core.Network
 					Log.t($"Adding device: {device.Identifier}");
 
 					m_deviceManager.Add(remote);
-
-				} else {
-
-					Log.t($"Duplicate/NOT adding device: {device.Identifier}");
 
 				}
 

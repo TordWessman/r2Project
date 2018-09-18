@@ -180,16 +180,17 @@ namespace R2Core.Tests
 			var dummy = new DummyDevice ("dummyX");
 			devices1.DeviceRouter.AddDevice (dummy);
 			devices1.DeviceManager.Add (dummy);
-
+			devices1.Start ();
 			Thread.Sleep (500);
 
+			// Represent the remote host which want to retrieve device "dummyX"
 			DeviceManager remoteDeviceManager = new DeviceManager ("remote_dm");
-
 			HostManager h = factory.CreateHostManager ("h", udp_port, remoteDeviceManager);
 
 			h.Broadcast ();
 
-			Thread.Sleep (1000);
+			// Wait in order for the broadcast task to finish 
+			Thread.Sleep (2000);
 
 			Log.t (((UDPBroadcaster) h.Broadcaster).BroadcastTask.Exception?.StackTrace);
 
