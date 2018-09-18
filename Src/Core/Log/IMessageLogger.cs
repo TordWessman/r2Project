@@ -21,11 +21,11 @@ using System.Collections.Generic;
 
 namespace R2Core
 {
-	public enum LogType {
-		Message,
-		Warning,
-		Error,
-		Temp
+	public enum LogType: int {
+		Message = 0,
+		Warning = 1,
+		Error = 2,
+		Temp = -1
 	}
 
 	/// <summary>

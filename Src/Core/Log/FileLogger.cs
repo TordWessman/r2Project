@@ -52,7 +52,9 @@ namespace R2Core
 		
 			lock (m_lock) {
 
-				m_outputStream.WriteLine($"[{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
+				int id = System.Threading.Tasks.Task.CurrentId ?? 0;
+
+				m_outputStream.WriteLine($"[{id}][{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
 
 			}
 

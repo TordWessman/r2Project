@@ -23,6 +23,7 @@ using R2Core.Device;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace R2Core
 {
@@ -30,6 +31,11 @@ namespace R2Core
 	{
 		private List<IMessageLogger> loggers;
 		protected static Log instance;
+
+		public LogType LogLevel = LogType.Temp;
+
+		// Keeps track of all log levels for specific threads.
+		private IDictionary<int, LogType> m_threadLogLevels;
 
 		public IEnumerable<ILogMessage> History {
 
@@ -40,6 +46,21 @@ namespace R2Core
 			}
 
 		}
+
+		public static void SetLogLevelForCurrentTask(LogType level) {
+		
+			if (System.Threading.Tasks.Task.CurrentId != null) {
+
+				Instance.m_threadLogLevels [(int)System.Threading.Tasks.Task.CurrentId] = level;
+
+			} else {
+			
+				Log.w ("Can't SetLogLevelForCurrentTask. Not in a Task.");
+
+			}
+
+		}
+
 
 		public static void Instantiate(string id) {
 		
@@ -60,7 +81,8 @@ namespace R2Core
 		public Log (string id): base (id) {
 
 			loggers = new List<IMessageLogger>();
-		
+			m_threadLogLevels = new Dictionary<int, LogType> ();
+
 		}
 		
 		public void AddLogger(IMessageLogger logger) {
@@ -73,16 +95,34 @@ namespace R2Core
 			
 			if (loggers.Count == 0) {
 
-				throw new InvalidOperationException ("No logger attached for message: " + message.Message + " and type: " + message.Type);
+				throw new InvalidOperationException ($"No logger attached for message '{message.Message}' and type '{message.Type}'.");
 			
 			}
-			
-			foreach (IMessageLogger logger in loggers) {
-			
-				logger.Write(message);
+
+			if (CanWrite(message)) {
+
+				foreach (IMessageLogger logger in loggers) {
+
+					logger.Write(message);
+
+				}
 
 			}
-				
+
+		}
+
+		/// <summary>
+		/// Returns true if all conditions are satisfied for writing messages.
+		/// </summary>
+		/// <returns><c>true</c> if this instance can write the specified message; otherwise, <c>false</c>.</returns>
+		/// <param name="message">Message.</param>
+		private bool CanWrite(ILogMessage message) {
+
+			return message.Type >= LogLevel && 
+					message.Type >= 
+						((Task.CurrentId != null && m_threadLogLevels.ContainsKey ((int)Task.CurrentId)) ? 
+							m_threadLogLevels [(int)Task.CurrentId] : LogType.Temp);
+
 		}
 
 		public void message(object message, string tag = null) {
