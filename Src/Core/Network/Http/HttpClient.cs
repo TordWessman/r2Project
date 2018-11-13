@@ -155,11 +155,15 @@ namespace R2Core.Network
 					
 					responseObject.Payload = m_serializer.Encoding.GetString (responseData);
 
-				} if (response.ContentType.ToLower().Contains ("json")) {
+				} else if (response.ContentType.ToLower().Contains ("json")) {
 					
 					responseObject.Payload = m_serializer.Deserialize (responseData);
 
-				} else {
+				} else if (response.ContentType.ToLower().Contains ("xml")) {
+
+					responseObject.Payload = System.Text.Encoding.UTF8.GetString (responseData);
+
+				}else {
 					
 					responseObject.Payload = responseData;
 

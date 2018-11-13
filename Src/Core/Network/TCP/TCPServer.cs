@@ -149,7 +149,12 @@ namespace R2Core.Network
 		
 			IWebEndpoint endpoint = GetEndpoint (request.Destination);
 
-			if (endpoint != null) { return endpoint.Interpret (request, address); } 
+			if (endpoint != null) { 
+				
+				var response = endpoint.Interpret (request, address);
+				return response;
+
+			} 
 
 			return new TCPMessage() {
 				Code = WebStatusCode.NotFound.Raw(),
