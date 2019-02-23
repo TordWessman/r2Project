@@ -31,7 +31,10 @@ namespace R2Core.Network
 {
 	public class TCPServer : ServerBase, IServer, INetworkBroadcaster
 	{
-		
+
+		// Ensure therad safety for connection access
+		private readonly object m_connectionsLock = new object();
+
 		private TcpListener m_listener;
 
 		private ITCPPackageFactory<TCPMessage> m_packageFactory;
@@ -102,15 +105,19 @@ namespace R2Core.Network
 			while (ShouldRun) {
 
 				try {
-					
-					TcpClient client = m_listener.AcceptTcpClient();
-					client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-					TCPClientConnection connection = new TCPClientConnection(client.Client.RemoteEndPoint.ToString(), m_packageFactory, client);
-					connection.OnReceive += OnReceive;
-					connection.OnDisconnect += OnDisconnect;
 
-					m_connections.Add(connection);
-					connection.Start();
+					lock(m_connectionsLock) {
+						
+						TcpClient client = m_listener.AcceptTcpClient();
+						client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+						TCPClientConnection connection = new TCPClientConnection(client.Client.RemoteEndPoint.ToString(), m_packageFactory, client);
+						connection.OnReceive += OnReceive;
+						connection.OnDisconnect += OnDisconnect;
+
+						m_connections.Add(connection);
+						connection.Start();
+
+					}
 
 				} catch (System.Net.Sockets.SocketException ex) {
 
@@ -129,7 +136,12 @@ namespace R2Core.Network
 		private void OnDisconnect(IClientConnection connection, Exception ex) {
 		
 			if (ex != null) { Log.x(ex); }
-			m_connections.Remove (connection);
+
+			lock (m_connectionsLock) {
+
+				m_connections.Remove (connection);
+
+			}
 
 		}
 
@@ -137,7 +149,12 @@ namespace R2Core.Network
 		
 			IWebEndpoint endpoint = GetEndpoint (request.Destination);
 
-			if (endpoint != null) { return endpoint.Interpret (request, address); } 
+			if (endpoint != null) { 
+				
+				var response = endpoint.Interpret (request, address);
+				return response;
+
+			} 
 
 			return new TCPMessage() {
 				Code = WebStatusCode.NotFound.Raw(),
@@ -151,13 +168,17 @@ namespace R2Core.Network
 			m_listener.Stop ();
 			m_listener = null;
 
-			IList<IClientConnection> connections = m_connections;
+			// Avouid conncurrency issues.
 
-			connections.AsParallel ().ForAll ((client) => {
-			
-				client.Stop ();
+			lock (m_connectionsLock) {
 
-			});
+				m_connections.ToList ().ForEach ((client) => {
+
+					client.Stop ();
+
+				});
+
+			}
 
 		}
 

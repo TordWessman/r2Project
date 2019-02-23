@@ -67,8 +67,9 @@ namespace R2Core.Scripting
 		
 		}
 
-		public override void Reload ()
-		{
+		public override void Reload () {
+
+			if (IsRunning) { Stop (); }
 
 			if (!File.Exists (m_fileName)) {
 

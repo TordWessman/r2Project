@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E6DED973-A7AE-40AB-85B4-4E06BE4A0135}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>PushNotifications</RootNamespace>
+    <RootNamespace>R2Core.PushNotifications</RootNamespace>
     <AssemblyName>PushNotifications</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <ProductVersion>8.0.30703</ProductVersion>

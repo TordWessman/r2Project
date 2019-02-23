@@ -44,7 +44,6 @@ namespace R2Core.Network
 	/// 
 	///  - Example of a request structure:
 	/// {
-	/// 	Token: "optional password",
 	/// 	Params [ 42, "foo" ],
 	/// 	ActionType: 2,
 	/// 	Action: "UpdateNumberAndString",

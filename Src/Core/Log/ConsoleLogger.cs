@@ -162,16 +162,29 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 
 		private void SetConsoleColor (LogType logType)
 		{
+			switch (logType) {
 
-			if (logType == LogType.Error) {
+			case LogType.Error:
+				
 				SetConsoleColor (ConsoleColor.Red);
-			} else if (logType == LogType.Warning) {
+				break;
+
+			case LogType.Warning:
+				
 				SetConsoleColor (ConsoleColor.Yellow);
-			} else if (logType == LogType.Temp) {
+				break;
+			
+			case LogType.Temp:
+
 				SetConsoleColor (ConsoleColor.Green);
-			} else {
+				break;
+
+			case LogType.Message:
+
 				SetConsoleColor (ConsoleColor.Gray);
+				break;
 			}
+
 		}
 
 	}

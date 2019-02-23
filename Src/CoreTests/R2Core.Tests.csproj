@@ -7,7 +7,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B6397024-E95C-43D8-8CDF-0EB826804949}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>CoreTests</RootNamespace>
+    <RootNamespace>R2Core.Tests</RootNamespace>
     <AssemblyName>CoreTests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -59,6 +59,7 @@
     <Compile Include="CoreTests\UDPTests.cs" />
     <Compile Include="DummyClasses\Networking\DummyEndpoint.cs" />
     <Compile Include="CoreTests\TestAsyncRemoteDevice.cs" />
+    <Compile Include="CoreTests\DummyClientObserver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

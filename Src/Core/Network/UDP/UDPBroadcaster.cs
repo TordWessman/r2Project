@@ -100,7 +100,7 @@ namespace R2Core.Network
 			m_cancelationToken.CancelAfter (timeout);
 
 			m_task = new Task(() => {
-				
+
 				byte[] requestData = m_serializer.SerializeMessage (new TCPMessage(message));
 
 				if (requestData.Length > MaximumPackageSize) {
@@ -128,6 +128,10 @@ namespace R2Core.Network
 						responseDelegate.Invoke(null, ex);
 
 					}
+
+				}  catch (System.Threading.ThreadAbortException) {
+
+					Log.d("Broadcast thread aborted.");
 
 				} catch (Exception ex) {
 				
@@ -168,7 +172,7 @@ namespace R2Core.Network
 				responseDelegate?.BeginInvoke(new BroadcastMessage(response, (IPEndPoint) remoteHost), null, (asyncResult) => {
 					
 					try {
-
+						
 						// Make sure we log exceptions in delegates, at least...
 						((asyncResult as AsyncResult).AsyncDelegate as Action<BroadcastMessage, Exception>).EndInvoke(asyncResult);
 

@@ -175,7 +175,7 @@ namespace R2Core.Network
 			} else {
 
 				payload = m_serialization.Deserialize(payloadData);
-				Log.t($"Deserializing: {m_serialization.Encoding.GetString(payloadData)}");
+
 			}
 
 			return new TCPMessage () { 

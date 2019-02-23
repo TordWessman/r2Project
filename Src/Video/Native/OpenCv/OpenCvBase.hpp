@@ -18,8 +18,8 @@
 
 #include <opencv/cv.h>
 #include <stdio.h>
-#include <opencv/highgui.h>
-#include <opencv/cxcore.h>
+#include <opencv2/highgui.hpp>
+#include <opencv2/core.hpp>
 
 extern "C" {
 

@@ -23,9 +23,33 @@ using R2Core.Network;
 using R2Core.Data;
 using System.Threading.Tasks;
 using R2Core.Device;
+using System.Collections.Generic;
 
 namespace R2Core.Tests
 {
+
+	//Represent an "instance" of a remote system (with servers, devices etc)
+	struct ServerInstanceContainer {
+
+		public IServer UDPServer;
+		public IServer TCPServer;
+		public IDeviceManager DeviceManager;
+		public DeviceRouter DeviceRouter;
+		public HostManager HostManager;
+
+		public void Start() {
+			UDPServer.Start ();
+			TCPServer.Start ();
+		}
+
+		public void Stop() {
+			UDPServer.Stop ();
+			TCPServer.Stop ();
+			HostManager.Stop ();
+
+		}
+	}
+
 	[TestFixture]
 	public class UDPTests: NetworkTests
 	{
@@ -113,64 +137,11 @@ namespace R2Core.Tests
 		}
 
 		[Test]
-		public void TestHostManager() {
-
-			// Set up tcp-server
-			var path = "/devices";
-			var tcps = factory.CreateTcpServer ("tcp_server", tcp_port);
-			var udps = (UDPServer) factory.CreateUdpServer ("udp_server", udp_port);
-			udps.AllowLocalRequests = true;
-
-			tcps.Start ();
-			udps.Start ();
-
-			DeviceRouter deviceRouter = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
-			deviceRouter.AddDevice (tcps);
-			var dummy = new DummyDevice ("dummyX");
-			deviceRouter.AddDevice (dummy);
-			deviceRouter.AddDevice (m_deviceManager);
-			m_deviceManager.Add (dummy);
-			m_deviceManager.Add (tcps);
-
-			var endpoint = factory.CreateJsonEndpoint (path, deviceRouter);
-			udps.AddEndpoint (endpoint);
-			tcps.AddEndpoint (endpoint);
-
-			Thread.Sleep (500);
-
-			DeviceManager remoteDeviceManager = new DeviceManager ("remote_dm");
-
-			HostManager h = factory.CreateHostManager ("h", udp_port, path, remoteDeviceManager);
-
-			h.Broadcast ("tcp_server");
-
-			Thread.Sleep (1000);
-
-			Log.t (((UDPBroadcaster) h.Broadcaster).BroadcastTask.Exception?.StackTrace);
-
-			Thread.Sleep (1000);
-
-			dynamic d = remoteDeviceManager.Get ("dummyX");
-
-			Assert.IsTrue (d is IRemoteDevice);
-			// TODO: This times out sometimes. Too many other Tasks?
-			Assert.AreEqual (420, d.MultiplyByTen (42));
-
-			d.HAHA = 42.42d;
-
-			Assert.AreEqual (dummy.HAHA, d.HAHA);
-
-			udps.Stop ();
-			tcps.Stop ();
-
-		}
-
-		[Test]
 		public void TestMultipleBroadcasts() {
 
-			var s = factory.CreateUdpServer ("s", udp_port);
+			var s = factory.CreateUdpServer ("s", udp_port + 999);
 			DummyEndpoint ep = new DummyEndpoint ("/dummy");
-			UDPBroadcaster client = factory.CreateUdpClient ("c", udp_port);
+			UDPBroadcaster client = factory.CreateUdpClient ("c", udp_port + 999);
 
 			(s as UDPServer).AllowLocalRequests = true;
 
@@ -190,7 +161,7 @@ namespace R2Core.Tests
 					Assert.AreEqual (WebStatusCode.NotFound.Raw(), (response.Code));
 					didReceiveResponse = true;
 
-				}, 500);
+				}, 2000);
 
 				client.BroadcastTask.Wait ();
 
@@ -198,6 +169,136 @@ namespace R2Core.Tests
 				didReceiveResponse = false;
 
 			}
+
+		}
+
+		[Test]
+		public void TestHostManager() {
+
+			var devices1 = SetUpServers (tcp_port, udp_port, udp_port);
+
+			var dummy = new DummyDevice ("dummyX");
+			devices1.DeviceRouter.AddDevice (dummy);
+			devices1.DeviceManager.Add (dummy);
+			devices1.Start ();
+			Thread.Sleep (500);
+
+			// Represent the remote host which want to retrieve device "dummyX"
+			DeviceManager remoteDeviceManager = new DeviceManager ("remote_dm");
+			HostManager h = factory.CreateHostManager ("h", udp_port, remoteDeviceManager);
+
+			h.Broadcast ();
+
+			// Wait in order for the broadcast task to finish 
+			Thread.Sleep (2000);
+
+			Log.t (((UDPBroadcaster) h.Broadcaster).BroadcastTask.Exception?.StackTrace);
+
+			Thread.Sleep (1000);
+
+			dynamic d = remoteDeviceManager.Get ("dummyX");
+
+			Assert.IsTrue (d is IRemoteDevice);
+			// TODO: This times out sometimes. Too many other Tasks?
+			Assert.AreEqual (420, d.MultiplyByTen (42));
+
+			d.HAHA = 42.42d;
+
+			Assert.AreEqual (dummy.HAHA, d.HAHA);
+
+			devices1.TCPServer.Stop ();
+			devices1.UDPServer.Stop ();
+
+		}
+
+		private ServerInstanceContainer SetUpServers(int tcpPort, int udpPort, int remoteUdpPort) {
+
+			var path =  Settings.Consts.DeviceDestination();
+
+			IServer tcps = factory.CreateTcpServer (Settings.Identifiers.TcpServer(), tcpPort);
+			IServer udps = factory.CreateUdpServer ("udp_server", udpPort);
+			((UDPServer) udps).AllowLocalRequests = true;
+
+			// Will keep track of the available devices for this "instance" 
+			DeviceManager deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager ());
+
+			DeviceRouter deviceRouter = (DeviceRouter) factory.CreateDeviceRouter ();
+			deviceRouter.AddDevice (tcps);
+			deviceRouter.AddDevice (deviceManager);
+
+			//deviceManager.Add (tcps);
+
+			var endpoint = factory.CreateJsonEndpoint (path, deviceRouter);
+			udps.AddEndpoint (endpoint);
+			tcps.AddEndpoint (endpoint);
+
+			HostManager hostManager = factory.CreateHostManager ("host_manager", remoteUdpPort, deviceManager);
+
+			hostManager.BroadcastInterval = 2000;
+
+			return new ServerInstanceContainer () {
+				UDPServer = udps,
+				TCPServer = tcps,
+				DeviceManager = deviceManager,
+				DeviceRouter = deviceRouter,
+				HostManager = hostManager
+			};
+
+		}
+
+		/// <summary>
+		/// Test the synchronization of devices between two HostManager instances (and thus two tcp & udp servers)
+		/// </summary>
+		[Test]
+		public void TestHostManager_DeviceSynchronization() {
+
+			var devices1 = SetUpServers (tcp_port, udp_port, udp_port - 42);
+			var devices2 = SetUpServers (tcp_port - 42, udp_port - 42, udp_port);
+
+			var dummy1 = new DummyDevice ("dummy1");
+			devices1.DeviceRouter.AddDevice (dummy1);
+			devices1.DeviceManager.Add (dummy1);
+
+			var dummy2 = new DummyDevice ("dummy2");
+			devices2.DeviceRouter.AddDevice (dummy2);
+			devices2.DeviceManager.Add (dummy2);
+
+			devices2.Start ();
+			devices1.Start ();
+			Thread.Sleep (1000);
+
+			//devices1.HostManager.Broadcast ();
+			devices1.HostManager.Start ();
+			devices2.HostManager.Start ();
+
+			// Sleep enough time for both host managers to be synchronized
+			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
+
+			// The device should be available
+			Assert.NotNull (devices1.DeviceManager.Get ("dummy2"));
+			Assert.NotNull (devices2.DeviceManager.Get ("dummy1"));
+
+			// Change the value of a property @ instance 1
+			dummy1.Bar = "KATT";
+
+			// Add a new device to instance 2
+			var dummy3 = new DummyDevice ("dummy3");
+			devices2.DeviceRouter.AddDevice (dummy3);
+			devices2.DeviceManager.Add (dummy3);
+
+			// They should be synchronized after this...
+			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
+
+			// The new device should be available
+			Assert.NotNull (devices1.DeviceManager.Get ("dummy3"));
+
+			// Check the changed property of dummy1
+			dynamic dummy1_remote = devices2.DeviceManager.Get ("dummy1");
+
+			Assert.AreEqual ("KATT", dummy1_remote.Bar);
+
+			devices2.Stop ();
+			devices1.Stop ();
 
 		}
 	}

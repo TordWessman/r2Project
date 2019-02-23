@@ -17,8 +17,10 @@
 // 
 
 #include "OpenCvCamera.hpp"
-#include <opencv/highgui.h>
-#include <opencv/cxcore.h>
+#include <opencv2/highgui.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/videoio.hpp>
 
 #define MAX_CAMERAS 4
 
@@ -134,7 +136,7 @@ bool _ext_start_capture(int deviceId, CvSize size, int skipFrames) {
 			capture_device_index = i;
 			capture_devices[i].started = true;
 			capture_devices[i].id = deviceId;
-			capture_devices[i].capture = cvCaptureFromCAM(deviceId);
+			capture_devices[i].capture = cvCreateCameraCapture(CV_CAP_ANY);
 			capture_devices[i].skipFrames = skipFrames;
 			capture_device_index = i;
 			break;
@@ -161,6 +163,7 @@ bool _ext_start_capture(int deviceId, CvSize size, int skipFrames) {
 		cvSetCaptureProperty(capture_devices[capture_device_index].capture , CV_CAP_PROP_FRAME_HEIGHT, size.height);
 
 	}
+
 
 	return true;
 

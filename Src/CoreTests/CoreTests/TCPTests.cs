@@ -202,7 +202,7 @@ namespace R2Core.Tests
 			s.Start ();
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceObjectReceiver ();
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
 			rec.AddDevice (dummyObject);
 			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
 			s.AddEndpoint (ep);
@@ -254,27 +254,6 @@ namespace R2Core.Tests
 
 		}
 
-		public class DummyClientObserver : IMessageClientObserver {
-
-			private string m_destination;
-
-			public DummyClientObserver(string destination = null) {
-			
-				m_destination = destination;
-
-			}
-
-			public void OnReceive (INetworkMessage message, Exception ex) {
-			
-				Asserter (message);
-
-			}
-
-			public Action<INetworkMessage> Asserter;
-
-			public string Destination { get { return m_destination; } }
-
-		}
 		[Test]
 		public void TestTCP_Server_broadcast() {
 

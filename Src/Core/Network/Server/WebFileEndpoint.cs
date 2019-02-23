@@ -31,6 +31,7 @@ namespace R2Core.Network
 	{
 		private string m_basePath;
 		private string m_responsePath;
+		private IDictionary<string, object> m_extraHeaders;
 
 		private const string FileMatchRegexp = @"[A-Za-z0-9_\.\-]+$";
 		private const string ExtensionMatchRegexp = @"[A-Za-z]+$";
@@ -46,7 +47,12 @@ namespace R2Core.Network
 			
 			m_basePath = basePath;
 			m_responsePath = responsePath;
+			m_extraHeaders = new Dictionary<string, object> ();
 		
+			// Allow cross domain access from browsers. 
+			m_extraHeaders.Add ("Access-Control-Allow-Origin", "*");
+			m_extraHeaders.Add ("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+			m_extraHeaders.Add ("Access-Control-Allow-Headers", "Content-Type, Content-Range, Content-Disposition, Content-Description");
 		}
 
 		#region IHttpServerInterpreter implementation
@@ -79,9 +85,12 @@ namespace R2Core.Network
 
 			string extension = new Regex (ExtensionMatchRegexp).Match (imageName)?.Value?.ToLower();
 
+			IDictionary<string, object> headers = m_extraHeaders;
+			headers ["Content-Type"] = GetMimeType (extension);
+
 			return new NetworkMessage() {
 				Payload = File.ReadAllBytes (fileName), 
-				Headers = new Dictionary<string, object>() {{"Content-Type", GetMimeType (extension)}},
+				Headers = headers,
 				Destination = fileName
 			}; 
 
