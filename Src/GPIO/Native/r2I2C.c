@@ -28,9 +28,9 @@
 #include <unistd.h>
 #include <time.h>
 #include <stdlib.h>
-#include <math.h>
+#include <sys/select.h>
 
-#define R2_PRINT_DEBUG
+//#define R2_PRINT_DEBUG
 
 #ifdef R2_PRINT_DEBUG
 
@@ -41,10 +41,11 @@
 
 #else
 
-#define R2_LOG(msg) (msg == 0)
-#define R2_LOG1(msg,p1) (msg == 0)
-#define R2_LOG2(msg,p1,p2) (msg == 0)
-#define R2_LOG3(msg,p1,p2,p3) (msg == 0)
+#define R2_LOG(msg) ;
+#define R2_LOG1(msg,p1) ;
+#define R2_LOG2(msg,p1,p2) ;
+#define R2_LOG3(msg,p1,p2,p3) ;
+
 #endif
 
 static int _r2I2C_i2caddr;
@@ -57,16 +58,23 @@ static bool _r2I2C_is_busy = false;
 static bool _r2I2C_is_initialized = false;
 static bool _r2I2C_is_reading = false;
 
+typedef struct i2c_read_result {
+
+	uint8_t* data;
+	int status;
+
+} i2c_read;
+
 static bool transmission_failed;
 
 int r2I2C_open_bus ();
 
 // reads the number of bytes defined by ´size´. Will timeout after ´timeout´ ms.
-uint8_t* r2I2C_read(int fd, long timout, int size);
+i2c_read r2I2C_read(int fd, long timout, size_t size);
 
 int r2I2C_init (int bus, int address) {
 
-	R2_LOG2("Initializing R2I2C using bus `%d` and address `%d`\n", bus, address);
+	R2_LOG3("%d Initializing R2I2C using bus `%d` and address `%d`\n", EINTR, bus, address);
 	usleep(1000 * 1000);
 	_r2I2C_i2cbus = bus;
 	_r2I2C_i2caddr = address;
@@ -83,17 +91,20 @@ int r2I2C_init (int bus, int address) {
 	}
 
 	_r2I2C_is_initialized = true;
+	_r2I2C_should_run = true;
 
 	R2_LOG("R2I2C initialization succeeded.\n");
-	return fd;
+	return R2I2C_OPERATION_OK;
 
 }
 
-int r2I2C_open_bus () {
+bool fd_set_blocking(int fd, bool blocking) { int flags = fcntl(fd, F_GETFL, 0); if (flags == -1) { return 0; } if (blocking) { flags &= ~O_NONBLOCK; } else { flags |= O_NONBLOCK; } return fcntl(fd, F_SETFL, flags) != -1; }
+
+int r2I2C_open_bus (int mode) {
 
 	int fd;
 
-	if ((fd = open(_r2I2C_busfile, O_RDWR)) < 0) {
+	if ((fd = open(_r2I2C_busfile, mode)) < 0) {
 
 		R2_LOG2 ("Error: Couldn't open I2C Bus %d [r2I2C_open_bus():open %s]\n", _r2I2C_i2cbus, strerror(errno));
 		return R2I2C_BUS_ERROR;
@@ -105,30 +116,35 @@ int r2I2C_open_bus () {
 
 	}
 
-	usleep(50000);
-
+	//if (!fd_set_blocking(fd, true)) {
+	//	R2_LOG("Vem är gud?");
+	//}
+	
 	return fd;
 
 }
 
-uint8_t* r2I2C_read(int fd, long timeout, int size) {
 
-	R2_LOG1("Will try to read '%d' bytes: ", size);
+ 
+static int recordTime = 0;
 
-	uint8_t* response = (uint8_t*)malloc(sizeof(uint8_t) * size);
+i2c_read r2I2C_read(int fd, long timeout, size_t size) {
 
-	// instantiate the timeout
-	struct timespec timeSpec;
-	clock_gettime(CLOCK_REALTIME, &timeSpec); 
-	long timer = round(timeSpec.tv_nsec / 1.0e6);
+	i2c_read response;
+	response.data = NULL;
+	response.status = R2I2C_OPERATION_OK;
+	int timer = 0;
+	
+	// delay before retrying a read operation after a 5 or 121 error
+	int delay = 50;
+
+	//R2_LOG1("Will try to read '%d' bytes.\n", size);
 
 	do {
-		
-		clock_gettime(CLOCK_REALTIME, &timeSpec);
 
-		if (timer + timeout < round(timeSpec.tv_nsec / 1.0e6) ) {
+		if (timer > timeout) {
 
-			transmission_failed = true;
+			response.status = R2I2C_READ_ERROR;
 			R2_LOG("Error: Transmission failed due to timeout.\n");
 			break;
 
@@ -142,26 +158,33 @@ uint8_t* r2I2C_read(int fd, long timeout, int size) {
 
 		if (bytesRead == size) { 
 
-			R2_LOG("Successfully read all bytes.");
-			for (int i = 0; i < size; i++) { response[i] = buffer[i]; } 
+			if (timer > recordTime) { recordTime = timer; }
+			
+			response.data = (uint8_t*)malloc(sizeof(uint8_t) * size);
+
+			//R2_LOG2("Successfully read all bytes after %d ms (record: %d).\n", timer, recordTime);
+			for (int i = 0; i < size; i++) { response.data[i] = buffer[i]; } 
+			//R2_LOG("\n");
 			break;
 
 		} else if (bytesRead > 1) { 
 
 			R2_LOG2("Error: read wrong number of bytes. Expected %d, but got %d\n", size, bytesRead); 
-			transmission_failed = true; 
+			response.status = R2I2C_READ_ERROR; 
 			break; 
 
 		} else if (bytesRead < 0) { 
 
 			if (errno == 121 || errno == 5) {
 	
+				R2_LOG2("[%d,%d]",errno,bytesRead);
+				timer += delay;
 				// sleep for 50 ms.			
-				usleep(50 * 1000);
+				usleep(delay * 1000);
 
 			} else {
 				
-				transmission_failed = true;
+				response.status = R2I2C_READ_ERROR;
 				R2_LOG2("Error: Transmission failed. Returned error: '%s' (code: %d). \n", strerror(errno), errno);
 				break;
 			
@@ -174,7 +197,8 @@ uint8_t* r2I2C_read(int fd, long timeout, int size) {
 	return response;
 
 }
- 
+
+
 int r2I2C_receive(long timeout) {
 
 	R2_LOG1("Will try to read data from slave using timeout: '%ld'\n", timeout);
@@ -196,9 +220,7 @@ int r2I2C_receive(long timeout) {
 	_r2I2C_responseSize = 0;
 	transmission_failed = false;
 
-	int fd = r2I2C_open_bus();
-
-	int status = R2I2C_OPERATION_OK;
+	int fd = r2I2C_open_bus(O_RDONLY);
 
 	if (fd == R2I2C_BUS_ERROR) {
 
@@ -209,46 +231,77 @@ int r2I2C_receive(long timeout) {
 	}
 
 	// read buffer
-	uint8_t* buffer;
+	i2c_read response;
+	
+	response.data = NULL;
+	response.status = R2I2C_OPERATION_OK;
 
-	// Wait for the R2I2C_READY_TO_READ_FLAG from slave prior to data fetching.
-	if (R2I2C_USE_READY_FLAG) {
+	
+	int c = 0;
+
+	if (_r2I2C_should_run) {
+
+		int delay = 10;
+
+		do {
+
+			response = r2I2C_read(fd, timeout,1);
+			
+			if (response.status == R2I2C_OPERATION_OK && response.data && response.data[0] != R2I2C_READY_TO_READ_FLAG) {
+
+				usleep(delay * 1000);
+				c += delay;
 		
-		buffer = r2I2C_read(fd, timeout, 1);
+			}
 
-		if (!transmission_failed && buffer[0] != R2I2C_READY_TO_READ_FLAG) {
+			if (response.data) {
+				//R2_LOG1("[%d]", response.data[0]);
+			}
 
-			transmission_failed = true;
-			R2_LOG1("Error: Transmission failed. Did not receive the expected R2I2C_READY_TO_READ_FLAG. Instead i got: %d \n", buffer[0]);
-
-		} else { status = R2I2C_READ_ERROR; }
-
-		free(buffer);
-
+			if (c > timeout) { 
+				R2_LOG("Error: Timeout. Receive failed. \n");
+				response.status = R2I2C_READ_ERROR;
+			}
+			
+		
+		} while (_r2I2C_should_run && (response.status == R2I2C_OPERATION_OK) && response.data && (response.data[0] != R2I2C_READY_TO_READ_FLAG) && c <= timeout);
 	}
 
-	if (!transmission_failed) {
+	R2_LOG("\n");
 
-		buffer =  r2I2C_read(fd, timeout,1);
-		_r2I2C_responseSize = buffer[0];
-		free(buffer);
-	} else { status = R2I2C_READ_ERROR; }
+	R2_LOG3("Got status: %d, flag: %d, time: %d\n", response.status,  response.status == R2I2C_OPERATION_OK && response.data ? response.data[0] : -666, c );
 	
-	if (!transmission_failed) {
-		
-		R2_LOG1("Will now read response with size: %d\n",  _r2I2C_responseSize);
-		buffer = r2I2C_read(fd, timeout, _r2I2C_responseSize);
-		for (int i = 0; i < _r2I2C_responseSize; i++) { _r2I2C_responseBuffer[i] = buffer[i]; }
-		free(buffer);
+	// Fetch response size:
+	if (_r2I2C_should_run && response.status == R2I2C_OPERATION_OK) {
 
-	} else { status = R2I2C_READ_ERROR; }
+		response =  r2I2C_read(fd, timeout,1);
+		_r2I2C_responseSize = (response.status != R2I2C_OPERATION_OK) ? 0 : response.data[0];
+
+		if (response.data) { free(response.data); };
+
+	}
+	
+	// Fetch the response
+	if (_r2I2C_should_run && response.status == R2I2C_OPERATION_OK) {
+		
+		response = r2I2C_read(fd, timeout, _r2I2C_responseSize);
+		
+		if (response.status == R2I2C_OPERATION_OK) {
+
+			for (int i = 0; i < _r2I2C_responseSize; i++) { _r2I2C_responseBuffer[i] = response.data[i]; }
+
+		}
+		
+		if (response.data) { free(response.data); };
+
+	}
 
 	if (!_r2I2C_should_run) {
 
 		// Operation canceled.
 		for (int i = 0; i < _r2I2C_responseSize; i++) { _r2I2C_responseBuffer[i] = 0; }
 
-		status = R2I2C_OPERATION_CANCELED;
+		response.status = R2I2C_OPERATION_CANCELED;
 
 	} 
 
@@ -257,7 +310,7 @@ int r2I2C_receive(long timeout) {
 	_r2I2C_is_busy = false;
 	_r2I2C_is_reading = false;
 
-	return status;
+	return response.status;
 
 }
 
@@ -277,7 +330,12 @@ int r2I2C_send(uint8_t data[], int data_size) {
 
 	_r2I2C_is_busy = true;
 
-	int fd = r2I2C_open_bus();
+	int fd = r2I2C_open_bus(O_WRONLY);
+
+	// ehh clear the input buffer
+	//uint8_t bajs[10];
+	//int bajspappa = read(fd, bajs, 10);
+	//while (bajspappa > 0) {bajspappa = read(fd, bajs, 10); printf("[%d %d]", bajspappa, bajs[0]);}
 
 	int status = R2I2C_OPERATION_OK;
 
@@ -289,8 +347,6 @@ int r2I2C_send(uint8_t data[], int data_size) {
 		return R2I2C_BUS_ERROR;
 
 	}
-
-	R2_LOG1("Got file descriptor: %d", fd);
 
 	R2_LOG1(" -- Write size: %d. Writing bytes:\n", data_size);
 
@@ -343,10 +399,32 @@ bool r2I2C_is_ready() {
 
 }
 
+int sleepNode(uint8_t nodeId) {
+
+	int count = 5;
+        uint8_t buff[count];
+	
+	buff[0] = nodeId; // host
+	buff[1] = 0x0A; // send to sleep: 0x0A;
+	buff[2] = 0x0; // id
+	buff[3] = 0x1; // arg1 
+	buff[4] = 0xFF; //arg2
+
+	int status = r2I2C_send(buff, count);
+
+	if (status == 0) {
+		
+		return r2I2C_receive(16000);
+	}
+
+	return status;
+
+}
+
 int main(void)
 {
 
-	R2_LOG( "Raspberry Pi i2C test program\n" );
+	R2_LOG2( "Raspberry Pi i2C test program: %d, %d\n", EAGAIN, EINTR );
 
 	int status = r2I2C_init (1, 0x04);
 	if (status < 0) {
@@ -354,14 +432,22 @@ int main(void)
 		return status;
 	}
 
-	int count = 5;
-        uint8_t buff[5];
+	//return sleepNode(0x3);
+
+	int count = 3;
+        uint8_t buff[count];
 	
-	buff[0] = 0x0; // host
-	buff[1] = 0x4; // action: init
+	buff[0] = 0x3; // host
+	buff[1] = 0x0B; // check sleep state
+	 //0x4; // action: init // send to sleep: 0x0A;
 	buff[2] = 0x0; // id
-	buff[3] = 0x0; //arg1 
-	buff[4] = 0x0; //arg2
+	//buff[3] = 0x1; // arg1 
+	//buff[4] = 0xFF; //arg2
+
+
+    while (status == 0) {
+
+	usleep(3000 * 1000);
 
 	status = r2I2C_send(buff, count);
 
@@ -369,9 +455,11 @@ int main(void)
 		
 		//return 0;
 
-		status = r2I2C_receive(2000);
-
+		status = r2I2C_receive(16000);
+		
 		if (status == 0) {
+	
+			
 			int i = 0;
 			R2_LOG1("Response size: %d.\nResponse data: \n", r2I2C_get_response_size());
 			for (i = 0; i < r2I2C_get_response_size(); i++) {
@@ -380,11 +468,14 @@ int main(void)
 			R2_LOG("\n");
 
 
-		}
+		} else { break; }
 
-	}
+	} else { break; }
 
-	return status;
+    }
+
+    R2_LOG1("I died with status: %d", status);
+    return status;
 
 }
 
