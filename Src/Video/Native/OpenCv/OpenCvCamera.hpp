@@ -16,10 +16,12 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-#include <opencv/cv.h>
+#include "OpenCvBase.hpp"
 #include <stdio.h>
 
 extern "C" {
+
+	void _ext_release_image(IplImage *image);
 
 	// Captures a frame from webcam. skipFrames determines how many frames to discard from the video buffer (v4l issues..)
 	IplImage* _ext_capture_camera(int deviceId);

@@ -35,7 +35,7 @@ bool try_detect_object (IplImage* input_image, CaptureObjectsContainer *capture_
 	//IplImage* input_image = image;
 	
 	//printf (" -1 ");
-	if (!input_image) {
+	if (!input_image || !input_image->width || !input_image->height) {
 		fprintf(stderr, "no frame detected when capturing for object");
 		return false;
 	} /*else if (input_image->width > 640 || input_image->height > 480) {

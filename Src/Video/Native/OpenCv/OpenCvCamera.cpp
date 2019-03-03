@@ -17,10 +17,11 @@
 // 
 
 #include "OpenCvCamera.hpp"
-#include <opencv2/highgui.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/videoio.hpp>
+#include <opencv2/opencv.hpp>
+//#include <opencv2/highgui.hpp>
+//#include <opencv2/core.hpp>
+//#include <opencv2/imgproc.hpp>
+//#include <opencv2/videoio.hpp>
 
 #define MAX_CAMERAS 4
 
@@ -33,6 +34,8 @@ typedef struct CaptureDevices {
 
 } CaptureDevice;
 
+bool shouldRun = false;
+
 CaptureDevice capture_devices[MAX_CAMERAS];
 
 CaptureDevice* get_capture_device(int id);
@@ -40,9 +43,11 @@ IplImage* clone_frame_from_camera (CaptureDevice *device);
 
 IplImage* clone_frame_from_camera (CaptureDevice *device) {
 
+	if (!shouldRun || !device->started) { return NULL; }
+
 	int i = 0;
-	while (i++ < device->skipFrames && cvGrabFrame(device->capture)) { }
-	
+	while (i++ < device->skipFrames && device->started && cvGrabFrame(device->capture)) { }
+
 	IplImage* frame = cvRetrieveFrame(device->capture);
 
         if ( !frame ) {
@@ -51,6 +56,8 @@ IplImage* clone_frame_from_camera (CaptureDevice *device) {
 		return NULL;
 	
 	}
+
+	if (!shouldRun || !device->started) { return NULL; }
 
 	return cvCloneImage(frame);
 
@@ -92,6 +99,8 @@ CvSize _ext_get_video_size(int deviceId) {
 
 void _ext_stop_capture(int deviceId) {
 
+	shouldRun = false;
+	
 	CaptureDevice* device = get_capture_device(deviceId);
 
 	if (device) {
@@ -132,7 +141,6 @@ bool _ext_start_capture(int deviceId, CvSize size, int skipFrames) {
 	for (int i = 0; i < MAX_CAMERAS; i++) {
 
 		if (!capture_devices[i].started) {
-
 			capture_device_index = i;
 			capture_devices[i].started = true;
 			capture_devices[i].id = deviceId;
@@ -164,8 +172,7 @@ bool _ext_start_capture(int deviceId, CvSize size, int skipFrames) {
 
 	}
 
-
-	return true;
+	return (shouldRun = true);
 
 }
 
@@ -174,14 +181,28 @@ IplImage* _ext_capture_camera(int deviceId) {
 
 	CaptureDevice* device = get_capture_device(deviceId);
 
-	if (device) {
+	if (device && device->started) {
 		
 		return clone_frame_from_camera (device);
 
+	} else if (device && !device->started) {
+
+		return NULL;
+	
 	}
 
-	printf (" ** WARNING - Unable to capture image. device not started?. \n");
+	printf (" ** WARNING - Unable to capture image. \n");
 
 	return NULL;
 	
+}
+
+void _ext_release_image(IplImage *image) {
+
+	if(image) {
+
+		cvReleaseImage(&image);
+
+	}
+
 }

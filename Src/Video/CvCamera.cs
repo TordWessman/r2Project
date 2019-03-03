@@ -39,6 +39,9 @@ namespace R2Core.Video
 		protected static extern void _ext_stop_capture(int deviceId);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern void _ext_release_image(System.IntPtr image);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern bool _ext_is_running_capture (int deviceId);
 
 		/// <summary>
@@ -49,6 +52,7 @@ namespace R2Core.Video
 		private int m_cameraId;
 		private CvSize m_size;
 		private int m_skipFrames;
+		private IplImage m_lastFrame = null;
 
 		/// <summary>
 		/// Creates a camera source with lazy resource loading. the skipFrames parameter is used to drop (grab) frames from the v4l buffer in order to get the latest frame. Set to zero if it's not working (or if you like delays).  
@@ -72,7 +76,24 @@ namespace R2Core.Video
 		/// Captures a frame using the web cam
 		/// </summary>
 		/// <value>The current frame.</value>
-		public IplImage CurrentFrame { get { return new IplImage (_ext_capture_camera (m_cameraId)); } }
+		public IplImage CurrentFrame { 
+
+			get { 
+
+				if (m_lastFrame != null) {
+				
+					_ext_release_image (m_lastFrame.Ptr);
+
+				}
+
+				m_lastFrame = new IplImage (_ext_capture_camera (m_cameraId));
+
+				return m_lastFrame; 
+			
+			} 
+		
+		}
+		
 
 		public override void Stop () {
 		
