@@ -137,7 +137,23 @@ ResponsePackage execute(RequestPackage *request) {
     pauseSleep(request->args[SLEEP_MODE_TOGGLE_POSITION]);
     
   } else {
+  #else
   
+    //Handle sleep-actions on non-RH24 nodes (implying that it's I2C or Serial only)
+    if (request->action == ACTION_CHECK_NODE) {
+  
+      response.contentSize = 1;
+      response.content[RESPONSE_POSITION_HOST_AVAILABLE] = 0x1;
+      return response;
+      
+    } else if (request->action == ACTION_PAUSE_SLEEP || request->action == ACTION_CHECK_SLEEP_STATE) { 
+
+       response.contentSize = 1;
+       response.content[0] = 0;
+       return response;
+       
+    }
+    
   #endif
   
      if (!isInitialized() && !(request->action == ACTION_INITIALIZE || request->action == ACTION_RESET)) {
@@ -160,7 +176,7 @@ ResponsePackage execute(RequestPackage *request) {
     
       case ACTION_CREATE_DEVICE: {
         
-        response.id = deviceCount++;
+        response.id = deviceCount;
   
         // Get the type of the device to create from the args.
         DEVICE_TYPE type = request->args[REQUEST_ARG_CREATE_TYPE_POSITION];
@@ -173,6 +189,8 @@ ResponsePackage execute(RequestPackage *request) {
         R2_LOG(F("With id:"));
         R2_LOG(response.id);
         createDevice(response.id, type, parameters);
+        
+        deviceCount++;
         
       }
       
@@ -207,8 +225,16 @@ ResponsePackage execute(RequestPackage *request) {
         
         response.contentSize = deviceCount + 1;
         
-        response.content[0] = isSleeping() << 7 + isInitialized() << 6 + deviceCount; 
+       #ifdef USE_RH24
         
+        response.content[0] = isSleeping() << 7 + isInitialized() << 6 + deviceCount;
+        
+       #else
+       
+       response.content[0] = 0 << 7 + isInitialized() << 6 + deviceCount;
+       
+       #endif
+       
         for (int i = 0; i < deviceCount; i++) {
         
           Device *device = getDevice(request->id);
@@ -241,7 +267,8 @@ ResponsePackage execute(RequestPackage *request) {
         case ACTION_INITIALIZE:
         
           reset(true);
-  
+          deviceCount = 0;
+          
           response.action = ACTION_INITIALIZATION_OK;
           
           // Ehh.. return the first analogue port name here...
@@ -260,6 +287,7 @@ ResponsePackage execute(RequestPackage *request) {
        case ACTION_RESET:
         
           reset(false);
+          deviceCount = 0;
           
           #ifdef USE_RH24
              // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)

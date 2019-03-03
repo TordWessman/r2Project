@@ -2,13 +2,13 @@
 #define R2I2C_CONFIG_H
 
 // If defined, I2C communication will be enabled
-//#define USE_I2C
+#define USE_I2C
 
 // If defined, serial communication will be enabled 
-#define USE_SERIAL
+//#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
-#define USE_RH24
+//#define USE_RH24
 
 #ifdef USE_RH24
   
@@ -26,13 +26,13 @@
 #define MAX_DEVICES 5
 
 // Use with caution. If defined, serial communication (USE_SERIAL) will not work and issues with I2C has also been observed.
-//#define R2_PRINT_DEBUG
+#define R2_PRINT_DEBUG
 
 // The address position used to store the node id 
 #define NODE_ID_EEPROM_ADDRESS 0x00
 
 // If defined, these leds will be used to communicate status and error 
-#define R2_STATUS_LED 0x2
+//#define R2_STATUS_LED 0x2
 //#define R2_ERROR_LED 0x4
 
 #endif
