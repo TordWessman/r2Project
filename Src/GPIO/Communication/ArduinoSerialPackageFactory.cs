@@ -55,10 +55,11 @@ namespace R2Core.GPIO
 		public const int RESPONSE_POSITION_CONTENT = 0x5;
 
 		// Request package positions:
-		public const int REQUEST_POSITION_HOST = 0x0;
-		public const int REQUEST_POSITION_ACTION = 0x1;
-		public const int REQUEST_POSITION_ID = 0x2;
-		public const int REQUEST_POSITION_CONTENT = 0x3;
+		public const int REQUEST_POSITION_CHECKSUM = 0x0;
+		public const int REQUEST_POSITION_HOST = 0x1;
+		public const int REQUEST_POSITION_ACTION = 0x2;
+		public const int REQUEST_POSITION_ID = 0x3;
+		public const int REQUEST_POSITION_CONTENT = 0x4;
 
 		// In the content part of the (create) message, here be the Type
 		public const int POSITION_CONTENT_DEVICE_TYPE = 0x0;
@@ -90,6 +91,13 @@ namespace R2Core.GPIO
 			if (contentLength > 0) {
 			
 				Array.Copy (request.Content, 0, requestData, REQUEST_POSITION_CONTENT, contentLength);
+
+			}
+
+			// Add checksum
+			for (int i = 1; i < requestData.Length; i++) {
+
+				requestData[REQUEST_POSITION_CHECKSUM] += requestData[i];
 
 			}
 

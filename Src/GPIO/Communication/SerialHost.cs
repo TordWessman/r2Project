@@ -27,6 +27,16 @@ namespace R2Core.GPIO
 
 		private Action<byte> m_delegate;
 
+		/// <summary>
+		/// Delay after a ERROR_BAD_CHECKSUM error response before executing a new retry.
+		/// </summary>
+		private const int ChecksumDelay = 250;
+
+		/// <summary>
+		/// Number of retries before throwing an exception upon a ERROR_BAD_CHECKSUM response.
+		/// </summary>
+		private const int ChecksumRetryCount = 4;
+
 		private readonly object m_lock = new object();
 
 		/// <summary>
@@ -208,11 +218,22 @@ namespace R2Core.GPIO
 
 				//Log.t ($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
 
+				// Check for checksum errors (and retry sending) first.
+				if (response.Error == SerialErrorType.ERROR_BAD_CHECKSUM) { 
+
+					for (int i = 0; (i < ChecksumRetryCount) && response.Error == SerialErrorType.ERROR_BAD_CHECKSUM; i++) {
+
+						System.Threading.Tasks.Task.Delay(ChecksumDelay);
+						response = _Send<T>(request);
+
+					}
+				
+				}
+
 				if (response.Action == SerialActionType.Initialization) {
 
 					// The slave needs to be reset. Reset the slave and notify delegate, allowing it to re-create and/or re-send
 					ResetSlave (response.NodeId);
-					//Log.t ($"Resetting slave with id: {response.NodeId}.");
 
 					if (HostDidReset != null) { HostDidReset (response.NodeId); }
 

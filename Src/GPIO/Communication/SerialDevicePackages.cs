@@ -102,6 +102,8 @@ namespace R2Core.GPIO
 		ERROR_RH24_MESSAGE_SYNCHRONIZATION = 19,
 		// If the size of the incomming data is invalid
 		ERROR_INVALID_REQUEST_PACKAGE_SIZE = 20,
+		// If the checksum in a request did not match the rest of the request data.
+		ERROR_BAD_CHECKSUM = 21,
 
 		// Internally created error. If the response data mismatched the expected data.
 		ERROR_DATA_MISMATCH = 0xF0

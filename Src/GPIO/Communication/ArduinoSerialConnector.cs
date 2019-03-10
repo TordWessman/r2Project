@@ -119,19 +119,16 @@ namespace R2Core.GPIO
 				// Make sure the input buffer is empty before sending.
 				ClearPipe ();
 
-				byte[] requestPackage = new byte[request.Length + 1 + m_packageHeader.Length];
+				byte[] requestBytes = new byte[request.Length + 1 + m_packageHeader.Length];
 
-				// First byte should have the value of the rest of the transaction.
-				requestPackage [m_packageHeader.Length] = (byte) request.Length;
-				System.Buffer.BlockCopy (request, 0, requestPackage, 1 + m_packageHeader.Length, request.Length);
+				System.Buffer.BlockCopy (m_packageHeader, 0, requestBytes, 0, m_packageHeader.Length);
 
-				if (m_packageHeader != null) {
+				// First byte of the non-package header should have the value of the rest of the transaction.
+				requestBytes [m_packageHeader.Length] = (byte) request.Length;
 
-					System.Buffer.BlockCopy (m_packageHeader, 0, requestPackage, 0, m_packageHeader.Length);
+				System.Buffer.BlockCopy (request, 0, requestBytes, 1 + m_packageHeader.Length, request.Length);
 
-				}
-
-				m_serialPort.Write (requestPackage, 0, requestPackage.Length);
+				m_serialPort.Write (requestBytes, 0, requestBytes.Length);
 
 				return Read ();
 

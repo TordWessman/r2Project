@@ -70,6 +70,7 @@ typedef struct ResponsePackage ResponsePackage;
 // Request data from host.
 struct RequestPackage {
 
+    byte checksum;
     HOST_ADDRESS host;
     ACTION_TYPE action;
     byte id;
@@ -135,6 +136,8 @@ typedef struct RequestPackage RequestPackage;
 #define ERROR_RH24_MESSAGE_SYNCHRONIZATION 19
 // If the size of the incomming data is invalid.
 #define ERROR_INVALID_REQUEST_PACKAGE_SIZE 20
+// If the checksum in a request did not match the rest of the request data.
+#define ERROR_BAD_CHECKSUM 21
 
 // -- Response Actions --
 

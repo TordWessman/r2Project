@@ -41,8 +41,27 @@ void i2cReceive(byte* data, size_t data_size) {
     out = createErrorPackage(0x0);
     
   } else {
-  
-    out = execute((RequestPackage*)data);
+    
+    byte checksum = 0;
+    
+    for(int i = 1; i < data_size; i++) {
+    
+      checksum += data[i];
+      
+    }
+    
+    RequestPackage *in = (RequestPackage*)data;
+    
+    if (checksum != in->checksum) {
+    
+      err("E: checksum", ERROR_BAD_CHECKSUM, checksum);
+      out = createErrorPackage(ERROR_BAD_CHECKSUM);
+      
+    } else {
+      
+      out = execute(in);
+      
+    }
     
   }
   
