@@ -129,6 +129,12 @@ namespace R2Core.GPIO
 		/// <returns>The error info as a string representation.</returns>
 		string ErrorInfo { get; }
 
+		/// <summary>
+		/// Returns true if the message's calculated checksum is equal to the Checksum parameter in the response.
+		/// </summary>
+		/// <value><c>true</c> if this instance is checksum valid; otherwise, <c>false</c>.</value>
+		bool IsChecksumValid { get; }
+
 	}
 
 	/// <summary>
@@ -136,6 +142,9 @@ namespace R2Core.GPIO
 	/// The type ´T´ should normally be an array of either int[] (normal values, for sensors) or byte[] (everything else).
 	/// </summary>
 	public struct DeviceResponsePackage<T> : IDeviceResponsePackageErrorInformation {
+
+		// Used to determine the integrity of the data
+		public byte Checksum;
 
 		// Id for a message. Used for debugging.
 		public byte MessageId;
@@ -155,6 +164,17 @@ namespace R2Core.GPIO
 		// The number of int16 returned from slave upon a ActionType.Get request.
 		public const int NUMBER_OF_RETURN_VALUES = 2;
 
+		public bool IsChecksumValid {
+		
+			get {
+			
+				byte checksum = (byte)(NodeId + (byte)Action + Id + (byte)(Content?.Length ?? 0));
+				foreach (byte b in Content) { checksum += b; }
+				return checksum == Checksum;
+
+			}
+
+		}
 		public bool IsError { get { return Action == SerialActionType.Error || Action == SerialActionType.Unknown; } }
 
 		public SerialErrorType Error { 
@@ -209,7 +229,7 @@ namespace R2Core.GPIO
 
 				} else if (typeof(T) != typeof(byte[])) {
 				
-					throw new InvalidCastException ($"Expected type constraint T to be of type ´byte[]´, but was ´{typeof(T)}´."); 
+					throw new InvalidCastException ($"Expected type constraint T to be of type ´byte[], bool, int or byte´, but was ´{typeof(T)}´."); 
 
 				}
 

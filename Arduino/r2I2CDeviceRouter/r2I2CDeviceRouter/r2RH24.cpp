@@ -154,11 +154,14 @@ bool nodeAvailable(HOST_ADDRESS nodeId) {
       return true;
       
       // TODO: 
-      RequestPackage *request = (RequestPackage*) malloc(sizeof(RequestPackage));
+      RequestPackage *request = (RequestPackage*)malloc(MIN_REQUEST_SIZE);
       
       request->host = nodeId;
       request->action = ACTION_RH24_PING_SLAVE;
       request->id = 0;
+      request->argSize = 0;
+      request->checksum = createRequestChecksum(request);
+      
       ResponsePackage response = rh24Send(request);
       free(request);
       return response.action == ACTION_RH24_PING_SLAVE;
@@ -209,7 +212,7 @@ ResponsePackage master_readClean(RequestPackage* request) {
 
 ResponsePackage rh24Send(RequestPackage* request) {
 
-  // Make sure there are nothing unread in the input buffer (will cause an error if there is).
+  // Make sure there are nothing unread in the input buffer 
   ResponsePackage response = master_readClean(request);
   
   // If synchronization issues occurred
@@ -221,7 +224,7 @@ ResponsePackage rh24Send(RequestPackage* request) {
     
         RF24NetworkHeader header(mesh.addrList[i].address, RH24_MESSAGE);
         
-        if (!network.write(header, request, sizeof(RequestPackage))) {
+        if (!network.write(header, request, requestPackageSize(request))) {
         
             err("E: slave write.", ERROR_RH24_WRITE_ERROR, request->host);
             return response;
@@ -546,21 +549,22 @@ void slave_readMessage(RF24NetworkHeader header) {
    RequestPackage request;
           
     // Try to read the response from the slave
-    if (network.read(header, &request, sizeof(RequestPackage)) != sizeof(RequestPackage)) {
+    if (network.read(header, &request, MAX_REQUEST_SIZE) < MIN_REQUEST_SIZE) {
       
       err("E: Bad read size", ERROR_RH24_BAD_SIZE_READ);
       
     } else {
       
       ResponsePackage response = execute(&request);
+      const uint16_t responseSize = responsePackageSize(&response);
       R2_LOG(F("Writing response with action:"));
       R2_LOG(response.action);
       
-      if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
+      if (!mesh.write(&response, RH24_MESSAGE, responseSize)) {
   
         delay(RH24_SLAVE_WRITE_RETRY);
         
-        if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
+        if (!mesh.write(&response, RH24_MESSAGE, responseSize)) {
   
           err("E: Slave write", ERROR_RH24_WRITE_ERROR);
       

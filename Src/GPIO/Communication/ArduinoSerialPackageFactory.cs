@@ -47,19 +47,21 @@ namespace R2Core.GPIO
 		public const int RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL = 60;
 
 		// Below are the positions for Response messages. Request messages do no have the message id, and is thus 1 byte `lower`.
-		public const int RESPONSE_POSITION_MESSAGE_ID = 0x0;
-		public const int RESPONSE_POSITION_HOST = 0x1;
-		public const int RESPONSE_POSITION_ACTION = 0x2;
-		public const int RESPONSE_POSITION_ID = 0x3;
-		public const int RESPONSE_POSITION_CONTENT_LENGTH = 0x4;
-		public const int RESPONSE_POSITION_CONTENT = 0x5;
+		public const int RESPONSE_POSITION_CHECKSUM = 0x0;
+		public const int RESPONSE_POSITION_MESSAGE_ID = 0x1;
+		public const int RESPONSE_POSITION_HOST = 0x2;
+		public const int RESPONSE_POSITION_ACTION = 0x3;
+		public const int RESPONSE_POSITION_ID = 0x4;
+		public const int RESPONSE_POSITION_CONTENT_LENGTH = 0x5;
+		public const int RESPONSE_POSITION_CONTENT = 0x6;
 
 		// Request package positions:
 		public const int REQUEST_POSITION_CHECKSUM = 0x0;
 		public const int REQUEST_POSITION_HOST = 0x1;
 		public const int REQUEST_POSITION_ACTION = 0x2;
 		public const int REQUEST_POSITION_ID = 0x3;
-		public const int REQUEST_POSITION_CONTENT = 0x4;
+		public const int REQUEST_POSITION_CONTENT_LENGTH = 0x4;
+		public const int REQUEST_POSITION_CONTENT = 0x5;
 
 		// In the content part of the (create) message, here be the Type
 		public const int POSITION_CONTENT_DEVICE_TYPE = 0x0;
@@ -73,6 +75,8 @@ namespace R2Core.GPIO
 		public const int POSITION_CONTENT_SLEEP_TOGGLE = 0x0;
 		public const int POSITION_CONTENT_SLEEP_CYCLES = 0x1;
 
+		private const int MAX_CONTENT_LENGTH = 0xFF;
+
 		public ArduinoSerialPackageFactory() {
 
 			m_deviceCount = new byte[sizeof(byte) * 256];
@@ -81,13 +85,21 @@ namespace R2Core.GPIO
 
 		public byte[] SerializeRequest(DeviceRequestPackage request) {
 		
-			byte[] requestData = new byte[REQUEST_POSITION_CONTENT + (request.Content?.Length ?? 0)];
+			int contentLength = (request.Content?.Length ?? 0);
+
+			if (contentLength > MAX_CONTENT_LENGTH) {
+				
+				throw new ArgumentOutOfRangeException ($"Invalid content length: {contentLength}. Max contentLength: {MAX_CONTENT_LENGTH}");
+			
+			}
+
+			byte[] requestData = new byte[REQUEST_POSITION_CONTENT + contentLength];
 
 			requestData[REQUEST_POSITION_HOST] = request.NodeId;
 			requestData[REQUEST_POSITION_ACTION] = (byte)request.Action;
 			requestData[REQUEST_POSITION_ID] = request.Id;
-			int contentLength = (request.Content?.Length ?? 0); 
-				
+			requestData[REQUEST_POSITION_CONTENT_LENGTH] = (byte)contentLength;
+
 			if (contentLength > 0) {
 			
 				Array.Copy (request.Content, 0, requestData, REQUEST_POSITION_CONTENT, contentLength);
@@ -110,6 +122,7 @@ namespace R2Core.GPIO
 			int contentLength = response [RESPONSE_POSITION_CONTENT_LENGTH];
 
 			return new DeviceResponsePackage<T> () {
+				Checksum = response[RESPONSE_POSITION_CHECKSUM],
 				MessageId = response [RESPONSE_POSITION_MESSAGE_ID],
 				NodeId = response [RESPONSE_POSITION_HOST],
 				Action = (SerialActionType)response [RESPONSE_POSITION_ACTION],

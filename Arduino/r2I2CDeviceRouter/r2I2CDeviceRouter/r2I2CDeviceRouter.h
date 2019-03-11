@@ -56,6 +56,7 @@ typedef struct Devices {
 // Containing data which should be returned to host after a request.
 struct ResponsePackage {
 
+    byte checksum;
     byte messageId;
     HOST_ADDRESS host;
     ACTION_TYPE action;
@@ -74,11 +75,16 @@ struct RequestPackage {
     HOST_ADDRESS host;
     ACTION_TYPE action;
     byte id;
+    byte argSize;
     byte args[MAX_CONTENT_SIZE];
     
 } __attribute__((__packed__));
 
+#define requestPackageSize(package) (5 + (package)->argSize)
+#define responsePackageSize(package) (6 + (package)->contentSize)
+
 #define MIN_REQUEST_SIZE (sizeof(RequestPackage) - MAX_CONTENT_SIZE)
+#define MAX_REQUEST_SIZE (sizeof(RequestPackage) + MAX_CONTENT_SIZE)
 
 typedef struct RequestPackage RequestPackage;
 

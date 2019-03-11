@@ -118,3 +118,32 @@ void loop_common() {
 HOST_ADDRESS getNodeId() { return EEPROM.read(NODE_ID_EEPROM_ADDRESS); }
 
 void saveNodeId(HOST_ADDRESS id) { EEPROM.write(NODE_ID_EEPROM_ADDRESS, id); }
+
+byte createRequestChecksum(RequestPackage *package) {
+
+  byte checksum = 0;
+  
+  for(int i = 1; i < requestPackageSize(package); i++) {
+  
+    checksum += ((byte *)package)[i];
+    
+  }
+  
+  return checksum;
+  
+}
+
+byte createResponseChecksum(ResponsePackage *package) {
+
+  byte checksum = 0;
+  
+  // Omit MessageId when calculating checksum
+  for(int i = 2; i < responsePackageSize(package); i++) {
+  
+    checksum += ((byte *)package)[i];
+    
+  }
+  
+  return checksum;
+  
+}

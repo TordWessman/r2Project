@@ -219,10 +219,12 @@ namespace R2Core.GPIO
 				//Log.t ($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
 
 				// Check for checksum errors (and retry sending) first.
-				if (response.Error == SerialErrorType.ERROR_BAD_CHECKSUM) { 
+				if (response.Error == SerialErrorType.ERROR_BAD_CHECKSUM || !response.IsChecksumValid) { 
 
-					for (int i = 0; (i < ChecksumRetryCount) && response.Error == SerialErrorType.ERROR_BAD_CHECKSUM; i++) {
+					for (int i = 0; (i < ChecksumRetryCount) && 
+						(response.Error == SerialErrorType.ERROR_BAD_CHECKSUM || !response.IsChecksumValid); i++) {
 
+						Log.t ("BAD CHECKSUM");
 						System.Threading.Tasks.Task.Delay(ChecksumDelay);
 						response = _Send<T>(request);
 
@@ -230,7 +232,11 @@ namespace R2Core.GPIO
 				
 				}
 
-				if (response.Action == SerialActionType.Initialization) {
+				if (!response.IsChecksumValid) {
+
+					throw new SerialConnectionException ($"Response checksum is bad ({response.Checksum}): Node: '{request.NodeId}'. Action: '{request.Action}'. ", SerialErrorType.ERROR_BAD_CHECKSUM);
+
+				} else if (response.Action == SerialActionType.Initialization) {
 
 					// The slave needs to be reset. Reset the slave and notify delegate, allowing it to re-create and/or re-send
 					ResetSlave (response.NodeId);

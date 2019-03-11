@@ -97,6 +97,34 @@ namespace R2Core.GPIO.Tests
 			return Devices.Where (d => d.Id == id).First ();
 		}
 
+		private byte CalculateChecksum(byte []response, int stupidSubtracohduthoudoudh = 0) {
+		
+			byte checksum = 0;
+//			//Checksum starts with host
+//			for (int i = ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST; i < response.Length; i++) {
+//
+//				checksum += response [i];
+//
+//			}
+
+			//Checksum starts with host
+			for (int i = ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST; i < ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT; i++) {
+
+				checksum += response [i];
+
+			}
+
+			for (int i = ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT; i < ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT + response[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH] - stupidSubtracohduthoudoudh; i++) {
+
+				checksum += response [i];
+
+			}
+
+
+			return (byte)(checksum - 0);
+
+		}
+
 		public byte [] Send(byte []data) {
 		
 			lock (m_lock) {
@@ -115,7 +143,6 @@ namespace R2Core.GPIO.Tests
 
 				byte[] response = new byte[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT + 1 + contentLength];
 				response [ArduinoSerialPackageFactory.RESPONSE_POSITION_MESSAGE_ID] = messageId++;
-
 				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST] = host;
 				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ACTION] = action;
 				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ID] = id;
@@ -141,9 +168,24 @@ namespace R2Core.GPIO.Tests
 
 				} else if ((SerialActionType)action == SerialActionType.IsNodeAvailable) {
 				
-					response [ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT] = host == ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL ? (byte) 1 : nodes.Contains (host) ? (byte) 1 :  (byte) 0;
+					response[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH] = 1;
+					response[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT] = host == ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL ? (byte) 1 : nodes.Contains (host) ? (byte) 1 :  (byte) 0;
 
 				}
+
+				var len = ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT +
+				          response [ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH];
+				
+				if (response.Length < len) {
+
+					byte[] dinPappa = new byte[len];
+
+					Array.Copy (response, dinPappa, response.Length);
+
+					response = dinPappa;
+				}
+
+				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_CHECKSUM] = CalculateChecksum (response, 0);
 
 				return response;
 			

@@ -69,4 +69,10 @@ bool isError(ResponsePackage response);
 // Sets the error state using a response.
 void setError(ResponsePackage response);
 
+// Creates a checksum using the specified request package;
+byte createRequestChecksum(RequestPackage *package);
+
+// Creates a checksum using the specified response package;
+byte createResponseChecksum(ResponsePackage *package);
+
 #endif
