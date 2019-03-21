@@ -19,11 +19,30 @@
 using System;
 using NUnit.Framework;
 using System.Collections.Generic;
+using R2Core.Device;
+using System.Threading;
 
 namespace R2Core.Tests
 {
+	public class InvokerDummyDevice : DeviceBase {
+
+		public int SomeValue;
+
+		public InvokerDummyDevice (string id) : base (id) {
+			
+		}
+
+		public void SomeMethod() {
+		
+			SomeValue = 42;
+			NotifyChange (SomeValue);
+
+		}
+
+	}
+
 	[TestFixture]
-	public class R2CoreTests: TestBase
+	public class R2CoreTests: TestBase, IDeviceObserver
 	{
 		public R2CoreTests ()
 		{
@@ -49,6 +68,30 @@ namespace R2Core.Tests
 
 			Assert.IsNull (res);
 			Assert.IsNull (ros);
+		}
+
+		DeviceManager deviceManager;
+		[Test]
+		public void DeviceNotificationTest() {
+
+			InvokerDummyDevice invokedDevice = new InvokerDummyDevice ("x");
+			deviceManager = new DeviceManager ("dm");
+			deviceManager.Add (invokedDevice);
+
+			invokedDevice.AddObserver (this);
+			invokedDevice.SomeMethod ();
+			Thread.Sleep (200);
+		}
+
+		public void OnValueChanged(IDeviceNotification<object> notification) {
+		
+			InvokerDummyDevice device = deviceManager.Get (notification.Identifier);
+
+			Assert.NotNull (device);
+			Assert.AreEqual (notification.NewValue, 42);
+			Assert.AreEqual (notification.NewValue, device.SomeValue);
+			Assert.AreEqual (notification.Action, "SomeMethod");
+
 		}
 
 	}
