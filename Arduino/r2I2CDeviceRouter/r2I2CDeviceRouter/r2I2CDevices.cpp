@@ -88,6 +88,7 @@ void createDevice(byte id, DEVICE_TYPE type, byte* input) {
 
   if (id >= MAX_DEVICES) {
     
+    reset(false);
     return err("MAX_DEVICES", ERROR_CODE_MAX_DEVICES_IN_USE);
     
   } 

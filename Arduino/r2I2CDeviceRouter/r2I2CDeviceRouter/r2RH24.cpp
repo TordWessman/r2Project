@@ -53,19 +53,13 @@ uint32_t slaveRenewalFailures = 0;
 
 // Ping message from non-master nodes to master node
 #define RH24_MESSAGE_PING 'P'
-
+          
 // Keeps track of the ping intervals.
 unsigned long pingTimer = 0;
 
 // -- Private method declarations --
 
 #endif
-
-// This method should live in the run loop if the I'm a RF24 remote slave nodes
-void rh24Slave();
-
-// The method being used in the run loop for master nodes.
-void rh24Master();
 
 // Blocks for RH24_READ_TIMEOUT ms and waits for a ResponsePackage from any node.
 ResponsePackage master_tryReadMessage();
@@ -88,6 +82,12 @@ void slave_readPing(RF24NetworkHeader header);
 // Reads a message from the network
 void slave_readMessage(RF24NetworkHeader header);
 
+// This method should live in the run loop if the I'm a RF24 remote slave nodes
+void rh24SlaveLoop();
+
+// The method being used in the run loop for master nodes.
+void rh24MasterLoop();
+
 // -- Debug --
 
 #ifdef R2_PRINT_DEBUG
@@ -99,11 +99,21 @@ bool slaveSleepStarted = false;
 
 // -- Public method bodies
 
+// ---------------------------------- LOOP --------------------
+void loop_rh24() {
+
+  if (isMaster()) { rh24MasterLoop(); } 
+  else { rh24SlaveLoop(); }
+
+}
 // -- SETUP --
 
 void rh24Setup() {
   
+  //saveNodeId(0);
+  //EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, 0x00);
   byte id = getNodeId();
+  
   byte savedCycles = EEPROM.read(SLEEP_MODE_EEPROM_ADDRESS);
   
   if (savedCycles != 0x00) {
@@ -123,23 +133,17 @@ void rh24Setup() {
 
   mesh.setNodeID(id);
   
+  //radio.setPALevel(RF24_PA_HIGH);
+  
   if (mesh.begin()) { R2_LOG(F("Did start mesh network")); } 
   else { return err("E: mesh.begin()", ERROR_RH24_TIMEOUT); }
   
   network.setup_watchdog(RH24_SLEEP_CYCLES);
-  
+    
   if (!isMaster()) { R2_LOG(F("Slave started")); } 
   else { R2_LOG(F("Master started ")); }
   
-  R2_LOG(F("Setup OK!"));
-  
-}
-
-// ---------------------------------- LOOP --------------------
-void loop_rh24() {
-
-  if (isMaster()) { rh24Master(); } 
-  else { rh24Slave(); }
+  R2_LOG(F("RH24 Setup OK!"));
   
 }
 
@@ -310,9 +314,9 @@ ResponsePackage master_readResponse() {
           case RH24_MESSAGE: {
         
              // Try to read the response from the slave
-            byte readSize = network.read(header, &response, sizeof(ResponsePackage));
+            byte bytesRead = network.read(header, &response, sizeof(ResponsePackage));
             
-            if (readSize != sizeof(ResponsePackage)) {  err("E: read size", ERROR_RH24_BAD_SIZE_READ, readSize); } 
+            if (bytesRead < MIN_REQUEST_SIZE) {  err("E: read size", ERROR_RH24_BAD_SIZE_READ, bytesRead); } 
             else { 
                 
               R2_LOG(F("Read m/a/ui:"));
@@ -386,7 +390,7 @@ ResponsePackage master_tryReadMessage() {
 unsigned long masterDebugTimer = 0;
 #endif
 
-void rh24Master() {
+void rh24MasterLoop() {
   
   #ifdef R2_PRINT_DEBUG
   
@@ -416,7 +420,7 @@ void rh24Master() {
   
 }
 
-void rh24Slave() {
+void rh24SlaveLoop() {
 
   mesh.update();
   
@@ -547,17 +551,19 @@ void slave_readMessage(RF24NetworkHeader header) {
    R2_LOG(F("Got message")); 
   
    RequestPackage request;
-          
+   
+   const uint16_t bytesRead = network.read(header, &request, MAX_REQUEST_SIZE);
+   
     // Try to read the response from the slave
-    if (network.read(header, &request, MAX_REQUEST_SIZE) < MIN_REQUEST_SIZE) {
+    if (bytesRead < MIN_REQUEST_SIZE) {
       
-      err("E: Bad read size", ERROR_RH24_BAD_SIZE_READ);
+      err("E:Slave Bad read size", ERROR_RH24_BAD_SIZE_READ);
       
     } else {
       
       ResponsePackage response = execute(&request);
       const uint16_t responseSize = responsePackageSize(&response);
-      R2_LOG(F("Writing response with action:"));
+      R2_LOG(F("Slave: Response with action:"));
       R2_LOG(response.action);
       
       if (!mesh.write(&response, RH24_MESSAGE, responseSize)) {

@@ -32,7 +32,7 @@
 #define NODE_ID_EEPROM_ADDRESS 0x00
 
 // If defined, these leds will be used to communicate status and error 
-//#define R2_STATUS_LED 0x2
+#define R2_STATUS_LED 0x2
 //#define R2_ERROR_LED 0x4
 
 #endif

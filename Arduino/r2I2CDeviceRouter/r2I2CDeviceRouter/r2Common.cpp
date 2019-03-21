@@ -2,6 +2,7 @@
 #include "r2I2CDeviceRouter.h"
 #include <EEPROM.h>
 #include "r2Common.h"
+#include "r2I2C_config.h"
 
 // If true, the host is ready for operation. This flag is set after ACTION_INITIALIZE has been received.
 bool initialized = false;
@@ -9,8 +10,7 @@ bool initialized = false;
 void reset(bool isInitialized) {
           
           R2_LOG(F("Initializing"));
-          
-          deviceCount = 0;
+
           initialized = isInitialized;
           clearError();
           

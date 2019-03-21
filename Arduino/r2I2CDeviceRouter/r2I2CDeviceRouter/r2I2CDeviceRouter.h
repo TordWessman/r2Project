@@ -145,6 +145,15 @@ typedef struct RequestPackage RequestPackage;
 // If the checksum in a request did not match the rest of the request data.
 #define ERROR_BAD_CHECKSUM 21
 
+// Error reserved for external purposes
+#define ERROR_RESERVED_1 0xF0
+#define ERROR_RESERVED_2 0xF1
+#define ERROR_RESERVED_3 0xF2
+#define ERROR_RESERVED_4 0xF3
+#define ERROR_RESERVED_5 0xF4
+#define ERROR_RESERVED_6 0xF5
+#define ERROR_RESERVED_7 0xF6
+#define ERROR_RESERVED_8 0xF7
 // -- Response Actions --
 
 // Just to communicate that something went wrong.

@@ -33,6 +33,7 @@ byte messageId = 0;
 // Delegate method for I2C event communication.
 void i2cReceive(byte* data, size_t data_size) {
 
+  R2_LOG(F("Receiving i2cdata"));
   ResponsePackage out;
   //RequestPackage *in;
   
@@ -134,7 +135,7 @@ ResponsePackage execute(RequestPackage *request) {
     response.checksum = createResponseChecksum(&response);
     return response;
     
-  } else if (!isMaster() && request->host != getNodeId()) {
+  } else if (!(request->action == ACTION_INITIALIZE || request->action == ACTION_RESET) && !isMaster() && request->host != getNodeId()) {
     
     err("E: Routing", ERROR_RH24_ROUTING_THROUGH_NON_MASTER, request->host);
 
@@ -370,7 +371,11 @@ reservePort(R2_ERROR_LED);
    
 }
 
+#ifdef R2_STATUS_LED
 unsigned long blinkTimer = 0;
+bool blinkOn = false;
+#define blinkTime 1000
+#endif
 
 void loop() {
   
@@ -380,29 +385,22 @@ void loop() {
     loop_serial();
   #endif
   
-  #ifdef USE_RH24
-  if (!isMaster())
-  #endif
-  {
-    
-    #ifdef R2_STATUS_LED
-    
-    if (millis() - blinkTimer >= 10000) {
+  #ifdef R2_STATUS_LED
   
-      blinkTimer = millis();
-      setStatus(true);
-      delay(50);
-      setStatus(false);
-      
-    }
-    
-    #endif
+  if (millis() - blinkTimer >= blinkTime) {
 
+    blinkTimer = millis();
+    setStatus(blinkOn);
+    blinkOn = !blinkOn;
+    
   }
-  //Serial.println("Starting RH24");
   
+  #endif
+
   #ifdef USE_RH24
-    loop_rh24();
+
+  loop_rh24();
+
   #endif
  
   #ifdef USE_I2C
