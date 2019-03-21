@@ -55,11 +55,4 @@ namespace R2Core.Network
 
 	}
 
-    public static class MessageClientObserverOptionals {
-
-        public static void OnRequest(this IMessageClientObserver self, INetworkMessage request) { }
-        public static void OnBroadcast(this IMessageClientObserver self, INetworkMessage response, Exception ex) { }
-
-    }
-
 }

@@ -107,7 +107,17 @@ namespace R2Core.Device
 				Identifier = m_identifier
 			};
 
-			m_host.Send (request);
+			try {
+
+				m_host.Send (request);
+
+			} catch (Exception ex) {
+				
+				Log.x (ex);
+
+			}
+
+
 			return true;
 
 		}
@@ -121,9 +131,18 @@ namespace R2Core.Device
 				Identifier = m_identifier
 			};
 
-			dynamic response = m_host.Send (request);
+			try {
 
-			result = response.ActionResponse;
+				dynamic response = m_host.Send (request);
+				result = response.ActionResponse;
+
+			} catch (Exception ex) {
+				
+				result = binder.ReturnType.DefaultValue();
+				Log.x (ex);
+
+			}
+
 			return true;
 
 		}
@@ -137,9 +156,18 @@ namespace R2Core.Device
 				Identifier = m_identifier
 			};
 
-			dynamic response = m_host.Send (request);
+			try {
 
-			result = response.ActionResponse;
+				dynamic response = m_host.Send (request);
+				result = response.ActionResponse;
+
+			} catch (Exception ex) {
+
+				result = binder.ReturnType.DefaultValue();
+				Log.x (ex);
+
+			}
+
 			return true;
 
 		}

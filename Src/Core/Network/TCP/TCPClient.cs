@@ -61,7 +61,7 @@ namespace R2Core.Network
 
 		public IList<WeakReference<IMessageClientObserver>> m_observers;
 
-		public TCPClient (string id, ITCPPackageFactory<TCPMessage> serializer, string host, int port) : base(id) {
+		public TCPClient(string id, ITCPPackageFactory<TCPMessage> serializer, string host, int port) : base(id) {
 
 			m_host = host;
 			m_port = port;
@@ -88,18 +88,18 @@ namespace R2Core.Network
             m_client = new TcpClient();
             m_client.SendTimeout = Timeout;
 			m_client.Connect (m_host, m_port);
-			m_receiverTask = Receive ();
+			m_receiverTask = Receive();
 
 		}
 
-		public override void Stop () {
+		public override void Stop() {
 
 			m_shouldRun = false;
 
 			if (m_client.Connected) {
 			
-				m_client.GetStream ().Close();
-				m_client.Close ();
+				m_client.GetStream().Close();
+				m_client.Close();
 
 			}
 
@@ -109,30 +109,13 @@ namespace R2Core.Network
 
 		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
 
-			return System.Threading.Tasks.Task.Factory.StartNew ( () => {
+			return System.Threading.Tasks.Task.Factory.StartNew (() => {
 
-				INetworkMessage response;
-				Exception exception = null;
-
-				try {
-
-					response = Send(message);
-
-				} catch (Exception ex) {
-
-					response = new TCPMessage() { Code = WebStatusCode.NetworkError.Raw(), Payload = ex.ToString()};
-					exception = ex;
-
-				}
-
-				responseDelegate(response);
-
-				if (exception != null) { throw exception; }
+				responseDelegate(Send(message));
 
 			});
 
 		}
-
 
 		public INetworkMessage Send(INetworkMessage requestMessage) {
 
@@ -150,24 +133,35 @@ namespace R2Core.Network
 
 				byte[] request = m_serializer.SerializeMessage (message);
 
-				m_client.GetStream ().Write (request, 0, request.Length);
-
-				m_writeLock = new AutoResetEvent (false);
-
-				// Reset the read error. Still an awful lot of race conditions, but wtf.
-				m_readError = null;
-
-				// Wait for receiver thread to fetch data.
-				if (!m_writeLock.WaitOne (Timeout)) { throw new SocketException ((int)SocketError.TimedOut); }
-
-				m_writeLock = null;
-
 				try {
 
-					// If there was an error during the read process, throw it here.
-					if (m_readError != null) { throw m_readError; }
+					m_client.GetStream ().Write (request, 0, request.Length);
 
-					return m_latestResponse;
+					m_writeLock = new AutoResetEvent (false);
+
+					// Reset the read error. Still an awful lot of race conditions, but wtf.
+					m_readError = null;
+
+					// Wait for receiver thread to fetch data.
+					if (!m_writeLock.WaitOne (Timeout)) { throw new SocketException ((int)SocketError.TimedOut); }
+
+					m_writeLock = null;
+
+					// If there was an error during the read process, throw it here.
+					if (m_readError != null) {
+						
+						throw m_readError; 
+					
+					}
+
+					m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, null));
+
+				} catch (Exception ex) {
+
+					Log.x (ex);
+
+					m_latestResponse = new TCPMessage () { Code = WebStatusCode.NetworkError.Raw (), Payload = ex.ToString () };
+					m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, ex));
 
 				} finally {
 				
@@ -175,6 +169,7 @@ namespace R2Core.Network
 
 				}
 
+				return m_latestResponse;
 
 			}
 	

@@ -119,7 +119,8 @@
     <Compile Include="Shared\LinearDataSet.cs" />
     <Compile Include="Shared\R2Dynamic.cs" />
     <Compile Include="Device\AsyncRemoteDeviceRequest.cs" />
-    <Compile Include="Shared\WeakReferenceExtensions.cs" />
+    <Compile Include="Extensions\WeakReferenceExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -59,7 +59,7 @@
     <Compile Include="CoreTests\UDPTests.cs" />
     <Compile Include="DummyClasses\Networking\DummyEndpoint.cs" />
     <Compile Include="CoreTests\TestAsyncRemoteDevice.cs" />
-    <Compile Include="CoreTests\DummyClientObserver.cs" />
+    <Compile Include="DummyClasses\Networking\DummyClientObserver.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
