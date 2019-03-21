@@ -23,7 +23,7 @@ namespace R2Core.GPIO
 {
 	public class ArduinoSerialPackageFactory: ISerialPackageFactory
 	{
-		// Default local nodeId value. This is the default nodeId used. Data sent to other nodeIds requires a RH24 enabled slave (configured as RH24 master).
+		// Default local nodeId value. This is the default nodeId used. Data sent to other nodeIds requires a RH24 enabled node (configured as RH24 master).
 		public const byte DEVICE_NODE_LOCAL = 0x0;
 
 		// Max size for content in packages
@@ -119,6 +119,16 @@ namespace R2Core.GPIO
 
 		public DeviceResponsePackage<T> ParseResponse<T> (byte[] response) {
 
+			if (response.Length < RESPONSE_POSITION_CONTENT_LENGTH) {
+			
+				return new DeviceResponsePackage<T> () {
+					Checksum = 0,
+					Action = SerialActionType.Error,
+					Content = new byte[] {(byte)SerialErrorType.ERROR_INVALID_RESPONSE_SIZE}
+				};
+
+			}
+
 			int contentLength = response [RESPONSE_POSITION_CONTENT_LENGTH];
 
 			return new DeviceResponsePackage<T> () {
@@ -134,7 +144,7 @@ namespace R2Core.GPIO
 
 		public DeviceRequestPackage CreateDevice(byte nodeId, SerialDeviceType type, byte[] ports) {
 
-			// Slave expects <device type><IOPort1><IOPort2> ...
+			// Node expects <device type><IOPort1><IOPort2> ...
 			byte[] content = new byte[1 + ports.Length];
 			content [POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
 			Array.Copy (ports, 0, content, 1, ports.Length);

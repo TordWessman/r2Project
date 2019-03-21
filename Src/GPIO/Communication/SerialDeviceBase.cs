@@ -5,7 +5,7 @@ using System.Linq;
 namespace R2Core.GPIO
 {
 	/// <summary>
-	/// Base implementation for serial devices. Contains standard functionality including access to the ISerialHost and slaveId management.
+	/// Base implementation for serial devices. Contains standard functionality including access to the ISerialHost and node management.
 	/// </summary>
 	internal abstract class SerialDeviceBase<T>: DeviceBase, ISerialDevice
 	{
@@ -13,7 +13,7 @@ namespace R2Core.GPIO
 		// Defined by the host application. A port with this value is not in use.
 		private const byte DEVICE_PORT_NOT_IN_USE = 0xFF;
 
-		// The id of the device at the slave device
+		// The id of the device at the node device
 		private byte m_deviceId;
 
 		// Represent the remote connection

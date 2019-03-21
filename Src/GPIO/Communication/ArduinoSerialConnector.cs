@@ -30,7 +30,7 @@ namespace R2Core.GPIO
 	public class ArduinoSerialConnector: DeviceBase, ISerialConnection
 	{
 		/// <summary>
-		/// The package headers used as "checksum". Defined in the source code for the Arduino slave in r2I2CDeviceRouter.h (PACKAGE_HEADER_IDENTIFIER).
+		/// The package headers used as "checksum". Defined in the source code for the Arduino node in r2I2CDeviceRouter.h (PACKAGE_HEADER_IDENTIFIER).
 		/// </summary>
 		private byte[] m_packageHeader;
 

@@ -9,13 +9,13 @@ namespace R2Core.GPIO {
 	public interface ISerialConnection: IDevice {
 
 		/// <summary>
-		/// Will send the array of bytes to slave and return the reply (if any)
+		/// Will send the array of bytes to node and return the reply (if any)
 		/// </summary>
 		/// <param name="data">Data.</param>
 		byte [] Send(byte []data);
 
 		/// <summary>
-		/// Will try to read from the slave.
+		/// Will try to read from the node.
 		/// </summary>
 		byte [] Read();
 
