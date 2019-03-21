@@ -65,8 +65,14 @@ namespace R2Core {
 
                         if (obj != default(T)) {
 
-                            block(obj);
+							try { block(obj); }
+							catch(Exception ex) {
+							
+								Log.x(ex);
+								throw ex;
 
+							}
+                            
                         }
 
                     });

@@ -111,7 +111,23 @@ namespace R2Core.Network
 
 			return System.Threading.Tasks.Task.Factory.StartNew (() => {
 
-				responseDelegate(Send(message));
+				INetworkMessage response;
+				Exception exception = null;
+
+				try {
+
+					response = Send(message);
+
+				} catch (Exception ex) {
+
+					response = new TCPMessage() { Code = WebStatusCode.NetworkError.Raw(), Payload = ex.ToString()};
+					exception = ex;
+
+				}
+
+				responseDelegate(response);
+
+				if (exception != null) { throw exception; }
 
 			});
 
@@ -156,20 +172,18 @@ namespace R2Core.Network
 
 					m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, null));
 
+					return m_latestResponse;
+
 				} catch (Exception ex) {
-
-					Log.x (ex);
-
-					m_latestResponse = new TCPMessage () { Code = WebStatusCode.NetworkError.Raw (), Payload = ex.ToString () };
-					m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, ex));
+					
+					m_observers.InParallell((observer) => observer.OnResponse(null, ex));
+					throw ex;
 
 				} finally {
 				
 					m_readError = null;
 
 				}
-
-				return m_latestResponse;
 
 			}
 	
