@@ -67,13 +67,27 @@ namespace R2Core.Device
 
         public void RemoveObserver(IDeviceObserver observer) {
 
-            lock(m_lock)  {
+            lock (m_lock) {
 
-                //var x = m_observers[0].Target;
-                //if (m_observers.Contains(observer)) {
+                WeakReference<IDeviceObserver> remove = null;
 
-                //    m_observers.Remove
-                //}
+                m_observers.ForEach((refence) => {
+
+                    IDeviceObserver obj = refence.GetTarget();
+
+                    if (obj == observer) {
+
+                        remove = refence;
+
+                    }
+
+                });
+
+                if (remove != null) {
+
+                    m_observers.Remove(remove);
+
+                }
 
             }
 
@@ -91,24 +105,13 @@ namespace R2Core.Device
 
 		}
 
-		protected void NotifyChange(IDeviceNotification<object> deviceNotification) {
+		protected void NotifyChange(IDeviceNotification<object> notification) {
 
             lock (m_lock)  {
 
                 m_observers = m_observers.RemoveEmpty();
-                IList<WeakReference<IDeviceObserver>> observers = new List<WeakReference<IDeviceObserver>>(m_observers);
 
-                observers.AsParallel().ForAll((observerRef) => {
-
-                    IDeviceObserver observer;
-
-                    if (observerRef.TryGetTarget(out observer)) {
-
-                        observer.OnValueChanged(deviceNotification);
-
-                    }
-
-                });
+                m_observers.InParallell((obj) => obj.OnValueChanged(notification));
  
             }
 
@@ -123,26 +126,6 @@ namespace R2Core.Device
 			return sf.GetMethod();
 
 		}
-		
-        //private List<WeakReference<T>> ClearNullObservers<T>() {
-
-        //    List<WeakReference<IDeviceObserver>> observers = new List<WeakReference<IDeviceObserver>>();
-
-        //    foreach (WeakReference<IDeviceObserver> observerRef in m_observers) {
-
-        //        IDeviceObserver observer;
-
-        //        if (observerRef.TryGetTarget(out observer))  {
-
-        //            observers.Add(observerRef);
-
-        //        }
-
-        //    }
-
-        //    return observers;
-
-        //}
 
     }
 

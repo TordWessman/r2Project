@@ -86,9 +86,10 @@ namespace R2Core.Device
 
 		}
 
-		public void AddObserver (IDeviceObserver observer) {}
+		public void AddObserver (IDeviceObserver observer) { throw new InvalidOperationException("RemoteDevice can't have observers"); }
+        public void RemoveObserver(IDeviceObserver observer) { throw new InvalidOperationException("RemoteDevice can't have observers"); }
 
-		public RemoteDevice (string id, Guid guid, IHostConnection host)
+        public RemoteDevice (string id, Guid guid, IHostConnection host)
 		{
 
 			m_identifier = id;
