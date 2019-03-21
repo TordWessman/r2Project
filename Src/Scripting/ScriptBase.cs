@@ -103,6 +103,7 @@ namespace R2Core.Scripting
 
 		public void AddObserver (IScriptObserver observer) { m_scriptObservers.Add (observer); }
 		public void AddObserver (IDeviceObserver observer) { m_deviceObservers.Add (observer); }
+		public void RemoveObserver (IDeviceObserver observer) { m_deviceObservers.Remove (observer); }
 
 		private Task GetProcessTask () {
 

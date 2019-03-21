@@ -111,7 +111,7 @@ namespace R2Core.Device
 
                 m_observers = m_observers.RemoveEmpty();
 
-                m_observers.InParallell((obj) => obj.OnValueChanged(notification));
+				m_observers.Sequential((obj) => obj.OnValueChanged(notification));
  
             }
 

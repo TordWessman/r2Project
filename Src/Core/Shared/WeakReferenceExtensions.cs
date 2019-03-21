@@ -17,7 +17,7 @@ namespace R2Core {
 
             List<WeakReference<T>> objects = new List<WeakReference<T>>();
 
-            objects.Sequential((obj) => objects.Add(new WeakReference<T>(obj)));
+            self.Sequential((obj) => objects.Add(new WeakReference<T>(obj)));
 
             return objects;
 

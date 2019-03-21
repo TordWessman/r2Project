@@ -32,9 +32,9 @@ namespace R2Core.Tests
 			
 		}
 
-		public void SomeMethod() {
+		public void SomeMethod(int yep = 42) {
 		
-			SomeValue = 42;
+			SomeValue = yep;
 			NotifyChange (SomeValue);
 
 		}
@@ -71,6 +71,8 @@ namespace R2Core.Tests
 		}
 
 		DeviceManager deviceManager;
+		bool wasInvoked = false;
+
 		[Test]
 		public void DeviceNotificationTest() {
 
@@ -81,6 +83,16 @@ namespace R2Core.Tests
 			invokedDevice.AddObserver (this);
 			invokedDevice.SomeMethod ();
 			Thread.Sleep (200);
+			Assert.IsTrue (wasInvoked);
+
+			Assert.AreEqual (invokedDevice.SomeValue, 43);
+			invokedDevice.RemoveObserver (this);
+			wasInvoked = false;
+			invokedDevice.SomeMethod (44);
+			Thread.Sleep (200);
+			Assert.False (wasInvoked);
+			Assert.AreEqual (invokedDevice.SomeValue, 44);
+
 		}
 
 		public void OnValueChanged(IDeviceNotification<object> notification) {
@@ -91,6 +103,9 @@ namespace R2Core.Tests
 			Assert.AreEqual (notification.NewValue, 42);
 			Assert.AreEqual (notification.NewValue, device.SomeValue);
 			Assert.AreEqual (notification.Action, "SomeMethod");
+
+			device.SomeValue = 43;
+			wasInvoked = true;
 
 		}
 
