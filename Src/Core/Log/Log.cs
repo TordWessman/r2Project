@@ -34,6 +34,11 @@ namespace R2Core
 
 		public LogType LogLevel = LogType.Temp;
 
+		/// <summary>
+		/// Define how many rows to print of the stacktrace.
+		/// </summary>
+		public int MaxStackTrace = 10;
+
 		// Keeps track of all log levels for specific threads.
 		private IDictionary<int, LogType> m_threadLogLevels;
 
@@ -218,12 +223,21 @@ namespace R2Core
 		{
 
 			if (!string.IsNullOrEmpty (ex.Message)) {
+				
+				IList<string> stackTrace = ex.StackTrace?.Split ('\n').ToList() ?? new List<string>();
 
+				if (stackTrace.Count > Log.instance.MaxStackTrace) {
+
+					stackTrace = stackTrace.Take (Log.instance.MaxStackTrace).ToList();
+					stackTrace.Add ("... (Ignoring the rest) ...");
+
+				}
+
+				string stackTraceString = stackTrace.Aggregate ("", (current, next) => current + "\n" + next);
 				string exString = 
-					new string ('-', recursionCount * 2) + ex.ToString () + "\n" +
+					new string ('-', recursionCount * 2) + "--" + ex.Source + "--" + "\n" +
 					new string ('-', recursionCount * 2) + ex.Message + "\n" +
-					new string ('-', recursionCount * 2) + ex.StackTrace + "\n" +
-					new string ('-', recursionCount * 2) + ex.Source + "\n";
+					new string ('-', recursionCount * 2) + stackTraceString + "\n";
 
 				Log.Instance.Write (new LogMessage (exString, LogType.Error, null));
 
