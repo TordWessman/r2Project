@@ -47,12 +47,10 @@ namespace R2Core.Device
 			m_observers = new List<IDeviceManagerObserver> ();
 
 		}
+			
+		public IEnumerable<IDevice> Devices { get { return m_devices.Values; } }
 
-		/// <summary>
-		/// Return all local devices
-		/// </summary>
-		/// <value>The devices.</value>
-		public IEnumerable<IDevice> Devices { get { return m_devices.Values.Where (device => !(device is IRemoteDevice));; } }
+		public IEnumerable<IDevice> LocalDevices { get { return m_devices.Values.Where (device => device.IsLocal()); } }
 
 		/// <summary>
 		/// Add the device internally
@@ -63,7 +61,7 @@ namespace R2Core.Device
 			lock (m_lock) {
 
 				IDevice existingDevice = m_devices.Values.Where (d => d.Identifier == device.Identifier).FirstOrDefault ();
-				if (existingDevice != null && !(existingDevice is IRemoteDevice)) {
+				if (existingDevice != null && existingDevice.IsLocal()) {
 
 					Log.w ($"Replacing device duplicated device with id `{device.Identifier}`");
 					m_devices.Remove (existingDevice.Guid);
@@ -73,8 +71,12 @@ namespace R2Core.Device
 				m_devices.Add (device.Guid, device);
 
 
-				// Device Manager will be able to propagate changes in any device to it's own observers. 
-				device.AddObserver (this);
+				// Device Manager will be able to propagate changes in any device to it's own observers.
+				if (device.IsLocal()) {
+				
+					device.AddObserver (this);
+				}
+
 			
 			}
 
@@ -177,7 +179,7 @@ namespace R2Core.Device
 
 				foreach (IDevice device in m_devices.Values) {
 
-					if (!(device is IRemoteDevice) && !ignoreDevices.Any(d => d.Guid == device.Guid )) {
+					if (device.IsLocal() && !ignoreDevices.Any(d => d.Guid == device.Guid )) {
 
 						Log.d ("Stopping device: " + device.Identifier);
 
@@ -242,7 +244,7 @@ namespace R2Core.Device
 
 				if (Has (device.Identifier)) {
 				
-					Log.d ($"{device.Identifier}    - [{device.Guid.ToString()}]" + (device is IRemoteDevice ? " (remote)" : "")); 
+					Log.d ($"{device.Identifier}    - [{device.Guid.ToString()}]" + (!device.IsLocal() ? " (remote)" : "")); 
 				
 				} else {
 				

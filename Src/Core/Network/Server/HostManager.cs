@@ -264,8 +264,9 @@ namespace R2Core.Network
 			// Retrieve a DeviceResponse which should contain the device manager in the Object property.
 			DeviceResponse deviceResponse = new DeviceResponse(connection.Send(deviceManagerRequest));
 
+			Log.t ("check device response.");
 			// Create IRemoteDevice for each device and add it to device manager.
-			foreach (dynamic device in deviceResponse.Object.Devices) {
+			foreach (dynamic device in deviceResponse.Object.LocalDevices) {
 
 				Guid guid = Guid.Parse((string) device.Guid);
 

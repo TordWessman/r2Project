@@ -19,15 +19,34 @@
 using System;
 using R2Core.Network;
 using System.Net;
+using System.Collections.Generic;
 
 
 namespace R2Core.Device
 {
+
+	public interface IDeviceContainer {
+	
+		/// <summary>
+		/// Return all devices (local & remote)
+		/// </summary>
+		/// <value>The devices.</value>
+		IEnumerable<IDevice> Devices { get; }
+
+		/// <summary>
+		/// Return all local devices
+		/// </summary>
+		/// <value>The devices.</value>
+		IEnumerable<IDevice> LocalDevices { get; }
+
+	}
+
 	/// <summary>
 	/// A devcie manager is respnsible for keepin track of all available IDevices
 	/// </summary>
-	public interface IDeviceManager: IDevice, IDeviceObserver
+	public interface IDeviceManager: IDevice, IDeviceObserver, IDeviceContainer
 	{
+		
 		void Add(IDevice device);
 
 		/// <summary>

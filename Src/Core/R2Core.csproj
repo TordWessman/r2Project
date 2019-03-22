@@ -121,6 +121,7 @@
     <Compile Include="Device\AsyncRemoteDeviceRequest.cs" />
     <Compile Include="Extensions\WeakReferenceExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Extensions\DeviceExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
