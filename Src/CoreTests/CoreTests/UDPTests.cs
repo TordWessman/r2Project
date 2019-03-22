@@ -131,6 +131,8 @@ namespace R2Core.Tests
 
 			Assert.True (didReceiveResponse);
 
+			client.Stop ();
+			s.Stop ();
 			//TCPMessage request = new TCPMessage() {
 
 
@@ -170,6 +172,9 @@ namespace R2Core.Tests
 
 			}
 
+			s.Stop ();
+			client.Stop ();
+
 		}
 
 		[Test]
@@ -205,6 +210,7 @@ namespace R2Core.Tests
 
 			Assert.AreEqual (dummy.HAHA, d.HAHA);
 
+			h.Stop ();
 			devices1.TCPServer.Stop ();
 			devices1.UDPServer.Stop ();
 

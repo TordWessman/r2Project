@@ -40,6 +40,7 @@ namespace R2Core.Tests
 
 			IServer s = factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
+			Thread.Sleep (500);
 			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
 
 			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
@@ -57,7 +58,7 @@ namespace R2Core.Tests
 
 			var client = factory.CreateTcpClient ("c", "localhost", tcp_port);
 			client.Start ();
-			Thread.Sleep (500);
+
 
 			//Client should be connected
 			Assert.IsTrue (client.Ready);
@@ -77,6 +78,8 @@ namespace R2Core.Tests
 			python.dog_becomes_value("foo");
 
 			Assert.AreEqual ("foo", python.dog);
+
+			s.Stop ();
 
 		}
 
@@ -148,6 +151,7 @@ namespace R2Core.Tests
 		
 			failTask.Wait ();
 
+			s.Stop ();
 		}
 
 	}
