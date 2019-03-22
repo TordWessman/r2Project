@@ -98,8 +98,8 @@ namespace R2Core.Scripting
 
 		public abstract void Set (string handle, dynamic value);
 		public abstract dynamic Get (string handle);
-		public abstract void Reload();
 		public abstract dynamic Invoke (string handle, params dynamic[] args);
+		public abstract void Reload();
 
 		public void AddObserver (IScriptObserver observer) { m_scriptObservers.Add (observer); }
 		public void AddObserver (IDeviceObserver observer) { m_deviceObservers.Add (observer); }

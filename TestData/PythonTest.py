@@ -1,9 +1,12 @@
 import scriptbase
 
+# This script is used by test cases. Do not change!
+
 class MainClass(scriptbase.ScriptBase):
 
 	def add_42(self, siffra):
-		self.e(siffra)
+		self.d("PythonScript gets a number:")
+		self.d(siffra)
 		return siffra + 42
 
 	def return_katt_times_10(self):
