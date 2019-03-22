@@ -123,6 +123,7 @@
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\DeviceExtensions.cs" />
     <Compile Include="Shared\IInvokable.cs" />
+    <Compile Include="Network\NetworkException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

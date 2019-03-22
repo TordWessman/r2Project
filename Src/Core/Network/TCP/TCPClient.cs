@@ -170,7 +170,9 @@ namespace R2Core.Network
 					
 					}
 
-					m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, null));
+					NetworkException exception = m_latestResponse.IsError() ? new NetworkException(m_latestResponse) : null;
+
+					m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, exception));
 
 					return m_latestResponse;
 
