@@ -16,7 +16,8 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-#include <opencv/cv.h>
+//#include <opencv/cv.h>
+#include <opencv2/opencv.hpp>
 #include <stdio.h>
 
 extern "C" {
