@@ -132,6 +132,7 @@ void rh24Setup() {
   if (!isMaster()) {  R2_LOG(F("Setting up as slave and ")); }
 
   mesh.setNodeID(id);
+  mesh.setChild(isMaster());
   
   //radio.setPALevel(RF24_PA_HIGH);
   
@@ -457,6 +458,9 @@ void rh24SlaveLoop() {
 
 }
 
+// Reboot the device
+void(* arghhhh) (void) = 0;
+
 void slave_networkCheck() {
 
 #ifdef RH24_PING_ENABLED
@@ -483,10 +487,11 @@ void slave_networkCheck() {
     if (slaveDebugOutputCount++ > 30) { Serial.println(""); slaveDebugOutputCount = 0; }
     #endif
     
-    if ( !mesh.checkConnection() ) {
+    if (!mesh.checkConnection()) {
       
-        R2_LOG(F("No connection. Renewing address."));
-        mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT); 
+        R2_LOG(F("No connection. Restarting."));
+        arghhhh();
+        //mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT); 
         
     }
    

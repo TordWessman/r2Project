@@ -346,7 +346,20 @@ ResponsePackage execute(RequestPackage *request) {
 void setup() {
 
   //saveNodeId(0);
-  
+/*
+pinMode(R2_RESET_LED1, OUTPUT);
+pinMode(R2_RESET_LED2, INPUT);
+delay(500);
+
+if(digitalRead(R2_RESET_LED2)) {
+  R2_LOG(F("Resetting node to master"));
+  saveNodeId(0);
+  EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, 0x00);
+}
+
+pinMode(R2_RESET_LED1, INPUT);
+*/
+
 #ifdef R2_STATUS_LED
 pinMode(R2_STATUS_LED, OUTPUT);
 reservePort(R2_STATUS_LED);
@@ -360,9 +373,16 @@ reservePort(R2_ERROR_LED);
   Serial.begin(SERIAL_BAUD_RATE);
   clearError();
   
-#ifdef USE_I2C  
+#ifdef USE_I2C
+
+#ifdef USE_RH24
+if (isMaster())
+#endif
+{
   R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
   R2_LOG(F("Initialized I2C."));
+}
+
 #endif
 
 #ifdef USE_RH24
@@ -398,12 +418,15 @@ void loop() {
   #endif
 
   #ifdef USE_RH24
-
   loop_rh24();
-
   #endif
  
+ #ifdef USE_RH24
+ if (isMaster())
+ #endif
+ {
   #ifdef USE_I2C
     R2I2C.loop();
-  #endif 
+  #endif
+ }
 }
