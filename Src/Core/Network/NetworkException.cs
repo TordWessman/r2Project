@@ -3,7 +3,7 @@ using R2Core.Network;
 
 namespace R2Core
 {
-	public static class IMessageLoggerExtensions {
+	public static class NetworkMessageErrorExtensions {
 	
 		public static bool IsError(this INetworkMessage self) {
 

@@ -20,6 +20,11 @@ namespace R2Core.GPIO
 		}
 	}
 
+	/// <summary>
+	/// SerialHost handles communication to a r2I2C device (see the r2I2CDeviceRouter Arduino project).
+	/// It's heavily coupled to the r2I2CDeviceRouter implementation. Any changes there should be reflected
+	/// in changes in this class.
+	/// </summary>
 	public class SerialHost: DeviceBase, ISerialHost
 	{
 		private ISerialConnection m_connection;
@@ -197,20 +202,25 @@ namespace R2Core.GPIO
 		/// </summary>
 		/// <param name="request">Request.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		private DeviceResponsePackage<T> _Send<T>(DeviceRequestPackage request, int retry = 0) {
+		private DeviceResponsePackage<T> _Send<T>(DeviceRequestPackage request, int retryCount = 0) {
 		
 			byte[] requestData = m_packageFactory.SerializeRequest (request);
+
+			bool retry = request.Action != SerialActionType.Initialization;
 
 			try {
 			
 				byte[] responseData = m_connection.Send (requestData);
 				DeviceResponsePackage<T> response = m_packageFactory.ParseResponse<T> (responseData);
 
-				if ((response.IsError || !response.IsChecksumValid) && retry < RetryCount) {
+				if ( retry && response.Action != SerialActionType.Initialization //Intialization is not considered an error
+					&& response.Error != SerialErrorType.NO_DEVICE_FOUND &&	// This error will cause the caller to recreate the device
+					(response.IsError || !response.IsChecksumValid) && retryCount < RetryCount) {
 
-					Log.t($"Retry: {retry}. Error: {response.Error}.");
-					System.Threading.Tasks.Task.Delay(RetryDelay * (retry * 2 + 1)).Wait();
-					return _Send<T> (request, retry + 1);
+
+					Log.t($"Retry: {retryCount}. Error: {response.Error}. {request.Description()}");
+					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
+					return _Send<T> (request, retryCount + 1);
 
 				}
 
@@ -218,11 +228,12 @@ namespace R2Core.GPIO
 
 			} catch (IOException ex) {
 			
-				if (retry < RetryCount) {
+				// IO exceptions can occur from time to time. Give it a few more shots, mamma.
+				if (retryCount < RetryCount) {
 			
-					Log.t($"Retry: {retry}. Exception: {ex.Message}.");
-					System.Threading.Tasks.Task.Delay(RetryDelay * (retry * 2 + 1)).Wait();
-					return _Send<T> (request, retry + 2);
+					Log.t($"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
+					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
+					return _Send<T> (request, retryCount + 2);
 
 				}
 
