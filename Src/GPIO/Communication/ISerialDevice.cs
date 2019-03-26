@@ -27,7 +27,7 @@ namespace R2Core.GPIO
 	public interface ISerialDevice: IDevice {
 
 		/// <summary>
-		/// (Re)creates the device representation on the node, typically after slave reboot.
+		/// (Re)creates the device representation on the node, typically after node reboot.
 		/// </summary>
 		void Synchronize ();
 

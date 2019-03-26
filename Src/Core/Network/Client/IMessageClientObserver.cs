@@ -23,14 +23,28 @@ namespace R2Core.Network
 	/// <summary>
 	/// Implementations allow asynchronous callbacks for network messages.
 	/// </summary>
-	public interface IMessageClientObserver
-	{
+	public interface IMessageClientObserver {
+
+        /// <summary>
+        /// Called just before a message is sent.
+        /// </summary>
+        /// <param name="request">Request.</param>
+        void OnRequest(INetworkMessage request);
+
+        /// <summary>
+        /// Called whenever any network request has finished. 
+        /// If `ex` is not `null` or if `response` is `null`, the request failed.
+        /// </summary>
+        /// <param name="response">Response.</param>
+        /// <param name="ex">Ex.</param>
+        void OnResponse(INetworkMessage response, Exception ex);
+
 		/// <summary>
-		/// Will be called whenever a client receives new data. 
+		/// Will be called whenever a client receives a new broadcast message. 
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="ex">Ex.</param>
-		void OnReceive (INetworkMessage message, Exception ex);
+		void OnBroadcast(INetworkMessage response, Exception ex);
 
 		/// <summary>
 		/// The INetworkMessage.Destination this observer are interested in.
@@ -38,6 +52,7 @@ namespace R2Core.Network
 		/// </summary>
 		/// <value>The destination.</value>
 		string Destination { get; }
-	}
-}
 
+	}
+
+}

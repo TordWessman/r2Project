@@ -18,9 +18,12 @@
 
 //#include <opencv/cv.h>
 #include <opencv2/opencv.hpp>
+#include "OpenCvBase.hpp"
 #include <stdio.h>
 
 extern "C" {
+
+	void _ext_release_image(IplImage *image);
 
 	// Captures a frame from webcam. skipFrames determines how many frames to discard from the video buffer (v4l issues..)
 	IplImage* _ext_capture_camera(int deviceId);

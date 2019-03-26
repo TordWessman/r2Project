@@ -150,7 +150,21 @@ namespace R2Core.GPIO.Tests
 
 			// The update cycle should not have occured, and the device should still have it's previous value. 
 			Assert.AreEqual (543, sensor.Value);
+		
 		}
+
+		[Test]
+		public void TestDevicePackages() {
+		
+			DeviceResponsePackage<byte> p = new DeviceResponsePackage<byte>() {
+				Checksum = 11,
+				Id = 42, NodeId = 200, Content = new byte[2]{11, 12}};
+
+			Assert.IsTrue (p.IsChecksumValid);
+
+		}
+	
 	}
+
 }
 

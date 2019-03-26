@@ -67,8 +67,10 @@ namespace R2Core.Network
 
 		private ObjectInvoker m_invoker;
 
+		private IDeviceContainer m_deviceContainer;
+
 		// Contains a list identifiers for all devices available.
-		private IDictionary<string, WeakReference<IDevice>> m_devices;
+		private IDictionary<string, IDevice> m_devices;
 
 		/// <summary>
 		/// The token is used as a very simple mean of authentication...
@@ -78,24 +80,20 @@ namespace R2Core.Network
 		public DeviceRouter ()
 		{
 
-			m_devices = new Dictionary<string, WeakReference<IDevice>> ();
+			m_devices = new Dictionary<string, IDevice> ();
 			m_invoker = new ObjectInvoker ();
 
 		}
 
 		public void AddDevice(IDevice device) {
 		
-			m_devices [device.Identifier] = new WeakReference<IDevice> (device);
+			m_devices [device.Identifier] = device;
 
 		}
 
-		public void AddDevices(IEnumerable<IDevice> devices) {
-		
-			foreach (IDevice device in devices) {
-			
-				AddDevice (device);
+		public void SetContainer(IDeviceContainer container) {
 
-			}
+			m_deviceContainer = container;
 
 		}
 
@@ -103,15 +101,17 @@ namespace R2Core.Network
 			
 			IDevice device = null;
 
-			if (message.Payload?.Identifier != null && m_devices.ContainsKey (message.Payload.Identifier)) {
+			IEnumerable<IDevice> devices = m_deviceContainer == null ? m_devices.Values : m_devices.Values.Concat (m_deviceContainer.LocalDevices);
+
+			if (message.Payload?.Identifier != null) {
 			
-				m_devices [message.Payload.Identifier].TryGetTarget (out device);
+				device = devices.Where ((d) => d.Identifier == message.Payload.Identifier).Select ((d) => d).FirstOrDefault ();
 
 			}
 
 			if (device == null) {
 
-				throw new DeviceException ($"Device with id: {message.Payload.Identifier} not found.");
+				throw new DeviceException ($"Device with id: '{message.Payload?.Identifier}' not found.");
 			
 			}
 

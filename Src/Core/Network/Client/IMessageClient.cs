@@ -27,7 +27,7 @@ namespace R2Core.Network
 	/// </summary>
 	public interface IMessageClient: IDevice {
 
-		INetworkMessage Send (INetworkMessage message);
+        INetworkMessage Send (INetworkMessage message);
 		System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate);
 
 	}

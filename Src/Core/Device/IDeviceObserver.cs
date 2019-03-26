@@ -20,9 +20,11 @@ using System;
 
 namespace R2Core.Device
 {
-	public interface IDeviceObserver
-	{
+	public interface IDeviceObserver {
+		
 		void OnValueChanged(IDeviceNotification<object> notification);
+	
 	}
+
 }
 

@@ -34,17 +34,18 @@ namespace R2Core.Device
 	{
 		protected string m_id;
 		protected Guid m_guid;
-		private List<IDeviceObserver> m_observers;
+		private List<WeakReference<IDeviceObserver>> m_observers;
+        private readonly object m_lock;
 
-		public DeviceBase (string id)
-		{
+		public DeviceBase (string id) {
+
+            m_lock = new object();
 			m_id = id;
 			m_guid = Guid.NewGuid ();
-			m_observers = new List<IDeviceObserver> ();
+			m_observers = new List<WeakReference<IDeviceObserver>> ();
 		}
 
-		public string Identifier { get {
-				return m_id;}}
+		public string Identifier { get { return m_id; } }
 
 		public Guid Guid { get { return m_guid; } }
 		
@@ -54,12 +55,48 @@ namespace R2Core.Device
 		
 		public virtual bool Ready { get { return true; } }
 
-		public void AddObserver(IDeviceObserver observer) { m_observers.Add (observer); }
+		public void AddObserver(IDeviceObserver observer) {
 
-		/// <summary>
-		/// Will notify observers of a value change
-		/// </summary>
-		protected void NotifyChange<T>(T value) {
+            lock (m_lock)  {
+
+                m_observers.Add(new WeakReference<IDeviceObserver>(observer));
+            
+            }
+                
+        }
+
+        public void RemoveObserver(IDeviceObserver observer) {
+
+            lock (m_lock) {
+
+                WeakReference<IDeviceObserver> remove = null;
+
+                m_observers.ForEach((refence) => {
+
+                    IDeviceObserver obj = refence.GetTarget();
+
+                    if (obj == observer) {
+
+                        remove = refence;
+
+                    }
+
+                });
+
+                if (remove != null) {
+
+                    m_observers.Remove(remove);
+
+                }
+
+            }
+
+        }
+
+        /// <summary>
+        /// Will notify observers of a value change
+        /// </summary>
+        protected void NotifyChange<T>(T value) {
 		
 			if (m_observers?.Count == 0) { return; }
 
@@ -68,21 +105,30 @@ namespace R2Core.Device
 
 		}
 
-		protected void NotifyChange(IDeviceNotification<object> deviceNotification) {
+		protected void NotifyChange(IDeviceNotification<object> notification) {
 
-			Task.Factory.StartNew( () => m_observers.AsParallel ().ForAll (y => y.OnValueChanged (deviceNotification)) );
+            lock (m_lock)  {
 
-		}
+                m_observers = m_observers.RemoveEmpty();
+
+				m_observers.Sequential((obj) => obj.OnValueChanged(notification));
+ 
+            }
+
+        }
 
 		[MethodImpl(MethodImplOptions.NoInlining)]
-		private System.Reflection.MethodBase GetCurrentMethod ()
-		{
+		private System.Reflection.MethodBase GetCurrentMethod() {
+
 			StackTrace st = new StackTrace ();
 			StackFrame sf = st.GetFrame (2);
 
 			return sf.GetMethod();
+
 		}
-		
-	}
+
+    }
+
 }
+
 

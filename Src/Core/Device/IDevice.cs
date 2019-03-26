@@ -26,8 +26,9 @@ namespace R2Core.Device
 	public interface IDeviceObservable {
 
 		void AddObserver (IDeviceObserver observer);
+        void RemoveObserver(IDeviceObserver observer);
 
-	}
+    }
 
 	public interface IDevice : IStartable, IStopable, IDeviceObservable
 	{

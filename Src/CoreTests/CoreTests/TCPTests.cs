@@ -259,6 +259,9 @@ namespace R2Core.Tests
 
 			TCPServer s = (TCPServer) factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
+			DummyEndpoint ep = new DummyEndpoint ("apa");
+			s.AddEndpoint (ep);
+
 			//DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			//dummyObject.Bar = "XYZ";
 			//DeviceRouter rec = (DeviceRouter)factory.CreateDeviceObjectReceiver ();
@@ -273,6 +276,11 @@ namespace R2Core.Tests
 			client.AddObserver(observer);
 			client.Start ();
 
+			observer.Asserter = (msg) => { Assert.AreEqual("bleh", msg.Payload); };
+
+			TCPMessage message = new TCPMessage () { Destination = "apa", Payload = "bleh"};
+			client.Send (message);
+
 			observer.Asserter = (msg) => { Assert.AreEqual(42, msg.Payload.Bar); };
 		
 			R2Dynamic tmp = new R2Dynamic ();
@@ -281,8 +289,16 @@ namespace R2Core.Tests
 			s.Broadcast (new TCPMessage () { Payload = tmp }, (response, error) => {
 				
 			});
+
+			Thread.Sleep (500);
+			Assert.True (observer.OnRequestCalled);
+
+			// For some reason, the value below is false, even if it has been called...
+			Assert.True (observer.OnResponseCalled);
+
+			Assert.True (observer.OnBroadcastReceived);
 			s.Stop ();
-			Thread.Sleep (2000);
+			Thread.Sleep (500);
 
 		}
 

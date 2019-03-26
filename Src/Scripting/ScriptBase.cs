@@ -22,6 +22,7 @@ using R2Core.Device;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Threading;
 
 namespace R2Core.Scripting
 {
@@ -98,11 +99,12 @@ namespace R2Core.Scripting
 
 		public abstract void Set (string handle, dynamic value);
 		public abstract dynamic Get (string handle);
-		public abstract void Reload();
 		public abstract dynamic Invoke (string handle, params dynamic[] args);
+		public abstract void Reload();
 
 		public void AddObserver (IScriptObserver observer) { m_scriptObservers.Add (observer); }
 		public void AddObserver (IDeviceObserver observer) { m_deviceObservers.Add (observer); }
+		public void RemoveObserver (IDeviceObserver observer) { m_deviceObservers.Remove (observer); }
 
 		private Task GetProcessTask () {
 
@@ -115,6 +117,10 @@ namespace R2Core.Scripting
 						// In the class' loop function
 
 					}
+
+				} catch (ThreadAbortException ex) {
+					
+					Log.d($"Script stopped: {Identifier}");
 
 				} catch (Exception ex) {
 
@@ -157,7 +163,7 @@ namespace R2Core.Scripting
 
 				} else { 
 
-					Log.w ($"Warning: Script '{Identifier}' is missing setup method."); 
+					Log.w ($"Warning: Script '{Identifier}' is missing 'setup' method."); 
 				
 				} 
 

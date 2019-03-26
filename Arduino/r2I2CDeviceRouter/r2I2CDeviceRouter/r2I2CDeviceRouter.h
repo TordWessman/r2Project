@@ -56,6 +56,7 @@ typedef struct Devices {
 // Containing data which should be returned to host after a request.
 struct ResponsePackage {
 
+    byte checksum;
     byte messageId;
     HOST_ADDRESS host;
     ACTION_TYPE action;
@@ -70,14 +71,20 @@ typedef struct ResponsePackage ResponsePackage;
 // Request data from host.
 struct RequestPackage {
 
+    byte checksum;
     HOST_ADDRESS host;
     ACTION_TYPE action;
     byte id;
+    byte argSize;
     byte args[MAX_CONTENT_SIZE];
     
 } __attribute__((__packed__));
 
+#define requestPackageSize(package) (5 + (package)->argSize)
+#define responsePackageSize(package) (6 + (package)->contentSize)
+
 #define MIN_REQUEST_SIZE (sizeof(RequestPackage) - MAX_CONTENT_SIZE)
+#define MAX_REQUEST_SIZE (sizeof(RequestPackage) + MAX_CONTENT_SIZE)
 
 typedef struct RequestPackage RequestPackage;
 
@@ -135,7 +142,18 @@ typedef struct RequestPackage RequestPackage;
 #define ERROR_RH24_MESSAGE_SYNCHRONIZATION 19
 // If the size of the incomming data is invalid.
 #define ERROR_INVALID_REQUEST_PACKAGE_SIZE 20
+// If the checksum in a request did not match the rest of the request data.
+#define ERROR_BAD_CHECKSUM 21
 
+// Error reserved for external purposes
+#define ERROR_RESERVED_1 0xF0
+#define ERROR_RESERVED_2 0xF1
+#define ERROR_RESERVED_3 0xF2
+#define ERROR_RESERVED_4 0xF3
+#define ERROR_RESERVED_5 0xF4
+#define ERROR_RESERVED_6 0xF5
+#define ERROR_RESERVED_7 0xF6
+#define ERROR_RESERVED_8 0xF7
 // -- Response Actions --
 
 // Just to communicate that something went wrong.

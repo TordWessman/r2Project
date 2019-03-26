@@ -53,19 +53,13 @@ uint32_t slaveRenewalFailures = 0;
 
 // Ping message from non-master nodes to master node
 #define RH24_MESSAGE_PING 'P'
-
+          
 // Keeps track of the ping intervals.
 unsigned long pingTimer = 0;
 
 // -- Private method declarations --
 
 #endif
-
-// This method should live in the run loop if the I'm a RF24 remote slave nodes
-void rh24Slave();
-
-// The method being used in the run loop for master nodes.
-void rh24Master();
 
 // Blocks for RH24_READ_TIMEOUT ms and waits for a ResponsePackage from any node.
 ResponsePackage master_tryReadMessage();
@@ -88,6 +82,12 @@ void slave_readPing(RF24NetworkHeader header);
 // Reads a message from the network
 void slave_readMessage(RF24NetworkHeader header);
 
+// This method should live in the run loop if the I'm a RF24 remote slave nodes
+void rh24SlaveLoop();
+
+// The method being used in the run loop for master nodes.
+void rh24MasterLoop();
+
 // -- Debug --
 
 #ifdef R2_PRINT_DEBUG
@@ -99,11 +99,21 @@ bool slaveSleepStarted = false;
 
 // -- Public method bodies
 
+// ---------------------------------- LOOP --------------------
+void loop_rh24() {
+
+  if (isMaster()) { rh24MasterLoop(); } 
+  else { rh24SlaveLoop(); }
+
+}
 // -- SETUP --
 
 void rh24Setup() {
   
+  //saveNodeId(0);
+  //EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, 0x00);
   byte id = getNodeId();
+  
   byte savedCycles = EEPROM.read(SLEEP_MODE_EEPROM_ADDRESS);
   
   if (savedCycles != 0x00) {
@@ -122,24 +132,19 @@ void rh24Setup() {
   if (!isMaster()) {  R2_LOG(F("Setting up as slave and ")); }
 
   mesh.setNodeID(id);
+  mesh.setChild(isMaster());
+  
+  //radio.setPALevel(RF24_PA_HIGH);
   
   if (mesh.begin()) { R2_LOG(F("Did start mesh network")); } 
   else { return err("E: mesh.begin()", ERROR_RH24_TIMEOUT); }
   
   network.setup_watchdog(RH24_SLEEP_CYCLES);
-  
+    
   if (!isMaster()) { R2_LOG(F("Slave started")); } 
   else { R2_LOG(F("Master started ")); }
   
-  R2_LOG(F("Setup OK!"));
-  
-}
-
-// ---------------------------------- LOOP --------------------
-void loop_rh24() {
-
-  if (isMaster()) { rh24Master(); } 
-  else { rh24Slave(); }
+  R2_LOG(F("RH24 Setup OK!"));
   
 }
 
@@ -154,11 +159,14 @@ bool nodeAvailable(HOST_ADDRESS nodeId) {
       return true;
       
       // TODO: 
-      RequestPackage *request = (RequestPackage*) malloc(sizeof(RequestPackage));
+      RequestPackage *request = (RequestPackage*)malloc(MIN_REQUEST_SIZE);
       
       request->host = nodeId;
       request->action = ACTION_RH24_PING_SLAVE;
       request->id = 0;
+      request->argSize = 0;
+      request->checksum = createRequestChecksum(request);
+      
       ResponsePackage response = rh24Send(request);
       free(request);
       return response.action == ACTION_RH24_PING_SLAVE;
@@ -209,7 +217,7 @@ ResponsePackage master_readClean(RequestPackage* request) {
 
 ResponsePackage rh24Send(RequestPackage* request) {
 
-  // Make sure there are nothing unread in the input buffer (will cause an error if there is).
+  // Make sure there are nothing unread in the input buffer 
   ResponsePackage response = master_readClean(request);
   
   // If synchronization issues occurred
@@ -221,7 +229,7 @@ ResponsePackage rh24Send(RequestPackage* request) {
     
         RF24NetworkHeader header(mesh.addrList[i].address, RH24_MESSAGE);
         
-        if (!network.write(header, request, sizeof(RequestPackage))) {
+        if (!network.write(header, request, requestPackageSize(request))) {
         
             err("E: slave write.", ERROR_RH24_WRITE_ERROR, request->host);
             return response;
@@ -307,9 +315,9 @@ ResponsePackage master_readResponse() {
           case RH24_MESSAGE: {
         
              // Try to read the response from the slave
-            byte readSize = network.read(header, &response, sizeof(ResponsePackage));
+            byte bytesRead = network.read(header, &response, sizeof(ResponsePackage));
             
-            if (readSize != sizeof(ResponsePackage)) {  err("E: read size", ERROR_RH24_BAD_SIZE_READ, readSize); } 
+            if (bytesRead < MIN_REQUEST_SIZE) {  err("E: read size", ERROR_RH24_BAD_SIZE_READ, bytesRead); } 
             else { 
                 
               R2_LOG(F("Read m/a/ui:"));
@@ -383,7 +391,7 @@ ResponsePackage master_tryReadMessage() {
 unsigned long masterDebugTimer = 0;
 #endif
 
-void rh24Master() {
+void rh24MasterLoop() {
   
   #ifdef R2_PRINT_DEBUG
   
@@ -413,7 +421,7 @@ void rh24Master() {
   
 }
 
-void rh24Slave() {
+void rh24SlaveLoop() {
 
   mesh.update();
   
@@ -450,6 +458,9 @@ void rh24Slave() {
 
 }
 
+// Reboot the device
+void(* arghhhh) (void) = 0;
+
 void slave_networkCheck() {
 
 #ifdef RH24_PING_ENABLED
@@ -476,10 +487,11 @@ void slave_networkCheck() {
     if (slaveDebugOutputCount++ > 30) { Serial.println(""); slaveDebugOutputCount = 0; }
     #endif
     
-    if ( !mesh.checkConnection() ) {
+    if (!mesh.checkConnection()) {
       
-        R2_LOG(F("No connection. Renewing address."));
-        mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT); 
+        R2_LOG(F("No connection. Restarting."));
+        arghhhh();
+        //mesh.renewAddress(RH24_SLAVE_RENEWAL_TIMEOUT); 
         
     }
    
@@ -544,23 +556,26 @@ void slave_readMessage(RF24NetworkHeader header) {
    R2_LOG(F("Got message")); 
   
    RequestPackage request;
-          
+   
+   const uint16_t bytesRead = network.read(header, &request, MAX_REQUEST_SIZE);
+   
     // Try to read the response from the slave
-    if (network.read(header, &request, sizeof(RequestPackage)) != sizeof(RequestPackage)) {
+    if (bytesRead < MIN_REQUEST_SIZE) {
       
-      err("E: Bad read size", ERROR_RH24_BAD_SIZE_READ);
+      err("E:Slave Bad read size", ERROR_RH24_BAD_SIZE_READ);
       
     } else {
       
       ResponsePackage response = execute(&request);
-      R2_LOG(F("Writing response with action:"));
+      const uint16_t responseSize = responsePackageSize(&response);
+      R2_LOG(F("Slave: Response with action:"));
       R2_LOG(response.action);
       
-      if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
+      if (!mesh.write(&response, RH24_MESSAGE, responseSize)) {
   
         delay(RH24_SLAVE_WRITE_RETRY);
         
-        if (!mesh.write(&response, RH24_MESSAGE, sizeof(ResponsePackage))) {
+        if (!mesh.write(&response, RH24_MESSAGE, responseSize)) {
   
           err("E: Slave write", ERROR_RH24_WRITE_ERROR);
       

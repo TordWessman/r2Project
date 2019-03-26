@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace R2Core.Network
 {
@@ -42,7 +43,7 @@ namespace R2Core.Network
 		private AutoResetEvent m_writeLock;
 		private AutoResetEvent m_readLock;
 
-		// Contains the latest preTcpClientvious response
+		// Contains the latest previous response
 		TCPMessage m_latestResponse;
 
 		// Contains an Exception from the Received if thrown there.
@@ -53,15 +54,19 @@ namespace R2Core.Network
 		/// </summary>
 		public int Timeout = 10000;
 
+        /// <summary>
+        /// Default headers for all requests
+        /// </summary>
 		public IDictionary<string, object> Headers;
-		public IList<IMessageClientObserver> m_observers;
 
-		public TCPClient (string id, ITCPPackageFactory<TCPMessage> serializer, string host, int port) : base(id) {
+		public IList<WeakReference<IMessageClientObserver>> m_observers;
+
+		public TCPClient(string id, ITCPPackageFactory<TCPMessage> serializer, string host, int port) : base(id) {
 
 			m_host = host;
 			m_port = port;
 			m_serializer = serializer;
-			m_observers = new List<IMessageClientObserver> ();
+			m_observers = new List<WeakReference<IMessageClientObserver>> ();
 
 		}
 
@@ -76,25 +81,25 @@ namespace R2Core.Network
 		public int Port { get { return m_port; } }
 		public override bool Ready { get { return m_shouldRun && m_client?.Connected == true; } }
 
-		public override void Start() {
+        public override void Start() {
 		
 			m_readError = null;
 			m_shouldRun = true;
             m_client = new TcpClient();
             m_client.SendTimeout = Timeout;
 			m_client.Connect (m_host, m_port);
-			m_receiverTask = Receive ();
+			m_receiverTask = Receive();
 
 		}
 
-		public override void Stop () {
+		public override void Stop() {
 
 			m_shouldRun = false;
 
 			if (m_client.Connected) {
 			
-				m_client.GetStream ().Close();
-				m_client.Close ();
+				m_client.GetStream().Close();
+				m_client.Close();
 
 			}
 
@@ -104,7 +109,7 @@ namespace R2Core.Network
 
 		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
 
-			return System.Threading.Tasks.Task.Factory.StartNew ( () => {
+			return System.Threading.Tasks.Task.Factory.StartNew (() => {
 
 				INetworkMessage response;
 				Exception exception = null;
@@ -128,14 +133,15 @@ namespace R2Core.Network
 
 		}
 
-
 		public INetworkMessage Send(INetworkMessage requestMessage) {
 
 			//m_readLock.WaitOne ();
 
 			lock (m_sendLock) {
-	
-				TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage (requestMessage);
+
+                m_observers.InParallell((observer) => observer.OnRequest(requestMessage));
+
+                TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage (requestMessage);
 
 				if (message.Headers != null) { Headers?.ToList().ForEach( kvp => message.Headers.Add(kvp)); }
 
@@ -143,31 +149,43 @@ namespace R2Core.Network
 
 				byte[] request = m_serializer.SerializeMessage (message);
 
-				m_client.GetStream ().Write (request, 0, request.Length);
-
-				m_writeLock = new AutoResetEvent (false);
-
-				// Reset the read error. Still an awful lot of race conditions, but wtf.
-				m_readError = null;
-
-				// Wait for receiver thread to fetch data.
-				if (!m_writeLock.WaitOne (Timeout)) { throw new SocketException ((int)SocketError.TimedOut); }
-
-				m_writeLock = null;
-
 				try {
 
+					m_client.GetStream ().Write (request, 0, request.Length);
+
+					m_writeLock = new AutoResetEvent (false);
+
+					// Reset the read error. Still an awful lot of race conditions, but wtf.
+					m_readError = null;
+
+					// Wait for receiver thread to fetch data.
+					if (!m_writeLock.WaitOne (Timeout)) { throw new SocketException ((int)SocketError.TimedOut); }
+
+					m_writeLock = null;
+
 					// If there was an error during the read process, throw it here.
-					if (m_readError != null) { throw m_readError; }
+					if (m_readError != null) {
+						
+						throw m_readError; 
+					
+					}
+
+					NetworkException exception = m_latestResponse.IsError() ? new NetworkException(m_latestResponse) : null;
+
+					m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, exception));
 
 					return m_latestResponse;
+
+				} catch (Exception ex) {
+					
+					m_observers.InParallell((observer) => observer.OnResponse(null, ex));
+					throw ex;
 
 				} finally {
 				
 					m_readError = null;
 
 				}
-
 
 			}
 	
@@ -193,11 +211,18 @@ namespace R2Core.Network
 
 						if (m_latestResponse.IsBroadcastMessage()) {
 						
-							m_observers.AsParallel()
-								.Where(observer => observer.Destination == null || System.Text.RegularExpressions.Regex.IsMatch (m_latestResponse.Destination, observer.Destination))
-								.ForAll(observer => observer.OnReceive(m_latestResponse, m_readError));
-							
-						}
+                            m_observers.InParallell((observer) => {
+
+                                if (observer.Destination == null || 
+                                    Regex.IsMatch(m_latestResponse.Destination, observer.Destination)) {
+
+                                    observer.OnBroadcast(m_latestResponse, m_readError);
+
+                                }
+
+                            });
+
+                        }
 
 					} catch (Exception ex) {
 
@@ -217,9 +242,10 @@ namespace R2Core.Network
 			});
 
 		}
+
 		public void AddObserver(IMessageClientObserver receiver) {
 
-			m_observers.Add(receiver);
+			m_observers.Add(new WeakReference<IMessageClientObserver>(receiver));
 
 		}
 

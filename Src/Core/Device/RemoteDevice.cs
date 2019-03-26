@@ -49,7 +49,7 @@ namespace R2Core.Device
 				return m_host.Send (request) == true;
 
 			} 
-		
+
 		}
 
 		public Guid Guid { get { return m_guid; } }
@@ -74,7 +74,7 @@ namespace R2Core.Device
 		}
 
 		public void Stop() {
-		
+
 			DeviceRequest request = new DeviceRequest () {
 				Action = "Stop",
 				Params = null,
@@ -86,7 +86,8 @@ namespace R2Core.Device
 
 		}
 
-		public void AddObserver (IDeviceObserver observer) {}
+		public void AddObserver (IDeviceObserver observer) { throw new InvalidOperationException("RemoteDevice can't have observers"); }
+		public void RemoveObserver(IDeviceObserver observer) { throw new InvalidOperationException("RemoteDevice can't have observers"); }
 
 		public RemoteDevice (string id, Guid guid, IHostConnection host)
 		{
@@ -128,7 +129,7 @@ namespace R2Core.Device
 		}
 
 		public override bool TryInvokeMember (InvokeMemberBinder binder, object[] args, out object result) {
-			
+
 			DeviceRequest request = new DeviceRequest () {
 				Action = binder.Name,
 				Params = args,
@@ -142,7 +143,7 @@ namespace R2Core.Device
 			return true;
 
 		}
-		
+
 	}
 
 }

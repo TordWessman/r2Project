@@ -37,7 +37,7 @@ ResponsePackage rh24Send(RequestPackage* request);
 // Initializes RH24 communication. Should be called in setup().
 void rh24Setup();
 
-// Used in the run loop. Checks for incomming data.
+// I fucking hate this IDE. Arduino studio was born in hell.
 void loop_rh24();
 
 // Returns true if the specified host is connected
@@ -68,4 +68,3 @@ void pauseSleep();
 bool isSleeping();
 
 #endif
-

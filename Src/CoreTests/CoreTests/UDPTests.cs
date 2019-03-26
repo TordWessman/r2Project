@@ -131,6 +131,8 @@ namespace R2Core.Tests
 
 			Assert.True (didReceiveResponse);
 
+			client.Stop ();
+			s.Stop ();
 			//TCPMessage request = new TCPMessage() {
 
 
@@ -170,6 +172,9 @@ namespace R2Core.Tests
 
 			}
 
+			s.Stop ();
+			client.Stop ();
+
 		}
 
 		[Test]
@@ -178,7 +183,6 @@ namespace R2Core.Tests
 			var devices1 = SetUpServers (tcp_port, udp_port, udp_port);
 
 			var dummy = new DummyDevice ("dummyX");
-			devices1.DeviceRouter.AddDevice (dummy);
 			devices1.DeviceManager.Add (dummy);
 			devices1.Start ();
 			Thread.Sleep (500);
@@ -206,6 +210,7 @@ namespace R2Core.Tests
 
 			Assert.AreEqual (dummy.HAHA, d.HAHA);
 
+			h.Stop ();
 			devices1.TCPServer.Stop ();
 			devices1.UDPServer.Stop ();
 
@@ -222,9 +227,11 @@ namespace R2Core.Tests
 			// Will keep track of the available devices for this "instance" 
 			DeviceManager deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager ());
 
+			deviceManager.Add (tcps);
+			deviceManager.Add (udps);
 			DeviceRouter deviceRouter = (DeviceRouter) factory.CreateDeviceRouter ();
-			deviceRouter.AddDevice (tcps);
 			deviceRouter.AddDevice (deviceManager);
+			deviceRouter.SetContainer (deviceManager);
 
 			//deviceManager.Add (tcps);
 
@@ -256,11 +263,9 @@ namespace R2Core.Tests
 			var devices2 = SetUpServers (tcp_port - 42, udp_port - 42, udp_port);
 
 			var dummy1 = new DummyDevice ("dummy1");
-			devices1.DeviceRouter.AddDevice (dummy1);
 			devices1.DeviceManager.Add (dummy1);
 
 			var dummy2 = new DummyDevice ("dummy2");
-			devices2.DeviceRouter.AddDevice (dummy2);
 			devices2.DeviceManager.Add (dummy2);
 
 			devices2.Start ();
@@ -283,7 +288,6 @@ namespace R2Core.Tests
 
 			// Add a new device to instance 2
 			var dummy3 = new DummyDevice ("dummy3");
-			devices2.DeviceRouter.AddDevice (dummy3);
 			devices2.DeviceManager.Add (dummy3);
 
 			// They should be synchronized after this...

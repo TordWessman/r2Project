@@ -30,7 +30,7 @@ namespace R2Core.GPIO
 		
 		DigitalInput = 0x1,		// Simple digital input
 		DigitalOutput = 0x2,	// Simple digital output
-		AnalogueInput = 0x3,	// Uses slave's AD converter to read a value
+		AnalogueInput = 0x3,	// Uses node's AD converter to read a value
 		Servo = 0x4,			// PWM Servo
 		Sonar_HCSR04 = 0x5,		// HC-SR04 Sonar implementation
 		DHT11 = 0x6,			// DHT11 Temperature/Humidity sensor
@@ -41,22 +41,81 @@ namespace R2Core.GPIO
 	/// Actions defined in r2I2CDeviceRouter.h
 	/// </summary>
 	public enum SerialActionType: byte {
-		
-		Unknown = 0x0,	// Hmm... This must be an error 
-		Create = 0x1,	// Tell the slave to create a device
-		Set = 0x2,		// Set the value of a device on slave
-		Get = 0x3,		// Return the value of a device
-		Error = 0xF0,	// Yep, this was an error (only used by responses).
-		Initialization = 0x4, // As a request header, this tells the slave that it's ready for communication. As a response header, this indicate that the slave has been rebooted and needs to be reinitialized.
-		InitializationOk = 0x5, // Response header telling that the initialization was successfull.
-		SetNodeId = 0x6, // This action will cause the node to change it's id. This action should not be propagated.
-		IsNodeAvailable = 0x7, // Check if a specified host, determined by `Host` is currently connected.
-		GetNodes = 0x8, // Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
-		SendToSleep = 0x0A, // Sends the node to sleep
-		CheckSleepState = 0x0B, // Check if the node has been sent to sleep.
-		PauseSleep = 0x0C, // Pause the sleeping for up to 60 seconds.
-		Reset = 0x0D, // Pause the sleeping for up to 60 seconds.
-		GetChecksum = 0x0E // Returns the checksum of a node.
+
+		/// <summary>
+		/// Hmm... This must be an error
+		/// </summary>
+		Unknown = 0x0,
+
+		/// <summary>
+		/// Tell the node to create a device
+		/// </summary>
+		Create = 0x1,
+
+		/// <summary>
+		/// Set the value of a device on node
+		/// </summary>
+		Set = 0x2,
+
+		/// <summary>
+		/// Return the value of a device
+		/// </summary>
+		Get = 0x3,
+
+		/// <summary>
+		/// Yep, this was an error (only used by responses).
+		/// </summary>
+		Error = 0xF0,
+
+		/// <summary>
+		/// As a request header, this tells the node that it's ready for communication. As a response header, this indicate that the node has been rebooted and needs to be reinitialized.
+		/// </summary>
+		Initialization = 0x4,
+
+		/// <summary>
+		/// Response header telling that the initialization was successfull.
+		/// </summary>
+		InitializationOk = 0x5,
+
+		/// <summary>
+		/// This action will cause the node to change it's id. This action should not be propagated to non-master nodes.
+		/// </summary>
+		SetNodeId = 0x6,
+
+		/// <summary>
+		/// Check if a specified host, determined by `Host` is currently connected.
+		/// </summary>
+		IsNodeAvailable = 0x7,
+
+		/// <summary>
+		/// Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
+		/// </summary>
+		GetNodes = 0x8,
+
+		/// <summary>
+		/// Sends the node to sleep
+		/// </summary>
+		SendToSleep = 0x0A,
+
+		/// <summary>
+		///  Check if the node has been sent to sleep.
+		/// </summary>
+		CheckSleepState = 0x0B,
+
+		/// <summary>
+		/// Pause the sleeping for up to 60 seconds.
+		/// </summary>
+		PauseSleep = 0x0C,
+
+		/// <summary>
+		/// Pause the sleeping for up to 60 seconds.
+		/// </summary>
+		Reset = 0x0D,
+
+		/// <summary>
+		/// Returns the checksum of a node.
+		/// </summary>
+		GetChecksum = 0x0E
 
 	}
 
@@ -64,7 +123,7 @@ namespace R2Core.GPIO
 	
 		// No error status was received, but response indicated an error.
 		Undefined = 0,
-		// No device with the specified id was found.
+		// No device with the specified id was found. We might have to re-create it.
 		NO_DEVICE_FOUND = 1,
 		// The port you're trying to assign is in use.
 		PORT_IN_USE = 2,
@@ -102,15 +161,20 @@ namespace R2Core.GPIO
 		ERROR_RH24_MESSAGE_SYNCHRONIZATION = 19,
 		// If the size of the incomming data is invalid
 		ERROR_INVALID_REQUEST_PACKAGE_SIZE = 20,
+		// If the checksum in a request did not match the rest of the request data.
+		ERROR_BAD_CHECKSUM = 21,
 
-		// Internally created error. If the response data mismatched the expected data.
-		ERROR_DATA_MISMATCH = 0xF0
+		// Internally created error: If the response data mismatched the expected data.
+		ERROR_DATA_MISMATCH = 0xF0,
+		// Internally created error: If the size of the response was to small.
+		ERROR_INVALID_RESPONSE_SIZE = 0xF1
+
 	}
 
 	public interface IDeviceResponsePackageErrorInformation {
 	
 		/// <summary>
-		/// If true, the request to slave generated an error.
+		/// If true, the request to node generated an error.
 		/// </summary>
 		/// <value><c>true</c> if this instance is error; otherwise, <c>false</c>.</value>
 		bool IsError { get; }
@@ -127,6 +191,12 @@ namespace R2Core.GPIO
 		/// <returns>The error info as a string representation.</returns>
 		string ErrorInfo { get; }
 
+		/// <summary>
+		/// Returns true if the message's calculated checksum is equal to the Checksum parameter in the response.
+		/// </summary>
+		/// <value><c>true</c> if this instance is checksum valid; otherwise, <c>false</c>.</value>
+		bool IsChecksumValid { get; }
+
 	}
 
 	/// <summary>
@@ -135,23 +205,38 @@ namespace R2Core.GPIO
 	/// </summary>
 	public struct DeviceResponsePackage<T> : IDeviceResponsePackageErrorInformation {
 
+		// Used to determine the integrity of the data
+		public byte Checksum;
+
 		// Id for a message. Used for debugging.
 		public byte MessageId;
 
 		// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
 		public byte NodeId;
 
-		// Action required by slave.
+		// Action required by node.
 		public SerialActionType Action;
 
-		// Id of an affected device on slave. A slave have a limited range of id:s (i.e. 0-19).
+		// Id of an affected device on node. A node have a limited range of id:s (i.e. 0-19).
 		public byte Id;
 
 		// Contains the response data (value, error message or null).
 		public byte[] Content;
 
-		// The number of int16 returned from slave upon a ActionType.Get request.
+		// The number of int16 returned from node upon a ActionType.Get request.
 		public const int NUMBER_OF_RETURN_VALUES = 2;
+
+		public bool IsChecksumValid {
+		
+			get {
+			
+				byte checksum = (byte)(NodeId + (byte)Action + Id + (byte)(Content?.Length ?? 0));
+				foreach (byte b in Content) { checksum += b; }
+				return checksum == Checksum;
+
+			}
+
+		}
 
 		public bool IsError { get { return Action == SerialActionType.Error || Action == SerialActionType.Unknown; } }
 
@@ -207,7 +292,7 @@ namespace R2Core.GPIO
 
 				} else if (typeof(T) != typeof(byte[])) {
 				
-					throw new InvalidCastException ($"Expected type constraint T to be of type ´byte[]´, but was ´{typeof(T)}´."); 
+					throw new InvalidCastException ($"Expected type constraint T to be of type ´byte[], bool, int or byte´, but was ´{typeof(T)}´."); 
 
 				}
 
@@ -220,23 +305,40 @@ namespace R2Core.GPIO
 	}
 
 	/// <summary>
-	/// Represents a request sent to slave (for creating a device, getting a value etc).
+	/// Represents a request sent to a node (for creating a device, getting a value etc).
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential, Pack=1)]
-	public struct DeviceRequestPackage
-	{
-		// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
+	public struct DeviceRequestPackage {
+		
+		/// <summary>
+		/// Id for the target node in a RF24 network. The master has id DEVICE_HOST_LOCAL (0). 
+		/// </summary>
 		public byte NodeId;
 
-		// Action required by slave.
+		/// <summary>
+		/// Action required by RF24 node. 
+		/// </summary>
 		public SerialActionType Action;
 
-		// Id of an affected device on slave. A slave have a limited range of id:s (i.e. 0-19).
+		/// <summary>
+		/// Id of an affected device on the node. A node have a limited range of id:s (i.e. 0-19).
+		/// </summary>
 		public byte Id;
 
-		// Additional data sent to slave.
+		/// <summary>
+		/// Additional data sent to node. 
+		/// </summary>
 		public byte[] Content;
 
+	}
+
+	public static class DeviceRequestPackageExtensions {
+	
+		public static string Description(this DeviceRequestPackage self) {
+
+			return $"[Request: node: {self.NodeId}, device_id: {self.Id}, action: {self.Action}]";
+
+		}
 	}
 
 }

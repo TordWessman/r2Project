@@ -33,16 +33,22 @@ byte messageId = 0;
 // Delegate method for I2C event communication.
 void i2cReceive(byte* data, size_t data_size) {
 
+  R2_LOG(F("Receiving i2cdata"));
   ResponsePackage out;
+  //RequestPackage *in;
   
-  if (data == NULL || data_size < MIN_REQUEST_SIZE || data_size > sizeof(RequestPackage)) {
+  if (data == NULL || data_size < MIN_REQUEST_SIZE) {
     
     err("E: size", ERROR_INVALID_REQUEST_PACKAGE_SIZE, data_size);
     out = createErrorPackage(0x0);
     
   } else {
-  
-    out = execute((RequestPackage*)data);
+    
+//    in = (RequestPackage *)malloc(sizeof(RequestPackage));
+//    memcpy((void *)in, data, data_size);
+//    out = execute(in);
+//    free(in);
+    out = execute((RequestPackage *)data);
     
   }
   
@@ -56,6 +62,7 @@ void i2cReceive(byte* data, size_t data_size) {
 
 #endif
 
+// Handles the interpretation of the RequestPackage. This includes error detection and RH24.
 ResponsePackage execute(RequestPackage *request) {
   
   ResponsePackage response;
@@ -66,10 +73,21 @@ ResponsePackage execute(RequestPackage *request) {
   response.contentSize = 0;
   response.messageId = messageId++;
   
+  if (createRequestChecksum(request) != request->checksum) {
+  
+    err("E: checksum", ERROR_BAD_CHECKSUM, request->checksum);
+    response = createErrorPackage(request->host);
+    response.checksum = createResponseChecksum(&response);
+    clearError();
+    return response;
+    
+  }
+  
   // If the ACTION_SET_NODE_ID is called, this node will be "configured" with a new id. Intended for setting up nodes only.
   if (request->action == ACTION_SET_NODE_ID) {
       
       response.host = request->id;
+      response.checksum = createResponseChecksum(&response);
       
         // Store the id. This host will now be known as 'request->id'.
       saveNodeId(request->id);
@@ -109,9 +127,15 @@ ResponsePackage execute(RequestPackage *request) {
     }
     
     response = rh24Send(request);
-    if (isError(response)) { setError(response); }
     
-  } else if (!isMaster() && request->host != getNodeId()) {
+    if (isError(response)) { setError(response); }
+    if (isError()) { response = createErrorPackage(response.host); }
+  
+    clearError();
+    response.checksum = createResponseChecksum(&response);
+    return response;
+    
+  } else if (!(request->action == ACTION_INITIALIZE || request->action == ACTION_RESET) && !isMaster() && request->host != getNodeId()) {
     
     err("E: Routing", ERROR_RH24_ROUTING_THROUGH_NON_MASTER, request->host);
 
@@ -137,7 +161,26 @@ ResponsePackage execute(RequestPackage *request) {
     pauseSleep(request->args[SLEEP_MODE_TOGGLE_POSITION]);
     
   } else {
+    
+  #else
   
+    //Handle sleep-actions on non-RH24 nodes (implying that it's I2C or Serial only)
+    if (request->action == ACTION_CHECK_NODE) {
+  
+      response.contentSize = 1;
+      response.content[RESPONSE_POSITION_HOST_AVAILABLE] = 0x1;
+      response.checksum = createResponseChecksum(&response);
+      return response;
+      
+    } else if (request->action == ACTION_PAUSE_SLEEP || request->action == ACTION_CHECK_SLEEP_STATE) { 
+
+       response.contentSize = 1;
+       response.content[0] = 0;
+       response.checksum = createResponseChecksum(&response);
+       return response;
+       
+    }
+    
   #endif
   
      if (!isInitialized() && !(request->action == ACTION_INITIALIZE || request->action == ACTION_RESET)) {
@@ -152,6 +195,7 @@ ResponsePackage execute(RequestPackage *request) {
        if (isSleeping()) { pauseSleep(); }
 #endif
        
+       response.checksum = createResponseChecksum(&response);
        return response;
        
      }
@@ -160,7 +204,7 @@ ResponsePackage execute(RequestPackage *request) {
     
       case ACTION_CREATE_DEVICE: {
         
-        response.id = deviceCount++;
+        response.id = deviceCount;
   
         // Get the type of the device to create from the args.
         DEVICE_TYPE type = request->args[REQUEST_ARG_CREATE_TYPE_POSITION];
@@ -173,6 +217,8 @@ ResponsePackage execute(RequestPackage *request) {
         R2_LOG(F("With id:"));
         R2_LOG(response.id);
         createDevice(response.id, type, parameters);
+        
+        deviceCount++;
         
       }
       
@@ -197,7 +243,7 @@ ResponsePackage execute(RequestPackage *request) {
             
           } else {
           
-            err("E: Device not found", ERROR_CODE_NO_DEVICE_FOUND, request->id);
+            err("E: Dev.not found", ERROR_CODE_NO_DEVICE_FOUND, request->id);
             
           }
           
@@ -207,8 +253,16 @@ ResponsePackage execute(RequestPackage *request) {
         
         response.contentSize = deviceCount + 1;
         
-        response.content[0] = isSleeping() << 7 + isInitialized() << 6 + deviceCount; 
+       #ifdef USE_RH24
         
+        response.content[0] = isSleeping() << 7 + isInitialized() << 6 + deviceCount;
+        
+       #else
+       
+       response.content[0] = 0 << 7 + isInitialized() << 6 + deviceCount;
+       
+       #endif
+       
         for (int i = 0; i < deviceCount; i++) {
         
           Device *device = getDevice(request->id);
@@ -241,7 +295,8 @@ ResponsePackage execute(RequestPackage *request) {
         case ACTION_INITIALIZE:
         
           reset(true);
-  
+          deviceCount = 0;
+          
           response.action = ACTION_INITIALIZATION_OK;
           
           // Ehh.. return the first analogue port name here...
@@ -253,6 +308,7 @@ ResponsePackage execute(RequestPackage *request) {
              if (isSleeping()) { pauseSleep(); }
           #endif
           
+          response.checksum = createResponseChecksum(&response);
           return response;
           
         break;
@@ -260,6 +316,7 @@ ResponsePackage execute(RequestPackage *request) {
        case ACTION_RESET:
         
           reset(false);
+          deviceCount = 0;
           
           #ifdef USE_RH24
              // Pause my sleep for a short period of time (PAUSE_SLEEP_DEFAULT_INTERVAL)
@@ -279,9 +336,8 @@ ResponsePackage execute(RequestPackage *request) {
 #endif
   if (isError()) { response = createErrorPackage(response.host); }
   
-  // Reset error state
   clearError();
-  
+  response.checksum = createResponseChecksum(&response);
   return response;
   
 }
@@ -290,7 +346,20 @@ ResponsePackage execute(RequestPackage *request) {
 void setup() {
 
   //saveNodeId(0);
-  
+/*
+pinMode(R2_RESET_LED1, OUTPUT);
+pinMode(R2_RESET_LED2, INPUT);
+delay(500);
+
+if(digitalRead(R2_RESET_LED2)) {
+  R2_LOG(F("Resetting node to master"));
+  saveNodeId(0);
+  EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, 0x00);
+}
+
+pinMode(R2_RESET_LED1, INPUT);
+*/
+
 #ifdef R2_STATUS_LED
 pinMode(R2_STATUS_LED, OUTPUT);
 reservePort(R2_STATUS_LED);
@@ -304,9 +373,16 @@ reservePort(R2_ERROR_LED);
   Serial.begin(SERIAL_BAUD_RATE);
   clearError();
   
-#ifdef USE_I2C  
+#ifdef USE_I2C
+
+#ifdef USE_RH24
+if (isMaster())
+#endif
+{
   R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
   R2_LOG(F("Initialized I2C."));
+}
+
 #endif
 
 #ifdef USE_RH24
@@ -315,7 +391,11 @@ reservePort(R2_ERROR_LED);
    
 }
 
+#ifdef R2_STATUS_LED
 unsigned long blinkTimer = 0;
+bool blinkOn = false;
+#define blinkTime 1000
+#endif
 
 void loop() {
   
@@ -325,32 +405,28 @@ void loop() {
     loop_serial();
   #endif
   
-  #ifdef USE_RH24
-  if (!isMaster())
-  #endif
-  {
-    
-    #ifdef R2_STATUS_LED
-    
-    if (millis() - blinkTimer >= 10000) {
+  #ifdef R2_STATUS_LED
   
-      blinkTimer = millis();
-      setStatus(true);
-      delay(50);
-      setStatus(false);
-      
-    }
-    
-    #endif
+  if (millis() - blinkTimer >= blinkTime) {
 
+    blinkTimer = millis();
+    setStatus(blinkOn);
+    blinkOn = !blinkOn;
+    
   }
-  //Serial.println("Starting RH24");
   
+  #endif
+
   #ifdef USE_RH24
-    loop_rh24();
+  loop_rh24();
   #endif
  
+ #ifdef USE_RH24
+ if (isMaster())
+ #endif
+ {
   #ifdef USE_I2C
     R2I2C.loop();
-  #endif 
+  #endif
+ }
 }

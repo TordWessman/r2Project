@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using R2Core.Data;
+using System.Dynamic;
 
 namespace R2Core
 {
@@ -41,6 +42,13 @@ namespace R2Core
 		/// <param name="method">Method.</param>
 		/// <param name="parameters">Parameters.</param>
 		public dynamic Invoke(object target, string method, ICollection<object> parameters = null) {
+
+			if (target is IInvokable) {
+
+				dynamic[] para = parameters?.Select (ppp => ppp as dynamic).ToArray();
+				return (target as IInvokable).Invoke (method, para);
+
+			}
 
 			MethodInfo methodInfo = target.GetType ().GetMethod (method);
 
@@ -87,6 +95,12 @@ namespace R2Core
 		/// <param name="property">Property.</param>
 		public dynamic Get (object target, string property) {
 		
+			if (target is IInvokable) {
+
+				return (target as IInvokable).Get (property);
+
+			}
+
 			PropertyInfo propertyInfo = target.GetType().GetProperty(property);
 
 			if (propertyInfo == null) {
@@ -125,6 +139,13 @@ namespace R2Core
 		/// <param name="value">Value.</param>
 		public void Set (object target, string property, object value) {
 		
+			if (target is IInvokable) {
+
+				(target as IInvokable).Set (property, value as dynamic);
+				return;
+
+			}
+
 			PropertyInfo propertyInfo = target.GetType().GetProperty(property);
 
 			if (propertyInfo == null) {

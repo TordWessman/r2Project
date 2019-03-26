@@ -129,6 +129,19 @@ Used for custom i2c communications in general and arduino communication in parti
 	$ sudo apt-get install libi2c-dev 
 ```
 
+### Arduino RF24 libraries
+Used by the r2I2CDeviceRouter networking functions. Setup assumes that your _Arduino Library Folder_ is located at _/usr/share/arduino/libraries_
+```bash
+	$ git clone https://github.com/nRF24/RF24
+	$ sudo cp -r RF24 /usr/share/arduino/libraries
+	$ git clone https://github.com/nRF24/RF24Network
+	$ sudo cp -r RF24Network /usr/share/arduino/libraries
+	$ git clone https://github.com/nRF24/RF24Mesh
+	$ sudo cp -r RF24Mesh /usr/share/arduino/libraries
+```
+In the `RF24Network_config.h` (Found at /usr/share/arduino/libraries/RF24Network folder), make sure `ENABLE_SLEEP_MODE` is defined.
+
+
 ### Wiring Pi
 Used for DHT11 support
 

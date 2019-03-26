@@ -12,7 +12,7 @@ namespace R2Core.GPIO
 		private const string dllPath = "libr2I2C.so";
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		private static extern int r2I2C_init (int bus, int address);
+		private static extern int r2I2C_init(int bus, int address);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		private static extern int r2I2C_send(byte[] data, int data_size);
@@ -27,10 +27,10 @@ namespace R2Core.GPIO
 		private static extern byte r2I2C_get_response(int position);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		private static extern bool r2I2C_is_ready ();
+		private static extern bool r2I2C_is_ready();
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		private static extern void r2I2C_should_run (bool shouldRun);
+		private static extern void r2I2C_should_run(bool shouldRun);
 
 		// Delay before starting to read from slave. Usefull if slave response is slow.
 		public int ReadDelay = Settings.Consts.I2CReadDelay();
@@ -55,7 +55,7 @@ namespace R2Core.GPIO
 		private int m_bus;
 		private int m_port;
 
-		public R2I2CMaster (string id, int? bus = null, int? port = null): base (id)
+		public R2I2CMaster (string id, int? bus = null, int? port = null) : base (id)
 		{
 
 			m_bus = bus ?? Settings.Consts.I2CDefaultBus();
@@ -65,9 +65,9 @@ namespace R2Core.GPIO
 
 		public override bool Ready { get { return r2I2C_is_ready (); } }
 
-		public override void Start () {
+		public override void Start() {
 
-			int status = r2I2C_init (m_bus, m_port);
+			int status = r2I2C_init(m_bus, m_port);
 
 			if (status < 0) {
 
@@ -80,7 +80,7 @@ namespace R2Core.GPIO
 
 		}
 
-		public override void Stop ()
+		public override void Stop()
 		{
 			r2I2C_should_run (false);
 		}
@@ -99,7 +99,7 @@ namespace R2Core.GPIO
 
 		}
 
-		public byte [] Send (byte []data) {
+		public byte[] Send (byte []data) {
 		
 			lock (m_lock) {
 
@@ -116,9 +116,9 @@ namespace R2Core.GPIO
 
 		}
 
-		public byte [] Read() {
+		public byte[] Read() {
 		
-			int status = r2I2C_receive (ReadDelay);
+			int status = r2I2C_receive(ReadDelay);
 
 			if (status < 0) {
 
@@ -126,7 +126,7 @@ namespace R2Core.GPIO
 
 			}
 
-			return Response.Take (r2I2C_get_response_size()).ToArray();
+			return Response.Take(r2I2C_get_response_size()).ToArray();
 
 		}
 

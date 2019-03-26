@@ -94,7 +94,7 @@ void* _ext_load_image (const char* filename) {
 }
 
 void _ext_release_ipl_image(IplImage* image) {
-	if (image) {
+	if (image && !image->width && !image->height) {
 		cvReleaseImage(&image);	
 	}
 	

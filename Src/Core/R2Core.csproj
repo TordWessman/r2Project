@@ -8,6 +8,8 @@
     <RootNamespace>R2Core</RootNamespace>
     <AssemblyName>Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -117,6 +119,11 @@
     <Compile Include="Shared\LinearDataSet.cs" />
     <Compile Include="Shared\R2Dynamic.cs" />
     <Compile Include="Device\AsyncRemoteDeviceRequest.cs" />
+    <Compile Include="Extensions\WeakReferenceExtensions.cs" />
+    <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="Extensions\DeviceExtensions.cs" />
+    <Compile Include="Shared\IInvokable.cs" />
+    <Compile Include="Network\NetworkException.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -26,16 +26,37 @@ namespace R2Core.Tests
 
 		private string m_destination;
 
+		public bool OnResponseCalled = false;
+		public bool OnRequestCalled = false;
+		public bool OnBroadcastReceived = false;
+		public INetworkMessage LastResponse;
+		public INetworkMessage LastRequest;
+
 		public DummyClientObserver(string destination = null) {
 
 			m_destination = destination;
 
 		}
 
-		public void OnReceive (INetworkMessage message, Exception ex) {
+		public void OnBroadcast (INetworkMessage message, Exception ex) {
 
 			Asserter (message);
+			OnBroadcastReceived = true;
 
+		}
+
+		public void OnRequest(INetworkMessage request) { 
+
+			OnRequestCalled = true;
+			LastRequest = request;
+			Asserter (request);
+		}
+
+		public void OnResponse(INetworkMessage response, Exception ex) { 
+			
+			OnResponseCalled = true;
+			LastResponse = response;
+			Asserter (response);
 		}
 
 		public Action<INetworkMessage> Asserter;

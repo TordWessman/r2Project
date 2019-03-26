@@ -61,7 +61,7 @@ namespace R2Core.GPIO
 		public override void Stop() { 
 
 			if (!Ready) { Log.w ("Will not stop ISerialHost. Not connected!"); } 
-			else { m_connection.Start (); } 
+			else { m_connection.Stop (); } 
 
 		}
 

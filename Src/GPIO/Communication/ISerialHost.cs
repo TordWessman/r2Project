@@ -14,25 +14,31 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// A hight level interface for interaction to a serial host exposing the available interactions. 
 	/// </summary>
-	public interface ISerialHost: IDevice
-	{
+	public interface ISerialHost: IDevice {
 
 		/// <summary>
-		/// Returns the value property of a device on slave with id `nodeId`. `slaveId` is the id (local on the slave) of the device.
+		/// Number of retries for a transmission before giving up and rethrowing IO & Serial exceptions.
+		/// </summary>
+		/// <value>The retry count.</value>
+		int RetryCount { get; set; }
+
+		/// <summary>
+		/// Returns the value property of a device on node with id `nodeId`. `deviceId` is the id (local on the node) of the device.
 		/// </summary>
 		/// <returns>The value.</returns>
-		/// <param name="slaveId">Slave identifier.</param>
-		DeviceData<T> GetValue<T>(byte slaveId, int nodeId);
+		/// <param name="nodeId">Node identifier.</param>
+		DeviceData<T> GetValue<T>(byte deviceId, int nodeId);
 
 		/// <summary>
-		/// Sets the value of an object. `slaveId` is the id of the device located on the node with id `nodeId`. 
+		/// Sets the value of an object. `deviceId` is the id of the device located on the node with id `nodeId`. 
 		/// </summary>
-		/// <param name="slaveId">Slave identifier.</param>
+		/// <param name="deviceId">Device identifier.</param>
+		/// <param name="nodeId">Id of the node.</param>
 		/// <param name="value">Value.</param>
-		void Set(byte slaveId, int nodeId, int value);
+		void Set(byte deviceId, int nodeId, int value);
 
 		/// <summary>
-		/// Creates a device on slave with id `nodeId` of type `type` using `parameters` as arguments. Returns the remote id and the values of the new device.
+		/// Creates a device on node with id `nodeId` of type `type` using `parameters` as arguments. Returns the remote id and the values of the new device.
 		/// </summary>
 		/// <param name="nodeId">Host identifier.</param>
 		/// <param name="type">Type.</param>

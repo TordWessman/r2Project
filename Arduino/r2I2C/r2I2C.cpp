@@ -51,6 +51,7 @@ void R2I2CCom :: loop() {
 	if (input_data && input_size > 0) {
 
 		if (onProcessI2C) { onProcessI2C(input_data, input_size); }
+    
 		free(input_data);
 		input_data = NULL;
 		input_size = 0;
@@ -79,7 +80,9 @@ void _receiveData(int data_size){
   int i = 0;
 
   while(Wire.available() && i < data_size) {
-	input_data[i++] = Wire.read();
+
+	   input_data[i++] = Wire.read();
+  
   }
 
 }

@@ -37,9 +37,29 @@ namespace R2Core.GPIO
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.DHT11; } }
 
-		public int Temperature  { get { return GetValue()[DHT11_TEMPERATURE_POSITION]; } }
+		public int Temperature  { get { return GetValue (DHT11_TEMPERATURE_POSITION);} }
 
-		public int Humidity  { get { return GetValue()[DHT11_HUMIDITY_POSITION]; } }
+		public int Humidity  { get { return GetValue(DHT11_HUMIDITY_POSITION); } }
+
+		private int GetValue(int DHT11ResponsePosition) {
+
+			try {
+
+				return GetValue()[DHT11ResponsePosition];
+
+			} catch (SerialConnectionException ex) {
+
+				if (ex.ErrorType == SerialErrorType.DHT11_READ_ERROR) {
+
+					Log.w ("DHT11 Read Error. Returning 0");
+
+				} else { throw ex; }
+
+			}
+
+			return 0;
+
+		}
 
 		public IInputMeter<int> GetHumiditySensor(string id) { return new DHT11Sensor (id, this, DHT11Sensor.DHT11ValueType.Humidity); }
 

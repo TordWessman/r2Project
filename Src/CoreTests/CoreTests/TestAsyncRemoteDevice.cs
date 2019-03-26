@@ -23,6 +23,8 @@ using R2Core.Network;
 using System.Threading;
 using R2Core.Device;
 using System.Threading.Tasks;
+using R2Core.Scripting;
+using R2Core.Common;
 
 namespace R2Core.Tests
 {
@@ -32,6 +34,54 @@ namespace R2Core.Tests
 	{
 
 		const int tcp_port = 4444;
+
+		[Test]
+		public void TestRemotePythonScript() {
+
+			IServer s = factory.CreateTcpServer ("s", tcp_port);
+			s.Start ();
+			Thread.Sleep (500);
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
+
+			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
+			s.AddEndpoint (ep);
+
+			IScriptFactory<IronScript> m_pythonScriptFactory = new PythonScriptFactory ("rf", BaseContainer.PythonPaths , m_deviceManager);
+			m_pythonScriptFactory.AddSourcePath (Settings.Paths.TestData ());
+			m_pythonScriptFactory.AddSourcePath (Settings.Paths.Common ());
+
+			IScript localScript = m_pythonScriptFactory.CreateScript ("PythonTest");
+
+			m_deviceManager.Add (localScript);
+			rec.SetContainer (m_deviceManager);
+			//rec.AddDevice (localScript);
+
+			var client = factory.CreateTcpClient ("c", "localhost", tcp_port);
+			client.Start ();
+
+
+			//Client should be connected
+			Assert.IsTrue (client.Ready);
+
+			IHostConnection connection = new HostConnection ("hc", "/test", client);
+
+			dynamic python = new RemoteDevice ("PythonTest", Guid.Empty, connection);
+
+			Assert.AreEqual (142, python.add_42 (100));
+
+			python.katt = 99;
+
+			Assert.AreEqual (99, python.katt);
+
+			Assert.AreEqual (99 * 10 , python.return_katt_times_10());
+
+			python.dog_becomes_value("foo");
+
+			Assert.AreEqual ("foo", python.dog);
+
+			s.Stop ();
+
+		}
 
 		[Test]
 		public void TestRemoteDevice() {
@@ -101,6 +151,7 @@ namespace R2Core.Tests
 		
 			failTask.Wait ();
 
+			s.Stop ();
 		}
 
 	}
