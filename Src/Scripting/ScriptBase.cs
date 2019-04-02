@@ -22,6 +22,7 @@ using R2Core.Device;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Threading;
 
 namespace R2Core.Scripting
 {
@@ -117,6 +118,10 @@ namespace R2Core.Scripting
 
 					}
 
+				} catch (ThreadAbortException ex) {
+					
+					Log.d($"Script stopped: {Identifier}");
+
 				} catch (Exception ex) {
 
 					Log.x(ex);
@@ -158,7 +163,7 @@ namespace R2Core.Scripting
 
 				} else { 
 
-					Log.w ($"Warning: Script '{Identifier}' is missing setup method."); 
+					Log.w ($"Warning: Script '{Identifier}' is missing 'setup' method."); 
 				
 				} 
 

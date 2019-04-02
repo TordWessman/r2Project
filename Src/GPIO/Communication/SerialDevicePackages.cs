@@ -123,7 +123,7 @@ namespace R2Core.GPIO
 	
 		// No error status was received, but response indicated an error.
 		Undefined = 0,
-		// No device with the specified id was found.
+		// No device with the specified id was found. We might have to re-create it.
 		NO_DEVICE_FOUND = 1,
 		// The port you're trying to assign is in use.
 		PORT_IN_USE = 2,
@@ -330,6 +330,15 @@ namespace R2Core.GPIO
 		/// </summary>
 		public byte[] Content;
 
+	}
+
+	public static class DeviceRequestPackageExtensions {
+	
+		public static string Description(this DeviceRequestPackage self) {
+
+			return $"[Request: node: {self.NodeId}, device_id: {self.Id}, action: {self.Action}]";
+
+		}
 	}
 
 }

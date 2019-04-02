@@ -8,7 +8,7 @@
 //#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
-//#define USE_RH24
+#define USE_RH24
 
 #ifdef USE_RH24
   
@@ -34,5 +34,8 @@
 // If defined, these leds will be used to communicate status and error 
 #define R2_STATUS_LED 0x2
 //#define R2_ERROR_LED 0x4
+
+#define R2_RESET_LED1 0x7
+#define R2_RESET_LED2 0x8
 
 #endif

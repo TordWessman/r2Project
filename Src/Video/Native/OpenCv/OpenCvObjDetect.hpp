@@ -16,6 +16,7 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
+#include <opencv2/opencv.hpp>
 #include "OpenCvBase.hpp"
 #include <stdbool.h>
 //ERU3190N
