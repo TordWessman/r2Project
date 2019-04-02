@@ -7,7 +7,7 @@ namespace R2Core
 	
 		public static bool IsError(this INetworkMessage self) {
 
-			return self.Code == (int)WebStatusCode.Ok;
+			return self.Code != (int)WebStatusCode.Ok;
 
 		}
 
