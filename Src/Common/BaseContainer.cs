@@ -49,8 +49,6 @@ namespace R2Core.Common
 		private IScriptFactory<IronScript> m_scriptFactory;
 		private IRunLoop m_runLoop;
 
-		public IDeviceManager DeviceManager { get { return m_devices; } }
-
 		public ITaskMonitor TaskMonitor { get { return m_taskMonitor; } }
 
 		public static IList<string> RubyPaths {
@@ -72,6 +70,8 @@ namespace R2Core.Common
 				return pythonPaths;
 			}
 		}
+
+		public IDeviceManager GetDeviceManager() { return m_devices; }
 
 		public BaseContainer (string dbFile, int tcpPort = -1) : base (Settings.Identifiers.Core())
 		{
@@ -119,7 +119,7 @@ namespace R2Core.Common
 			m_scriptFactory.AddSourcePath (Settings.Paths.Common ());
 
 			// The run loop script must meet the method requirements of the InterpreterRunLoop.
-			IronScript runLoopScript = m_scriptFactory.CreateScript (Settings.Identifiers.RunLoopScript());
+			IronScript runLoopScript = psf.CreateScript (Settings.Identifiers.RunLoopScript());
 
 			IScriptInterpreter runLoopInterpreter = m_scriptFactory.CreateInterpreter (runLoopScript);
 
@@ -137,7 +137,7 @@ namespace R2Core.Common
 			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory(), serializer);
 
 			// Add devices to device manager
-			m_devices.Add (runLoopScript);
+			m_devices.Add(runLoopScript);
 			m_devices.Add (m_runLoop);
 			m_devices.Add (httpFactory);
 			m_devices.Add (dataFactory);

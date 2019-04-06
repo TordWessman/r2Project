@@ -118,7 +118,7 @@ namespace R2Core.Scripting
 
 					}
 
-				} catch (ThreadAbortException ex) {
+				} catch (ThreadAbortException) {
 					
 					Log.d($"Script stopped: {Identifier}");
 
