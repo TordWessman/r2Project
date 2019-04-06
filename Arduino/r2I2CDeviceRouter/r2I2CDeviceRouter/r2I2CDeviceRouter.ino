@@ -345,7 +345,7 @@ ResponsePackage execute(RequestPackage *request) {
 
 void setup() {
 
-  //saveNodeId(0);
+//  saveNodeId(0);
 /*
 pinMode(R2_RESET_LED1, OUTPUT);
 pinMode(R2_RESET_LED2, INPUT);
@@ -360,8 +360,22 @@ if(digitalRead(R2_RESET_LED2)) {
 pinMode(R2_RESET_LED1, INPUT);
 */
 
+// Reset all pins. Just in case...
+for (int i = 2; i < 9; i++) {
+  pinMode(i, OUTPUT);
+  digitalWrite(LOW);
+  pinMode(i, INPUT);
+}
+
 #ifdef R2_STATUS_LED
+//I'm alive...
 pinMode(R2_STATUS_LED, OUTPUT);
+for (int i = 0; i < 5; i++) {
+  digitalWrite(R2_STATUS_LED, 1);
+  delay(500);
+  digitalWrite(R2_STATUS_LED, 0);
+  delay(500);
+}
 reservePort(R2_STATUS_LED);
 #endif
 

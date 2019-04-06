@@ -38,6 +38,10 @@ void deleteDevice(byte id) {
 
         ((Servo *) devices[id].object)->detach();
          
+    } else if (devices[id].type == DEVICE_TYPE_DIGITAL_OUTPUT) {
+    
+      digitalWrite(devices[id].IOPorts[0], LOW);
+      
     }
     
     free (devices[id].object);

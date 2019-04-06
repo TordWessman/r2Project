@@ -15,6 +15,9 @@
 
 #endif
 
+//Restart
+static void(* arghhhh) (void) = 0;
+
 // Set the status led if defined by R2_STATUS_LED
 void setStatus(bool on);
 

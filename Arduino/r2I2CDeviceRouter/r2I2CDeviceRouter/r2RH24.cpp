@@ -458,9 +458,6 @@ void rh24SlaveLoop() {
 
 }
 
-// Reboot the device
-void(* arghhhh) (void) = 0;
-
 void slave_networkCheck() {
 
 #ifdef RH24_PING_ENABLED
