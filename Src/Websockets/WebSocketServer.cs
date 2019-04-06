@@ -128,6 +128,7 @@ namespace R2Core.Network
 
 		public WebSocketServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base (id) {
 
+			throw new NotImplementedException ("Web socket server is broken");
 			m_packageFactory = packageFactory;
 			m_server = new WebSocketSharp.Server.WebSocketServer (port);
 
@@ -151,7 +152,7 @@ namespace R2Core.Network
 		}
 
 		public int Port { get { return m_server.Port; } }
-		public string Address { get { return /*m_server.Address.ToString (); */ Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault ()?.ToString ();  } }
+		public IEnumerable<string> Addresses { get { throw new NotImplementedException ("Web socket server is broken"); } }
 
 		public override bool Ready { get { return m_server.IsListening; } }
 

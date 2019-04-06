@@ -54,11 +54,15 @@ namespace R2Core.Network
 
 		public int Port { get { return m_port; } }
 
-		public string Address { 
+		public IEnumerable<string> Addresses { 
 
 			get {
 
-				return Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork).FirstOrDefault ()?.ToString ();
+				foreach (IPAddress address in Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)) {
+				
+					yield return address?.ToString ();
+
+				}
 
 			}
 

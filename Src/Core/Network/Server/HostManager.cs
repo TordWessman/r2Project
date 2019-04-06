@@ -26,6 +26,7 @@ using MessageIdType = System.String;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using System.Net.NetworkInformation;
 
 namespace R2Core.Network
 {
@@ -156,12 +157,25 @@ namespace R2Core.Network
 
 					} else {
 
-						string address = (string) endpoint.Address;
+						IEnumerable<dynamic> addresses = (IEnumerable<dynamic>) endpoint.Addresses;
 						int port = (int) endpoint.Port;
 
-						IHostConnection connection = EstablishConnection(address, port);
+						foreach(dynamic address in addresses) {
 
-						SynchronizeDevices(connection);
+							System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+							PingReply reply = ping.Send(address);
+
+							if (reply.Status == IPStatus.Success) {
+
+								Connect(address, port);
+								return;
+
+							}
+
+						}
+
+						string addressList = String.Join(",", addresses);
+						Log.e($"HostManager was unable to connect to host (port {port}). No address in list ´{addressList}´replied on ping.");
 
 					}
 
@@ -205,6 +219,18 @@ namespace R2Core.Network
 				return true;
 
 			});
+
+		}
+
+		/// <summary>
+		/// Manually connect to a given address and port
+		/// </summary>
+		/// <param name="address">Address.</param>
+		/// <param name="port">Port.</param>
+		public void Connect(string address, int port) {
+
+			IHostConnection connection = EstablishConnection(address, port);
+			SynchronizeDevices(connection);
 
 		}
 
@@ -267,10 +293,13 @@ namespace R2Core.Network
 			// Create IRemoteDevice for each device and add it to device manager.
 			foreach (dynamic device in deviceResponse.Object.LocalDevices) {
 
+				Log.t ($"--- HostManager got (and might add) device: {device.Identifier}");
+
 				Guid guid = Guid.Parse((string) device.Guid);
 
-				// Check if a device with the same Guid exists.
-				if (m_deviceManager.GetByGuid<IDevice>(guid) == null) {
+				// Check if a device with the same Guid exists and that no local devices with the same ´Identifier´ is overwritten.
+				if (m_deviceManager.GetByGuid<IDevice>(guid) == null &&
+					m_deviceManager.LocalDevices.Where(localDevice => localDevice.Identifier == device.Identifier).Count() == 0) {
 
 					// If not, add the to our (local) device manager
 					IRemoteDevice remote = new RemoteDevice(device.Identifier, guid, connection);

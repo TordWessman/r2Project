@@ -185,7 +185,7 @@ namespace R2Core.Tests
 			var dummy = new DummyDevice ("dummyX");
 			devices1.DeviceManager.Add (dummy);
 			devices1.Start ();
-			Thread.Sleep (500);
+			Thread.Sleep (100);
 
 			// Represent the remote host which want to retrieve device "dummyX"
 			DeviceManager remoteDeviceManager = new DeviceManager ("remote_dm");
@@ -272,7 +272,6 @@ namespace R2Core.Tests
 			devices1.Start ();
 			Thread.Sleep (1000);
 
-			//devices1.HostManager.Broadcast ();
 			devices1.HostManager.Start ();
 			devices2.HostManager.Start ();
 
@@ -304,6 +303,35 @@ namespace R2Core.Tests
 			devices2.Stop ();
 			devices1.Stop ();
 
+		}
+
+		/// <summary>
+		/// Test the synchronization of devices between two HostManager instances (and thus two tcp & udp servers)
+		/// </summary>
+		[Test]
+		public void TestHostManager_NoLocalDuplicates() {
+
+			var devices1 = SetUpServers (tcp_port, udp_port, udp_port - 43);
+			var devices2 = SetUpServers (tcp_port - 43, udp_port - 43, udp_port);
+
+			var dummy1 = new DummyDevice ("dummy");
+			devices1.DeviceManager.Add (dummy1);
+
+			var dummy2 = new DummyDevice ("dummy");
+			devices2.DeviceManager.Add (dummy2);
+
+			devices2.Start ();
+			devices1.Start ();
+			Thread.Sleep (1000);
+
+			devices1.HostManager.Start ();
+			devices2.HostManager.Start ();
+
+			Assert.True (dummy1.Guid == devices1.DeviceManager.Get("dummy").Guid);
+			Assert.True (dummy2.Guid == devices2.DeviceManager.Get("dummy").Guid);
+
+			// Sleep enough time for both host managers to be synchronized
+			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
 		}
 	}
 }

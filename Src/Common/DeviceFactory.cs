@@ -41,8 +41,6 @@ namespace R2Core.Common
 			m_deviceManager = deviceManager;
 		}
 
-		public IDeviceManager DeviceManager { get { return m_deviceManager; } }
-
 		/// <summary>
 		/// Creates a simple gstreamer pipeline. Requires libr2gstparseline.so to be compiled and installed into your system library directory.
 		/// </summary>

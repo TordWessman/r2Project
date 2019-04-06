@@ -51,14 +51,24 @@ namespace R2Core.Network
 
 		public override int Read (byte[] buffer, int offset, int size) {
 
-			int received = Socket.Receive (buffer, offset, size, SocketFlags.None);
+			int totalBytesReceived = 0;
+			int bytesLeft = size;
 
-			if (received != size) {
+			while (totalBytesReceived < size) {
 
-				throw new BlockingNetworkException ($"Unable to retrieve message. Number of bytes read: {received}. Requested: {size} bytes. Host: {Socket.RemoteEndPoint.ToString ()}.");
+				int received = Socket.Receive (buffer, offset + totalBytesReceived, bytesLeft, SocketFlags.None);
+				totalBytesReceived += received;
+				bytesLeft -= received;
+
+				if (totalBytesReceived > size) {
+
+					Log.t ($"Unable to retrieve message. Number of bytes read: {totalBytesReceived}. Requested: {size} bytes. Host: {Socket.RemoteEndPoint.ToString ()}.");
+
+				}
+
 			}
 
-			return received;
+			return totalBytesReceived;
 		
 		}
 

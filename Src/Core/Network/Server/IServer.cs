@@ -18,6 +18,7 @@
 
 ﻿using System;
 using R2Core.Device;
+using System.Collections.Generic;
 
 namespace R2Core.Network
 {
@@ -28,10 +29,10 @@ namespace R2Core.Network
 	{
 
 		/// <summary>
-		/// Returns the address on which the server is configured to listen to.
+		/// Returns the addresses on which the server is configured to listen to.
 		/// </summary>
 		/// <value>The port.</value>
-		string Address {get;}
+		IEnumerable<string> Addresses {get;}
 
 		/// <summary>
 		/// Returns the port on which the server is configured to listen to.
