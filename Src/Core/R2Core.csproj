@@ -97,7 +97,6 @@
     <Compile Include="Network\WebFactory.cs" />
     <Compile Include="Network\WebStatusCode.cs" />
     <Compile Include="Network\Server\DeviceRouter.cs" />
-    <Compile Include="Network\Server\HostManager.cs" />
     <Compile Include="Network\Server\IHostConnection.cs" />
     <Compile Include="Network\Server\IServer.cs" />
     <Compile Include="Network\Server\IWebEndpoint.cs" />
@@ -124,6 +123,7 @@
     <Compile Include="Extensions\DeviceExtensions.cs" />
     <Compile Include="Shared\IInvokable.cs" />
     <Compile Include="Network\NetworkException.cs" />
+    <Compile Include="Network\Server\HostSynchronizer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

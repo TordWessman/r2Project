@@ -35,7 +35,7 @@ namespace R2Core.Network
 	/// Keeps track of remote hosts by polling for TCP-servers available in remote UDP server. Will connect and synchronize devices with 
 	/// the current instance of IDeviceManager and thus adding the remote devices to the IDeviceManager.
 	/// </summary>
-	public class HostManager : DeviceBase
+	public class HostSynchronizer : DeviceBase
 	{
 
 		// Used for polling (UDP-broadcasting) for connections/devices. 
@@ -119,7 +119,7 @@ namespace R2Core.Network
 		/// <param name="port">Port.</param>
 		/// <param name="deviceManager">DeviceManager.</param>
 		/// <param name="factory">Factory.</param>
-		public HostManager (string id, int port, IDeviceManager deviceManager, WebFactory factory) : base (id) {
+		public HostSynchronizer (string id, int port, IDeviceManager deviceManager, WebFactory factory) : base (id) {
 
 			m_port = port;
 			m_factory = factory;
@@ -162,12 +162,12 @@ namespace R2Core.Network
 
 						if (address != null) {
 
-							Connect(address, port);
+							Synchronize(address, port);
 
 						} else {
 
 							string addressList = String.Join(",", endpoint.Addresses);
-							Log.e($"HostManager was unable to connect to host (port {port}). No address in list ´{addressList}´replied on ping.");
+							Log.e($"HostSynchronizer was unable to connect to host (port {port}). No address in list ´{addressList}´replied on ping.");
 
 						}
 
@@ -221,7 +221,7 @@ namespace R2Core.Network
 		/// </summary>
 		/// <param name="address">Address.</param>
 		/// <param name="port">Port.</param>
-		public IHostConnection Connect(string address, int port) {
+		public IHostConnection Synchronize(string address, int port) {
 
 			IHostConnection connection = EstablishConnection(address, port);
 			SynchronizeDevices(connection);
@@ -236,14 +236,14 @@ namespace R2Core.Network
 		/// </summary>
 		/// <returns><c>true</c>, if all remote host was synchronize, <c>false</c> otherwise.</returns>
 		/// <param name="deviceServer">Device server.</param>
-		public bool SynchronizeRemotes(IServer deviceServer) {
+		public bool ReversedSynchronization(IServer deviceServer) {
 
 			bool success = true;
 
 			foreach (IHostConnection host in m_hosts) {
 			
-				dynamic remoteHostManager = new RemoteDevice (Settings.Identifiers.HostManager (), Guid.Empty, host);
-				success &= remoteHostManager.RequestConnection (deviceServer.Addresses, deviceServer.Port);
+				dynamic remoteHostSynchronizer = new RemoteDevice (Settings.Identifiers.HostSynchronizer (), Guid.Empty, host);
+				success &= remoteHostSynchronizer.RequestSynchronization (deviceServer.Addresses, deviceServer.Port);
 
 			}
 
@@ -254,14 +254,14 @@ namespace R2Core.Network
 
 		/// <summary>
 		/// Evaluates a list of addresses and tries to connect to the first one available.
-		/// This method is typically called by remote already connected IHostConnection connected to this HostManager. 
+		/// This method is typically called by remote already connected IHostConnection connected to this HostSynchronizer. 
 		/// The other ´host is then allowed to make ´self´ to connect to ´host´ as if it was localy requested by ´self´.
 		/// Return false if none of the provided ´addresses´ replied on a ping.
 		/// </summary>
 		/// <returns><c>true</c>, if the remote host was found, <c>false</c> otherwise.</returns>
 		/// <param name="addresses">A list of addresses to connect to.</param>
 		/// <param name="port">Port.</param>
-		public bool RequestConnection(IEnumerable<string> addresses, int port) {
+		public bool RequestSynchronization(IEnumerable<string> addresses, int port) {
 
 			string address = GetAvailableAddress(addresses);
 
@@ -273,7 +273,7 @@ namespace R2Core.Network
 
 			} else {
 			
-				Connect (address, port);
+				Synchronize (address, port);
 				return true;
 
 			}
@@ -375,7 +375,7 @@ namespace R2Core.Network
 			// Create IRemoteDevice for each device and add it to device manager.
 			foreach (dynamic device in deviceResponse.Object.LocalDevices) {
 
-				Log.t ($"--- HostManager got (and might add) device: {device.Identifier}");
+				Log.t ($"--- HostSynchronizer got (and might add) device: {device.Identifier}");
 
 				Guid guid = Guid.Parse((string) device.Guid);
 

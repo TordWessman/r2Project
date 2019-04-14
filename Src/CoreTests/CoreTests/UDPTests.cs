@@ -35,7 +35,7 @@ namespace R2Core.Tests
 		public IServer TCPServer;
 		public IDeviceManager DeviceManager;
 		public DeviceRouter DeviceRouter;
-		public HostManager HostManager;
+		public HostSynchronizer HostSynchronizer;
 
 		public void Start() {
 			UDPServer.Start ();
@@ -45,7 +45,7 @@ namespace R2Core.Tests
 		public void Stop() {
 			UDPServer.Stop ();
 			TCPServer.Stop ();
-			HostManager.Stop ();
+			HostSynchronizer.Stop ();
 
 		}
 	}
@@ -79,7 +79,7 @@ namespace R2Core.Tests
 			udps.AddEndpoint (endpoint);
 			tcps.AddEndpoint (endpoint);
 
-			HostManager hostManager = factory.CreateHostManager (Settings.Identifiers.HostManager(), remoteUdpPort, deviceManager);
+			HostSynchronizer hostManager = factory.CreateHostSynchronizer (Settings.Identifiers.HostSynchronizer(), remoteUdpPort, deviceManager);
 
 			hostManager.BroadcastInterval = 2000;
 			deviceRouter.AddDevice (hostManager);
@@ -89,7 +89,7 @@ namespace R2Core.Tests
 				TCPServer = tcps,
 				DeviceManager = deviceManager,
 				DeviceRouter = deviceRouter,
-				HostManager = hostManager
+				HostSynchronizer = hostManager
 			};
 
 		}
@@ -215,7 +215,7 @@ namespace R2Core.Tests
 		}
 
 		[Test]
-		public void TestHostManager() {
+		public void TestHostSynchronizer() {
 
 			var devices1 = SetUpServers (tcp_port, udp_port, udp_port);
 
@@ -226,7 +226,7 @@ namespace R2Core.Tests
 
 			// Represent the remote host which want to retrieve device "dummyX"
 			DeviceManager remoteDeviceManager = new DeviceManager ("remote_dm");
-			HostManager h = factory.CreateHostManager ("h", udp_port, remoteDeviceManager);
+			HostSynchronizer h = factory.CreateHostSynchronizer ("h", udp_port, remoteDeviceManager);
 
 			h.Broadcast ();
 
@@ -254,10 +254,10 @@ namespace R2Core.Tests
 		}
 
 		/// <summary>
-		/// Test the synchronization of devices between two HostManager instances (and thus two tcp & udp servers)
+		/// Test the synchronization of devices between two HostSynchronizer instances (and thus two tcp & udp servers)
 		/// </summary>
 		[Test]
-		public void TestHostManager_BroadcastSynchronization() {
+		public void TestHostSynchronizer_BroadcastSynchronization() {
 
 			var devices1 = SetUpServers (tcp_port, udp_port, udp_port - 42);
 			var devices2 = SetUpServers (tcp_port - 42, udp_port - 42, udp_port);
@@ -272,11 +272,11 @@ namespace R2Core.Tests
 			devices1.Start ();
 			Thread.Sleep (1000);
 
-			devices1.HostManager.Start ();
-			devices2.HostManager.Start ();
+			devices1.HostSynchronizer.Start ();
+			devices2.HostSynchronizer.Start ();
 
 			// Sleep enough time for both host managers to be synchronized
-			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
+			Thread.Sleep (devices1.HostSynchronizer.BroadcastInterval * 3);
 
 			// The device should be available
 			Assert.NotNull (devices1.DeviceManager.Get ("dummy2"));
@@ -290,7 +290,7 @@ namespace R2Core.Tests
 			devices2.DeviceManager.Add (dummy3);
 
 			// They should be synchronized after this...
-			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
+			Thread.Sleep (devices1.HostSynchronizer.BroadcastInterval * 3);
 
 			// The new device should be available
 			Assert.NotNull (devices1.DeviceManager.Get ("dummy3"));
@@ -306,10 +306,10 @@ namespace R2Core.Tests
 		}
 
 		/// <summary>
-		/// Test the synchronization of devices between two HostManager instances (and thus two tcp & udp servers)
+		/// Test the synchronization of devices between two HostSynchronizer instances (and thus two tcp & udp servers)
 		/// </summary>
 		[Test]
-		public void TestHostManager_NoLocalDuplicates() {
+		public void TestHostSynchronizer_NoLocalDuplicates() {
 
 			var devices1 = SetUpServers (tcp_port, udp_port, udp_port - 43);
 			var devices2 = SetUpServers (tcp_port - 43, udp_port - 43, udp_port);
@@ -324,14 +324,14 @@ namespace R2Core.Tests
 			devices1.Start ();
 			Thread.Sleep (1000);
 
-			devices1.HostManager.Start ();
-			devices2.HostManager.Start ();
+			devices1.HostSynchronizer.Start ();
+			devices2.HostSynchronizer.Start ();
 
 			Assert.True (dummy1.Guid == devices1.DeviceManager.Get("dummy").Guid);
 			Assert.True (dummy2.Guid == devices2.DeviceManager.Get("dummy").Guid);
 
 			// Sleep enough time for both host managers to be synchronized
-			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
+			Thread.Sleep (devices1.HostSynchronizer.BroadcastInterval * 3);
 		
 			devices2.Stop ();
 			devices1.Stop ();
@@ -339,10 +339,10 @@ namespace R2Core.Tests
 		}
 
 		/// <summary>
-		/// Test if the HostManager's ´RequestConnection´ & ´Connect´ works.
+		/// Test if the HostSynchronizer's ´RequestSynchronization´ & ´Synchronize´ works.
 		/// </summary>
 		[Test]
-		public void TestHostManager_ManualSynchronization() {
+		public void TestHostSynchronizer_ManualSynchronization() {
 
 			int remoteTCPPort = tcp_port - 10;
 			int localTCPPort = tcp_port - 11;
@@ -357,24 +357,24 @@ namespace R2Core.Tests
 			var localDummy = new DummyDevice ("localDummy");
 			local.DeviceManager.Add (localDummy);
 
-			// Start only local TCPServer. Device synchronization through 2 HostManager instances is not to test here.
+			// Start only local TCPServer. Device synchronization through 2 HostSynchronizer instances is not to test here.
 			local.TCPServer.Start ();
 
 			Assert.IsFalse (local.DeviceManager.Has ("remoteDummy"));
 			Assert.IsFalse (remote.DeviceManager.Has ("localDummy"));
 
 			// Manually connect to remote
-			IHostConnection remoteHostConnection = local.HostManager.Connect ("localhost", remoteTCPPort);
+			IHostConnection remoteHostConnection = local.HostSynchronizer.Synchronize ("localhost", remoteTCPPort);
 
 			Thread.Sleep (200);
 
 			Assert.IsTrue (local.DeviceManager.Has ("remoteDummy"));
 
-			// Manually create a RemoteDevice representing the remote HostManager
-			dynamic remoteHostManager = new RemoteDevice (Settings.Identifiers.HostManager (), Guid.Empty, remoteHostConnection);
-			bool success = remoteHostManager.RequestConnection (local.TCPServer.Addresses, localTCPPort);
+			// Manually create a RemoteDevice representing the remote HostSynchronizer
+			dynamic remoteHostSynchronizer = new RemoteDevice (Settings.Identifiers.HostSynchronizer (), Guid.Empty, remoteHostConnection);
+			bool success = remoteHostSynchronizer.RequestSynchronization (local.TCPServer.Addresses, localTCPPort);
 			Assert.IsTrue (success);
-			remoteHostManager.RequestConnection (local.TCPServer.Addresses, localTCPPort);
+			remoteHostSynchronizer.RequestSynchronization (local.TCPServer.Addresses, localTCPPort);
 
 			Thread.Sleep (200);
 
@@ -384,7 +384,7 @@ namespace R2Core.Tests
 			var localDummy2 = new DummyDevice ("localDummy2");
 			local.DeviceManager.Add (localDummy2);
 
-			success = local.HostManager.SynchronizeRemotes (local.TCPServer);
+			success = local.HostSynchronizer.ReversedSynchronization (local.TCPServer);
 			Assert.IsTrue (success);
 
 			// Remote has connected to ´śelf´ and should have my devices

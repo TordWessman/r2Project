@@ -38,7 +38,7 @@
 	<Identifiers>
 		<Core>core</Core>
 		<DeviceManager comment="Keeps track of all IDevice implementations.">device_manager</DeviceManager>
-		<HostManager comment="Host manager. Keep tracks of/receive hello packages from remote hosts and broadcasts existance.">host_manager</HostManager>
+		<HostSynchronizer comment="Connects and synchronizes devices through broadcasts and manual connections.">host_synchronizer</HostSynchronizer>
 		<Server>server</Server>
 		<RubyScriptFactory comment="Responsible for creating new ruby scripts">ruby_script_factory</RubyScriptFactory>
 		<PythonScriptFactory comment="Responsible for creating new python scripts">python_script_factory</PythonScriptFactory>
@@ -67,6 +67,6 @@
 		<DefaultBroadcastPort type="int" comment="the port used by the host manager to broadcast">9050</DefaultBroadcastPort>
 		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7/Lib;/usr/lib/python2.7</PythonPaths>
 		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation)">"/usr/lib/ruby/2.3.0"</RubyPaths>
-		<DeviceDestination comment="Used by various components (i.e. HostManager) for device synchronization.">/devices</DeviceDestination>
+		<DeviceDestination comment="Used by various components (i.e. HostSynchronizer) for device synchronization.">/devices</DeviceDestination>
 	</Consts>
 </Configuration>

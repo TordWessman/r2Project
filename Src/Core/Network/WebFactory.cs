@@ -143,9 +143,9 @@ namespace R2Core.Network
 		/// <param name="id">Identifier.</param>
 		/// <param name="port">Port.</param>
 		/// <param name="destination">Destination.</param>
-		public HostManager CreateHostManager(string id, int port, IDeviceManager deviceManager) {
+		public HostSynchronizer CreateHostSynchronizer(string id, int port, IDeviceManager deviceManager) {
 		
-			return new HostManager (id, port, deviceManager, this);
+			return new HostSynchronizer (id, port, deviceManager, this);
 		
 		}
 
