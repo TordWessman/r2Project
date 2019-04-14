@@ -115,15 +115,15 @@ namespace R2Core.Tests
 
 			IServer s = factory.CreateTcpServer ("s", tcp_port);
 			s.Start ();
-			Thread.Sleep (100);
+			Thread.Sleep (200);
 			Assert.IsTrue (s.Ready);
-			Thread.Sleep (100);
+			Thread.Sleep (200);
 			s.Stop ();
-			Thread.Sleep (100);
+			Thread.Sleep (200);
 			Assert.IsFalse (s.Ready);
 
 			s.Start ();
-			Thread.Sleep (100);
+			Thread.Sleep (200);
 
 			IMessageClient client = factory.CreateTcpClient ("c", "localhost", tcp_port);
 
@@ -192,13 +192,14 @@ namespace R2Core.Tests
 			Assert.AreEqual ("foobar", response.Payload);
 
 			s.Stop ();
+			client.Stop ();
 
 		}
 
 		[Test]
 		public void TestTCPServer_DeviceRouter() {
 
-			IServer s = factory.CreateTcpServer ("s", tcp_port);
+			IServer s = factory.CreateTcpServer (Settings.Identifiers.TcpServer(), tcp_port);
 			s.Start ();
 			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
 			dummyObject.Bar = "XYZ";
@@ -251,13 +252,14 @@ namespace R2Core.Tests
 			Assert.AreEqual ("MultiplyByTen", response2.Payload.Action);
 
 			s.Stop ();
+			client.Stop ();
 
 		}
 
 		[Test]
 		public void TestTCP_Server_broadcast() {
 
-			TCPServer s = (TCPServer) factory.CreateTcpServer ("s", tcp_port);
+			TCPServer s = (TCPServer) factory.CreateTcpServer (Settings.Identifiers.TcpServer(), tcp_port);
 			s.Start ();
 			DummyEndpoint ep = new DummyEndpoint ("apa");
 			s.AddEndpoint (ep);

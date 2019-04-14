@@ -52,8 +52,6 @@ namespace R2Core.Tests
 	}
 
 
-
-	[TestFixture]
 	public class NetworkTests: TestBase
 	{
 		protected ISerialization serialization;

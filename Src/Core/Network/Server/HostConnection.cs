@@ -29,6 +29,7 @@ namespace R2Core.Network
 	{
 		private IMessageClient m_connection;
 		private INetworkMessage m_message;
+		private string m_address;
 
 		/// <summary>
 		/// `destination` is the path used when sending messages. `host` is the connection used for transfers.
@@ -36,12 +37,15 @@ namespace R2Core.Network
 		/// <param name="id">Identifier.</param>
 		/// <param name="destination">Destination.</param>
 		/// <param name="host">Host.</param>
-		public HostConnection (string id, string destination, IMessageClient connection) : base(id) {
+		public HostConnection (string id, string destination, string remoteAddress, IMessageClient connection) : base(id) {
 			
 			m_connection = connection;
 			m_message = new NetworkMessage() { Headers = new Dictionary<string, object> (), Destination = destination };
+			m_address = remoteAddress;
 
 		}
+
+		public string Address { get { return m_address; } }
 
 		public IDictionary<string, object> Headers  { get { return m_message.Headers; } }
 

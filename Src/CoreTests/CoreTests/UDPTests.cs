@@ -57,6 +57,43 @@ namespace R2Core.Tests
 		const int tcp_port = 4444;
 		const int udp_port = 4445;
 
+
+		private ServerInstanceContainer SetUpServers(int tcpPort, int udpPort, int remoteUdpPort) {
+
+			var path =  Settings.Consts.DeviceDestination();
+
+			IServer tcps = factory.CreateTcpServer (Settings.Identifiers.TcpServer(), tcpPort);
+			IServer udps = factory.CreateUdpServer (Settings.Identifiers.UdpServer(), udpPort);
+			((UDPServer) udps).AllowLocalRequests = true;
+
+			// Will keep track of the available devices for this "instance" 
+			DeviceManager deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager ());
+
+			deviceManager.Add (tcps);
+			deviceManager.Add (udps);
+			DeviceRouter deviceRouter = (DeviceRouter) factory.CreateDeviceRouter ();
+			deviceRouter.AddDevice (deviceManager);
+			deviceRouter.SetContainer (deviceManager);
+
+			var endpoint = factory.CreateJsonEndpoint (path, deviceRouter);
+			udps.AddEndpoint (endpoint);
+			tcps.AddEndpoint (endpoint);
+
+			HostManager hostManager = factory.CreateHostManager (Settings.Identifiers.HostManager(), remoteUdpPort, deviceManager);
+
+			hostManager.BroadcastInterval = 2000;
+			deviceRouter.AddDevice (hostManager);
+
+			return new ServerInstanceContainer () {
+				UDPServer = udps,
+				TCPServer = tcps,
+				DeviceManager = deviceManager,
+				DeviceRouter = deviceRouter,
+				HostManager = hostManager
+			};
+
+		}
+
 		[TestFixtureSetUp]
 		public override void Setup() {
 
@@ -216,48 +253,11 @@ namespace R2Core.Tests
 
 		}
 
-		private ServerInstanceContainer SetUpServers(int tcpPort, int udpPort, int remoteUdpPort) {
-
-			var path =  Settings.Consts.DeviceDestination();
-
-			IServer tcps = factory.CreateTcpServer (Settings.Identifiers.TcpServer(), tcpPort);
-			IServer udps = factory.CreateUdpServer ("udp_server", udpPort);
-			((UDPServer) udps).AllowLocalRequests = true;
-
-			// Will keep track of the available devices for this "instance" 
-			DeviceManager deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager ());
-
-			deviceManager.Add (tcps);
-			deviceManager.Add (udps);
-			DeviceRouter deviceRouter = (DeviceRouter) factory.CreateDeviceRouter ();
-			deviceRouter.AddDevice (deviceManager);
-			deviceRouter.SetContainer (deviceManager);
-
-			//deviceManager.Add (tcps);
-
-			var endpoint = factory.CreateJsonEndpoint (path, deviceRouter);
-			udps.AddEndpoint (endpoint);
-			tcps.AddEndpoint (endpoint);
-
-			HostManager hostManager = factory.CreateHostManager ("host_manager", remoteUdpPort, deviceManager);
-
-			hostManager.BroadcastInterval = 2000;
-
-			return new ServerInstanceContainer () {
-				UDPServer = udps,
-				TCPServer = tcps,
-				DeviceManager = deviceManager,
-				DeviceRouter = deviceRouter,
-				HostManager = hostManager
-			};
-
-		}
-
 		/// <summary>
 		/// Test the synchronization of devices between two HostManager instances (and thus two tcp & udp servers)
 		/// </summary>
 		[Test]
-		public void TestHostManager_DeviceSynchronization() {
+		public void TestHostManager_BroadcastSynchronization() {
 
 			var devices1 = SetUpServers (tcp_port, udp_port, udp_port - 42);
 			var devices2 = SetUpServers (tcp_port - 42, udp_port - 42, udp_port);
@@ -332,6 +332,68 @@ namespace R2Core.Tests
 
 			// Sleep enough time for both host managers to be synchronized
 			Thread.Sleep (devices1.HostManager.BroadcastInterval * 3);
+		
+			devices2.Stop ();
+			devices1.Stop ();
+
+		}
+
+		/// <summary>
+		/// Test if the HostManager's ´RequestConnection´ & ´Connect´ works.
+		/// </summary>
+		[Test]
+		public void TestHostManager_ManualSynchronization() {
+
+			int remoteTCPPort = tcp_port - 10;
+			int localTCPPort = tcp_port - 11;
+			// Set up remote. It can use it's broadcast, but that's not what to test 
+			var remote = SetUpServers (remoteTCPPort, udp_port, udp_port - 44);
+			var remoteDummy = new DummyDevice ("remoteDummy");
+			remote.DeviceManager.Add (remoteDummy);
+			remote.Start ();
+
+			// Setup local instance. We'll only need DeviceManager and TCPServer, though
+			var local = SetUpServers (localTCPPort, udp_port, udp_port - 44);
+			var localDummy = new DummyDevice ("localDummy");
+			local.DeviceManager.Add (localDummy);
+
+			// Start only local TCPServer. Device synchronization through 2 HostManager instances is not to test here.
+			local.TCPServer.Start ();
+
+			Assert.IsFalse (local.DeviceManager.Has ("remoteDummy"));
+			Assert.IsFalse (remote.DeviceManager.Has ("localDummy"));
+
+			// Manually connect to remote
+			IHostConnection remoteHostConnection = local.HostManager.Connect ("localhost", remoteTCPPort);
+
+			Thread.Sleep (200);
+
+			Assert.IsTrue (local.DeviceManager.Has ("remoteDummy"));
+
+			// Manually create a RemoteDevice representing the remote HostManager
+			dynamic remoteHostManager = new RemoteDevice (Settings.Identifiers.HostManager (), Guid.Empty, remoteHostConnection);
+			bool success = remoteHostManager.RequestConnection (local.TCPServer.Addresses, localTCPPort);
+			Assert.IsTrue (success);
+			remoteHostManager.RequestConnection (local.TCPServer.Addresses, localTCPPort);
+
+			Thread.Sleep (200);
+
+			// Remote has connected to ´śelf´ and should have my devices
+			Assert.IsTrue (remote.DeviceManager.Has ("localDummy"));
+
+			var localDummy2 = new DummyDevice ("localDummy2");
+			local.DeviceManager.Add (localDummy2);
+
+			success = local.HostManager.SynchronizeRemotes (local.TCPServer);
+			Assert.IsTrue (success);
+
+			// Remote has connected to ´śelf´ and should have my devices
+			Assert.IsTrue (remote.DeviceManager.Has ("localDummy"));
+			Assert.IsTrue (remote.DeviceManager.Has ("localDummy2"));
+
+			local.TCPServer.Stop ();
+			remote.Stop ();
+
 		}
 	}
 }

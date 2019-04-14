@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Linq;
 using R2Core.Data;
 using System.Dynamic;
+using System.Collections;
 
 namespace R2Core
 {
@@ -66,21 +67,15 @@ namespace R2Core
 
 			}
 
-			IList<object> p = new List<object> ();
+			List<object> p = new List<object> ();
 
 			// Convert the dynamic parameters to the types required by the subject.
 			for (int i = 0; i < paramsInfo.Length; i++) {
 
-				if (paramsInfo [i].ParameterType != typeof(System.Object)) {
+				object parameter = parameters.ToArray () [i];
+				Type requiredType = paramsInfo [i].ParameterType;
 
-					// Primitive type
-					p.Add (Convert.ChangeType (parameters.ToArray() [i], paramsInfo [i].ParameterType));
-
-				} else {
-
-					p.Add (parameters.ToArray() [i]);
-
-				}
+				p.Add (requiredType.ConvertObject (parameter));
 
 			}
 
@@ -166,29 +161,11 @@ namespace R2Core
 
 				FieldInfo fieldInfo = (members [0] as FieldInfo);
 
-				// Do not convert complex types
-				if (fieldInfo.FieldType != typeof(System.Object)) {
-
-					fieldInfo.SetValue (target, Convert.ChangeType (value, fieldInfo.FieldType));
-
-				} else {
-
-					fieldInfo.SetValue (target, value);
-
-				}
+				fieldInfo.SetValue (target, fieldInfo.FieldType.ConvertObject (value));
 
 			} else {
 
-				// Do not convert complex types
-				if (propertyInfo.PropertyType != typeof(System.Object)) {
-
-					propertyInfo.SetValue (target, Convert.ChangeType (value, propertyInfo.PropertyType), null);
-
-				} else {
-
-					propertyInfo.SetValue (target, value);
-
-				}
+				propertyInfo.SetValue (target, propertyInfo.PropertyType.ConvertObject (value));
 
 			}
 
@@ -206,6 +183,87 @@ namespace R2Core
 				target.GetType().GetProperty(property) != null ||
 				target.GetType ().GetMember (property).Length > 0 ||
 				((target is R2Dynamic) ? (target as R2Dynamic).Has(property) : false);
+
+		}
+
+	}
+
+	public static class ConversionsExtensions {
+	
+		/// <summary>
+		/// Converts ´parameter´ to the System.Type required. Allows conversion even if ´parameter´ is defined
+		/// as a non-specific type (i.e. ´object´ or ´dynamic´).
+		/// </summary>
+		/// <returns>The object.</returns>
+		/// <param name="requiredType">Required type.</param>
+		/// <param name="parameter">Parameter.</param>
+		public static dynamic ConvertObject(this Type requiredType, object parameter) {
+			
+			if (requiredType.IsGenericType) {
+
+				// Check if it's a generic IEnumerable
+				if (typeof(IEnumerable).IsAssignableFrom (requiredType)) {
+
+					var enumeratedParameter = parameter as IEnumerable;
+
+					if (enumeratedParameter == null) {
+
+						throw new ArgumentException ($"IEnumerable parameter required, but was of type: {parameter}.");
+
+					}
+
+					Type[] containedTypes = requiredType.GetGenericArguments ();
+					if (containedTypes.Length == 2) {
+						
+						// Assuming Dictionary<T,S>.
+						Type genericDictionaryType = typeof(Dictionary<,>);
+
+						Type dictionaryType = genericDictionaryType.MakeGenericType (containedTypes);
+
+						IDictionary dictionary = (IDictionary)Activator.CreateInstance (dictionaryType);
+
+						foreach (object p in enumeratedParameter) {
+
+							object key = ((KeyValuePair<dynamic, dynamic>)p).Key;
+							object value = ((KeyValuePair<dynamic, dynamic>)p).Value;
+
+							dictionary.Add (key, value);
+							
+						}
+
+						return dictionary;
+
+					} else  if (containedTypes.Length == 1) {
+
+						// Assuming IEnumerable<T>
+						Type listGenericType = typeof (List<>);
+						Type listType = listGenericType.MakeGenericType(containedTypes);
+
+						IList list = (IList)Activator.CreateInstance(listType);
+						foreach(object p in enumeratedParameter) {
+
+							list.Add (containedTypes.FirstOrDefault().ConvertObject (p));
+
+						}
+
+						return list;
+
+					}
+
+				}
+
+				throw new NotImplementedException ($"Dynamic conversion not implemented for type {requiredType} (using parameters {parameter})");
+
+			} else if (typeof(IConvertible).IsAssignableFrom (requiredType)) {
+
+				// Primitive type
+				return Convert.ChangeType (parameter, requiredType);
+
+			} else {
+
+				return parameter;
+
+			}
 
 		}
 

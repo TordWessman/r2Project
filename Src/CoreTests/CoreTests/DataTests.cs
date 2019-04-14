@@ -109,25 +109,41 @@ namespace R2Core.Tests
 
 		}
 
-		class Invokable {
+		class InvokableDummy {
 		
 			public int Member = 0;
 
 			private string m_propertyMember;
 			public string Property { get { return m_propertyMember; } set { m_propertyMember = value;} }
 
+			public IEnumerable<int> EnumerableInts = null;
+
 			public string AddBar(string value) {
 			
 				return value + "bar";
 
 			}
+
+			public int GiveMeAnArray(IEnumerable<string> array) {
+			
+				return array.Count();
+
+			}
+
+			public IEnumerable<int> GiveMeADictionary(IDictionary<string,int> dictionary) {
+
+				IEnumerable<int> values = dictionary.Values.ToArray();
+				return values;
+
+			}
+
 		}
 
 		[Test]
 		public void TestDynamicInvoker() {
 
 			var invoker = new ObjectInvoker ();
-			var o = new Invokable ();
+			var o = new InvokableDummy ();
 
 			var res = invoker.Invoke(o, "AddBar", new List<object>() {"foo"});
 
@@ -137,11 +153,41 @@ namespace R2Core.Tests
 			Assert.AreEqual (42, o.Member);
 
 			invoker.Set (o, "Property", "42");
+
 			Assert.AreEqual ("42", o.Property);
 			Assert.AreEqual ("42", invoker.Get(o,"Property"));
 			Assert.AreEqual (42, invoker.Get(o,"Member"));
 			Assert.IsTrue (invoker.ContainsPropertyOrMember (o, "Member"));
 			Assert.IsFalse (invoker.ContainsPropertyOrMember (o, "NotAMember"));
+
+			//Test invoking a IEnumerable<>
+			IEnumerable<object> aStringArray = new List<object> () { "foo", "bar" };
+			int count = invoker.Invoke(o, "GiveMeAnArray", new List<object>() {aStringArray});
+			Assert.AreEqual (aStringArray.Count(), count);
+
+			IEnumerable<object> OneTwoThree = new List<object> () { 1, 2, 3 };
+			invoker.Set (o, "EnumerableInts", OneTwoThree);
+
+			for (int i = 0; i < OneTwoThree.Count(); i++) {
+			
+				Assert.AreEqual (OneTwoThree.ToList () [i], o.EnumerableInts.ToList () [i]);
+
+			}
+
+			//Test invoking an IDictionary<,>
+			IDictionary<object, object> dictionary = new Dictionary<object,object> ();
+			foreach (int i in OneTwoThree) {
+			
+				dictionary [$"apa{i}"] = i;
+			}
+
+			IEnumerable<int> allValues = invoker.Invoke (o, "GiveMeADictionary", new List<object>() {dictionary});
+
+			for (int i = 0; i < OneTwoThree.Count(); i++) {
+			
+				Assert.AreEqual (allValues.ToArray () [i], OneTwoThree.ToArray () [i]);
+
+			}
 
 		}
 

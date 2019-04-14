@@ -63,7 +63,7 @@ namespace R2Core.Tests
 			//Client should be connected
 			Assert.IsTrue (client.Ready);
 
-			IHostConnection connection = new HostConnection ("hc", "/test", client);
+			IHostConnection connection = new HostConnection ("hc", "/test", "localhost", client);
 
 			dynamic python = new RemoteDevice ("PythonTest", Guid.Empty, connection);
 
@@ -102,7 +102,7 @@ namespace R2Core.Tests
 			//Client should be connected
 			Assert.IsTrue (client.Ready);
 
-			IHostConnection connection = new HostConnection ("hc", "/test", client);
+			IHostConnection connection = new HostConnection ("hc", "/test", "localhost", client);
 
 			RemoteDevice remoteDummy = new RemoteDevice ("dummy_device", Guid.Empty, connection);
 

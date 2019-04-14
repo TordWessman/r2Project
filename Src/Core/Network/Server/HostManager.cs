@@ -157,25 +157,19 @@ namespace R2Core.Network
 
 					} else {
 
-						IEnumerable<dynamic> addresses = (IEnumerable<dynamic>) endpoint.Addresses;
+						string address = GetAvailableAddress((IEnumerable<dynamic>) endpoint.Addresses);
 						int port = (int) endpoint.Port;
 
-						foreach(dynamic address in addresses) {
+						if (address != null) {
 
-							System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
-							PingReply reply = ping.Send(address);
+							Connect(address, port);
 
-							if (reply.Status == IPStatus.Success) {
+						} else {
 
-								Connect(address, port);
-								return;
-
-							}
+							string addressList = String.Join(",", endpoint.Addresses);
+							Log.e($"HostManager was unable to connect to host (port {port}). No address in list ´{addressList}´replied on ping.");
 
 						}
-
-						string addressList = String.Join(",", addresses);
-						Log.e($"HostManager was unable to connect to host (port {port}). No address in list ´{addressList}´replied on ping.");
 
 					}
 
@@ -227,10 +221,86 @@ namespace R2Core.Network
 		/// </summary>
 		/// <param name="address">Address.</param>
 		/// <param name="port">Port.</param>
-		public void Connect(string address, int port) {
+		public IHostConnection Connect(string address, int port) {
 
 			IHostConnection connection = EstablishConnection(address, port);
 			SynchronizeDevices(connection);
+
+			return connection;
+
+		}
+
+		/// <summary>
+		/// Tells all connected IHostConnection's to connect and synchronize with me.
+		/// Returns true if all remote IHostConnection's did synchronize successfully.
+		/// </summary>
+		/// <returns><c>true</c>, if all remote host was synchronize, <c>false</c> otherwise.</returns>
+		/// <param name="deviceServer">Device server.</param>
+		public bool SynchronizeRemotes(IServer deviceServer) {
+
+			bool success = true;
+
+			foreach (IHostConnection host in m_hosts) {
+			
+				dynamic remoteHostManager = new RemoteDevice (Settings.Identifiers.HostManager (), Guid.Empty, host);
+				success &= remoteHostManager.RequestConnection (deviceServer.Addresses, deviceServer.Port);
+
+			}
+
+			return success;
+
+		}
+
+
+		/// <summary>
+		/// Evaluates a list of addresses and tries to connect to the first one available.
+		/// This method is typically called by remote already connected IHostConnection connected to this HostManager. 
+		/// The other ´host is then allowed to make ´self´ to connect to ´host´ as if it was localy requested by ´self´.
+		/// Return false if none of the provided ´addresses´ replied on a ping.
+		/// </summary>
+		/// <returns><c>true</c>, if the remote host was found, <c>false</c> otherwise.</returns>
+		/// <param name="addresses">A list of addresses to connect to.</param>
+		/// <param name="port">Port.</param>
+		public bool RequestConnection(IEnumerable<string> addresses, int port) {
+
+			string address = GetAvailableAddress(addresses);
+
+			if (address == null) {
+			
+				string addressList = String.Join (",", addresses);
+				Log.e ($"Unable to retrieve address from address list: {addressList}. (Requested port: {port}).");
+				return false;
+
+			} else {
+			
+				Connect (address, port);
+				return true;
+
+			}
+
+		}
+
+		/// <summary>
+		/// Pings all ´addresses´ in the list and returns the first to reply.
+		/// </summary>
+		/// <returns>The available address.</returns>
+		/// <param name="addresses">Addresses.</param>
+		private string GetAvailableAddress(IEnumerable<dynamic> addresses) {
+		
+			foreach(dynamic address in addresses) {
+
+				System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+				PingReply reply = ping.Send(address);
+
+				if (reply.Status == IPStatus.Success) {
+
+					return address;
+
+				}
+
+			}
+
+			return null;
 
 		}
 
@@ -242,13 +312,13 @@ namespace R2Core.Network
 		/// <param name="port">Port.</param>
 		private IHostConnection EstablishConnection(string address, int port) {
 
-			string id = $"host{address}:{port}";
+			string id = GetHostConnectionIdentifier (address, port);
 
 			IHostConnection connection = m_hosts.FirstOrDefault( (h) => { return h.Identifier == id; });
 
 			if (connection == null) {
 
-				connection = new HostConnection(id, Destination, 
+				connection = new HostConnection(id, Destination, address,
 					m_factory.CreateTcpClient($"tcp_client_{address}:{port}", address, port));
 
 				connection.Start();
@@ -273,6 +343,18 @@ namespace R2Core.Network
 		private void OnBroadcastEvent(object source, ElapsedEventArgs e) {
 
 			Broadcast ();
+
+		}
+
+		/// <summary>
+		/// Returns the Identifier for a specified address & port.
+		/// </summary>
+		/// <returns>The host connection identifier.</returns>
+		/// <param name="address">Address.</param>
+		/// <param name="port">Port.</param>
+		private string GetHostConnectionIdentifier(string address, int port) {
+		
+			return $"host{address}:{port}";
 
 		}
 

@@ -30,6 +30,12 @@ namespace R2Core.Network
 	{
 	
 		/// <summary>
+		/// Returns the address of the remote host.
+		/// </summary>
+		/// <value>The address.</value>
+		string Address { get; }
+
+		/// <summary>
 		/// Access the request headers. 
 		/// </summary>
 		/// <value>The headers.</value>

@@ -38,7 +38,7 @@
 	<Identifiers>
 		<Core>core</Core>
 		<DeviceManager comment="Keeps track of all IDevice implementations.">device_manager</DeviceManager>
-		<HostManager comment="Host manager. Keep tracks of/receive hello packages from remote hosts and broadcasts existance.">hostmgr</HostManager>
+		<HostManager comment="Host manager. Keep tracks of/receive hello packages from remote hosts and broadcasts existance.">host_manager</HostManager>
 		<Server>server</Server>
 		<RubyScriptFactory comment="Responsible for creating new ruby scripts">ruby_script_factory</RubyScriptFactory>
 		<PythonScriptFactory comment="Responsible for creating new python scripts">python_script_factory</PythonScriptFactory>
