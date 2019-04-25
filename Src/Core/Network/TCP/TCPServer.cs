@@ -136,15 +136,19 @@ namespace R2Core.Network
 
 					}
 
-				} catch (System.Net.Sockets.SocketException ex) {
+				} catch (Exception ex) {
 
-					if (ex.SocketErrorCode != SocketError.Interrupted) {
-						
-						Log.w($"Connection failure: '{ex.Message}'. Error code: {ex.ErrorCode}. Socket error type: {ex.SocketErrorCode}.");
+					if (ex.IsClosingNetwork()) {
+
+						Log.d("Closing TCPServer connection.");
+
+					} else {
+					
+						Log.x(ex);
 
 					}
-
-				} catch (Exception ex) { Log.x(ex); }
+					 
+				}
 
 			}
 
