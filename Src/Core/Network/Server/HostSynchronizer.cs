@@ -148,7 +148,7 @@ namespace R2Core.Network
 
 			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
 
-				if (WebStatusCode.Ok.Is(response?.Code)) {
+				if (NetworkStatusCode.Ok.Is(response?.Code)) {
 
 					DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
 					dynamic endpoint = deviceResponse.Object;
@@ -182,7 +182,7 @@ namespace R2Core.Network
 
 				} else {
 
-					if (response?.Code != WebStatusCode.SameOrigin.Raw()) {
+					if (response?.Code != NetworkStatusCode.SameOrigin.Raw()) {
 							
 						Log.w($"Broadcast received from {response?.Destination} got response code '{response?.Code}'.");
 				
@@ -374,7 +374,7 @@ namespace R2Core.Network
 
 			INetworkMessage response = connection.Send(message);
 
-			if (!WebStatusCode.Ok.Is(response.Code)) {
+			if (!NetworkStatusCode.Ok.Is(response.Code)) {
 			
 				Log.e($"HostSynchronizer unable to synchronize. Error from client: {response}.");
 

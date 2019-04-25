@@ -56,7 +56,7 @@ namespace R2Core.Network
 
 		public OkMessage() {
 		
-			Code = WebStatusCode.Ok.Raw();
+			Code = NetworkStatusCode.Ok.Raw();
 
 		}
 

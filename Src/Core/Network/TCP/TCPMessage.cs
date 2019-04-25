@@ -37,7 +37,7 @@ namespace R2Core.Network
 
 		public TCPMessage(INetworkMessage message) {
 		
-			Code = message.Code != 0 ? message.Code : WebStatusCode.Ok.Raw();
+			Code = message.Code != 0 ? message.Code : NetworkStatusCode.Ok.Raw();
 			Destination = message.Destination;
 			Headers = message.Headers;
 			Payload = message.Payload;

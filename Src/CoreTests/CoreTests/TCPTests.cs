@@ -134,7 +134,7 @@ namespace R2Core.Tests
 
 			TCPMessage message = new TCPMessage() { Destination = "blah", Payload = "bleh"};
 			INetworkMessage response = client.Send(message);
-			Assert.AreEqual(WebStatusCode.NotFound.Raw(), response.Code);
+			Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), response.Code);
 			client.Stop();
 			s.Stop();
 
@@ -184,13 +184,13 @@ namespace R2Core.Tests
 			TCPMessage message = new TCPMessage() { Destination = "/test", Payload = msg};
 			INetworkMessage response = client.Send(message);
 
-			Assert.AreEqual(response.Code, WebStatusCode.Ok.Raw());
+			Assert.AreEqual(response.Code, NetworkStatusCode.Ok.Raw());
 			Assert.AreEqual("foo", response.Payload);
 
 			// Now also test the scripts additional_string public property
 			script.additional_string = "bar";
 			response = client.Send(message);
-			Assert.AreEqual(WebStatusCode.Ok.Raw(), response.Code);
+			Assert.AreEqual(NetworkStatusCode.Ok.Raw(), response.Code);
 			Assert.AreEqual("foobar", response.Payload);
 
 			s.Stop();
@@ -228,7 +228,7 @@ namespace R2Core.Tests
 			Thread.Sleep(500);
 			INetworkMessage response = client.Send(message);
 
-			Assert.AreEqual(WebStatusCode.Ok, (WebStatusCode)response.Code); 
+			Assert.AreEqual(NetworkStatusCode.Ok, (NetworkStatusCode)response.Code); 
 			// Make sure the identifiers are the same.
 			Assert.AreEqual(dummyObject.Identifier, response.Payload.Object.Identifier);
 
@@ -248,7 +248,7 @@ namespace R2Core.Tests
 
 			TCPMessage  message2 = new TCPMessage() { Destination = Settings.Consts.DeviceDestination(), Payload = requestPayload2};
 			INetworkMessage response2 = client.Send(message2);
-			Assert.AreEqual(WebStatusCode.Ok, (WebStatusCode)response2.Code); 
+			Assert.AreEqual(NetworkStatusCode.Ok, (NetworkStatusCode)response2.Code); 
 
 			Assert.AreEqual(fortytwo * 10, response2.Payload.ActionResponse);
 			Assert.AreEqual("dummy_device", response2.Payload.Object.Identifier);

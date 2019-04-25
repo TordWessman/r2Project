@@ -38,9 +38,9 @@ namespace R2Core.Network
 		/// <returns><c>true</c> if is ping the specified self; otherwise, <c>false</c>.</returns>
 		public static bool IsPing(this INetworkMessage self) {
 
-			WebStatusCode.Ping.Is(null);
+			NetworkStatusCode.Ping.Is(null);
 
-			return(self.HasCode(WebStatusCode.Ping) &&
+			return(self.HasCode(NetworkStatusCode.Ping) &&
 				self.Destination == Settings.Consts.PingDestination());
 
 		}
@@ -51,18 +51,18 @@ namespace R2Core.Network
 		/// <returns><c>true</c> if is ping the specified self; otherwise, <c>false</c>.</returns>
 		public static bool IsPong(this INetworkMessage self) {
 
-			return self.HasCode(WebStatusCode.Pong) &&
+			return self.HasCode(NetworkStatusCode.Pong) &&
 				self.Destination == Settings.Consts.PingDestination();
 
 		}
 
 		/// <summary>
-		/// Returns true if the error message WebStatusCode is not null.
+		/// Returns true if the error message NetworkStatusCode is not null.
 		/// </summary>
 		/// <returns><c>true</c> if is error the specified self; otherwise, <c>false</c>.</returns>
 		public static bool IsError(this INetworkMessage self) {
 
-			return self.Code != (int)WebStatusCode.Ok;
+			return self.Code != (int)NetworkStatusCode.Ok;
 
 		}
 

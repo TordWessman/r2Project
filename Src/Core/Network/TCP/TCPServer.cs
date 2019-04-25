@@ -100,7 +100,7 @@ namespace R2Core.Network
 		/// <param name="client">Client.</param>
 		private void Connection(TcpClient client) {
 		
-			TCPMessage responseMessage =  new TCPMessage() {Code = WebStatusCode.NotDefined.Raw(), Headers = new Dictionary<string, object>()};
+			TCPMessage responseMessage =  new TCPMessage() {Code = NetworkStatusCode.NotDefined.Raw(), Headers = new Dictionary<string, object>()};
 
 		}
 
@@ -174,8 +174,8 @@ namespace R2Core.Network
 			} 
 
 			return new TCPMessage() {
-				Code = WebStatusCode.NotFound.Raw(),
-				Payload =  new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}")
+				Code = NetworkStatusCode.NotFound.Raw(),
+				Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}")
 			};
 
 		}

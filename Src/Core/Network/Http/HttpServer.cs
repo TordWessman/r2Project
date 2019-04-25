@@ -70,9 +70,9 @@ namespace R2Core.Network
 					} else {
 
 						Log.w("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
-						response.StatusCode = WebStatusCode.NotFound.Raw();
+						response.StatusCode = NetworkStatusCode.NotFound.Raw();
 
-						Write(response,  m_serialization.Serialize(new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Url.AbsolutePath}") ));
+						Write(response,  m_serialization.Serialize(new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Url.AbsolutePath}") ));
 
 					}
 
@@ -165,13 +165,13 @@ namespace R2Core.Network
 
 					// Add header fields from metadata
 					responseObject.Headers?.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
-					response.StatusCode = WebStatusCode.Ok.Raw();
+					response.StatusCode = NetworkStatusCode.Ok.Raw();
 
 				} catch (Exception ex) {
 
 					Log.x(ex);
 
-					response.StatusCode = WebStatusCode.ServerError.Raw();
+					response.StatusCode = NetworkStatusCode.ServerError.Raw();
 
 					responseBody = m_serialization.Serialize(new HttpMessage(new NetworkErrorMessage(ex)));
 

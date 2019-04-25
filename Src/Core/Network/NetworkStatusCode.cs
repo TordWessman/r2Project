@@ -24,7 +24,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Pre-defined message codes for INetworkMessage
 	/// </summary>
-	public enum WebStatusCode : int {
+	public enum NetworkStatusCode : int {
 		
 		/// <summary>
 		/// The code has not yet been set.

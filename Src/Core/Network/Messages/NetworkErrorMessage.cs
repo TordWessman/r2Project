@@ -41,7 +41,7 @@ namespace R2Core.Network
 		/// <param name="requestMessage">Request message sent when the error occured. (if any).</param>
 		public NetworkErrorMessage(Exception ex, INetworkMessage requestMessage = null) {
 			
-			Code = WebStatusCode.ServerError.Raw();
+			Code = NetworkStatusCode.ServerError.Raw();
 			Destination = requestMessage?.Destination;
 			Payload = new NetworkErrorDescription($"Error: {ex.ToString()}. Request: {requestMessage}.");
 

@@ -90,7 +90,6 @@
     <Compile Include="Network\BlockingNetworkStream.cs" />
     <Compile Include="Network\NetworkExtensions.cs" />
     <Compile Include="Network\WebFactory.cs" />
-    <Compile Include="Network\WebStatusCode.cs" />
     <Compile Include="Network\Server\DeviceRouter.cs" />
     <Compile Include="Network\Server\IServer.cs" />
     <Compile Include="Network\Server\IWebEndpoint.cs" />
@@ -129,6 +128,7 @@
     <Compile Include="Settings\Shared.cs">
       <DependentUpon>Shared.tt</DependentUpon>
     </Compile>
+    <Compile Include="Network\NetworkStatusCode.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

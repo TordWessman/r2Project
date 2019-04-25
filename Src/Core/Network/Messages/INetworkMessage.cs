@@ -26,7 +26,7 @@ namespace R2Core.Network
 	public interface INetworkMessage {
 
 		/// <summary>
-		/// Represents a status. See <see cref="WebStatusCode"/> 
+		/// Represents a status. See <see cref="NetworkStatusCode"/> 
 		/// </summary>
 		/// <value>The code.</value>
 		int Code { get; set; }

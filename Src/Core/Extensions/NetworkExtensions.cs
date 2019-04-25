@@ -56,14 +56,14 @@ namespace R2Core.Network
 
 	}
 
-	public static class WebStatusCodeExtensions {
+	public static class NetworkStatusCodeExtensions {
 
 		/// <summary>
 		/// Simplifies the comparation with a status code 
 		/// </summary>
 		/// <returns><c>true</c> if is self rawValue; otherwise, <c>false</c>.</returns>
 		/// <param name="rawValue">Raw value.</param>
-		public static bool HasCode(this INetworkMessage self, WebStatusCode? code) {
+		public static bool HasCode(this INetworkMessage self, NetworkStatusCode? code) {
 
 			return code?.Raw() == self.Code;
 
@@ -74,17 +74,17 @@ namespace R2Core.Network
 		/// </summary>
 		/// <returns><c>true</c> if is self rawValue; otherwise, <c>false</c>.</returns>
 		/// <param name="rawValue">Raw value.</param>
-		public static bool Is(this WebStatusCode self, int? rawValue) {
+		public static bool Is(this NetworkStatusCode self, int? rawValue) {
 
 			return rawValue == (int)self;
 
 		}
 
 		/// <summary>
-		/// Raw(int)value of a ´WebStatusCode´
+		/// Raw(int)value of a ´NetworkStatusCode´
 		/// </summary>
 		/// <param name="self">Self.</param>
-		public static int Raw(this WebStatusCode self) {
+		public static int Raw(this NetworkStatusCode self) {
 
 			return(int)self;
 

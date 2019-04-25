@@ -64,7 +64,7 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					response = new HttpMessage() { Payload = new NetworkErrorDescription() { Message = ex.Message }, Code = WebStatusCode.NetworkError.Raw() };
+					response = new HttpMessage() { Payload = new NetworkErrorDescription() { Message = ex.Message }, Code = NetworkStatusCode.NetworkError.Raw() };
 					exception =  ex;
 				}
 
@@ -136,11 +136,11 @@ namespace R2Core.Network
 
 				if (ex.Status == System.Net.WebExceptionStatus.ProtocolError) {
 				
-					responseObject.Code = WebStatusCode.ServerError.Raw();
+					responseObject.Code = NetworkStatusCode.ServerError.Raw();
 				 
 				} else {
 				
-					responseObject.Code = WebStatusCode.NetworkError.Raw();
+					responseObject.Code = NetworkStatusCode.NetworkError.Raw();
 						
 				}
 				 
@@ -157,7 +157,7 @@ namespace R2Core.Network
 
 			if (response.StatusCode == HttpStatusCode.OK) {
 
-				responseObject.Code = WebStatusCode.Ok.Raw();
+				responseObject.Code = NetworkStatusCode.Ok.Raw();
 
 				if (response.ContentType.ToLower().Contains("text")) {
 					

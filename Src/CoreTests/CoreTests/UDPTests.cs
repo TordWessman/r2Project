@@ -117,7 +117,7 @@ namespace R2Core.Tests
 			var guid = client.Broadcast(new TCPMessage() { Destination = "should not be found" }, (response, error) => {
 				
 				Assert.IsNull(error);
-				Assert.AreEqual(WebStatusCode.NotFound.Raw(), (response.Code));
+				Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), (response.Code));
 				didReceiveResponse = true;
 
 			});
@@ -188,7 +188,7 @@ namespace R2Core.Tests
 				var guid = client.Broadcast(new TCPMessage() { Destination = "should not be found" }, (response, error) => {
 
 					Assert.IsNull(error);
-					Assert.AreEqual(WebStatusCode.NotFound.Raw(), (response.Code));
+					Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), (response.Code));
 					didReceiveResponse = true;
 
 				}, 2000);

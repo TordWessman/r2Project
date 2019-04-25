@@ -37,7 +37,7 @@ namespace R2Core.Network
 		public PingMessage() {
 			
 			Destination = Settings.Consts.PingDestination();
-			Code = WebStatusCode.Ping.Raw();
+			Code = NetworkStatusCode.Ping.Raw();
 		
 		}
 	
@@ -51,7 +51,7 @@ namespace R2Core.Network
 		public PongMessage() {
 			
 			Destination = Settings.Consts.PingDestination();
-			Code = WebStatusCode.Pong.Raw();
+			Code = NetworkStatusCode.Pong.Raw();
 
 		}
 
