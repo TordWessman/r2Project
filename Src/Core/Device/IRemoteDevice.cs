@@ -17,14 +17,29 @@
 //
 //
 using System;
+using R2Core.Network;
 
 namespace R2Core.Device
 {
 	/// <summary>
 	/// Represents a non-local device. 
 	/// </summary>
-	public interface IRemoteDevice : IDevice
-	{
+	public interface IRemoteDevice : IDevice { 
+
+		/// <summary>
+		/// Exposes the underlying network connection
+		/// </summary>
+		/// <value>The connection.</value>
+		INetworkConnection Connection { get; }
+
+		/// <summary>
+		/// Asynchronously access this object (as ´dynamic´). ´callback´ is called when the operation finishes.
+		/// dynamic contains any result. Exception is not null if any error occurred. 
+		/// </summary>
+		/// <param name="callback">Callback.</param>
+		dynamic Async (Action<dynamic, Exception> callback);
+
 	}
+
 }
 

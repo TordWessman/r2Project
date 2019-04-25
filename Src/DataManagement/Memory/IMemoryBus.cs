@@ -25,7 +25,7 @@ using MemoryType = System.String;
 namespace R2Core.DataManagement.Memory
 {
 	/// <summary>
-	/// The IMemoryBus deals with low-level memories (IMemoryReferences).
+	/// The IMemoryBus deals with low-level memories(IMemoryReferences).
 	/// This includes the memory associations of each memory.
 	/// The IMemoryBus should be shared among RobotInstances, and
 	/// there must  be only one non-remote implementation.
@@ -33,13 +33,13 @@ namespace R2Core.DataManagement.Memory
 	public interface IMemoryBus : IDevice
 	{
 		/// <summary>
-		/// Adds a collection of IMemoryReferences to the local (temporary - RAM) memory.
+		/// Adds a collection of IMemoryReferences to the local(temporary - RAM) memory.
 		/// Will omit duplicates.
 		/// </summary>
 		/// <param name='memories'>
 		/// A ICollection<IMemoryReference> to add.
 		/// </param>
-		void AddMemories (ICollection<IMemoryReference> memories);
+		void AddMemories(ICollection<IMemoryReference> memories);
 		
 		/// <summary>
 		/// Creates an association between two IMemoryReferences
@@ -50,7 +50,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='second'>
 		/// Second.
 		/// </param>
-		void AddAssociation (IMemoryReference first, IMemoryReference second);
+		void AddAssociation(IMemoryReference first, IMemoryReference second);
 		
 		/// <summary>
 		/// Gets the associations of memory with a specified id
@@ -62,7 +62,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='memoryId'>
 		/// Memory identifier.
 		/// </param>
-		ICollection<IMemoryReference> GetAssociations (int memoryId);
+		ICollection<IMemoryReference> GetAssociations(int memoryId);
 		
 		/// <summary>
 		/// Gets the IMemoryReference of a specific memory
@@ -73,7 +73,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='memoryId'>
 		/// Memory identifier.
 		/// </param>
-		IMemoryReference GetReference (int memoryId);
+		IMemoryReference GetReference(int memoryId);
 		
 		/// <summary>
 		/// Gets the IMemoryReferences of a specific type
@@ -86,7 +86,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='type'>
 		/// The memory type requested.
 		/// </param>
-		ICollection<IMemoryReference> GetReferences (MemoryType type);
+		ICollection<IMemoryReference> GetReferences(MemoryType type);
 		
 		/// <summary>
 		/// Removes a memory references and its associations from RAM and disk.
@@ -94,10 +94,10 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='memory'>
 		/// The memory reference no remove.
 		/// </param>
-		void RemoveMemory (IMemoryReference memory);
+		void RemoveMemory(IMemoryReference memory);
 		
 		/// <summary>
-		/// Gets the next unique (LOL) memory reference.
+		/// Gets the next unique(LOL) memory reference.
 		/// </summary>
 		/// <value>
 		/// The next memory reference.
@@ -113,7 +113,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='value'>
 		/// The object stored in the short term memory
 		/// </param>
-		void SetShort (string key, object value);
+		void SetShort(string key, object value);
 		
 		/// <summary>
 		/// Gets the short term memory id
@@ -124,9 +124,9 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='key'>
 		/// Key.
 		/// </param>
-		T GetShort<T> (string key);
+		T GetShort<T>(string key);
 		
-		object GetShort (string key);
+		object GetShort(string key);
 		
 		/// <summary>
 		/// Determines whether this instance has the specified short term memory.
@@ -137,11 +137,11 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='key'>
 		/// If set to <c>true</c> key.
 		/// </param>
-		bool HasShort (string key);
-		//IMemoryReference GetReferenceByName (MemoryType type, string name);
+		bool HasShort(string key);
+		//IMemoryReference GetReferenceByName(MemoryType type, string name);
 		
-		//IMemoryReference GetReference (long memoryId);
-		//void RemoveMemories (long[]memoryIds);
+		//IMemoryReference GetReference(long memoryId);
+		//void RemoveMemories(long[]memoryIds);
 	}
 }
 

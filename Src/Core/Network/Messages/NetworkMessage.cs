@@ -21,10 +21,10 @@ using System;
 namespace R2Core.Network
 {
 	/// <summary>
-	/// The default implementaiton of the (intermediate) INetworkMessage implementation.
+	/// The default implementaiton of the(intermediate) INetworkMessage implementation.
 	/// </summary>
-	public struct NetworkMessage: INetworkMessage
-	{
+	public struct NetworkMessage : INetworkMessage {
+		
 		public int Code { get; set; }
 
 		public string Destination { get; set; }
@@ -32,6 +32,35 @@ namespace R2Core.Network
 		public  System.Collections.Generic.IDictionary<string, object> Headers { get; set; }
 
 		public dynamic Payload { get; set; }
+	
+		public override string ToString() {
+
+			return string.Format("[NetworkMessage: Code={0}, Destination={1}, Payload={2}]", Code, Destination, Payload);
+
+		}
+
 	}
+
+	/// <summary>
+	/// It's OK. Don't worry. 
+	/// </summary>
+	public class OkMessage : INetworkMessage {
+	
+		public int Code { get; set; }
+
+		public string Destination { get; set; }
+
+		public System.Collections.Generic.IDictionary<string, object> Headers { get; set; }
+
+		public dynamic Payload { get; set; } 
+
+		public OkMessage() {
+		
+			Code = WebStatusCode.Ok.Raw();
+
+		}
+
+	}
+
 }
 

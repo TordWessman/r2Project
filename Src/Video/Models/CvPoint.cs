@@ -32,18 +32,18 @@ namespace R2Core.Video
 		[System.Runtime.InteropServices.FieldOffset(4)]
 		public int Y;
 
-		public CvPoint (int x, int y) {
-			if (x < 0 || y < 0) { throw new ArgumentException ($"x and y must be > 0 x: {x} y: {y}"); }
+		public CvPoint(int x, int y) {
+			if (x < 0 || y < 0) { throw new ArgumentException($"x and y must be > 0 x: {x} y: {y}"); }
 
 			X = x;
 			Y = y;
 
 		}
 		
-		public CvPoint (string[] vals) {
+		public CvPoint(string[] vals) {
 			
-			X = int.Parse (vals [1]);
-			Y = int.Parse (vals [2]);
+			X = int.Parse(vals [1]);
+			Y = int.Parse(vals [2]);
 
 		}
 

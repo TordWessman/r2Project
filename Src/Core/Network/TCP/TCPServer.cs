@@ -29,8 +29,10 @@ using MessageIdType = System.String;
 
 namespace R2Core.Network
 {
-	public class TCPServer : ServerBase, IServer, INetworkBroadcaster
-	{
+	/// <summary>
+	/// Default implementation for all TCP related traffic.
+	/// </summary>
+	public class TCPServer : ServerBase, IServer, INetworkBroadcaster {
 
 		// Ensure therad safety for connection access
 		private readonly object m_connectionsLock = new object();
@@ -45,32 +47,40 @@ namespace R2Core.Network
 		/// </summary>
 		public const int DefaultBroadcastTimeout = 2000;
 
+		public int Timeout = 30000;
+
 		/// <summary>
 		/// Returns all current connections
 		/// </summary>
 		/// <value>The connections.</value>
 		public IEnumerable<IClientConnection> Connections { get { return m_connections; } }
 
-		public TCPServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id, port)
-		{
+		public TCPServer(string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id, port) {
 
 			m_packageFactory = packageFactory;
-			m_connections = new List<IClientConnection> ();
+			m_connections = new List<IClientConnection>();
 
 		}
 
 		public override bool Ready { get { return ShouldRun && m_listener != null; } }
 
-		public MessageIdType Broadcast (INetworkMessage message, Action<BroadcastMessage, Exception> responseDelegate = null, int timeout = DefaultBroadcastTimeout) {
-		
-			INetworkMessage request = new BroadcastMessage (message);
+		public MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = DefaultBroadcastTimeout) {
 
-			m_connections.AsParallel ().ForAll ((connection) => {
+			m_connections.AsParallel().ForAll((connection) => {
 
 				try {
 				
-					INetworkMessage response = connection.Send(request);
-					if (responseDelegate != null) { responseDelegate(new BroadcastMessage(response, connection.Endpoint), null); }
+					INetworkMessage response = connection.Send(message);
+
+					if (responseDelegate != null) { 
+
+						if (response.IsError()) {
+						
+							responseDelegate(response, new NetworkException(response)); 
+
+						} else { responseDelegate(response, null); }
+
+					}
 
 				} catch (Exception ex) {
 
@@ -99,21 +109,28 @@ namespace R2Core.Network
 		/// </summary>
 		protected override void Service() {
 			
-			m_listener = new TcpListener (IPAddress.Any, Port);
-			m_listener.Start ();
+			m_listener = new TcpListener(IPAddress.Any, Port);
+			m_listener.Start();
 
-			while (ShouldRun) {
+			while(ShouldRun) {
 
 				try {
+						
+					TcpClient client = m_listener.AcceptTcpClient();
+					client.SendTimeout = Timeout;
+					client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+
+					TCPClientConnection connection = 
+						new TCPClientConnection(
+							client.Client.RemoteEndPoint.ToString(), 
+							m_packageFactory,
+							client, 
+							OnReceive);
+					
+					connection.OnDisconnect += OnDisconnect;
 
 					lock(m_connectionsLock) {
 						
-						TcpClient client = m_listener.AcceptTcpClient();
-						client.Client.SetSocketOption (SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-						TCPClientConnection connection = new TCPClientConnection(client.Client.RemoteEndPoint.ToString(), m_packageFactory, client);
-						connection.OnReceive += OnReceive;
-						connection.OnDisconnect += OnDisconnect;
-
 						m_connections.Add(connection);
 						connection.Start();
 
@@ -123,11 +140,11 @@ namespace R2Core.Network
 
 					if (ex.SocketErrorCode != SocketError.Interrupted) {
 						
-						Log.w ($"Connection failure: '{ex.Message}'. Error code: {ex.ErrorCode}. Socket error type: {ex.SocketErrorCode}.");
+						Log.w($"Connection failure: '{ex.Message}'. Error code: {ex.ErrorCode}. Socket error type: {ex.SocketErrorCode}.");
 
 					}
 
-				} catch (Exception ex) { Log.x (ex); }
+				} catch (Exception ex) { Log.x(ex); }
 
 			}
 
@@ -137,21 +154,21 @@ namespace R2Core.Network
 		
 			if (ex != null) { Log.x(ex); }
 
-			lock (m_connectionsLock) {
+			lock(m_connectionsLock) {
 
-				m_connections.Remove (connection);
+				m_connections.Remove(connection);
 
 			}
 
 		}
 
 		private INetworkMessage OnReceive(INetworkMessage request, IPEndPoint address) {
-		
-			IWebEndpoint endpoint = GetEndpoint (request.Destination);
+
+			IWebEndpoint endpoint = GetEndpoint(request.Destination);
 
 			if (endpoint != null) { 
 				
-				var response = endpoint.Interpret (request, address);
+				var response = endpoint.Interpret(request, address);
 				return response;
 
 			} 
@@ -163,18 +180,16 @@ namespace R2Core.Network
 
 		}
 
-		protected override void Cleanup () {
+		protected override void Cleanup() {
 			
-			m_listener.Stop ();
+			m_listener?.Stop();
 			m_listener = null;
 
-			// Avouid conncurrency issues.
+			lock(m_connectionsLock) {
 
-			lock (m_connectionsLock) {
+				m_connections.ToList().ForEach((client) => {
 
-				m_connections.ToList ().ForEach ((client) => {
-
-					client.Stop ();
+					client.Stop();
 
 				});
 

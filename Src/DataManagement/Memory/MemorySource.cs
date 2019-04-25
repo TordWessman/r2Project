@@ -28,8 +28,8 @@ using System.Linq;
 
 namespace R2Core.DataManagement.Memory
 {
-	public class MemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver
-	{
+	public class MemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver {
+		
 		private MemoryFactory m_memoryFactory;
 		private IDeviceManager m_deviceManager;
 		private string m_memoryBusId;
@@ -42,47 +42,43 @@ namespace R2Core.DataManagement.Memory
 				return Bus.Ready && m_dbAdapter.Ready;
 			}}
 		
-		public MemorySource (string id,
+		public MemorySource(string id,
 		                     IDeviceManager deviceManager,
 		                     IDatabase db,
-		                     string memoryBusId) : base (id)
-		{
+		                     string memoryBusId) : base(id) {
 	
-			m_dbAdapter = new MemoryDBAdapter (db);
-			m_memoryFactory = new MemoryFactory (m_dbAdapter);
+			m_dbAdapter = new MemoryDBAdapter(db);
+			m_memoryFactory = new MemoryFactory(m_dbAdapter);
 			m_deviceManager = deviceManager;
 			m_memoryBusId = memoryBusId;
-			m_remoteMemorySources = new List<IMemorySource> ();
+			m_remoteMemorySources = new List<IMemorySource>();
 
-			m_deviceManager.AddObserver (this);
-			//m_server = server;
-			//server.AddObserver (DataPackageType.MemoryRequest, this);
+			m_deviceManager.AddObserver(this);
+
 		}
 
 
 		#region IMemorySource implementation
-		public bool Delete (int memoryId)
-		{
-			IMemory mem = Get (memoryId);
+		public bool Delete(int memoryId) {
 			
-			return Delete (ref mem);
+			IMemory mem = Get(memoryId);
+			
+			return Delete(ref mem);
 
 		}
 
-		public bool Delete (IMemory memory)
-		{
+		public bool Delete(IMemory memory) {
 
-			return Delete (ref memory);
+			return Delete(ref memory);
 
 		}
 		
-		public bool Delete (ref IMemory memory)
-		{
-			AssertBus ();
+		public bool Delete(ref IMemory memory) {
+			AssertBus();
 			
-			if (m_dbAdapter.Delete (memory.Id)) {
+			if (m_dbAdapter.Delete(memory.Id)) {
 				
-				Bus.RemoveMemory (memory.Reference);
+				Bus.RemoveMemory(memory.Reference);
 				
 				memory = null;
 
@@ -90,16 +86,15 @@ namespace R2Core.DataManagement.Memory
 
 			} 
 
-			Log.w ("Unable to delete: " + memory.ToString () + ". Can only delete localy stored memories.");
+			Log.w("Unable to delete: " + memory.ToString() + ". Can only delete localy stored memories.");
 
 			return false;
 
 		}
 		
-		public IMemory Get (int memoryId)
-		{
+		public IMemory Get(int memoryId) {
 
-			IMemoryReference reference = Bus.GetReference (memoryId);
+			IMemoryReference reference = Bus.GetReference(memoryId);
 			
 			if (reference.Id == MemoryReference.NULL_REFERENCE_ID) {
 			
@@ -107,49 +102,45 @@ namespace R2Core.DataManagement.Memory
 			
 			}
 			
-			return m_memoryFactory.CreateMemory (reference, this, true);
+			return m_memoryFactory.CreateMemory(reference, this, true);
 
 		}
 
-		public IMemory Get (string MemoryType) {
+		public IMemory Get(string MemoryType) {
 
 			throw new NotImplementedException();
 
 		}
 
 		
-		public void Associate (IMemory one, IMemory two)
-		{
-			Bus.AddAssociation (one.Reference, two.Reference);
+		public void Associate(IMemory one, IMemory two) {
+			Bus.AddAssociation(one.Reference, two.Reference);
 		}
 		
 		
-		public override void Start ()
-		{
+		public override void Start() {
 			
 			//if (!Bus.Ready) {
-			//	Log.w ("Memory Bus is not ready. Will not send memories.");
+			//	Log.w("Memory Bus is not ready. Will not send memories.");
 			//}
 
-			m_dbAdapter.SetUp ();
+			m_dbAdapter.SetUp();
 			
-			ICollection<IMemoryReference> refs = m_dbAdapter.LoadAll ();
-			Bus.AddMemories (refs);
+			ICollection<IMemoryReference> refs = m_dbAdapter.LoadAll();
+			Bus.AddMemories(refs);
 		}
 		
-		public IMemoryReference Fetch (int memoryId)
-		{
+		public IMemoryReference Fetch(int memoryId) {
 			
-			return Bus.GetReference (memoryId);
-			//return LoadMemory (memoryId);
+			return Bus.GetReference(memoryId);
+			//return LoadMemory(memoryId);
 			
 		}
 		
-		private void AssertBus ()
-		{
-			if (!m_deviceManager.Has (m_memoryBusId)) {
+		private void AssertBus() {
+			if (!m_deviceManager.Has(m_memoryBusId)) {
 
-				throw new InvalidOperationException ("Unable to fetch memory reference. Bus named: " +
+				throw new InvalidOperationException("Unable to fetch memory reference. Bus named: " +
 				
 					m_memoryBusId + " not identified. You must add a MemoryBus to the network."
 				
@@ -163,7 +154,7 @@ namespace R2Core.DataManagement.Memory
 		
 			get {
 			
-				AssertBus ();
+				AssertBus();
 				return m_deviceManager.Get<IMemoryBus> (m_memoryBusId);
 			
 			}
@@ -171,37 +162,34 @@ namespace R2Core.DataManagement.Memory
 		}
 		
 		
-		public IMemory Create (MemoryType type, string name)
-		{
+		public IMemory Create(MemoryType type, string name) {
 			int newId = Bus.NextMemoryReference;
 			
-			IMemoryReference reference = m_memoryFactory.StoreMemoryReference (
+			IMemoryReference reference = m_memoryFactory.StoreMemoryReference(
 				newId, name, type);
 			
-			Bus.AddMemories (new List<IMemoryReference> () {reference});
+			Bus.AddMemories(new List<IMemoryReference>() {reference});
 			
-			return m_memoryFactory.CreateMemory (reference, this, true);
+			return m_memoryFactory.CreateMemory(reference, this, true);
 		}
 		
-		public ICollection<IMemory> GetAssociations (IMemory memory)
-		{
+		public ICollection<IMemory> GetAssociations(IMemory memory) {
 			ICollection<IMemory> memories = new List<IMemory>();
-			foreach (IMemoryReference association in Bus.GetAssociations (memory.Reference.Id)) 
+			foreach (IMemoryReference association in Bus.GetAssociations(memory.Reference.Id)) 
 			{
-				memories.Add (m_memoryFactory.CreateMemory (association, this, true));
+				memories.Add(m_memoryFactory.CreateMemory(association, this, true));
 			}
 				              
 			return memories;
 			
 		}
 		
-		public IMemory Get (MemoryType type, string name)
-		{
+		public IMemory Get(MemoryType type, string name) {
 			foreach (IMemoryReference reference in Bus.GetReferences(type)) {
 
 				if (reference.Value == name) {
 				
-					return m_memoryFactory.CreateMemory (reference, this, true);
+					return m_memoryFactory.CreateMemory(reference, this, true);
 				
 				}
 			
@@ -211,13 +199,12 @@ namespace R2Core.DataManagement.Memory
 
 		}
 		
-		public ICollection<IMemory> All (MemoryType type)
-		{
-			ICollection<IMemory> memories = new List<IMemory> ();
+		public ICollection<IMemory> All(MemoryType type) {
+			ICollection<IMemory> memories = new List<IMemory>();
 
 			foreach (IMemoryReference association in Bus.GetReferences(type)) {
 
-				memories.Add (m_memoryFactory.CreateMemory (association, this, true));
+				memories.Add(m_memoryFactory.CreateMemory(association, this, true));
 
 			}
 				              
@@ -225,9 +212,9 @@ namespace R2Core.DataManagement.Memory
 
 		}
 		
-		public bool Update (IMemory memory) {
+		public bool Update(IMemory memory) {
 
-			Log.e ("Update not implemented. " + memory.Type + " " + memory.Value + " will not be stored.");
+			Log.e("Update not implemented. " + memory.Type + " " + memory.Value + " will not be stored.");
 
 			return false;
 		
@@ -236,25 +223,23 @@ namespace R2Core.DataManagement.Memory
 
 		#region IDeviceManagerObserver implementation
 
-		public void DeviceAdded (IDevice device)
-		{
+		public void DeviceAdded(IDevice device) {
 
 			if (device is IMemorySource) {
 		
-				m_remoteMemorySources.Add (device as IMemorySource);
+				m_remoteMemorySources.Add(device as IMemorySource);
 
 			}
 		
 		}
 
-		public void DeviceRemoved (IDevice device)
-		{
+		public void DeviceRemoved(IDevice device) {
 
 			if (device is IMemorySource) {
 
-				if (m_remoteMemorySources.Contains (device as IMemorySource)) {
+				if (m_remoteMemorySources.Contains(device as IMemorySource)) {
 				
-					m_remoteMemorySources.Remove (device as IMemorySource);
+					m_remoteMemorySources.Remove(device as IMemorySource);
 
 				}
 
@@ -265,20 +250,18 @@ namespace R2Core.DataManagement.Memory
 		#endregion
 
 		/*
-		private IMemoryReference LoadMemory (int memoryId)
-		{
+		private IMemoryReference LoadMemory(int memoryId) {
 			//TODO: check cache
 			// load memory
 			string name = null, type = null;
 	
-			//return m_memoryFactory.Load (memoryId, name,type, this);
+			//return m_memoryFactory.Load(memoryId, name,type, this);
 			
 		}
 		*/
 
-		public ICollection<IMemory> Get (int[] memoryIds)
-		{
-			throw new NotImplementedException ();
+		public ICollection<IMemory> Get(int[] memoryIds) {
+			throw new NotImplementedException();
 		}
 	}
 }

@@ -26,9 +26,9 @@ using System.Linq;
 
 namespace R2Core.Scripting
 {
-	public class PythonScriptFactory: ScriptFactoryBase<IronScript>
-	{
-		//Make sure the IronRuby.Library.dll are included during compilation.
+	public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
+		
+		//Make sure the IronPython.Library.dll are included during compilation.
 		#pragma warning disable 0169
 		private static readonly IronPython.DictionaryTypeInfoAttribute INCLUDE_PYTHON_LIBRARY;
 		private static readonly IronPython.Modules.SysModule.floatinfo INCLUDE_PYTHON_MODULES_LIBRARY;
@@ -37,39 +37,38 @@ namespace R2Core.Scripting
 		private ScriptEngine m_engine;
 		private IDeviceManager m_deviceManager;
 
-		public PythonScriptFactory (string id,	
+		public PythonScriptFactory(string id,	
 			ICollection<string> paths,
-			IDeviceManager deviceManager) : base(id)
-		{
+			IDeviceManager deviceManager) : base(id) {
 			m_deviceManager = deviceManager;
-			m_engine = Python.CreateEngine ();
+			m_engine = Python.CreateEngine();
 		
-			m_engine.SetSearchPaths (paths);
+			m_engine.SetSearchPaths(paths);
 
 		}
 
-		public override IronScript CreateScript (string id) {
+		public override IronScript CreateScript(string id) {
 		
-			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
+			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
 			// Add the factorys source paths to the engines search paths.
-			m_engine.SetSearchPaths (m_engine.GetSearchPaths ().Concat (ScriptSourcePaths).ToList());
+			m_engine.SetSearchPaths(m_engine.GetSearchPaths().Concat(ScriptSourcePaths).ToList());
 
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
-			return new IronScript (id, GetScriptFilePath (id), m_engine, inputParams);
+			return new IronScript(id, GetScriptFilePath(id), m_engine, inputParams);
 
 		}
 
 		public override IScriptInterpreter CreateInterpreter(IronScript script) {
 
-			return new IronScriptInterpreter (script);
+			return new IronScriptInterpreter(script);
 
 		}
 
 		/// <summary>
-		/// Must be overridden. Should return the common extension used by the scripts (i.e: ".lua").
+		/// Must be overridden. Should return the common extension used by the scripts(i.e: ".lua").
 		/// </summary>
 		/// <value>The file extension.</value>
 		protected override string FileExtension { get {return ".py"; } }

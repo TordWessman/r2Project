@@ -19,16 +19,16 @@
 using System;
 using R2Core.Device;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace R2Core.Tests
 {
-	public class DummyDevice: DeviceBase
-	{
+	public class DummyDevice : DeviceBase {
+		
 		private int m_val = 99;
 		private string m_bar = "";
 
-		public DummyDevice (string id): base(id)
-		{
+		public DummyDevice(string id): base(id) {
 		}
 
 		public int Value {get{return m_val;}set{m_val = value;}}
@@ -39,13 +39,26 @@ namespace R2Core.Tests
 		public float GiveMeFooAnd42AndAnObject(string foo, int _42, dynamic anObject) {
 		
 			m_bar = foo;
-			Assert.AreEqual ("Foo", foo);
-			Assert.AreEqual (42, _42);
-			Assert.AreEqual ("Dog", anObject.Cat);
+			Assert.AreEqual("Foo", foo);
+			Assert.AreEqual(42, _42);
+			Assert.AreEqual("Dog", anObject.Cat);
 			return 12.34f;
 
 		}
 
+		public IDictionary<string,string> AddCatToKeysAnd42ToValues(IDictionary<string, string> dictionary) {
+
+			IDictionary<string,string> result = new Dictionary<string, string>();
+
+			foreach (var kvp in dictionary) {
+			
+				result [kvp.Key + "Cat"] = $"{kvp.Value}42";
+			
+			}
+
+			return result;
+
+		}
 
 		public void NoParamsNoNothing() {
 		}

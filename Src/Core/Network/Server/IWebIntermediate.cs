@@ -26,8 +26,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Implementations might i.e. be capable of transcribing data between the server and the sub system parser.
 	/// </summary>
-	public interface IWebIntermediate : INetworkMessage
-	{
+	public interface IWebIntermediate : INetworkMessage {
 
 		/// <summary>
 		/// Adds a metadata field to this object.
@@ -39,7 +38,7 @@ namespace R2Core.Network
 		/// <summary>
 		/// Converts data to CLR typed format.
 		/// </summary>
-		void CLRConvert ();
+		void CLRConvert();
 
 	}
 

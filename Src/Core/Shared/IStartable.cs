@@ -20,10 +20,11 @@ using System;
 
 namespace R2Core.Device
 {
-	public interface IStartable
-	{
+	public interface IStartable {
+		
 		void Start();
 		
 	}
+
 }
 

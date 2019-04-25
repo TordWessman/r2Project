@@ -28,32 +28,9 @@ using R2Core.Scripting;
 
 namespace R2Core.Tests
 {
-	class DummyReceiver: IWebObjectReceiver {
 
-		public IWebIntermediate Response;
-
-		public INetworkMessage OnReceive (INetworkMessage input, IPEndPoint endpoint = null) {
+	public class NetworkTests : TestBase {
 		
-			Assert.AreEqual ("Bar", input.Payload.Foo);
-			Assert.AreEqual (42, input.Payload.Bar);
-			Assert.AreEqual ("InputFooBar", input.Headers ["InputBaz"]);
-			Response.AddMetadata ("Baz", "FooBar");
-
-			return Response;
-
-		}
-
-	}
-
-	class DummyInput {
-	
-		public string Foo = "Bar";
-		public int Bar = 42;
-	}
-
-
-	public class NetworkTests: TestBase
-	{
 		protected ISerialization serialization;
 
 		protected WebFactory factory;
@@ -61,12 +38,12 @@ namespace R2Core.Tests
 		[TestFixtureSetUp]
 		public override void Setup() {
 		
-			base.Setup ();
-			serialization = new JsonSerialization ("serializer", System.Text.Encoding.UTF8);
-			factory = new WebFactory ("wf", serialization);
+			base.Setup();
+			serialization = new JsonSerialization("serializer", System.Text.Encoding.UTF8);
+			factory = new WebFactory("wf", serialization);
 
-			DummyDevice d = new DummyDevice ("dummy_device");
-			m_deviceManager.Add (d);
+			DummyDevice d = new DummyDevice("dummy_device");
+			m_deviceManager.Add(d);
 
 		}
 

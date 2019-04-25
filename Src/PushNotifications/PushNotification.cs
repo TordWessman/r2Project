@@ -23,20 +23,18 @@ namespace R2Core.PushNotifications
 	/// <summary>
 	/// Generic Push notification message
 	/// </summary>
-	public class PushNotification : IPushNotification
-	{
+	public class PushNotification : IPushNotification {
 
-		public PushNotification (string message)
-		{
+		public PushNotification(string message) {
 
 			Message = message;
-			Metadata = new System.Collections.Generic.Dictionary<string, object> ();
+			Metadata = new System.Collections.Generic.Dictionary<string, object>();
 
 		}
 
-		internal void AddClientType (PushNotificationClientType type) { ClientTypeMask |= (int)type; }
+		internal void AddClientType(PushNotificationClientType type) { ClientTypeMask |= (int)type; }
 
-		public void AddMetadata (string key, object value) { Metadata [key] = value; }
+		public void AddMetadata(string key, object value) { Metadata [key] = value; }
 
 		#region IPushNotification implementation
 

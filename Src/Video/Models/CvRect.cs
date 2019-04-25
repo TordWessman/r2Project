@@ -36,17 +36,17 @@ namespace R2Core.Video
 		
 		public CvPoint Center { get { return new CvPoint(X + Width / 2, Y + Height / 2); }}
 		
-		public CvRect (string[]vals) {
+		public CvRect(string[]vals) {
 			
-			this = new CvRect () {X = int.Parse (vals [1]), Y = int.Parse (vals [2]), Width = int.Parse (vals [3]), Height =  int.Parse (vals [4])};
+			this = new CvRect() {X = int.Parse(vals [1]), Y = int.Parse(vals [2]), Width = int.Parse(vals [3]), Height =  int.Parse(vals [4])};
 
 		}
 
-		public CvRect (int x, int y, int width, int height) {
+		public CvRect(int x, int y, int width, int height) {
 			
-			if (x < 0 || y < 0) { throw new ArgumentException ($"x and y must be > 0 x: {x} y: {y}"); }
+			if (x < 0 || y < 0) { throw new ArgumentException($"x and y must be > 0 x: {x} y: {y}"); }
 			
-			if (width < 0 || height < 0) { throw new ArgumentException ($"width and height must be > 0 width: {width} height: {height}"); }
+			if (width < 0 || height < 0) { throw new ArgumentException($"width and height must be > 0 width: {width} height: {height}"); }
 
 			this.X = x;
 			this.Y = y;
@@ -55,13 +55,13 @@ namespace R2Core.Video
 
 		}
 		
-		public CvSize Size { get { return new CvSize (Width, Height); } }
+		public CvSize Size { get { return new CvSize(Width, Height); } }
 		
-		public CvPoint Position { get { return new CvPoint (X, Y); } }
+		public CvPoint Position { get { return new CvPoint(X, Y); } }
 		
 		public bool IsEmpty { get { return !(X == 0 && Y == 0 && Width == 0 && Height == 0); } }
 
-		public void BindTo (int maxWidth, int maxHeight) {
+		public void BindTo(int maxWidth, int maxHeight) {
 
 			X = X < 0 ? X : X > maxWidth ? X = maxWidth : X;
 			Y = Y < 0 ? Y : Y > maxHeight ? Y = maxHeight : Y;

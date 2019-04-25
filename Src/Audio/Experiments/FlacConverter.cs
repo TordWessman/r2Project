@@ -32,14 +32,13 @@ namespace R2Core.Audio.ASR
 
 		private string m_scriptFile;
 		
-		public FlacConverter (string scriptName = DEFAULT_SCRIPT_NAME)
-		{
-			m_proc = new System.Diagnostics.Process ();
+		public FlacConverter(string scriptName = DEFAULT_SCRIPT_NAME) {
+			m_proc = new System.Diagnostics.Process();
 			
 			m_proc.EnableRaisingEvents = false;
 			
-			if (!System.IO.File.Exists (scriptName)) {
-				throw new ArgumentException ("Script: " + scriptName + " does not exist!");
+			if (!System.IO.File.Exists(scriptName)) {
+				throw new ArgumentException("Script: " + scriptName + " does not exist!");
 			}
 			
 			m_scriptFile = scriptName;
@@ -51,20 +50,19 @@ namespace R2Core.Audio.ASR
 			
 		}
 		
-		public void Convert (string inputRawAudioFile,
-		                     string outputFlacAudioFile)
-		{
+		public void Convert(string inputRawAudioFile,
+		                     string outputFlacAudioFile) {
 			
-			m_proc.StartInfo.Arguments = string.Format (COMMAND_STRING,
+			m_proc.StartInfo.Arguments = string.Format(COMMAND_STRING,
 			                         					m_scriptFile,
 			                                            inputRawAudioFile,
 			                                            outputFlacAudioFile);
 			
-			m_proc.Start ();
-			m_proc.WaitForExit ();
+			m_proc.Start();
+			m_proc.WaitForExit();
 			
 			if (m_proc.ExitCode != 0) {
-				throw new ApplicationException ("Conversion failed: " + m_proc.ExitCode);
+				throw new ApplicationException("Conversion failed: " + m_proc.ExitCode);
 			}
 
 		}

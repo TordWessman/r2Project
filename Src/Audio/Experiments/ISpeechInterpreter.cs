@@ -24,7 +24,7 @@ namespace R2Core.Audio.ASR
 	public interface ISpeechInterpreter : ILanguageUpdated, IDevice
 	{
 		string GetReply(string question);
-		bool KnowReply (string question);
+		bool KnowReply(string question);
 	}
 }
 

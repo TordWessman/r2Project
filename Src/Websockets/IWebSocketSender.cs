@@ -27,16 +27,15 @@ namespace R2Core.Network
 	/// </summary>
 	public interface IWebSocketSenderDelegate {
 	
-		void OnSend (byte[] data);
+		void OnSend(byte[] data);
 
 	}
 
 	/// <summary>
 	/// Implementations are used for transmitting data to web socket clients.
 	/// </summary>
-	public interface IWebSocketSender: IDevice
-	{
-
+	public interface IWebSocketSender : IDevice {
+		
 		IWebSocketSenderDelegate Delegate { get; set; }
 		void Send(dynamic outputObject);
 

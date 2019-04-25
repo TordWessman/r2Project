@@ -11,7 +11,6 @@ namespace R2Core {
         /// Returns all references that is null.
         /// </summary>
         /// <returns>The empty.</returns>
-        /// <param name="self">Self.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
        public static List<WeakReference<T>> RemoveEmpty<T>(this List<WeakReference<T>> self) where T: class {
 
@@ -26,7 +25,6 @@ namespace R2Core {
         /// <summary>
         /// Executes block(T) with each unwrapped non-null object contained in the squence.
         /// </summary>
-        /// <param name="self">Self.</param>
         /// <param name="block">Block.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
         public static void Sequential<T>(this IEnumerable<WeakReference<T>> self, Action<T> block) where T : class {
@@ -48,12 +46,11 @@ namespace R2Core {
         /// <summary>
         /// Asynchronously executes block(T) in parallell with each unwrapped non-null object contained in the squence.
         /// </summary>
-        /// <param name="self">Self.</param>
-        /// <param name="block">Block.</param>
+        /// <param name="block">Block to be executed for each object.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
         public static Task InParallell<T>(this IEnumerable<WeakReference<T>> self, Action<T> block) where T : class {
 
-            lock (self) {
+            lock(self) {
 
                 List<WeakReference<T>> list = new List<WeakReference<T>>(self);
 
@@ -67,7 +64,7 @@ namespace R2Core {
 
 							try { block(obj); }
 							catch(Exception ex) {
-							
+
 								Log.x(ex);
 								throw ex;
 
@@ -83,7 +80,12 @@ namespace R2Core {
 
         }
 
-        public static T GetTarget<T>(this WeakReference<T> self) where T : class {
+		/// <summary>
+		/// Returns the contained object or null.
+		/// </summary>
+		/// <returns>The target.</returns>
+		/// <typeparam name="T">The 1st type parameter.</typeparam>
+        public static T GetTarget<T>(this WeakReference<T>self) where T : class {
 
             T obj;
 

@@ -21,33 +21,31 @@ using R2Core.Device;
 
 namespace R2Core.Video
 {
-	public class VideoFactory: DeviceBase
-	{
+	public class VideoFactory : DeviceBase {
 		
-		public VideoFactory (string id) : base (id)
-		{
+		public VideoFactory(string id) : base(id) {
 		}
 
-		public CvRect CreateRect (int x, int y, int width, int height) {
+		public CvRect CreateRect(int x, int y, int width, int height) {
 
-			return new CvRect () { X = x, Y = y, Width = width, Height = height };
+			return new CvRect() { X = x, Y = y, Width = width, Height = height };
 
 		}
-		public CvSize CreateSize (int width, int height) {
+		public CvSize CreateSize(int width, int height) {
 
-			return new CvSize () {Width = width, Height = height };
+			return new CvSize() {Width = width, Height = height };
 
 		}
 
 		public HaarOperations CreateHaarOperator(string id, string basePath = null) {
 
-			return new HaarOperations (id, basePath);
+			return new HaarOperations(id, basePath);
 
 		}
 
 		public CvCamera CreateCamera(string id,int width = 0, int height = 0, int cameraId = 0, int skipFrames = CvCamera.SkipFrames) {
 		
-			return new CvCamera (id, width, height, cameraId, skipFrames);
+			return new CvCamera(id, width, height, cameraId, skipFrames);
 
 		}
 

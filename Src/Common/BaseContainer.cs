@@ -37,8 +37,7 @@ namespace R2Core.Common
 	/// The BaseContainer ccontains some functionality shared by all 
 	/// projects
 	/// </summary>
-	public class BaseContainer : DeviceBase
-	{
+	public class BaseContainer : DeviceBase {
 
 		private IDeviceManager m_devices;
 		private ITaskMonitor m_taskMonitor;
@@ -54,9 +53,9 @@ namespace R2Core.Common
 		public static IList<string> RubyPaths {
 		
 			get {
-				var rubyPaths = Settings.Consts.RubyPaths ().Split (new char[] { ';' }).ToList ();
-				rubyPaths.Add (Settings.Paths.Common ());
-				rubyPaths.Add (Settings.Paths.Python ());
+				var rubyPaths = Settings.Consts.RubyPaths().Split(new char[] { ';' }).ToList();
+				rubyPaths.Add(Settings.Paths.Common());
+				rubyPaths.Add(Settings.Paths.Python());
 				return rubyPaths;
 			}
 		}
@@ -64,98 +63,96 @@ namespace R2Core.Common
 		public static IList<string> PythonPaths {
 
 			get {
-				var pythonPaths = Settings.Consts.PythonPaths ().Split (new char[] { ';' }).ToList ();
-				pythonPaths.Add (Settings.Paths.Common ());
-				pythonPaths.Add (Settings.Paths.Python ());
+				var pythonPaths = Settings.Consts.PythonPaths().Split(new char[] { ';' }).ToList();
+				pythonPaths.Add(Settings.Paths.Common());
+				pythonPaths.Add(Settings.Paths.Python());
 				return pythonPaths;
 			}
 		}
 
 		public IDeviceManager GetDeviceManager() { return m_devices; }
 
-		public BaseContainer (string dbFile, int tcpPort = -1) : base (Settings.Identifiers.Core())
-		{
+		public BaseContainer(string dbFile, int tcpPort = -1) : base(Settings.Identifiers.Core()) {
 
-			m_taskMonitor = new SimpleTaskMonitor (Settings.Identifiers.TaskMonitor());
+			m_taskMonitor = new SimpleTaskMonitor(Settings.Identifiers.TaskMonitor());
 
 			//Set up logging
-			SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger (Settings.Identifiers.ConsoleLogger (), Settings.Consts.MaxConsoleHistory());
-			consoleLogger.Start ();
-			Log.Instantiate(Settings.Identifiers.Logger ());
+			SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger(Settings.Identifiers.ConsoleLogger(), Settings.Consts.MaxConsoleHistory());
+			consoleLogger.Start();
+			Log.Instantiate(Settings.Identifiers.Logger());
 
-			Log.Instance.AddLogger (consoleLogger);
-			Log.Instance.AddLogger (new FileLogger(Settings.Identifiers.FileLogger(), Settings.Consts.FileLoggerDefaultFile()));
+			Log.Instance.AddLogger(consoleLogger);
+			Log.Instance.AddLogger(new FileLogger(Settings.Identifiers.FileLogger(), Settings.Consts.FileLoggerDefaultFile()));
 
 			// contains and manages all devices
-			m_devices = new DeviceManager (Settings.Identifiers.DeviceManager ());
+			m_devices = new DeviceManager(Settings.Identifiers.DeviceManager());
 
 			// Creating a device factory used for the creation of yet uncategorized devices...
-			m_deviceFactory = new DeviceFactory (Settings.Identifiers.DeviceFactory(), m_devices);
+			m_deviceFactory = new DeviceFactory(Settings.Identifiers.DeviceFactory(), m_devices);
 
-			m_devices.Add (m_taskMonitor);
-			m_devices.Add (Settings.Instance);
-			m_devices.Add (consoleLogger);
-			m_devices.Add (Log.Instance);
-			m_devices.Add (this);
+			m_devices.Add(m_taskMonitor);
+			m_devices.Add(Settings.Instance);
+			m_devices.Add(consoleLogger);
+			m_devices.Add(Log.Instance);
+			m_devices.Add(this);
 
 			var psf = new PythonScriptFactory(Settings.Identifiers.PythonScriptFactory(), PythonPaths, m_devices);
 
 			// Point to the defauult ruby script files resides.
-			psf.AddSourcePath (Settings.Paths.Python());
+			psf.AddSourcePath(Settings.Paths.Python());
 			// Point to the common folder.
-			psf.AddSourcePath (Settings.Paths.Common ());
+			psf.AddSourcePath(Settings.Paths.Common());
 
-			m_devices.Add (psf);
+			m_devices.Add(psf);
 
-			m_scriptFactory = new RubyScriptFactory (
+			m_scriptFactory = new RubyScriptFactory(
 				Settings.Identifiers.RubyScriptFactory(),
 				RubyPaths,
 			    m_devices);
 
 			// Point to the defauult ruby script files resides.
-			m_scriptFactory.AddSourcePath (Settings.Paths.Ruby ());
+			m_scriptFactory.AddSourcePath(Settings.Paths.Ruby());
 
 			// Point to the common folder.
-			m_scriptFactory.AddSourcePath (Settings.Paths.Common ());
+			m_scriptFactory.AddSourcePath(Settings.Paths.Common());
 
 			// The run loop script must meet the method requirements of the InterpreterRunLoop.
-			IronScript runLoopScript = psf.CreateScript (Settings.Identifiers.RunLoopScript());
+			IronScript runLoopScript = psf.CreateScript(Settings.Identifiers.RunLoopScript());
 
-			IScriptInterpreter runLoopInterpreter = m_scriptFactory.CreateInterpreter (runLoopScript);
+			IScriptInterpreter runLoopInterpreter = m_scriptFactory.CreateInterpreter(runLoopScript);
 
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
-			m_runLoop = new InterpreterRunLoop (Settings.Identifiers.RunLoop (), runLoopInterpreter, consoleLogger);
-			var dataFactory = m_deviceFactory.CreateDataFactory (Settings.Identifiers.DataFactory(), new List<string> () {Settings.Paths.Databases()});
+			m_runLoop = new InterpreterRunLoop(Settings.Identifiers.RunLoop(), runLoopInterpreter, consoleLogger);
+			var dataFactory = m_deviceFactory.CreateDataFactory(Settings.Identifiers.DataFactory(), new List<string>() {Settings.Paths.Databases()});
 
 			// Set up database and memory
-			m_db = new SqliteDatabase (Settings.Identifiers.Database(), dbFile);
-			m_memory = new SharedMemorySource (Settings.Identifiers.Memory(), m_devices, m_db);
+			m_db = new SqliteDatabase(Settings.Identifiers.Database(), dbFile);
+			m_memory = new SharedMemorySource(Settings.Identifiers.Memory(), m_devices, m_db);
 
 			var serializer = new JsonSerialization(Settings.Identifiers.Serializer(), System.Text.Encoding.UTF8);
 
 			// Creating a web factory used to create http/websocket related endpoints etc.
-			WebFactory httpFactory = m_deviceFactory.CreateWebFactory (Settings.Identifiers.WebFactory(), serializer);
+			WebFactory httpFactory = m_deviceFactory.CreateWebFactory(Settings.Identifiers.WebFactory(), serializer);
 
 			// Add devices to device manager
 			m_devices.Add(runLoopScript);
-			m_devices.Add (m_runLoop);
-			m_devices.Add (httpFactory);
-			m_devices.Add (dataFactory);
-			m_devices.Add (m_memory);
-			m_devices.Add (m_db);
-			m_devices.Add (m_scriptFactory);
-			m_devices.Add (m_deviceFactory);
-			m_taskMonitor.AddMonitorable (runLoopScript);
+			m_devices.Add(m_runLoop);
+			m_devices.Add(httpFactory);
+			m_devices.Add(dataFactory);
+			m_devices.Add(m_memory);
+			m_devices.Add(m_db);
+			m_devices.Add(m_scriptFactory);
+			m_devices.Add(m_deviceFactory);
+			m_taskMonitor.AddMonitorable(runLoopScript);
 
 		}
 
-		public void RemoveScript (IScript script)
-		{
+		public void RemoveScript(IScript script) {
 
-			if (m_devices.Has (script.Identifier)) {
+			if (m_devices.Has(script.Identifier)) {
 			
-				m_devices.Remove (script.Identifier);
-				m_taskMonitor.RemoveMonitorable (script);
+				m_devices.Remove(script.Identifier);
+				m_taskMonitor.RemoveMonitorable(script);
 			
 			}
 		
@@ -163,34 +160,31 @@ namespace R2Core.Common
 
 		public void RunLoop() {
 		
-			m_runLoop.Start ();
+			m_runLoop.Start();
 
 		}
 
-		public override void Start ()
-		{
+		public override void Start() {
 
-			m_taskMonitor.Start ();
+			m_taskMonitor.Start();
 			
-			m_db.Start ();
+			m_db.Start();
 			m_memory.Start();
 		
-			Log.d ("BaseContainer initialized");
+			Log.d("BaseContainer initialized");
 
 		}
 
-		public override void Stop ()
-		{
+		public override void Stop() {
 
-			Log.d ("Stopping base container.");
-			m_devices.Stop (new IDevice[]{this});
+			Log.d("Stopping base container.");
+			m_devices.Stop(new IDevice[]{this});
 
 		}
 
-		public static void Rest (int milliseconds)
-		{
+		public static void Rest(int milliseconds) {
 
-			new System.Threading.ManualResetEvent (false).WaitOne (milliseconds);
+			new System.Threading.ManualResetEvent(false).WaitOne(milliseconds);
 
 		}
 	}

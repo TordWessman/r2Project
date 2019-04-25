@@ -20,14 +20,14 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	internal class SerialServo: SerialDeviceBase<byte[]>, IServo
-	{
+	internal class SerialServo: SerialDeviceBase<byte[]>, IServo {
+		
 		private byte m_port;
 		private float m_value;
 
 		internal SerialServo  (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
 
-			m_port = (byte) port;
+			m_port = (byte)port;
 		
 		}
 
@@ -42,7 +42,7 @@ namespace R2Core.GPIO
 			set {
 
 				m_value = value;
-				Host.Set (DeviceId, NodeId, (int) value);
+				Host.Set(DeviceId, NodeId, (int)value);
 
 			}
 

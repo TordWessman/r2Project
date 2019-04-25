@@ -28,7 +28,7 @@ namespace R2Core.Device
 	public interface IDeviceContainer {
 	
 		/// <summary>
-		/// Return all devices (local & remote)
+		/// Return all devices(local & remote)
 		/// </summary>
 		/// <value>The devices.</value>
 		IEnumerable<IDevice> Devices { get; }
@@ -44,9 +44,12 @@ namespace R2Core.Device
 	/// <summary>
 	/// A devcie manager is respnsible for keepin track of all available IDevices
 	/// </summary>
-	public interface IDeviceManager: IDevice, IDeviceObserver, IDeviceContainer
-	{
-		
+	public interface IDeviceManager : IDevice, IDeviceObserver, IDeviceContainer {
+
+		/// <summary>
+		/// Add a ´IDevice´ to the container.
+		/// </summary>
+		/// <param name="device">Device.</param>
 		void Add(IDevice device);
 
 		/// <summary>
@@ -60,7 +63,7 @@ namespace R2Core.Device
 		/// Returns a device with the specified identifier or null.
 		/// </summary>
 		/// <param name="identifier">Identifier.</param>
-		dynamic Get (string identifier);
+		dynamic Get(string identifier);
 
 		/// <summary>
 		/// Returns a device with the specified Guid.
@@ -68,26 +71,26 @@ namespace R2Core.Device
 		/// <returns>The by GUID.</returns>
 		/// <param name="guid">GUID.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		T GetByGuid<T> (Guid guid);
+		T GetByGuid<T>(Guid guid);
 
 		/// <summary>
 		/// Returns true if a device with the specified identifier exists
 		/// </summary>
 		/// <returns><c>true</c> if this instance has identifier; otherwise, <c>false</c>.</returns>
 		/// <param name="identifier">Identifier.</param>
-		bool Has (string identifier);
+		bool Has(string identifier);
 
 		/// <summary>
 		/// Removes an IDevice with the specified identifier and notifies other hosts about the removal.
 		/// </summary>
 		/// <param name="identifier">Identifier.</param>
-		void Remove (string identifier);
+		void Remove(string identifier);
 
 		/// <summary>
 		/// Adds an IDeviceManagerObserver which will be notified if a device is added or removed.
 		/// </summary>
 		/// <param name="observer">Observer.</param>
-		void AddObserver (IDeviceManagerObserver observer);
+		void AddObserver(IDeviceManagerObserver observer);
 
 		/// <summary>
 		/// Sends stop signal to all local devices. Use optional ignoreDevice in order to exclude devices from being stopped

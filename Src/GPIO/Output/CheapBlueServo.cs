@@ -29,9 +29,8 @@ namespace R2Core.GPIO
 
 		//private float m_denominator;
 		
-		public CheapBlueServo (string id, int channel, IServoController controller) :
-			base ( id,channel, controller)
-		{
+		public CheapBlueServo(string id, int channel, IServoController controller) :
+			base( id,channel, controller) {
 		
 		}
 		

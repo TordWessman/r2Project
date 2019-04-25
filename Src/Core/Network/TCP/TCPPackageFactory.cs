@@ -26,36 +26,13 @@ using System.IO;
 
 namespace R2Core.Network
 {
-	internal static class StreamExtensions {
 	
-		public static byte[] Read(this Stream self, int size) {
-
-			byte[] buff = new byte[size];
-
-			if (size != self.Read (buff, 0, size)) {
-			
-				throw new IOException ($"Unable to read {size} bytes from stream");
-
-			}
-
-			return buff;
-
-		}
-
-		public static int ReadInt(this Stream self, int? size = null) {
+	public class TCPPackageFactory : ITCPPackageFactory<TCPMessage> {
 		
-			return new Int32Converter( Read (self, size ?? Int32Converter.ValueSize)).Value;
-		
-		}
-
-	}
-
-	public class TCPPackageFactory: ITCPPackageFactory<TCPMessage>
-	{
 		/// <summary>
 		/// Defines the data types which are transmittable
 		/// </summary>
-		public enum PayloadType: int {
+		public enum PayloadType : int {
 
 			// No payload
 			None = 0,
@@ -75,7 +52,7 @@ namespace R2Core.Network
 
 		private ISerialization m_serialization;
 
-		public TCPPackageFactory (ISerialization serialization) {
+		public TCPPackageFactory(ISerialization serialization) {
 
 			m_serialization = serialization;
 
@@ -88,7 +65,7 @@ namespace R2Core.Network
 		/// <param name="message">Message.</param>
 		public static PayloadType GetPayloadType(INetworkMessage message) {
 		
-			if (!Object.ReferenceEquals (message.Payload, null)) {
+			if (!Object.ReferenceEquals(message.Payload, null)) {
 			
 				if (message.Payload is byte[]) {
 
@@ -112,25 +89,25 @@ namespace R2Core.Network
 
 		public byte[] SerializeMessage(TCPMessage message) {
 		
-			byte[] code = new Int32Converter (message.Code).GetContainedBytes(2);
-			byte[] path = m_serialization.Encoding.GetBytes (message.Destination ?? "");
-			byte[] headerData = message.Headers != null ? m_serialization.Serialize (message.Headers) : new byte[0];
+			byte[] code = new Int32Converter(message.Code).GetContainedBytes(2);
+			byte[] path = m_serialization.Encoding.GetBytes(message.Destination ?? "");
+			byte[] headerData = message.Headers != null ? m_serialization.Serialize(message.Headers) : new byte[0];
 			byte[] payloadData = new byte[0];
 			byte[] payloadDataType = new byte[0];
 
-			PayloadType payloadType = GetPayloadType (message);
+			PayloadType payloadType = GetPayloadType(message);
 
 			if (payloadType == PayloadType.Bytes) { payloadData = message.Payload as byte[]; }
-			else if (payloadType == PayloadType.String) { payloadData = m_serialization.Encoding.GetBytes (message.Payload); }
-			else if (payloadType == PayloadType.Dynamic) { payloadData =  m_serialization.Serialize (message.Payload); }
+			else if (payloadType == PayloadType.String) { payloadData = m_serialization.Encoding.GetBytes(message.Payload); }
+			else if (payloadType == PayloadType.Dynamic) { payloadData =  m_serialization.Serialize(message.Payload); }
 
-			payloadDataType = new Int32Converter ((int)payloadType).GetContainedBytes (2);
+			payloadDataType = new Int32Converter((int)payloadType).GetContainedBytes(2);
 
-			byte[] pathSize = new Int32Converter (path.Length).Bytes; 
-			byte[] payloadSize = new Int32Converter (payloadData.Length).Bytes;
-			byte[] headerSize = new Int32Converter (headerData.Length).Bytes;
+			byte[] pathSize = new Int32Converter(path.Length).Bytes; 
+			byte[] payloadSize = new Int32Converter(payloadData.Length).Bytes;
+			byte[] headerSize = new Int32Converter(headerData.Length).Bytes;
 
-			return CreateRawPackage (code, pathSize, headerSize, payloadSize, path, headerData, payloadDataType, payloadData);
+			return CreateRawPackage(code, pathSize, headerSize, payloadSize, path, headerData, payloadDataType, payloadData);
 		
 		}
 
@@ -138,7 +115,7 @@ namespace R2Core.Network
 		
 			if (message.PayloadType == PayloadType.Dynamic) {
 			
-				return m_serialization.Deserialize (message.Payload);
+				return m_serialization.Deserialize(message.Payload);
 					
 			} else if (message.PayloadType == PayloadType.String) {
 			
@@ -152,15 +129,15 @@ namespace R2Core.Network
 
 		public TCPMessage DeserializePackage(Stream stream) {
 			
-			int code = stream.ReadInt (2);
-			int destinationSize = stream.ReadInt ();
-			int headerSize = stream.ReadInt ();
-			int payloadSize = stream.ReadInt ();
-			byte[] destination = destinationSize > 0 ? stream.Read (destinationSize) : new byte[0];
-			byte[] headers = headerSize > 0 ? stream.Read (headerSize) : new byte[0];
-			int pt = stream.ReadInt (2);
+			int code = stream.ReadInt(2);
+			int destinationSize = stream.ReadInt();
+			int headerSize = stream.ReadInt();
+			int payloadSize = stream.ReadInt();
+			byte[] destination = destinationSize > 0 ? stream.Read(destinationSize) : new byte[0];
+			byte[] headers = headerSize > 0 ? stream.Read(headerSize) : new byte[0];
+			int pt = stream.ReadInt(2);
 			PayloadType payloadType = (PayloadType)pt;
-			byte[] payloadData = stream.Read (payloadSize);
+			byte[] payloadData = stream.Read(payloadSize);
 
 			dynamic payload;
 
@@ -178,9 +155,9 @@ namespace R2Core.Network
 
 			}
 
-			return new TCPMessage () { 
-				Destination = m_serialization.Encoding.GetString (destination),
-				Headers = m_serialization.Deserialize (headers),
+			return new TCPMessage() { 
+				Destination = m_serialization.Encoding.GetString(destination),
+				Headers = m_serialization.Deserialize(headers),
 				Payload = payload,
 				Code = code,
 				PayloadType = payloadType
@@ -206,7 +183,7 @@ namespace R2Core.Network
 
 				if (dataset != null) {
 				
-					Array.Copy (dataset, 0, data, position, dataset.Length);
+					Array.Copy(dataset, 0, data, position, dataset.Length);
 					position += dataset.Length;
 
 				}

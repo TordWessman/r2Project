@@ -24,14 +24,15 @@ using System.Linq;
 using System.Threading;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Timers;
 
 namespace R2Core.Network
 {
 	/// <summary>
 	/// TCP transceiver.
 	/// </summary>
-	public class TCPClient: DeviceBase, IMessageClient
-	{
+	public class TCPClient : DeviceBase, IMessageClient {
+		
 		string m_host;
 		int m_port;
 		private TcpClient m_client;
@@ -43,11 +44,18 @@ namespace R2Core.Network
 		private AutoResetEvent m_writeLock;
 		private AutoResetEvent m_readLock;
 
+		private IList<WeakReference<IMessageClientObserver>> m_observers;
+
 		// Contains the latest previous response
-		TCPMessage m_latestResponse;
+		private TCPMessage m_latestResponse;
 
 		// Contains an Exception from the Received if thrown there.
-		Exception m_readError;
+		private Exception m_readError;
+
+		// Makes sure the connection is alive
+		private PingService m_ping;
+
+		private System.Timers.Timer m_connectionCheckTimer;
 
 		/// <summary>
 		/// Timeout in ms before a send operation dies.
@@ -59,27 +67,26 @@ namespace R2Core.Network
         /// </summary>
 		public IDictionary<string, object> Headers;
 
-		public IList<WeakReference<IMessageClientObserver>> m_observers;
-
 		public TCPClient(string id, ITCPPackageFactory<TCPMessage> serializer, string host, int port) : base(id) {
 
 			m_host = host;
 			m_port = port;
 			m_serializer = serializer;
-			m_observers = new List<WeakReference<IMessageClientObserver>> ();
+			m_observers = new List<WeakReference<IMessageClientObserver>>();
 
 		}
 
 		~TCPClient() {
 		
-			Stop ();
-			m_receiverTask?.Dispose ();
+			Log.d($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
+			Stop();
+			m_receiverTask?.Dispose();
 
 		}
 
-		public string Host { get { return m_host; } }
+		public string Address { get { return m_host; } }
 		public int Port { get { return m_port; } }
-		public override bool Ready { get { return m_shouldRun && m_client?.Connected == true; } }
+		public override bool Ready { get { return m_shouldRun && m_client?.IsConnected() == true; } }
 
         public override void Start() {
 		
@@ -87,21 +94,40 @@ namespace R2Core.Network
 			m_shouldRun = true;
             m_client = new TcpClient();
             m_client.SendTimeout = Timeout;
-			m_client.Connect (m_host, m_port);
+			m_client.Client.Blocking = true;
+			m_client.Connect(m_host, m_port);
 			m_receiverTask = Receive();
+			m_ping = new PingService(this, Timeout);
+
+			m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
+			m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
+			//m_ping.Start();
 
 		}
 
 		public override void Stop() {
 
+			if (!m_shouldRun) { return; }
+
+			Log.d($"{this} will Stop.");
+
 			m_shouldRun = false;
 
-			if (m_client.Connected) {
-			
+			m_connectionCheckTimer?.Stop();
+			m_ping?.Stop();
+
+			if (m_client?.Connected == true) {
+
 				m_client.GetStream().Close();
 				m_client.Close();
 
 			}
+
+			m_observers.InParallell((observer) => {
+
+				observer.OnClose(this, m_readError);
+
+			});
 
 			m_receiverTask = null;
 
@@ -109,7 +135,7 @@ namespace R2Core.Network
 
 		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
 
-			return System.Threading.Tasks.Task.Factory.StartNew (() => {
+			return System.Threading.Tasks.Task.Factory.StartNew(() => {
 
 				INetworkMessage response;
 				Exception exception = null;
@@ -120,7 +146,7 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					response = new TCPMessage() { Code = WebStatusCode.NetworkError.Raw(), Payload = ex.ToString()};
+					response = new NetworkErrorMessage(ex, message);
 					exception = ex;
 
 				}
@@ -135,117 +161,214 @@ namespace R2Core.Network
 
 		public INetworkMessage Send(INetworkMessage requestMessage) {
 
-			//m_readLock.WaitOne ();
+			if (requestMessage.IsBroadcastMessage()) {
+			
+				throw new ArgumentException($"TCPClient can't send broadcast messages({requestMessage}).");
 
-			lock (m_sendLock) {
+			}
 
-                m_observers.InParallell((observer) => observer.OnRequest(requestMessage));
+			if (!Ready) { throw new InvalidOperationException($"{this} is unable to send. Not connected."); }
 
-                TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage (requestMessage);
+			lock(m_sendLock) {
+
+				if (!requestMessage.IsPingOrPong()) {
+				
+					m_observers.InParallell((observer) => observer.OnRequest(requestMessage));
+
+				}
+                
+                TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage(requestMessage);
 
 				if (message.Headers != null) { Headers?.ToList().ForEach( kvp => message.Headers.Add(kvp)); }
 
 				message.Headers = message.Headers ?? Headers;
 
-				byte[] request = m_serializer.SerializeMessage (message);
+				byte[] request = m_serializer.SerializeMessage(message);
 
 				try {
 
-					m_client.GetStream ().Write (request, 0, request.Length);
+					new BlockingNetworkStream(m_client.GetSocket()).Write(request, 0, request.Length);
 
-					m_writeLock = new AutoResetEvent (false);
+					if (message.IsBroadcastMessage() || message.IsPingOrPong()) {
+
+						// Sender does not expect a reply.
+						return new OkMessage();
+
+					}
+
+					m_writeLock = new AutoResetEvent(false);
 
 					// Reset the read error. Still an awful lot of race conditions, but wtf.
 					m_readError = null;
 
 					// Wait for receiver thread to fetch data.
-					if (!m_writeLock.WaitOne (Timeout)) { throw new SocketException ((int)SocketError.TimedOut); }
+					if (m_writeLock.WaitOne(Timeout)) { 
 
-					m_writeLock = null;
+						m_writeLock = null;
 
-					// If there was an error during the read process, throw it here.
-					if (m_readError != null) {
+						// If there was an error during the read process, throw it here.
+						if (m_readError != null) {
+
+							throw m_readError; 
+
+						}
+
+						NetworkException exception = m_latestResponse.IsError() ? new NetworkException(m_latestResponse) : null;
+
+						if (m_latestResponse.IsEmpty()) {
 						
-						throw m_readError; 
+							throw new NetworkException("TCPClient: Got empty message.");
+
+						}
+
+						if (m_latestResponse.IsPingOrPong() ||
+							m_latestResponse.IsBroadcastMessage()) {
+						
+							throw new NetworkException($"TCPClient: Invalid messag type: {m_latestResponse}");
+
+
+						}
+
+						m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, exception));
+
+						return m_latestResponse;
 					
+					} else {
+						
+						// Request timed out. Closing connection
+						m_readError = new SocketException((int)SocketError.TimedOut);
+						throw m_readError;
+
 					}
 
-					NetworkException exception = m_latestResponse.IsError() ? new NetworkException(m_latestResponse) : null;
-
-					m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, exception));
-
-					return m_latestResponse;
-
 				} catch (Exception ex) {
-					
-					m_observers.InParallell((observer) => observer.OnResponse(null, ex));
-					throw ex;
 
-				} finally {
-				
-					m_readError = null;
+					Log.x(ex);
+					m_observers.InParallell((observer) => observer.OnResponse(null, ex));
+					if (m_shouldRun && !Ready) { Stop(); }
+					throw ex;
 
 				}
 
 			}
-	
+
 		}
 
-		public override string ToString () {
+		public override string ToString() {
 			
-			return $"TcpClient: `{m_client.GetDescription ()}`. Ready: {Ready}."; //string.Format ("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
+			return $"TCPClient: `{m_client.GetDescription()}`. Ready: {Ready}.";
 		
 		}
 
-		private System.Threading.Tasks.Task Receive () {
+		private System.Threading.Tasks.Task Receive() {
 
-			return System.Threading.Tasks.Task.Factory.StartNew (() => {
-
+			return System.Threading.Tasks.Task.Factory.StartNew(() => {
+	
 				m_readLock = new AutoResetEvent(false);
 
-				while (Ready) {
+				while(Ready) {
+
+					TCPMessage response =  default(TCPMessage);
 
 					try {
-						
-						m_latestResponse = m_serializer.DeserializePackage (new BlockingNetworkStream(m_client.Client));
 
-						if (m_latestResponse.IsBroadcastMessage()) {
+						if (Ready && m_shouldRun && m_connectionCheckTimer?.Enabled == false) {
 						
+							m_connectionCheckTimer?.Start();
+						
+						}
+							
+						response = m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
+
+						if (response.IsPong()) { 
+							
+							continue;  
+						
+						} else if (response.IsPing()) {
+
+							m_ping.Pong();
+
+						} else if (response.IsBroadcastMessage()) {
+
                             m_observers.InParallell((observer) => {
 
                                 if (observer.Destination == null || 
-                                    Regex.IsMatch(m_latestResponse.Destination, observer.Destination)) {
+									Regex.IsMatch(response.Destination, observer.Destination)) {
 
-                                    observer.OnBroadcast(m_latestResponse, m_readError);
+									observer.OnBroadcast(response);
 
                                 }
 
                             });
 
-                        }
+						} else {
+							
+							m_latestResponse = response;
+					
+						}
 
 					} catch (Exception ex) {
 
-						m_readError = ex;
+						if (!m_shouldRun) { /* ignore errors */ }
+						else if (ex.IsClosingNetwork()) {
 
-						Log.w($"TcpClient ({m_client.GetDescription()}) disconnected. Error: {ex.GetType()}. Message: `{ex.Message}.");
-						Stop();
+							Log.d($"{this} closed.");
+							Stop();
+
+						} else {
+						
+							m_readError = ex;
+
+							Log.t(ex);
+
+							Log.w($"{this} disconnected. Error: {ex.GetType()}. Message: `{ex.Message}`.");
+
+							Stop();
+
+						}
 
 					} finally {
 
-						m_writeLock?.Set();
-						//m_readLock.Set();
+
+						if (!response.IsPingOrPong() && !response.IsBroadcastMessage()) {
+						
+							m_writeLock?.Set();
+
+						}
+
 					}
 
-				} 	
+				} 
 
-			});
+			},System.Threading.Tasks.TaskCreationOptions.LongRunning);
 
 		}
 
 		public void AddObserver(IMessageClientObserver receiver) {
 
 			m_observers.Add(new WeakReference<IMessageClientObserver>(receiver));
+
+		}
+
+		private bool m_pollSuccess = true;
+
+		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
+
+			if (!m_shouldRun) { return; }
+
+			bool pollSuccess = m_client.GetSocket()?.Poll(Timeout * 1000, SelectMode.SelectError) ?? false;
+
+			if (!Ready || !pollSuccess) {
+
+				if (!m_pollSuccess || !Ready) {
+
+					Log.t($"NNNNNNNNNNNNNNNNNNNNNNNN: Client polling failed({Identifier}) pollSuccess: {pollSuccess}!");
+					Stop();
+					m_pollSuccess = true;
+
+				} else { m_pollSuccess = pollSuccess; }
+
+			}
 
 		}
 

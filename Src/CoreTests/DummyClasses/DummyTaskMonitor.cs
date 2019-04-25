@@ -22,19 +22,19 @@ using System.Threading.Tasks;
 
 namespace R2Core.Tests
 {
-	public class DummyTaskMonitor: DeviceBase, ITaskMonitor
-	{
-		public DummyTaskMonitor () : base ("dummy_task_monitor") 
+	public class DummyTaskMonitor : DeviceBase, ITaskMonitor {
+		
+		public DummyTaskMonitor() : base("dummy_task_monitor") 
 		{
 		}
 
-		public void AddTask (string id, Task task) {}
+		public void AddTask(string id, Task task) {}
 
-		public void AddMonitorable (ITaskMonitored observer) {}
+		public void AddMonitorable(ITaskMonitored observer) {}
 
-		public Task MonitorTask {get { return Task.Run (() => {}); }}
+		public Task MonitorTask { get { return Task.Run(() => {}); }}
 
-		public void RemoveMonitorable (ITaskMonitored observer) {}
+		public void RemoveMonitorable(ITaskMonitored observer) {}
 
 		public void PrintTasks() {}
 	}

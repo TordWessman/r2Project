@@ -23,7 +23,7 @@ namespace R2Core.Device
 	/// <summary>
 	/// A notification about a change in a device
 	/// </summary>
-	public interface IDeviceNotification<T> {
+	public interface IDeviceNotification<T>{
 		
 		/// <summary>
 		/// The object type contained.

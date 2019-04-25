@@ -20,8 +20,7 @@
 
 namespace R2Core.PushNotifications
 {
-	public enum PushNotificationClientType : int
-	{
+	public enum PushNotificationClientType : int {
 		None = 0,
 		Apple = 1
 	}

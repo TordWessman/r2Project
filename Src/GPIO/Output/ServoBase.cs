@@ -23,8 +23,7 @@ using R2Core;
 
 namespace R2Core.GPIO
 {
-	public abstract class ServoBase : DeviceBase, ILocalServo
-	{
+	public abstract class ServoBase : DeviceBase, ILocalServo {
 		public float DEFAULT_MIN_VALUE = 2;
 		public float DEFAULT_MAX_VALUE = 177f;
 		
@@ -35,20 +34,19 @@ namespace R2Core.GPIO
 		protected float m_maxValue;
 		protected float m_minValue;
 		
-		public ServoBase (string id, int channel, IServoController controller) : base (id)
-		{
+		public ServoBase(string id, int channel, IServoController controller) : base(id) {
 			m_servoController = controller;
 			m_channel = channel;
 			
 			m_maxValue = DEFAULT_MAX_VALUE;
 			m_minValue = DEFAULT_MIN_VALUE;
-			m_value = (int) LevelModifier;
+			m_value = (int)LevelModifier;
 		}
 
 		public float Value {
 		
 			get {
-				return (float)(m_value - LevelModifier) / Denomiator;
+				return(float)(m_value - LevelModifier) / Denomiator;
 			}
 			set {
 				if (value < MinValue) {
@@ -58,8 +56,8 @@ namespace R2Core.GPIO
 				}
 				
 				m_value = (int)(value * Denomiator + LevelModifier);
-				//Log.t ("Setting value: " + m_value);
-				m_servoController.Set (m_channel, m_value);
+				//Log.t("Setting value: " + m_value);
+				m_servoController.Set(m_channel, m_value);
 			}
 		}
 

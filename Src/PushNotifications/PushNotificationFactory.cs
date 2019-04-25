@@ -29,8 +29,8 @@ namespace R2Core.PushNotifications
 	/// <summary>
 	/// Factory methods for creating push notification messages as well as facades
 	/// </summary>
-	public class PushNotificationFactory : R2Core.Device.DeviceBase
-	{
+	public class PushNotificationFactory : R2Core.Device.DeviceBase {
+		
 		private string m_certPath;
 
 		/// <summary>
@@ -39,11 +39,10 @@ namespace R2Core.PushNotifications
 		/// </summary>
 		/// <param name="id">Identifier.</param>
 		/// <param name="certPath">Cert path.</param>
-		public PushNotificationFactory (string id, string certPath = null) : base (id)
-		{
+		public PushNotificationFactory(string id, string certPath = null) : base(id) {
 			m_certPath = certPath;
 
-			if (certPath != null && !m_certPath.EndsWith (Path.DirectorySeparatorChar.ToString())) {
+			if (certPath != null && !m_certPath.EndsWith(Path.DirectorySeparatorChar.ToString())) {
 				
 				m_certPath += Path.DirectorySeparatorChar;	
 			
@@ -51,12 +50,12 @@ namespace R2Core.PushNotifications
 		
 		}
 
-		public IPushNotification CreateSimple( string message) {
+		public IPushNotification CreateSimple(string message) {
 			
-			PushNotification note = new PushNotification (message);
+			PushNotification note = new PushNotification(message);
 
 			foreach (PushNotificationClientType type in Enum.GetValues(typeof(PushNotificationClientType)) ) {
-				note.AddClientType (type);
+				note.AddClientType(type);
 			}
 
 			return note;
@@ -65,27 +64,27 @@ namespace R2Core.PushNotifications
 
 		public IPushNotification CreateApple(string message) {
 			
-			PushNotification note = new PushNotification (message);
-			note.AddClientType (PushNotificationClientType.Apple);
+			PushNotification note = new PushNotification(message);
+			note.AddClientType(PushNotificationClientType.Apple);
 
 			return note;
 		}
 
 		public IPushNotificationFacade CreateAppleFacade(string id, string password, string appleCertFile ) {
 			
-			if (!File.Exists (appleCertFile)) {
+			if (!File.Exists(appleCertFile)) {
 
 				appleCertFile = (m_certPath ?? "") + appleCertFile;
 
 			}
 
-			return new ApplePushNotificationFacade (id, appleCertFile, password);
+			return new ApplePushNotificationFacade(id, appleCertFile, password);
 
 		}
 
 		public IPushNotificationProxy CreateHandler(string id, IMemorySource memory) {
 		
-			return new PushNotificationHandler (id, memory);
+			return new PushNotificationHandler(id, memory);
 
 		}
 

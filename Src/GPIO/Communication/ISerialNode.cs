@@ -28,15 +28,15 @@ namespace R2Core.GPIO
 	public interface ISerialNode : IDevice {
 
 		/// <summary>
-		/// Will synchronize (re-create) each device tracked by this node.
+		/// Will synchronize(re-create) each device tracked by this node.
 		/// </summary>
-		void Synchronize ();
+		void Synchronize();
 
 		/// <summary>
 		/// Creates the device on remote node. If sleep mode will be enabled, always use this method to synchronize remote devices. Adds a device to this node representations tracking list. This allows devices connected to the node to periodically cache their values.
 		/// </summary>
 		/// <param name="device">Device.</param>
-		void Track (ISerialDevice device);
+		void Track(ISerialDevice device);
 
 		/// <summary>
 		/// Sends this node to sleep.

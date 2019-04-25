@@ -24,27 +24,26 @@ using R2Core.Scripting;
 
 namespace R2Core.Audio
 {
-	public class AudioFactory : DeviceBase, IDevice
-	{
+	public class AudioFactory : DeviceBase, IDevice {
+		
 		private string m_basePath;
 
-		public AudioFactory (string id, string basePath) : base(id)
-		{
+		public AudioFactory(string id, string basePath) : base(id) {
 			m_basePath = basePath;
 		}
 
 		public ITTS CreateEspeak(string id) {
-			return new EspeakTTS (id);
+			return new EspeakTTS(id);
 		}
 
 		public ITTS CreateGoogle(string id, R2Core.Network.WebFactory webFactory) {
 		
-			return new GoogleTTS (id, webFactory);
+			return new GoogleTTS(id, webFactory);
 
 		}
 
 		public IAudioPlayer CreateMp3Player(string id) {
-			return new Mp3Player (id, m_basePath);
+			return new Mp3Player(id, m_basePath);
 		}
 
 		/// <summary>
@@ -92,7 +91,7 @@ namespace R2Core.Audio
 
 		public IASRObserver CreateScriptObserver(string id, IScript script) {
 		
-			return new ScriptASRObserver (id, script);
+			return new ScriptASRObserver(id, script);
 
 		}
 

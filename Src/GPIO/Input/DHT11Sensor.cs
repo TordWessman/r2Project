@@ -3,8 +3,9 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	public class DHT11Sensor: DeviceBase, IInputMeter<int>
-	{
+	
+	public class DHT11Sensor : DeviceBase, IInputMeter<int> {
+		
 		private IDHT11 m_dht;
 		private DHT11ValueType m_type;
 
@@ -13,8 +14,7 @@ namespace R2Core.GPIO
 			Humidity
 		}
 
-		internal DHT11Sensor (string id, IDHT11 dht11, DHT11ValueType type) : base (id)
-		{
+		internal DHT11Sensor(string id, IDHT11 dht11, DHT11ValueType type) : base(id) {
 
 			m_dht = dht11;
 			m_type = type;

@@ -23,21 +23,21 @@ namespace R2Core.Network
 	/// <summary>
 	/// Implementations handles the serialization & deserialization of TCPMessages.
 	/// </summary>
-	public interface ITCPPackageFactory<T> where T: INetworkMessage
-	{
+	public interface ITCPPackageFactory<T>where T : INetworkMessage {
+		
 		/// <summary>
 		/// Serializes the TCPMessage into a byte array.
 		/// </summary>
 		/// <returns>The package.</returns>
 		/// <param name="package">Package.</param>
-		byte[] SerializeMessage (T message);
+		byte[] SerializeMessage(T message);
 
 		/// <summary>
 		/// Deserializes the package retrieved from the stream into a TCPMessage.
 		/// </summary>
 		/// <returns>The package.</returns>
 		/// <param name="stream">Stream.</param>
-		T DeserializePackage (System.IO.Stream stream);
+		T DeserializePackage(System.IO.Stream stream);
 
 	}
 }

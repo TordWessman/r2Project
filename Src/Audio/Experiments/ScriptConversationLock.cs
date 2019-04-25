@@ -27,20 +27,18 @@ namespace R2Core.Audio.ASR
 	{
 		dynamic m_lockFunction;
 
-		public ScriptConversationLock (IScript script, string methodHandle)
-		{
-			m_lockFunction = script.Get (methodHandle);
+		public ScriptConversationLock(IScript script, string methodHandle) {
+			m_lockFunction = script.Get(methodHandle);
 		}
 
 		#region IConversationLock implementation
-		public bool TryRelease (string text)
-		{
-			return m_lockFunction (text);
+		public bool TryRelease(string text) {
+			return m_lockFunction(text);
 		}
 		
-//		public void ForceRelease ()
+//		public void ForceRelease()
 //		{
-//			Log.w ("Forcing the release of script conversation lock for script: " + 
+//			Log.w("Forcing the release of script conversation lock for script: " + 
 //				m_script.Identifier
 //			       );
 //		}

@@ -24,18 +24,16 @@ using R2Core;
 namespace R2Core.GPIO
 {
 
-	public class InputPort :DigitalInputBase
-	{
+	public class InputPort : DigitalInputBase {
 
 		RaspberryPiDotNet.GPIO m_gpi;
 
-		public InputPort (string id, RaspberryPiDotNet.GPIO gpio) : base (id)
-		{
+		public InputPort(string id, RaspberryPiDotNet.GPIO gpio) : base(id) {
 			m_gpi = gpio;
 			
 			if (m_gpi.PinDirection != RaspberryPiDotNet.GPIODirection.In) {
 		
-				throw new ArgumentException ("Provided GPIO pin had not in-direction");
+				throw new ArgumentException("Provided GPIO pin had not in-direction");
 			
 			}
 		
@@ -45,15 +43,9 @@ namespace R2Core.GPIO
 
 		public override bool Value {
 
-			get {
-			
-				return m_gpi.Read ();
-				//return m_gpi.Read () == RaspberryPiDotNet.PinState.High;
-			
-			}
+			get { return m_gpi.Read(); }
 		
 		}
-			
 
 		#endregion
 

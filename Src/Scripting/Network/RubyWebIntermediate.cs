@@ -30,15 +30,15 @@ namespace R2Core.Scripting.Network
 	/// <summary>
 	/// Default IHttpIntermediate implementation used for transporting http object data and headers.
 	/// </summary>
-	public class RubyWebIntermediate: IWebIntermediate
-	{
+	public class RubyWebIntermediate : IWebIntermediate {
+		
 		private dynamic m_data;
 		private IDictionary<string, object> m_metadata;
 
 
-		public RubyWebIntermediate ()
-		{
-			Payload = new R2Dynamic ();
+		public RubyWebIntermediate() {
+		
+			Payload = new R2Dynamic();
 			m_metadata = new  Dictionary<string, object>();
 		}
 
@@ -56,7 +56,7 @@ namespace R2Core.Scripting.Network
 
 		public void CLRConvert() {
 		
-			Payload = ParseValue (Payload);
+			Payload = ParseValue(Payload);
 
 		}
 
@@ -83,13 +83,13 @@ namespace R2Core.Scripting.Network
 
 				}
 
-				return (string)value;
+				return(string)value;
 
 			} else if (value is IronRuby.Builtins.RubyArray) {
 
-				ICollection<dynamic> array = new List<dynamic> ();
+				ICollection<dynamic> array = new List<dynamic>();
 
-				foreach (dynamic arrayValue in (ICollection<dynamic>) value) {
+				foreach (dynamic arrayValue in (ICollection<dynamic>)value) {
 
 					array.Add(ParseValue(arrayValue));
 
@@ -99,12 +99,12 @@ namespace R2Core.Scripting.Network
 
 			}  else if (value is IronRuby.Builtins.Hash) {
 
-				IDictionary<string, dynamic> dictionary = new Dictionary<string, dynamic> ();
+				IDictionary<string, dynamic> dictionary = new Dictionary<string, dynamic>();
 				IronRuby.Builtins.Hash hash = (IronRuby.Builtins.Hash) value;
 
 				foreach (object key in hash.Keys) {
 
-					dictionary[key.ToString()] = ParseValue (hash[key]);
+					dictionary[key.ToString()] = ParseValue(hash[key]);
 
 				}
 

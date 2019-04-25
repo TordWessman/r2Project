@@ -22,8 +22,8 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	public interface IInputPort : IDevice
-	{
+	public interface IInputPort : IDevice {
+		
 		bool Value { get;}
 
 		/// <summary>

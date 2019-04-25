@@ -20,19 +20,19 @@ using System;
 
 namespace R2Core.Scripting
 {
-	public interface IScriptObserver
-	{
+	public interface IScriptObserver {
+		
 		/// <summary>
 		/// Called whenever a process ran to end without errors.
 		/// </summary>
 		/// <param name="script">Script.</param>
-		void OnScriptFinished (IScript script);
+		void OnScriptFinished(IScript script);
 
 		/// <summary>
 		/// Called upon exception.
 		/// </summary>
 		/// <param name="script">Script.</param>
-		void OnScriptErrors (IScript script);
+		void OnScriptErrors(IScript script);
 
 	}
 }

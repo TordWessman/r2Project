@@ -25,16 +25,15 @@ using R2Core.Device;
 
 namespace R2Core.DataManagement.Memory
 {
-	public class Memory : IMemory
-	{
+	public class Memory : IMemory {
+		
 		private IMemoryReference m_reference;
 		private IMemorySource m_source;
 		private bool m_isLocal;
 
 		public IMemoryReference Reference { get { return m_reference; } }
 		
-		public int GetId ()
-		{
+		public int GetId() {
 
 			return Id;
 		
@@ -64,7 +63,7 @@ namespace R2Core.DataManagement.Memory
 			set {
 
 				m_reference.Type = value;
-				m_source.Update (this);
+				m_source.Update(this);
 
 			}
 
@@ -81,16 +80,15 @@ namespace R2Core.DataManagement.Memory
 			set {
 
 				m_reference.Value = value;
-				m_source.Update (this);
+				m_source.Update(this);
 
 			}
 
 		}
 
-		public Memory (IMemoryReference reference, 
+		public Memory(IMemoryReference reference, 
 		               IMemorySource source,
-						bool isLocal = true)
-		{
+						bool isLocal = true) {
 			m_isLocal = isLocal;
 			m_reference = reference;
 			m_source = source;
@@ -102,47 +100,41 @@ namespace R2Core.DataManagement.Memory
 
 			get {
 			
-				return m_source.GetAssociations (this);
+				return m_source.GetAssociations(this);
 
 			}
 		}
 		
-		public void Associate (IMemory other)
-		{
-			m_source.Associate (this, other);
+		public void Associate(IMemory other) {
+			m_source.Associate(this, other);
 		}
 		
-		public override bool Equals (Object obj)
-		{
+		public override bool Equals(Object obj) {
 			IMemory memory = obj as Memory;
 			
 			if (memory == null)
 				return false;
 			else 
-				return m_reference.Equals (memory.Reference);
+				return m_reference.Equals(memory.Reference);
 		}
 		
-		public override string ToString ()
-		{
-			return m_reference.ToString ();
+		public override string ToString() {
+			return m_reference.ToString();
 		}
 		
-		public override int GetHashCode ()
-		{
-			return m_reference.GetHashCode ();
+		public override int GetHashCode() {
+			return m_reference.GetHashCode();
 		}
 		
-		public IMemory GetAssociation (MemoryType type)
-		{
-			return (from m in Associations where 
-				m.Type == type.ToLower ()
-			                       select m).FirstOrDefault ();
+		public IMemory GetAssociation(MemoryType type) {
+			return(from m in Associations where 
+				m.Type == type.ToLower()
+			                       select m).FirstOrDefault();
 		}
 		
-		public ICollection<IMemory> GetAssociations (MemoryType type)
-		{
-			return (from m in Associations where 
-				m.Type == type.ToLower ()
+		public ICollection<IMemory> GetAssociations(MemoryType type) {
+			return(from m in Associations where 
+				m.Type == type.ToLower()
 			        select m).ToList<IMemory>();
 		}
 

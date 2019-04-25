@@ -24,16 +24,16 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// A servo controller represents an entity capable of controlling a number of IServo
 	/// </summary>
-	public interface IServoController: IDevice
-	{
+	public interface IServoController : IDevice {
+		
 		/// <summary>
 		/// Set the value of servo <item>channel</item> to <para>value</para>.
 		/// </summary>
 		/// <param name="channel">Channel.</param>
 		/// <param name="value">Value.</param>
-		void Set (int channel, int value);
+		void Set(int channel, int value);
 		
-		IServo CreateServo (string id, int channel);
+		IServo CreateServo(string id, int channel);
 	}
 }
 

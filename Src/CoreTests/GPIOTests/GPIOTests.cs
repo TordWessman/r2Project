@@ -7,29 +7,21 @@ namespace R2Core.GPIO
 {
 
 	[TestFixture]
-	public class GPIOTests : TestBase
-	{
-		//private IGPIOFactory m_gpioFactory;
-
-		public GPIOTests ()
-		{
-		}
-
-
-
+	public class GPIOTests : TestBase {
+		
 		[TestFixtureSetUp]
 		public void III() {
 		
-			//Console.WriteLine ("LOL");
-			base.Setup ();
+			//Console.WriteLine("LOL");
+			base.Setup();
 
 			try {
 
-				//m_gpioFactory = new GPIOFactory ("f", Settings.Paths.TestData ());
+				//m_gpioFactory = new GPIOFactory("f", Settings.Paths.TestData());
 
 			} catch (Exception ex) {
 			
-				Console.WriteLine (ex.Message);
+				Console.WriteLine(ex.Message);
 
 			}
 		
@@ -39,7 +31,7 @@ namespace R2Core.GPIO
 		[Test]
 		public void TestInterpolation() {
 		
-			//Assert.True (false);
+			//Assert.True(false);
 		}
 	}
 }

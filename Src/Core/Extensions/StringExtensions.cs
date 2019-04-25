@@ -20,11 +20,11 @@
 
 namespace R2Core
 {
-	public static class StringExtensions
-	{
+	public static class StringExtensions {
+		
 		public static byte[] ToByteArray(this string self, System.Text.Encoding encoding = null) {
 		
-			return (encoding ?? System.Text.Encoding.UTF8).GetBytes(self);
+			return(encoding ?? System.Text.Encoding.UTF8).GetBytes(self);
 
 		}
 

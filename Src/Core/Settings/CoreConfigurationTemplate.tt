@@ -30,8 +30,8 @@ using R2Core.Device;
 
 namespace R2Core
 {
-	public class Settings: DeviceBase
-	{
+	public class Settings : DeviceBase {
+
 		public static readonly string SETTINGS_DEVICE_ID = "settings";
 		private string m_basePath;
 		private static Settings m_instance;
@@ -39,13 +39,12 @@ namespace R2Core
 		private static readonly object m_lock = new object();
 
 		private Dictionary<string,dynamic> m_constants;
-		private static readonly object m_instanceLock = new object ();
-		private static readonly object m_dataLoadLock = new object ();
+		private static readonly object m_instanceLock = new object();
+		private static readonly object m_dataLoadLock = new object();
 		private IList<string> m_dataLoaded;
 
-		private Settings () : base(SETTINGS_DEVICE_ID)
-		{
-			ReloadConstants ();
+		private Settings() : base(SETTINGS_DEVICE_ID) {
+			ReloadConstants();
 		}
 
 		/// <summary>
@@ -56,7 +55,7 @@ namespace R2Core
 		/// <summary>
 		///	Compile time generated Path information.
 		/// </summary>
-		public static ConstsClass Consts {get{
+		public static ConstsClass Consts { get {
 			return Settings.Instance.C;
 		}}
 
@@ -68,7 +67,7 @@ namespace R2Core
 		/// <summary>
 		///	Compile time generated Path information.
 		/// </summary>
-		public static PathsClass Paths {get{
+		public static PathsClass Paths { get {
 			return Settings.Instance.P;
 		}}
 
@@ -112,10 +111,10 @@ namespace R2Core
 
 							configFullPath = Settings.Instance.m_basePath + System.IO.Path.DirectorySeparatorChar + "<#=baseConfigFileNameIncludingExtension#>";
 
-							if (System.IO.File.Exists (configFullPath)) {
+							if (System.IO.File.Exists(configFullPath)) {
 								break;
 							} else {
-								Settings.Instance.m_basePath =  System.IO.Directory.GetParent (Settings.Instance.m_basePath).FullName;
+								Settings.Instance.m_basePath =  System.IO.Directory.GetParent(Settings.Instance.m_basePath).FullName;
 							}
 
 						}
@@ -132,9 +131,9 @@ namespace R2Core
 		/// <value>The instance.</value>
 		public static Settings Instance {
 			get {
-				lock (m_instanceLock) {
+				lock(m_instanceLock) {
 					if (Settings.m_instance == null) {
-						Settings.m_instance = new Settings ();
+						Settings.m_instance = new Settings();
 					}
 
 					return m_instance;
@@ -144,11 +143,11 @@ namespace R2Core
 
 
 		/// <summary>
-		/// Resets configuration settings for constants and forces them to be reloaded (lazily).
+		/// Resets configuration settings for constants and forces them to be reloaded(lazily).
 		/// </summary>
 		public void ReloadConstants() {
-			m_constants = new Dictionary<string,dynamic> ();
-			m_dataLoaded = new List<string> ();
+			m_constants = new Dictionary<string,dynamic>();
+			m_dataLoaded = new List<string>();
 		}
 
 		/// <summary>
@@ -158,13 +157,13 @@ namespace R2Core
 		/// <param name="value">Value.</param>
 		protected void AddConstant(string key, dynamic value) {
 
-			key = key.ToLower ();
+			key = key.ToLower();
 
-			if (m_constants.ContainsKey (key)) {
+			if (m_constants.ContainsKey(key)) {
 				//TODO: print error
 			} else {
 
-				m_constants.Add (key, value);
+				m_constants.Add(key, value);
 			}
 
 		}
@@ -176,12 +175,12 @@ namespace R2Core
 		/// <param name="configFileName">Config file name.</param>
 		public void CheckAndLoadData(string key, string configFileName) {
 
-			lock (m_dataLoadLock) {
+			lock(m_dataLoadLock) {
 
-				if (!Settings.Instance.m_dataLoaded.Contains (key)) {
-					Settings.LoadConstData (configFileName);
+				if (!Settings.Instance.m_dataLoaded.Contains(key)) {
+					Settings.LoadConstData(configFileName);
 
-					Settings.Instance.m_dataLoaded.Add (key);
+					Settings.Instance.m_dataLoaded.Add(key);
 				}
 			}
 		}
@@ -193,12 +192,12 @@ namespace R2Core
 		/// <param name="key">Key.</param>
 		public dynamic Val(string key) {
 
-			key = key.ToLower ();
-			if (Settings.Instance.m_constants.ContainsKey (key)) {
+			key = key.ToLower();
+			if (Settings.Instance.m_constants.ContainsKey(key)) {
 				return Settings.Instance.m_constants [key];
 			}
 
-			throw new ApplicationException ("Value not found in Settings: " + key);
+			throw new ApplicationException("Value not found in Settings: " + key);
 
 		}
 
@@ -210,10 +209,10 @@ namespace R2Core
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
 		public T GetValue<T>(string key) {
 
-			key = key.ToLower ();
+			key = key.ToLower();
 
-			if (Settings.Instance.m_constants.ContainsKey (key)) {
-				return (T) Settings.Instance.m_constants [key];
+			if (Settings.Instance.m_constants.ContainsKey(key)) {
+				return(T) Settings.Instance.m_constants [key];
 			}
 
 			return default(T);
@@ -228,7 +227,7 @@ namespace R2Core
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
 		public void SetValue<T>(string key, T newValue) {
 
-			key = key.ToLower ();
+			key = key.ToLower();
 			Settings.Instance.m_constants[key] = newValue;
 
 		} 
@@ -261,7 +260,7 @@ namespace R2Core
 				foreach (XmlNode node in pathsNode.ChildNodes) { 
 					if (!((node.Attributes["ignore"] != null && node.Attributes["ignore"].Value == "true"))) {
 
-						Settings.Instance.AddConstant (node.Name, node.Attributes["type"] != null ? ParseType(node.Attributes["type"].Value, node.InnerText) : node.InnerText  );
+						Settings.Instance.AddConstant(node.Name, node.Attributes["type"] != null ? ParseType(node.Attributes["type"].Value, node.InnerText) : node.InnerText  );
 					}
 				}
 
@@ -277,7 +276,7 @@ namespace R2Core
 		public static dynamic ParseType(string description, string value) {
 			switch (description) {
 			case "int":
-				return int.Parse (value);
+				return int.Parse(value);
 			default:
 				return typeof(string);
 			}
@@ -295,7 +294,7 @@ namespace R2Core
 	<#
 } else {
 
-	throw new ApplicationException ("Unable to locate configuration file '" + baseConfigFileNameIncludingExtension + "'. The file must be located in parent directory.");
+	throw new ApplicationException("Unable to locate configuration file '" + baseConfigFileNameIncludingExtension + "'. The file must be located in parent directory.");
 
 }
 	#>

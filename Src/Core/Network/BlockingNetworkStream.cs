@@ -26,11 +26,11 @@ namespace R2Core.Network
 	/// <summary>
 	/// Only used to distinguish failed reads for the BlockingNetworkStream
 	/// </summary>
-	public class BlockingNetworkException: SocketException {
+	public class BlockingNetworkException : SocketException {
 
 		private string m_message;
 
-		public BlockingNetworkException(string message) : base (10053) {
+		public BlockingNetworkException(string message) : base(10053) {
 		
 			m_message = message;
 
@@ -40,29 +40,32 @@ namespace R2Core.Network
 
 	}
 
-	public class BlockingNetworkStream: NetworkStream
-	{
+	public class BlockingNetworkStream : NetworkStream {
 		
-		public BlockingNetworkStream (Socket socket) : base(socket) {
+		public BlockingNetworkStream(Socket socket) : base(socket) {
 
 			socket.Blocking = true;
 
 		}
 
-		public override int Read (byte[] buffer, int offset, int size) {
+		public override void Write(byte[] buffer, int offset, int size) {
+			base.Write(buffer, offset, size);
+		}
+
+		public override int Read(byte[] buffer, int offset, int size) {
 
 			int totalBytesReceived = 0;
 			int bytesLeft = size;
 
-			while (totalBytesReceived < size) {
+			while(totalBytesReceived < size) {
 
-				int received = Socket.Receive (buffer, offset + totalBytesReceived, bytesLeft, SocketFlags.None);
+				int received = this.Socket.Receive(buffer, offset + totalBytesReceived, bytesLeft, SocketFlags.None);
 				totalBytesReceived += received;
 				bytesLeft -= received;
 
 				if (totalBytesReceived > size) {
 
-					Log.t ($"Unable to retrieve message. Number of bytes read: {totalBytesReceived}. Requested: {size} bytes. Host: {Socket.RemoteEndPoint.ToString ()}.");
+					Log.w($"Unable to retrieve message. Number of bytes read: {totalBytesReceived}. Requested: {size} bytes. Host: {Socket.GetEndPoint()?.ToString()}.");
 
 				}
 

@@ -24,8 +24,8 @@ using System.Linq;
 
 namespace R2Core
 {
-public class ConsoleLogger : DeviceBase, IMessageLogger
-	{
+	public class ConsoleLogger : DeviceBase, IMessageLogger {
+		
 		private ConsoleColor m_defaultColor;
 		private static readonly object m_lock = new object();
 		private Queue<Action> m_queue;
@@ -35,13 +35,12 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 
 		public bool Paused;
 
-		public ConsoleLogger (string id) : base (id)
-		{
+		public ConsoleLogger(string id) : base(id) {
 
 			m_defaultColor = Console.ForegroundColor;
-			m_queue = new Queue<Action> ();
+			m_queue = new Queue<Action>();
 			m_isPrinting = false;
-			m_history = new Stack<ILogMessage> ();
+			m_history = new Stack<ILogMessage>();
 
 			Paused = false;
 
@@ -51,23 +50,22 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 
 			get {
 
-				return m_history.Reverse ().Select (t => t);
+				return m_history.Reverse().Select(t => t);
 		
 			}
 		
 		}
 
-		public override void Start ()
-		{
+		public override void Start() {
 
 			if (m_consoleTimer != null) {
 
-				m_consoleTimer.Start ();
+				m_consoleTimer.Start();
 
 			} else {
 
 				m_isPrinting = false;
-				m_consoleTimer = new Timer (200);
+				m_consoleTimer = new Timer(200);
 				m_consoleTimer.AutoReset = true;
 				m_consoleTimer.Enabled = true;
 				m_consoleTimer.Elapsed += PrintQueue;
@@ -76,11 +74,10 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 
 		}
 
-		public void Pause ()
-		{
-			if (m_consoleTimer != null) {
-				m_consoleTimer.Stop ();
-			}
+		public void Pause() {
+
+			m_consoleTimer?.Stop();
+
 		}
 
 		private void PrintQueue(Object source, ElapsedEventArgs e) {
@@ -89,15 +86,15 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 
 				m_isPrinting = true;
 			
-				while (m_queue.Count > 0 && !Paused) {
+				while(m_queue.Count > 0 && !Paused) {
 
 					try {
 
-						m_queue.Dequeue ().Invoke();
+						m_queue.Dequeue().Invoke();
 
 					} catch (Exception ex) {
 
-						Console.WriteLine ("ERROR WRITING TO CONSOLE: " + ex.Message);
+						Console.WriteLine("ERROR WRITING TO CONSOLE: " + ex.Message);
 
 					}
 
@@ -109,22 +106,21 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 					
 		}
 
-		public void Write (ILogMessage message)
-		{
+		public void Write(ILogMessage message) {
 
-			lock (m_lock) {
+			lock(m_lock) {
 
-				m_history.Push (message);
+				m_history.Push(message);
 
-				m_queue.Enqueue (() => {
+				m_queue.Enqueue(() => {
 
 					try {
 
-						NotifyChange (message);
+						NotifyChange(message);
 
 					} catch (Exception ex) {
 
-						_Write (new LogMessage ("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogType.Error));
+						_Write(new LogMessage("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogType.Error));
 
 					}
 
@@ -136,23 +132,23 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 
 		}
 			
-		private void _Write (ILogMessage message) {
+		private void _Write(ILogMessage message) {
 
-			if (Console.OpenStandardOutput ().CanWrite) {
+			if (Console.OpenStandardOutput().CanWrite) {
 
 				SetConsoleColor(message.Type);
 
-				Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
+				Console.WriteLine((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
 
-				SetConsoleColor( m_defaultColor);
+				SetConsoleColor(m_defaultColor);
 
 			}
 
 		}
 
-		private void SetConsoleColor (ConsoleColor color) {
+		private void SetConsoleColor(ConsoleColor color) {
 
-			if (Console.OpenStandardOutput ().CanWrite) {
+			if (Console.OpenStandardOutput().CanWrite) {
 				
 				Console.ForegroundColor = color;
 			
@@ -160,28 +156,27 @@ public class ConsoleLogger : DeviceBase, IMessageLogger
 		
 		}
 
-		private void SetConsoleColor (LogType logType)
-		{
+		private void SetConsoleColor(LogType logType) {
 			switch (logType) {
 
 			case LogType.Error:
 				
-				SetConsoleColor (ConsoleColor.Red);
+				SetConsoleColor(ConsoleColor.Red);
 				break;
 
 			case LogType.Warning:
 				
-				SetConsoleColor (ConsoleColor.Yellow);
+				SetConsoleColor(ConsoleColor.Yellow);
 				break;
 			
 			case LogType.Temp:
 
-				SetConsoleColor (ConsoleColor.Green);
+				SetConsoleColor(ConsoleColor.Green);
 				break;
 
 			case LogType.Message:
 
-				SetConsoleColor (ConsoleColor.Gray);
+				SetConsoleColor(ConsoleColor.Gray);
 				break;
 			}
 

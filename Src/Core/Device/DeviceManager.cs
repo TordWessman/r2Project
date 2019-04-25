@@ -29,52 +29,52 @@ namespace R2Core.Device
 	/// <summary>
 	/// Implementation of IDeviceManager. Able to handle remote devices.
 	/// </summary>
-	public class DeviceManager : DeviceBase, IDeviceManager
-	{
+	public class DeviceManager : DeviceBase, IDeviceManager {
+		
 		private IDictionary<Guid, IDevice> m_devices;
 
 		private IList<IDeviceManagerObserver> m_observers;
 		
-		private static readonly object m_lock = new object ();
-		private static readonly object m_removelock = new object ();
+		private static readonly object m_lock = new object();
+		private static readonly object m_removelock = new object();
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Core.Device.DeviceManager"/.
 		/// </summary>
-		public DeviceManager (string id) : base(id) {
+		public DeviceManager(string id) : base(id) {
 			
-			m_devices = new Dictionary<Guid, IDevice> ();
-			m_observers = new List<IDeviceManagerObserver> ();
+			m_devices = new Dictionary<Guid, IDevice>();
+			m_observers = new List<IDeviceManagerObserver>();
 
 		}
 			
 		public IEnumerable<IDevice> Devices { get { return m_devices.Values; } }
 
-		public IEnumerable<IDevice> LocalDevices { get { return m_devices.Values.Where (device => device.IsLocal()); } }
+		public IEnumerable<IDevice> LocalDevices { get { return m_devices.Values.Where(device => device.IsLocal()); } }
 
 		/// <summary>
 		/// Add the device internally
 		/// </summary>
 		/// <param name="newDevice">New device.</param>
-		private void _Add (IDevice device) {
+		private void _Add(IDevice device) {
 			
-			lock (m_lock) {
+			lock(m_lock) {
 
-				IDevice existingDevice = m_devices.Values.Where (d => d.Identifier == device.Identifier).FirstOrDefault ();
+				IDevice existingDevice = m_devices.Values.Where(d => d.Identifier == device.Identifier).FirstOrDefault();
 				if (existingDevice != null && existingDevice.IsLocal()) {
 
-					Log.w ($"Replacing device duplicated device with id `{device.Identifier}`");
-					m_devices.Remove (existingDevice.Guid);
+					Log.w($"Replacing device duplicated device with id `{device.Identifier}`");
+					m_devices.Remove(existingDevice.Guid);
 				
 				}
 
-				m_devices.Add (device.Guid, device);
+				m_devices.Add(device.Guid, device);
 
 
 				// Device Manager will be able to propagate changes in any device to it's own observers.
 				if (device.IsLocal()) {
 				
-					device.AddObserver (this);
+					device.AddObserver(this);
 				}
 
 			
@@ -82,7 +82,7 @@ namespace R2Core.Device
 
 			foreach (IDeviceManagerObserver observer in m_observers) {
 			
-				observer.DeviceAdded (device);
+				observer.DeviceAdded(device);
 
 			}
 
@@ -90,11 +90,11 @@ namespace R2Core.Device
 
 		private IDevice _Get(string identifier) {
 		
-			return  m_devices.Select (d => d.Value).Where(dv => dv.Identifier == identifier).FirstOrDefault ();
+			return  m_devices.Select(d => d.Value).Where(dv => dv.Identifier == identifier).FirstOrDefault();
 
 		}
 		
-		public void Add (IDevice newDevice) {
+		public void Add(IDevice newDevice) {
 			/*
 			if (m_hostManager.Ready && newDevice is IRemotlyAccessable) {
 
@@ -102,19 +102,19 @@ namespace R2Core.Device
 
 				if (newDevice is IRemotlyAccessable) {
 
-					m_hostManager.SendToAll (GetDeviceAddedPackage(newDevice));
+					m_hostManager.SendToAll(GetDeviceAddedPackage(newDevice));
 
 				}
 
 			}*/
 			
-			_Add (newDevice);
+			_Add(newDevice);
 
 		}
 
-		public T GetByGuid<T> (Guid guid) {
+		public T GetByGuid<T>(Guid guid) {
 
-			IDevice device = m_devices.Select (d => d.Value).Where(dv => dv.Guid == guid).FirstOrDefault ();
+			IDevice device = m_devices.Select(d => d.Value).Where(dv => dv.Guid == guid).FirstOrDefault();
 		
 			if (device != null && device is T) {
 
@@ -124,7 +124,7 @@ namespace R2Core.Device
 			} else if (device != null) {
 
 				// Device found but of wrong type
-				throw new InvalidCastException ("Device with Guid: " + guid.ToString() + " cannot be retrieved, is correct type: " + (device is T).ToString());
+				throw new InvalidCastException("Device with Guid: " + guid.ToString() + " cannot be retrieved, is correct type: " + (device is T).ToString());
 
 			}
 
@@ -133,13 +133,13 @@ namespace R2Core.Device
 
 		}
 
-		public T Get<T> (string identifier) {
+		public T Get<T>(string identifier) {
 
-			IDevice device = _Get (identifier);
+			IDevice device = _Get(identifier);
 
 			if (device == null) {
 
-				throw new DeviceException ("Device identifier not found: " + identifier);
+				throw new DeviceException("Device identifier not found: " + identifier);
 
 			}
 
@@ -149,21 +149,21 @@ namespace R2Core.Device
 
 			} else {
 
-				throw new InvalidCastException ("Device: " + identifier + " cannot be retrieved, since it is not of type: " + typeof (T));
+				throw new InvalidCastException("Device: " + identifier + " cannot be retrieved, since it is not of type: " + typeof (T));
 
 			}
 
 		}
 
-		public dynamic Get (string identifier) {
+		public dynamic Get(string identifier) {
 
-			return Get<IDevice> (identifier);
+			return Get<IDevice>(identifier);
 
 		}
 
-		public void AddObserver (IDeviceManagerObserver observer) {
+		public void AddObserver(IDeviceManagerObserver observer) {
 		
-			m_observers.Add (observer);
+			m_observers.Add(observer);
 
 		}
 
@@ -175,15 +175,15 @@ namespace R2Core.Device
 
 			}
 
-			lock (m_lock) {
+			lock(m_lock) {
 
 				foreach (IDevice device in m_devices.Values) {
 
 					if (device.IsLocal() && !ignoreDevices.Any(d => d.Guid == device.Guid )) {
 
-						Log.d ("Stopping device: " + device.Identifier);
+						Log.d("Stopping device: " + device.Identifier);
 
-						device.Stop ();
+						device.Stop();
 
 					}
 
@@ -193,23 +193,23 @@ namespace R2Core.Device
 
 		}
 
-		public bool Has (string identifier) {
+		public bool Has(string identifier) {
 
-			lock (m_lock) {
+			lock(m_lock) {
 
-				return _Get (identifier) != null;
+				return _Get(identifier) != null;
 
 			}
 
 		}
 
-		private void _Remove (Guid guid) {
+		private void _Remove(Guid guid) {
 
-			lock (m_lock) {
+			lock(m_lock) {
 
-				if (m_devices.ContainsKey (guid)) {
+				if (m_devices.ContainsKey(guid)) {
 
-					m_devices.Remove (guid);
+					m_devices.Remove(guid);
 
 				}
 
@@ -217,21 +217,21 @@ namespace R2Core.Device
 
 		}
 
-		public void Remove (string id) {
+		public void Remove(string id) {
 
-			lock (m_removelock) {
+			lock(m_removelock) {
 
-				IDevice device = Get<IDevice> (id);
+				IDevice device = Get<IDevice>(id);
 
 				if (device != null) {
 
 					foreach (IDeviceManagerObserver observer in m_observers) {
 
-						observer.DeviceRemoved (device);
+						observer.DeviceRemoved(device);
 
 					}
 
-					_Remove (device.Guid);
+					_Remove(device.Guid);
 
 				}
 
@@ -239,16 +239,17 @@ namespace R2Core.Device
 
 		}
 
-		public void PrintDevices () {
+		public void PrintDevices() {
+			
 			foreach (IDevice device in m_devices.Values) {
 
-				if (Has (device.Identifier)) {
+				if (Has(device.Identifier)) {
 				
-					Log.d ($"{device.Identifier}    - [{device.Guid.ToString()}]" + (!device.IsLocal() ? " (remote)" : "")); 
+					Log.d($"{device.Identifier}    - [{device.Guid.ToString()}]" + (!device.IsLocal() ? " (remote)" : "")); 
 				
 				} else {
 				
-					Log.e ($"{device.Identifier} does not exist - yet it does. It's an esoterical device. Please contact God for more information.");
+					Log.e($"{device.Identifier} does not exist - yet it does. It's an esoterical device. Please contact God for more information.");
 				
 				}
 				
@@ -260,7 +261,7 @@ namespace R2Core.Device
 
 		public void OnValueChanged(IDeviceNotification<object> notification) {
 		
-			NotifyChange (notification);
+			NotifyChange(notification);
 
 		}
 

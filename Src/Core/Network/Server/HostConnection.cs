@@ -19,57 +19,82 @@
 using System;
 using R2Core.Device;
 using System.Collections.Generic;
+using System.Net;
 
 namespace R2Core.Network
 {
+
 	/// <summary>
-	/// Default implementation of an IHostConnection.
+	/// Representation of a connection from a server to a client.
 	/// </summary>
-	public class HostConnection : DeviceBase, IHostConnection
-	{
+	public class HostConnection : DeviceBase, IClientConnection, IMessageClientObserver {
+		
 		private IMessageClient m_connection;
-		private INetworkMessage m_message;
-		private string m_address;
+
+		public event OnReceiveHandler OnReceive;
+
+		public event OnDisconnectHandler OnDisconnect;
 
 		/// <summary>
-		/// `destination` is the path used when sending messages. `host` is the connection used for transfers.
+		/// .`connection` is the connection used for transfers.
 		/// </summary>
 		/// <param name="id">Identifier.</param>
-		/// <param name="destination">Destination.</param>
 		/// <param name="host">Host.</param>
-		public HostConnection (string id, string destination, string remoteAddress, IMessageClient connection) : base(id) {
+		public HostConnection(string id, IMessageClient connection) : base(id) {
 			
 			m_connection = connection;
-			m_message = new NetworkMessage() { Headers = new Dictionary<string, object> (), Destination = destination };
-			m_address = remoteAddress;
 
 		}
 
-		public string Address { get { return m_address; } }
-
-		public IDictionary<string, object> Headers  { get { return m_message.Headers; } }
-
+		public string Address { get { return m_connection.Address; } }
+	
+		public int Port { get { return m_connection.Port; } } 
+	
 		public override bool Ready { get { return m_connection.Ready; } }
 
-		public override void Start () { m_connection.Start (); }
+		public override void Start() { m_connection.Start(); }
 
-		public override void Stop () { m_connection.Stop (); }
+		public override void Stop() { m_connection.Stop(); }
 
-		public dynamic Send(dynamic payload) {
-
-			m_message.Payload = payload;
-			INetworkMessage response = m_connection.Send (m_message);
-
-			if (WebStatusCode.Ok.Is(response.Code)) {
+		public INetworkMessage Send(INetworkMessage message) {
 			
-				return response.Payload;
+			INetworkMessage response = m_connection.Send(message);
+
+			if (response == null) {
+			
+				Log.e($"ARGH: Got null reply from connection: {m_connection.Identifier}:{m_connection.Guid.ToString()} ({m_connection}).");
+				throw new NetworkException($"Got null reply from connection: {m_connection.Identifier}:{m_connection.Guid.ToString()} ({m_connection}).");
 
 			}
 
-			throw new ApplicationException ($"Request to {m_message.Destination} for connection `{m_connection.ToString ()}` failed with code `{response.Code}`. Response body: `{response.Payload}`.");
+			return response;
 
 		}
 
+		public void OnClose(IMessageClient client, Exception ex) {
+		
+			OnDisconnect(this, ex);
+
+		} 
+
+		public void OnRequest(INetworkMessage request) { }
+
+		public void OnResponse(INetworkMessage response, Exception ex) {
+		
+			OnReceive(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
+
+		}
+
+		public void OnBroadcast(INetworkMessage response) {
+			
+			OnReceive(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
+
+		}
+
+
+		public string Destination { get { return null; } }
+
 	}
+
 }
 

@@ -25,16 +25,15 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// Creates stuff communicating through a GPIO port
 	/// </summary>
-	public interface IGPIOFactory : IDevice
-	{
+	public interface IGPIOFactory : IDevice {
 		/// <summary>
-		/// Create an input meter representation (i e sonar, temperature etc)
+		/// Create an input meter representation(i e sonar, temperature etc)
 		/// </summary>
 		/// <returns>The input meter.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="type">Type.</param>
 		/// <param name="adcPort">Adc port.</param>
-		IInputMeter<double> CreateAnalogInput (string id, int adcPort);
+		IInputMeter<double> CreateAnalogInput(string id, int adcPort);
 
 		/// <summary>
 		/// Creates an input port on the specified pin
@@ -42,7 +41,7 @@ namespace R2Core.GPIO
 		/// <returns>The input port.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="gpioPort">Gpio port.</param>
-		IInputPort CreateInputPort (string id, int gpioPort);
+		IInputPort CreateInputPort(string id, int gpioPort);
 
 		/// <summary>
 		/// Creates an output port on the specified pin.
@@ -50,7 +49,7 @@ namespace R2Core.GPIO
 		/// <returns>The output port.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="gpioPort">Gpio port.</param>
-		IOutputPort CreateOutputPort (string id, int gpioPort);
+		IOutputPort CreateOutputPort(string id, int gpioPort);
 
 	}
 }

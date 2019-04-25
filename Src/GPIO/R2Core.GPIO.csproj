@@ -65,7 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="GPIOTypes.cs" />
     <Compile Include="IGPIOFactory.cs" />
     <Compile Include="Input\InputPort.cs" />
     <Compile Include="Output\OutputPort.cs" />

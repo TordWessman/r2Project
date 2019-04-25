@@ -5,10 +5,12 @@ using R2Core;
 
 namespace R2Core.GPIO
 {
-	public abstract class DigitalInputBase: DeviceBase, IInputPort
-	{
-		public DigitalInputBase (string id) : base (id)
-		{
+	/// <summary>
+	/// Base class for I/O input implementation.
+	/// </summary>
+	public abstract class DigitalInputBase : DeviceBase, IInputPort {
+		
+		public DigitalInputBase(string id) : base(id) {
 		}
 
 		public virtual bool Value { get;}
@@ -19,7 +21,7 @@ namespace R2Core.GPIO
 		private bool m_timerDisposed;
 		private bool m_pullUp;
 
-		// Used to make sure the trigger function is not executed concurrently (will ignore calls while the trigger function is running).
+		// Used to make sure the trigger function is not executed concurrently(will ignore calls while the trigger function is running).
 		private bool m_threadUnsafeTriggerFunctionIsExecuting;
 
 		public void SetTrigger(Func<object> triggerFunc, bool pullUp = false, int interval = 100) {
@@ -28,7 +30,7 @@ namespace R2Core.GPIO
 
 			if (m_timer != null) {
 
-				m_timer.Change (0, 0);
+				m_timer.Change(0, 0);
 				m_timer.Dispose();
 
 			}
@@ -47,9 +49,9 @@ namespace R2Core.GPIO
 		public void StopTrigger() {
 
 			m_timerDisposed = true;
-			m_release.Set ();
-			m_timer.Change (0, 0);
-			m_timer.Dispose ();
+			m_release.Set();
+			m_timer.Change(0, 0);
+			m_timer.Dispose();
 
 		}
 
@@ -70,12 +72,12 @@ namespace R2Core.GPIO
 
 				try {
 
-					m_triggerFunc ();
+					m_triggerFunc();
 
 				} catch (Exception ex) {
 
-					Log.x (ex);
-					StopTrigger ();
+					Log.x(ex);
+					StopTrigger();
 
 				} finally {
 

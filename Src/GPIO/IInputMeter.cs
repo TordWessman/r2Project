@@ -22,9 +22,14 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	public interface IInputMeter<T> : IDevice
-	{
-		T Value { get;}
+	/// <summary>
+	/// Sensor or port returning a value of type ´T´.
+	/// </summary>
+	public interface IInputMeter<T> : IDevice {
+		
+		T Value { get; }
+	
 	}
+
 }
 

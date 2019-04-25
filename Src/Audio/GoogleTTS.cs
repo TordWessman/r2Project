@@ -28,8 +28,7 @@ namespace R2Core.Audio
 	/// <summary>
 	/// Using the Google translate API to create mpga-encoded audio which is played using the libr2mp3. 
 	/// </summary>
-	public class GoogleTTS: DeviceBase, ITTS
-	{
+	public class GoogleTTS: DeviceBase, ITTS {
 		
 		private const string dllPath = "libr2mp3.so";
 
@@ -59,13 +58,13 @@ namespace R2Core.Audio
 		private string m_text;
 		private string m_language = "en";
 
-		public GoogleTTS (string id, WebFactory webFactory) : base(id)
-		{
-			m_client = webFactory.CreateHttpClient ("http_client");
-
-			if (_ext_init_mp3_memory () != 1) {
+		public GoogleTTS(string id, WebFactory webFactory) : base(id) {
 			
-				throw new ApplicationException ("Unable to initialize TTS");
+			m_client = webFactory.CreateHttpClient("http_client");
+
+			if (_ext_init_mp3_memory() != 1) {
+			
+				throw new ApplicationException("Unable to initialize TTS");
 
 			}
 
@@ -82,7 +81,7 @@ namespace R2Core.Audio
 
 			Log.t($"Sending: {message.Destination}");
 
-			m_sendTask = m_client.SendAsync (message, (response) => {
+			m_sendTask = m_client.SendAsync(message, (response) => {
 			
 				if (response.Payload is byte[]) {
 
@@ -103,13 +102,13 @@ namespace R2Core.Audio
 		public bool IsQuiet {
 
 			get { return _ext_is_playing_mp3 () == 1; }
-			set { _ext_pause_mp3 (); }
+			set { _ext_pause_mp3(); }
 
 		}
 
 		public string CurrentText { get { return m_text; } }
 
-		public override void Stop () {
+		public override void Stop() {
 		
 			_ext_stop_mp3();
 		

@@ -32,8 +32,7 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// Implementation of a script factory. Used to create ruby scripts.
 	/// </summary>
-	public class RubyScriptFactory : ScriptFactoryBase<IronScript>
-	{
+	public class RubyScriptFactory : ScriptFactoryBase<IronScript> {
 
 		private const string RUBY_FILE_EXTENSION = ".rb";
 		private const string RUBY_COMMAND_SCRIPT_ID_POSTFIX = "_in_command_script";
@@ -54,30 +53,29 @@ namespace R2Core.Scripting
 		/// <param name="paths">Paths.</param>
 		/// <param name="deviceManager">Device manager.</param>
 		/// <param name="taskMonitor">Task monitor.</param>
-		public RubyScriptFactory (string id, 
+		public RubyScriptFactory(string id, 
 		                      	ICollection<string> paths,
-		                      	IDeviceManager deviceManager) : base (id)
-		{
+		                      	IDeviceManager deviceManager) : base(id) {
 
 			m_deviceManager = deviceManager;
-			m_engine = Ruby.CreateEngine ();
-			m_engine.SetSearchPaths (paths);
+			m_engine = Ruby.CreateEngine();
+			m_engine.SetSearchPaths(paths);
 		
 		}
 
 		protected override string FileExtension { get { return RUBY_FILE_EXTENSION; } }
 			
-		public override IronScript CreateScript (string id) {
+		public override IronScript CreateScript(string id) {
 		
-			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic> ();
+			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
 			// Add the factorys source paths to the engines search paths.
-			m_engine.SetSearchPaths (m_engine.GetSearchPaths ().Concat (ScriptSourcePaths).ToList());
+			m_engine.SetSearchPaths(m_engine.GetSearchPaths().Concat(ScriptSourcePaths).ToList());
 
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
-			IronScript script = new IronScript (id,
+			IronScript script = new IronScript(id,
 				GetScriptFilePath(id),
 				m_engine, inputParams);
 			
@@ -87,7 +85,7 @@ namespace R2Core.Scripting
 	
 		public override IScriptInterpreter CreateInterpreter(IronScript script) {
 
-			return new IronScriptInterpreter (script);
+			return new IronScriptInterpreter(script);
 
 		}
 
@@ -95,9 +93,9 @@ namespace R2Core.Scripting
 		/// Creates an instance of IHttpObjectReceiver capable of handling input through an IScript.
 		/// </summary>
 		/// <returns>The script object receiver.</returns>
-		public IWebObjectReceiver CreateRubyScriptObjectReceiver(IScript script) {
+		public IWebObjectReceiver CreateRubyScriptObjectReceiver(IScript script, string path) {
 
-			return new ScriptObjectReceiver<RubyWebIntermediate> (script);
+			return new ScriptObjectReceiver<RubyWebIntermediate>(script, path);
 
 		}
 

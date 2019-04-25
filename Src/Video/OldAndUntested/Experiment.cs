@@ -31,26 +31,24 @@ namespace R2Core.Video
 		private const string dllPath = "libr2opencv.so";
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		private static extern short  _ext_sharpnes (System.IntPtr image);
+		private static extern short  _ext_sharpnes(System.IntPtr image);
 		
 		private IImagePointerManager m_imgStorage;
 
-		public Experiment (string id,
+		public Experiment(string id,
 		       
-		                  IImagePointerManager imgStorage) : base (id)
-		{
+		                  IImagePointerManager imgStorage) : base(id) {
 
 			m_imgStorage = imgStorage;
 		}
 		
 		
-		public void Sharpnes (IMemory nameMemory)
-		{
+		public void Sharpnes(IMemory nameMemory) {
 			IEnumerable<IMemory> faces = (from m in nameMemory.Associations
 				where m.Type == "face" select m);
 			
 			foreach (IMemory face in faces) {
-				Log.t ("Sharpnes: " + face.Id + " : " + _ext_sharpnes (m_imgStorage.LoadImage (face).Ptr));
+				Log.t("Sharpnes: " + face.Id + " : " + _ext_sharpnes(m_imgStorage.LoadImage(face).Ptr));
 			}
 		}
 		

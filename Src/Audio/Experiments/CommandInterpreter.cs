@@ -24,38 +24,35 @@ using R2Core.Scripting;
 
 namespace R2Core.Audio.ASR
 {
-	public class CommandInterpreter<T> : ILanguageUpdated where T: IScript
-	{
+	public class CommandInterpreter<T>: ILanguageUpdated where T : IScript {
+		
 		private string m_xmlLanguageFile;
 		private List<string> m_commands;
-		private IScriptFactory<T> m_commandScriptFactory;
+		private IScriptFactory<T>m_commandScriptFactory;
 		private string m_commandScriptTemplateFileName;
 		
-		public CommandInterpreter (	string xmlLanguageFile,
+		public CommandInterpreter(	string xmlLanguageFile,
 		                           	string commandScriptTemplateFile,
-									IScriptFactory<T> commandScript)
-		{
+									IScriptFactory<T>commandScript) {
 			m_xmlLanguageFile = xmlLanguageFile;
-			Reload ();
+			Reload();
 			m_commandScriptTemplateFileName = commandScriptTemplateFile;
 			m_commandScriptFactory = commandScript;
 			
 		}
 		
-		public void Reload ()
-		{
-			XPathDocument source = new XPathDocument (m_xmlLanguageFile);
-			XPathNodeIterator commandIterator = source.CreateNavigator ().Select ("//commands/command");
+		public void Reload() {
+			XPathDocument source = new XPathDocument(m_xmlLanguageFile);
+			XPathNodeIterator commandIterator = source.CreateNavigator().Select("//commands/command");
 			
-			m_commands = new List<string> ();
+			m_commands = new List<string>();
 			
-			while (commandIterator.MoveNext()) {
-				m_commands.Add (commandIterator.Current.Value.ToLower ());
+			while(commandIterator.MoveNext()) {
+				m_commands.Add(commandIterator.Current.Value.ToLower());
 			}
 		}
 		
-		public bool CanInterpretFromXml (string text)
-		{
+		public bool CanInterpretFromXml(string text) {
 
 			if ((from c in m_commands where text.ToLower().StartsWith(c.ToLower()) select c).Any())
 				return true;
@@ -64,15 +61,14 @@ namespace R2Core.Audio.ASR
 
 		}
 		
-		public bool Execute (string text)
-		{ 
-			throw new NotImplementedException ("Will this ever be used?");
+		public bool Execute(string text) { 
+			throw new NotImplementedException("Will this ever be used?");
 			/*
 			
-			ICommandScript script = m_commandScriptFactory.CreateCommand (
+			ICommandScript script = m_commandScriptFactory.CreateCommand(
 				"command_script", m_commandScriptTemplateFileName);
 			
-			object result = script.Execute (text.Trim ());
+			object result = script.Execute(text.Trim());
 			
 			return result is bool && ((bool)result) || CanInterpretFromXml(text);
 			

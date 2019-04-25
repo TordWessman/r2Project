@@ -28,21 +28,20 @@ using System.Threading;
 namespace R2Core.GPIO.Tests
 {
 	[TestFixture]
-	public class GPIOTests: TestBase
-	{
+	public class GPIOTests: TestBase {
+		
 		private MockSerialConnection mock_connection;
 		private ISerialPackageFactory m_packageFactory;
 
-		public GPIOTests ()
-		{
-			m_packageFactory = new ArduinoSerialPackageFactory ();
-			mock_connection = new MockSerialConnection ("mock", m_packageFactory);
+		public GPIOTests() {
+			m_packageFactory = new ArduinoSerialPackageFactory();
+			mock_connection = new MockSerialConnection("mock", m_packageFactory);
 		}
 
 		[Test]
 		public void TestPackageSerialization() {
 		
-			DeviceRequestPackage request = new DeviceRequestPackage () {
+			DeviceRequestPackage request = new DeviceRequestPackage() {
 				Action = SerialActionType.Create,
 				Id = 42,
 				Content = new byte[2] {
@@ -52,37 +51,37 @@ namespace R2Core.GPIO.Tests
 				NodeId = 99
 			};
 
-			byte[] serialized = m_packageFactory.SerializeRequest (request);
+			byte[] serialized = m_packageFactory.SerializeRequest(request);
 
-			Assert.AreEqual ((byte)SerialActionType.Create, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION]);
-			Assert.AreEqual (42, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_ID]);
-			Assert.AreEqual (10, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT]);
-			Assert.AreEqual (20, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT + 1]);
-			Assert.AreEqual (99, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_HOST]);
+			Assert.AreEqual((byte)SerialActionType.Create, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION]);
+			Assert.AreEqual(42, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_ID]);
+			Assert.AreEqual(10, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT]);
+			Assert.AreEqual(20, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT + 1]);
+			Assert.AreEqual(99, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_HOST]);
 
 		}
 
 		[Test]
 		public void TestSerial() {
 			
-			var host = new SerialHost ("h", mock_connection, m_packageFactory);
-			var factory = new SerialGPIOFactory ("f", host);
-			var sensor = factory.CreateAnalogInput ("inp", 14);
-			var remoteMock = mock_connection.Devices.First ();
+			var host = new SerialHost("h", mock_connection, m_packageFactory);
+			var factory = new SerialGPIOFactory("f", host);
+			var sensor = factory.CreateAnalogInput("inp", 14);
+			var remoteMock = mock_connection.Devices.First();
 
 			Random random = new Random();
 
 			for (int i = 0; i < 100; i++) {
 
 				int rand = random.Next(0, 65535);
-				remoteMock.IntValues [0] = rand; Assert.AreEqual (rand, sensor.Value);
+				remoteMock.IntValues [0] = rand; Assert.AreEqual(rand, sensor.Value);
 	
 			}
 
-			var dht11 = factory.CreateDht11 ("inp2",2);
+			var dht11 = factory.CreateDht11("inp2",2);
 			remoteMock = mock_connection.Devices[1];
-			var temp = dht11.GetTemperatureSensor ("temp");
-			var humid = dht11.GetHumiditySensor ("humid");
+			var temp = dht11.GetTemperatureSensor("temp");
+			var humid = dht11.GetHumiditySensor("humid");
 
 			for (int i = 0; i < 100; i++) {
 
@@ -91,8 +90,8 @@ namespace R2Core.GPIO.Tests
 				remoteMock.IntValues [0] = rand;
 				remoteMock.IntValues [1] = rand2;
 
-				Assert.AreEqual (rand, temp.Value);
-				Assert.AreEqual (rand2, humid.Value);
+				Assert.AreEqual(rand, temp.Value);
+				Assert.AreEqual(rand2, humid.Value);
 
 			}
 		}
@@ -101,28 +100,28 @@ namespace R2Core.GPIO.Tests
 		public void TestSerialDeviceManager() {
 
 			// For testing purposes, set the update interval to 1 second
-			Settings.Consts.SerialNodeUpdateTime (1);
+			Settings.Consts.SerialNodeUpdateTime(1);
 
-			var host = new SerialHost ("h", mock_connection, m_packageFactory);
+			var host = new SerialHost("h", mock_connection, m_packageFactory);
 
 			// No device added, so host should not be available
 			Assert.IsFalse(host.IsNodeAvailable(3));
 
-			var factory = new SerialGPIOFactory ("f", host);
+			var factory = new SerialGPIOFactory("f", host);
 
 			// Let the mock behave like there's a node with the id 3.
-			mock_connection.nodes.Add (3);
+			mock_connection.nodes.Add(3);
 
 			// Creates an input on node 3
-			var sensor = factory.CreateAnalogInput ("inp", 14, 3);
+			var sensor = factory.CreateAnalogInput("inp", 14, 3);
 
 			// The host should have been created at the mock node.
 			Assert.IsTrue(host.IsNodeAvailable(3));
 
-			var remoteMock = mock_connection.Devices.Last ();
+			var remoteMock = mock_connection.Devices.Last();
 			remoteMock.IntValues [0] = 42;
 
-			Assert.AreEqual (42, sensor.Value);
+			Assert.AreEqual(42, sensor.Value);
 
 			// Send node 3 to sleep and start update cycle.
 			factory[3].Sleep = true;
@@ -131,13 +130,13 @@ namespace R2Core.GPIO.Tests
 			remoteMock.IntValues [0] = 543;
 
 			// Now we should use the cached value
-			Assert.AreEqual (42, sensor.Value);
+			Assert.AreEqual(42, sensor.Value);
 
 			// Wait for the next update cycle
-			Thread.Sleep (2500);
+			Thread.Sleep(2500);
 
 			// Enough time has passed for an update cycle. The value should have been updated
-			Assert.AreEqual (543, sensor.Value);
+			Assert.AreEqual(543, sensor.Value);
 
 			// The update should now be disabled
 			((SerialNode) factory [3]).ShouldUpdate = false;
@@ -145,11 +144,11 @@ namespace R2Core.GPIO.Tests
 			// This value should therefore never be read
 			remoteMock.IntValues [0] = 43;
 
-			// Wait for the next update cycle (which should not occur)
-			Thread.Sleep (2500);
+			// Wait for the next update cycle(which should not occur)
+			Thread.Sleep(2500);
 
 			// The update cycle should not have occured, and the device should still have it's previous value. 
-			Assert.AreEqual (543, sensor.Value);
+			Assert.AreEqual(543, sensor.Value);
 		
 		}
 
@@ -160,7 +159,7 @@ namespace R2Core.GPIO.Tests
 				Checksum = 11,
 				Id = 42, NodeId = 200, Content = new byte[2]{11, 12}};
 
-			Assert.IsTrue (p.IsChecksumValid);
+			Assert.IsTrue(p.IsChecksumValid);
 
 		}
 	

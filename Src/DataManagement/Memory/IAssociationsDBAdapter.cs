@@ -22,9 +22,9 @@ using R2Core.Data;
 
 namespace R2Core.DataManagement.Memory
 {
-	public interface IAssociationsDBAdapter: IDBAdapter
+	public interface IAssociationsDBAdapter : IDBAdapter
 	{
-		void SetAssociation (int memoryId, int memoryId2);
+		void SetAssociation(int memoryId, int memoryId2);
 		int [] GetAssociations(int memoryId);
 		void RemoveAssociations(int memoryId);
 	}

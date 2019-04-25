@@ -14,7 +14,7 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// A hight level interface for interaction to a serial host exposing the available interactions. 
 	/// </summary>
-	public interface ISerialHost: IDevice {
+	public interface ISerialHost : IDevice {
 
 		/// <summary>
 		/// Number of retries for a transmission before giving up and rethrowing IO & Serial exceptions.
@@ -23,7 +23,7 @@ namespace R2Core.GPIO
 		int RetryCount { get; set; }
 
 		/// <summary>
-		/// Returns the value property of a device on node with id `nodeId`. `deviceId` is the id (local on the node) of the device.
+		/// Returns the value property of a device on node with id `nodeId`. `deviceId` is the id(local on the node) of the device.
 		/// </summary>
 		/// <returns>The value.</returns>
 		/// <param name="nodeId">Node identifier.</param>
@@ -46,7 +46,7 @@ namespace R2Core.GPIO
 		DeviceData<T> Create<T>(int nodeId, SerialDeviceType type, byte[] parameters);
 
 		/// <summary>
-		/// Initializes (resets) the specified host.
+		/// Initializes(resets) the specified host.
 		/// </summary>
 		/// <param name="host">Host.</param>
 		void Initialize(int nodeId);
@@ -83,7 +83,7 @@ namespace R2Core.GPIO
 		void Sleep(int nodeId, bool toggle, int cycles = ArduinoSerialPackageFactory.RH24_SLEEP_UNTIL_MESSAGE_RECEIVED);
 
 		/// <summary>
-		/// Allows the node to stay awake for up to 60 seconds. Use this method if multiple actions are required (i.e. synchronization and value updates) in order to lower the writing to the nodes EEPROM.
+		/// Allows the node to stay awake for up to 60 seconds. Use this method if multiple actions are required(i.e. synchronization and value updates) in order to lower the writing to the nodes EEPROM.
 		/// </summary>
 		/// <param name="nodeId">Node identifier.</param>
 		/// <param name="seconds">Seconds.</param>

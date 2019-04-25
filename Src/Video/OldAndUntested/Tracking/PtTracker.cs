@@ -34,16 +34,14 @@ namespace R2Core.Video
 		private int m_autoRefresh;
 		private IFrameSource m_source;
 		/*
-		public PtTracker (string id, IPointsTracker tracker, IplImage frame) : base (id)
-		{
+		public PtTracker (string id, IPointsTracker tracker, IplImage frame) : base(id) {
 			m_tracker = tracker;
 			m_ptr = m_tracker.CreateTracker (frame);
 		}*/
 		
-		public PtTracker (string id, IPointsTracker tracker, IFrameSource frame, CvRect roi) : base (id)
-		{
+		public PtTracker (string id, IPointsTracker tracker, IFrameSource frame, CvRect roi) : base(id) {
 			if (!frame.Ready) {
-				throw new InvalidOperationException ("IFrameSource not ready!");
+				throw new InvalidOperationException("IFrameSource not ready!");
 			}
 			
 			m_tracker = tracker;
@@ -51,7 +49,7 @@ namespace R2Core.Video
 			m_roiSize = roi.Size;
 			m_autoRefresh = 0;
 			m_source = frame;
-			UpdateCenter ();
+			UpdateCenter();
 		}
 		
 		public int AutoRefresh {
@@ -67,8 +65,8 @@ namespace R2Core.Video
 			get {
 				
 				if (Points.Count == 0) {
-					//Log.w ("No points in PtTracker");
-					return new CvRect (0, 0, 0, 0);
+					//Log.w("No points in PtTracker");
+					return new CvRect(0, 0, 0, 0);
 				}
 				
 				int x1 = int.MaxValue, y1 = int.MaxValue;
@@ -110,15 +108,15 @@ namespace R2Core.Video
 					y2 = size.Height;
 				}
 				
-				return new CvRect (x1, y1, x2 - x1, y2 - y1);
+				return new CvRect(x1, y1, x2 - x1, y2 - y1);
 			}
 		}
 		
 		public IList<CvPoint> Points {
 			get {
-				IList<CvPoint> points = new List<CvPoint> ();
+				IList<CvPoint> points = new List<CvPoint>();
 				for (int i = 0; i < Size; i++) {
-					points.Add (m_tracker.GetPoint (m_ptr, i));
+					points.Add(m_tracker.GetPoint(m_ptr, i));
 				}
 					           
 				return points;
@@ -126,12 +124,11 @@ namespace R2Core.Video
 		}
 		
 		public int Size { get {
-				return m_tracker.CountPoints (m_ptr);
+				return m_tracker.CountPoints(m_ptr);
 			}
 		}
 		
-		public int Update ()
-		{
+		public int Update() {
 
 			if (!m_source.Ready) {
 				return 0;
@@ -142,7 +139,7 @@ namespace R2Core.Video
 			if (m_autoRefresh > 0 && count < m_autoRefresh) {
 				return Refresh (m_source);
 			} else {
-				UpdateCenter ();
+				UpdateCenter();
 			
 				return count;
 			}
@@ -150,8 +147,7 @@ namespace R2Core.Video
 			
 		}
 		
-		private void UpdateCenter ()
-		{
+		private void UpdateCenter () {
 			CvRect container = Container;
 			
 			if (!container.IsEmpty) {
@@ -159,8 +155,7 @@ namespace R2Core.Video
 			}
 		}
 		
-		public int Refresh (IFrameSource source)
-		{
+		public int Refresh (IFrameSource source) {
 			
 			if (!m_source.Ready) {
 				return 0;
@@ -177,24 +172,23 @@ namespace R2Core.Video
 			if (x + width > size.Width) { width = size.Width - x; }
 			if (y + height > size.Height) { height = size.Height - y; }
 			
-			CvRect roi = new CvRect (
+			CvRect roi = new CvRect(
 				x,
 				y,
 				width,
 				height);
 			
-			roi.BindTo (size.Width, size.Height);
+			roi.BindTo(size.Width, size.Height);
 				
 			m_ptr = m_tracker.CreateTracker (source, roi);
 			m_roiSize = roi.Size;
 			
-			UpdateCenter ();
+			UpdateCenter();
 			
-			return m_tracker.CountPoints (m_ptr);
+			return m_tracker.CountPoints(m_ptr);
 		}
 		
-		~PtTracker ()
-		{
+		~PtTracker () {
 			//TODO:?
 			//m_tracker.ReleaseTracker (m_ptr);
 		}

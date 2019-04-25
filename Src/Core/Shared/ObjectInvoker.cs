@@ -29,15 +29,10 @@ namespace R2Core
 	/// <summary>
 	/// Capable of invoking methods, properties and members of objects.
 	/// </summary>
-	public class ObjectInvoker
-	{
-		public ObjectInvoker ()
-		{
-			
-		}
+	public class ObjectInvoker {
 
 		/// <summary>
-		/// Invoke method 'method' on object 'target' using input parameters 'parameters". Return the value (if any).
+		/// Invoke method 'method' on object 'target' using input parameters 'parameters". Return the value(if any).
 		/// </summary>
 		/// <param name="target">Target.</param>
 		/// <param name="method">Method.</param>
@@ -46,40 +41,40 @@ namespace R2Core
 
 			if (target is IInvokable) {
 
-				dynamic[] para = parameters?.Select (ppp => ppp as dynamic).ToArray();
-				return (target as IInvokable).Invoke (method, para);
+				dynamic[] para = parameters?.Select(ppp => ppp as dynamic).ToArray();
+				return(target as IInvokable).Invoke(method, para);
 
 			}
 
-			MethodInfo methodInfo = target.GetType ().GetMethod (method);
+			MethodInfo methodInfo = target.GetType().GetMethod(method);
 
 			if (methodInfo == null) {
 
-				throw new ArgumentException ($"Method '{method}' in '{target}' not found.");
+				throw new ArgumentException($"Method '{method}' in '{target}' not found.");
 
 			}
 
-			ParameterInfo[] paramsInfo = methodInfo.GetParameters ();
+			ParameterInfo[] paramsInfo = methodInfo.GetParameters();
 
 			if (paramsInfo.Length != (parameters?.Count ?? 0)) {
 
-				throw new ArgumentException ($"Wrong number of arguments for {method} in {target}. {parameters?.Count} provided but {paramsInfo.Length} are required.");
+				throw new ArgumentException($"Wrong number of arguments for {method} in {target}. {parameters?.Count} provided but {paramsInfo.Length} are required.");
 
 			}
 
-			List<object> p = new List<object> ();
+			List<object> p = new List<object>();
 
 			// Convert the dynamic parameters to the types required by the subject.
 			for (int i = 0; i < paramsInfo.Length; i++) {
 
-				object parameter = parameters.ToArray () [i];
+				object parameter = parameters.ToArray() [i];
 				Type requiredType = paramsInfo [i].ParameterType;
 
-				p.Add (requiredType.ConvertObject (parameter));
+				p.Add(requiredType.ConvertObject(parameter));
 
 			}
 
-			return target.GetType ().GetMethod (method).Invoke (target, p.ToArray());
+			return target.GetType().GetMethod(method).Invoke(target, p.ToArray());
 
 		}
 
@@ -88,11 +83,11 @@ namespace R2Core
 		/// </summary>
 		/// <param name="target">Target.</param>
 		/// <param name="property">Property.</param>
-		public dynamic Get (object target, string property) {
+		public dynamic Get(object target, string property) {
 		
 			if (target is IInvokable) {
 
-				return (target as IInvokable).Get (property);
+				return(target as IInvokable).Get(property);
 
 			}
 
@@ -102,25 +97,25 @@ namespace R2Core
 
 				// If no property found. Try to find a member variable instead.
 
-				MemberInfo[] members = target.GetType ().GetMember (property);
+				MemberInfo[] members = target.GetType().GetMember(property);
 
 				if (members.Length == 0) { 
 
-					throw new ArgumentException ($"Property '{property}' not found in '{target}'.");
+					throw new ArgumentException($"Property '{property}' not found in '{target}'.");
 
 				} else if (!(members [0] is FieldInfo)) {
 
-					throw new ArgumentException ($"Unable to access property '{property}' in '{target}'.");
+					throw new ArgumentException($"Unable to access property '{property}' in '{target}'.");
 
 				}
 
 				FieldInfo fieldInfo = (members [0] as FieldInfo);
 
-				return fieldInfo.GetValue (target);
+				return fieldInfo.GetValue(target);
 
 			} else {
 
-				return propertyInfo.GetValue (target);
+				return propertyInfo.GetValue(target);
 
 			}
 
@@ -132,11 +127,11 @@ namespace R2Core
 		/// <param name="target">Target.</param>
 		/// <param name="property">Property.</param>
 		/// <param name="value">Value.</param>
-		public void Set (object target, string property, object value) {
+		public void Set(object target, string property, object value) {
 		
 			if (target is IInvokable) {
 
-				(target as IInvokable).Set (property, value as dynamic);
+				(target as IInvokable).Set(property, value as dynamic);
 				return;
 
 			}
@@ -147,25 +142,25 @@ namespace R2Core
 
 				// If no property found. Try to find a member variable instead.
 
-				MemberInfo[] members = target.GetType ().GetMember (property);
+				MemberInfo[] members = target.GetType().GetMember(property);
 
 				if (members.Length == 0) { 
 
-					throw new ArgumentException ($"Property '{property}' not found in '{target}'.");
+					throw new ArgumentException($"Property '{property}' not found in '{target}'.");
 
 				} else if (!(members [0] is FieldInfo)) {
 
-					throw new ArgumentException ($"Unable to access property '{property}' in '{target}'.");
+					throw new ArgumentException($"Unable to access property '{property}' in '{target}'.");
 
 				}
 
 				FieldInfo fieldInfo = (members [0] as FieldInfo);
 
-				fieldInfo.SetValue (target, fieldInfo.FieldType.ConvertObject (value));
+				fieldInfo.SetValue(target, fieldInfo.FieldType.ConvertObject(value));
 
 			} else {
 
-				propertyInfo.SetValue (target, propertyInfo.PropertyType.ConvertObject (value));
+				propertyInfo.SetValue(target, propertyInfo.PropertyType.ConvertObject(value));
 
 			}
 
@@ -181,7 +176,7 @@ namespace R2Core
 
 			return 
 				target.GetType().GetProperty(property) != null ||
-				target.GetType ().GetMember (property).Length > 0 ||
+				target.GetType().GetMember(property).Length > 0 ||
 				((target is R2Dynamic) ? (target as R2Dynamic).Has(property) : false);
 
 		}
@@ -192,7 +187,7 @@ namespace R2Core
 	
 		/// <summary>
 		/// Converts ´parameter´ to the System.Type required. Allows conversion even if ´parameter´ is defined
-		/// as a non-specific type (i.e. ´object´ or ´dynamic´).
+		/// as a non-specific type(i.e. ´object´ or ´dynamic´).
 		/// </summary>
 		/// <returns>The object.</returns>
 		/// <param name="requiredType">Required type.</param>
@@ -202,32 +197,34 @@ namespace R2Core
 			if (requiredType.IsGenericType) {
 
 				// Check if it's a generic IEnumerable
-				if (typeof(IEnumerable).IsAssignableFrom (requiredType)) {
+				if (typeof(IEnumerable).IsAssignableFrom(requiredType)) {
 
 					var enumeratedParameter = parameter as IEnumerable;
 
 					if (enumeratedParameter == null) {
 
-						throw new ArgumentException ($"IEnumerable parameter required, but was of type: {parameter}.");
+						throw new ArgumentException($"IEnumerable parameter required, but was of type: {parameter}.");
 
 					}
 
-					Type[] containedTypes = requiredType.GetGenericArguments ();
+					Type[] containedTypes = requiredType.GetGenericArguments();
+
 					if (containedTypes.Length == 2) {
 						
 						// Assuming Dictionary<T,S>.
 						Type genericDictionaryType = typeof(Dictionary<,>);
+						Type dictionaryType = genericDictionaryType.MakeGenericType(containedTypes);
 
-						Type dictionaryType = genericDictionaryType.MakeGenericType (containedTypes);
+						IDictionary dictionary = (IDictionary)Activator.CreateInstance(dictionaryType);
 
-						IDictionary dictionary = (IDictionary)Activator.CreateInstance (dictionaryType);
+						ObjectInvoker invoker = new ObjectInvoker();
 
 						foreach (object p in enumeratedParameter) {
 
-							object key = ((KeyValuePair<dynamic, dynamic>)p).Key;
-							object value = ((KeyValuePair<dynamic, dynamic>)p).Value;
+							dynamic key = invoker.Get(p, "Key");
+							dynamic value = invoker.Get(p, "Value");
 
-							dictionary.Add (key, value);
+							dictionary.Add(key, value);
 							
 						}
 
@@ -242,7 +239,7 @@ namespace R2Core
 						IList list = (IList)Activator.CreateInstance(listType);
 						foreach(object p in enumeratedParameter) {
 
-							list.Add (containedTypes.FirstOrDefault().ConvertObject (p));
+							list.Add(containedTypes.FirstOrDefault().ConvertObject(p));
 
 						}
 
@@ -252,12 +249,12 @@ namespace R2Core
 
 				}
 
-				throw new NotImplementedException ($"Dynamic conversion not implemented for type {requiredType} (using parameters {parameter})");
+				throw new NotImplementedException($"Dynamic conversion not implemented for type {requiredType} (using parameters {parameter})");
 
-			} else if (typeof(IConvertible).IsAssignableFrom (requiredType)) {
+			} else if (typeof(IConvertible).IsAssignableFrom(requiredType)) {
 
 				// Primitive type
-				return Convert.ChangeType (parameter, requiredType);
+				return Convert.ChangeType(parameter, requiredType);
 
 			} else {
 

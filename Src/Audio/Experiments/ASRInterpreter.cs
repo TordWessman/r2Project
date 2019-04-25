@@ -25,13 +25,13 @@ using System.Threading.Tasks;
 
 namespace R2Core.Audio.ASR
 {
-	public class ASRInterpreter<T> : DeviceBase, IASRInterpreter where T: IScript
+	public class ASRInterpreter<T>: DeviceBase, IASRInterpreter where T: IScript
 	{
 		private string m_TTSId;
 		private ISpeechInterpreter m_speechInterpreter;
 		private IASR m_asr;
 		private IDeviceManager m_deviceManager;
-		private CommandInterpreter<T> m_commandInterpreter;
+		private CommandInterpreter<T>m_commandInterpreter;
 		
 		private IConversationLock m_conversationLock;
 		private Bot m_bot;
@@ -39,75 +39,73 @@ namespace R2Core.Audio.ASR
 		
 		private bool m_ttsMode;
 		
-		public ASRInterpreter (string id, ISpeechInterpreter speechInterpreter,
-							CommandInterpreter<T> commandInterpreter,
+		public ASRInterpreter(string id, ISpeechInterpreter speechInterpreter,
+							CommandInterpreter<T>commandInterpreter,
 		                       IASR asr, IDeviceManager deviceManager, ITaskMonitor taskMonitor,
 		                      string aimlPath,
 		                   	  string settingsPath = "/../aimlConfig",
-			string botPathToConfigFiles = "/Settings.xml") : base (id)
-		{
+			string botPathToConfigFiles = "/Settings.xml") : base(id) {
+
 			m_speechInterpreter = speechInterpreter;
 			m_asr = asr;
 			m_deviceManager = deviceManager;
 			m_commandInterpreter = commandInterpreter;
 			
-			m_bot = new Bot ();
+			m_bot = new Bot();
 			
 			m_bot.PathToAIML = aimlPath;
 			m_bot.PathToConfigFiles = aimlPath + settingsPath;
-			Task loadTask = new Task (() => {
-				Log.d ("Loading chat bot settings.");
+			Task loadTask = new Task(() => {
+				Log.d("Loading chat bot settings.");
 				DateTime d = DateTime.Now;
-				m_bot.loadSettings (m_bot.PathToConfigFiles + botPathToConfigFiles);
+				m_bot.loadSettings(m_bot.PathToConfigFiles + botPathToConfigFiles);
 				m_bot.isAcceptingUserInput = false;
-				//m_bot.loadFromBinaryFile ("test.bin");
-				m_bot.loadAIMLFromFiles ();
+				//m_bot.loadFromBinaryFile("test.bin");
+				m_bot.loadAIMLFromFiles();
 				m_bot.isAcceptingUserInput = true;
 				m_ttsMode = true;
 				m_user = new User ("axle", m_bot);
 			
-				//m_bot.saveToBinaryFile ("test.bin");
-				//Log.d ("Done. Saving to file.");
-				Log.d ("Done: " + (DateTime.Now - d).TotalMilliseconds);
+				//m_bot.saveToBinaryFile("test.bin");
+				//Log.d("Done. Saving to file.");
+				Log.d("Done: " + (DateTime.Now - d).TotalMilliseconds);
 			}
 			);
 			
-			taskMonitor.AddTask ("load bot files", loadTask);
+			taskMonitor.AddTask("load bot files", loadTask);
 			
-			loadTask.Start ();
+			loadTask.Start();
 		}
 		
 		~ASRInterpreter () {
-			//m_bot.saveToBinaryFile ("test.bin");
+			//m_bot.saveToBinaryFile("test.bin");
 		}
 		
-		private string GetBotResponse (string text)
-		{
+		private string GetBotResponse(string text) {
 			if (m_bot.isAcceptingUserInput) {
-				Request r = new Request (text, m_user, m_bot);
-				Result res = m_bot.Chat (r);
+				Request r = new Request(text, m_user, m_bot);
+				Result res = m_bot.Chat(r);
 				return res.Output;
 			}
 			
-			Log.w ("Bot is not accepting response yet. Waiting for language to be loaded");
+			Log.w("Bot is not accepting response yet. Waiting for language to be loaded");
 			
 			return "";
 		}
 		
-		public void SetTTSId (string tts_Id)
-		{
+		public void SetTTSId(string tts_Id) {
 			m_TTSId = tts_Id;
 		}
 		
 		public bool TTSIsActive {
 			get {
-				ITTS tts = m_deviceManager.Has (m_TTSId) ? 
+				ITTS tts = m_deviceManager.Has(m_TTSId) ? 
 						m_deviceManager.Get<ITTS> (m_TTSId) : null;
 
 				if (tts == null) {
-					Log.w ("ASRInterpreter Cannot answer: No TTS set.");
+					Log.w("ASRInterpreter Cannot answer: No TTS set.");
 				} else if (!tts.Ready) {
-					Log.w ("ASRInterpreter Cannot answer: TTS not ready");
+					Log.w("ASRInterpreter Cannot answer: TTS not ready");
 				} else {
 					return m_ttsMode;
 				}
@@ -116,29 +114,27 @@ namespace R2Core.Audio.ASR
 		}
 		}
 		
-		public void SetReplyMode (bool isActive) 
+		public void SetReplyMode(bool isActive) 
 		{
 			m_ttsMode = isActive;
 		}
 		
-		private void AddLock (IConversationLock conversationLock)
-		{
+		private void AddLock(IConversationLock conversationLock) {
 			if (m_conversationLock != null) {
-				Log.w ("Unable to lock conversation. The lock is held!");
+				Log.w("Unable to lock conversation. The lock is held!");
 			} else {
 				m_conversationLock = conversationLock;
 			}
 			
 		}
 		
-		public void ScriptLock (string scriptHandle, string methodHandle)
-		{
-			if (m_deviceManager.Has (scriptHandle)) {
+		public void ScriptLock(string scriptHandle, string methodHandle) {
+			if (m_deviceManager.Has(scriptHandle)) {
 				IScript script = m_deviceManager.Get<IScript> (scriptHandle);
-				AddLock (new ScriptConversationLock (script, methodHandle));
+				AddLock(new ScriptConversationLock(script, methodHandle));
 				
 			} else {
-				Log.e ("Script: " + scriptHandle + " could not be locked (" + 
+				Log.e("Script: " + scriptHandle + " could not be locked(" + 
 					methodHandle + "), since it's not found by DeviceManager");
 			}
 			
@@ -146,41 +142,40 @@ namespace R2Core.Audio.ASR
 		
 		
 		#region IASRObserver implementation
-		public void TextReceived (string text)
-		{
+		public void TextReceived(string text) {
 			if (m_conversationLock != null) {
-				if (m_conversationLock.TryRelease (text)) {
-					Log.t ("Releasing lock!");
+				if (m_conversationLock.TryRelease(text)) {
+					Log.t("Releasing lock!");
 					m_conversationLock = null;
 				} else {
-					Log.t ("Keeping lock!");
+					Log.t("Keeping lock!");
 				}
 				return;
 			}
 			
-			if (m_commandInterpreter.Execute (text)) {
+			if (m_commandInterpreter.Execute(text)) {
 				return;
 			}
 			
 			string response = "";
 				
-			if (m_speechInterpreter.KnowReply (text)) {
-				response = m_speechInterpreter.GetReply (text);
+			if (m_speechInterpreter.KnowReply(text)) {
+				response = m_speechInterpreter.GetReply(text);
 			} else {
-				response = GetBotResponse (text);
+				response = GetBotResponse(text);
 			}
 			
-			Log.t ("Robot response: " + response);
+			Log.t("Robot response: " + response);
 			
 			if (TTSIsActive) {
 				
-				ITTS tts = m_deviceManager.Has (m_TTSId) ? 
+				ITTS tts = m_deviceManager.Has(m_TTSId) ? 
 						m_deviceManager.Get<ITTS> (m_TTSId) : null;
 				
 
 				
 				m_asr.Active = false;
-				tts.Say (response);
+				tts.Say(response);
 				m_asr.Active = true;
 				
 			}
@@ -189,10 +184,9 @@ namespace R2Core.Audio.ASR
 		#endregion
 
 		#region ILanguageUpdated implementation
-		public void Reload ()
-		{
-			m_commandInterpreter.Reload ();
-			m_speechInterpreter.Reload ();
+		public void Reload() {
+			m_commandInterpreter.Reload();
+			m_speechInterpreter.Reload();
 		}
 		#endregion
 	}

@@ -20,12 +20,12 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	internal class SerialDigitalOutput : SerialDeviceBase<byte[]>, IOutputPort
-	{
+	internal class SerialDigitalOutput : SerialDeviceBase<byte[]>, IOutputPort {
+		
 		private byte m_port;
 		private bool m_value;
 
-		internal SerialDigitalOutput (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
+		internal SerialDigitalOutput(string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
 
 			m_port = (byte)port;
 
@@ -42,7 +42,7 @@ namespace R2Core.GPIO
 			set {
 
 				m_value = value;
-				Host.Set (DeviceId, NodeId, value ? 1 : 0);
+				Host.Set(DeviceId, NodeId, value ? 1 : 0);
 
 			}
 

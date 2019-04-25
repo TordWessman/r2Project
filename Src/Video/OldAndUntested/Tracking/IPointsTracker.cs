@@ -29,7 +29,7 @@ namespace R2Core.Video
 		TrackerPtr CreateTracker (IFrameSource video);
 		TrackerPtr CreateTracker (IplImage frame, CvRect roi);
 		TrackerPtr CreateTracker (IplImage frame);
-		CvPoint GetPoint (TrackerPtr tracker, int pointNumber);
+		CvPoint GetPoint(TrackerPtr tracker, int pointNumber);
 		void ReleaseTracker (TrackerPtr tracker);
 		int UpdateTracker (IplImage frame, TrackerPtr tracker);
 		int UpdateTracker (IFrameSource video, TrackerPtr tracker);

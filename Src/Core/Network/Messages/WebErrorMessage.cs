@@ -20,12 +20,12 @@ using System;
 
 namespace R2Core.Network
 {
-	public struct WebErrorMessage
-	{
+	public struct WebErrorMessage {
+		
 		public int Code;
 		public string Message;
 
-		public WebErrorMessage (int code, string message) {
+		public WebErrorMessage(int code, string message) {
 
 			Code = code; 
 			Message = message;

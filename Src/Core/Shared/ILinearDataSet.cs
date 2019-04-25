@@ -2,8 +2,8 @@
 
 namespace R2Core
 {
-	public interface ILinearDataSet<T>
-	{
+	public interface ILinearDataSet<T> {
+		
 		/// <summary>
 		/// Will make an interpolation of the coresponding y value using the contained points information.
 		/// </summary>

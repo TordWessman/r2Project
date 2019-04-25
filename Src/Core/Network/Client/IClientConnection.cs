@@ -36,13 +36,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Represents a connection to a client from a server.
 	/// </summary>
-	public interface IClientConnection : IDevice
-	{
-		/// <summary>
-		/// Writes INetworkMessage to remote. Will bypas the OnReceive handler.
-		/// </summary>
-		/// <param name="message">Message.</param>
-		INetworkMessage Send (INetworkMessage message);
+	public interface IClientConnection : INetworkConnection {
 
 		/// <summary>
 		/// Called upon asynchronous message retrieval
@@ -53,13 +47,6 @@ namespace R2Core.Network
 		/// Called whenever the client is disconnected.
 		/// </summary>
 		event OnDisconnectHandler OnDisconnect;
-
-		/// <summary>
-		/// Returns the other end of the line.
-		/// </summary>
-		/// <value>The endpoint.</value>
-		[JsonIgnoreAttribute] // IPEndPoint is not very serializable..
-		IPEndPoint Endpoint { get; } 
 
 	}
 }

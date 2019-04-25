@@ -20,8 +20,7 @@ namespace R2Core.GPIO
 		private bool m_timerDisposed;
 		private bool m_pullUp;
 
-		public InputPort2 (string id, ConnectorPin pin, IGpioConnectionDriver driver = null) : base(id)
-		{
+		public InputPort2(string id, ConnectorPin pin, IGpioConnectionDriver driver = null) : base(id) {
 		
 			m_pin = pin.ToProcessor();
 			m_driver = driver ?? GpioConnectionSettings.DefaultDriver;
@@ -35,7 +34,7 @@ namespace R2Core.GPIO
 
 			get {
 
-				return m_driver.Read (m_pin);
+				return m_driver.Read(m_pin);
 
 			}
 
@@ -46,7 +45,7 @@ namespace R2Core.GPIO
 		#region Timer/trigger stuff
 
 
-		// Used to make sure the trigger function is not executed concurrently (will ignore calls while the trigger function is running).
+		// Used to make sure the trigger function is not executed concurrently(will ignore calls while the trigger function is running).
 		private bool m_threadUnsafeTriggerFunctionIsExecuting;
 
 		public void SetTrigger(Func<object> triggerFunc, bool pullUp = false, int interval = 100) {
@@ -55,7 +54,7 @@ namespace R2Core.GPIO
 
 			if (m_timer != null) {
 
-				m_timer.Change (0, 0);
+				m_timer.Change(0, 0);
 				m_timer.Dispose();
 
 			}
@@ -74,9 +73,9 @@ namespace R2Core.GPIO
 		public void StopTrigger() {
 
 			m_timerDisposed = true;
-			m_release.Set ();
-			m_timer.Change (0, 0);
-			m_timer.Dispose ();
+			m_release.Set();
+			m_timer.Change(0, 0);
+			m_timer.Dispose();
 
 		}
 
@@ -97,12 +96,12 @@ namespace R2Core.GPIO
 
 				try {
 
-					m_triggerFunc ();
+					m_triggerFunc();
 
 				} catch (Exception ex) {
 
-					Log.x (ex);
-					StopTrigger ();
+					Log.x(ex);
+					StopTrigger();
 
 				} finally {
 

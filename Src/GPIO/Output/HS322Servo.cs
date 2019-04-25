@@ -23,12 +23,10 @@ using R2Core;
 
 namespace R2Core.GPIO
 {
-	public class HS322Servo: ServoBase
-	{
+	public class HS322Servo: ServoBase {
 			
-		public HS322Servo (string id, int channel, IServoController controller) :
-				base ( id,channel, controller)
-		{
+		public HS322Servo(string id, int channel, IServoController controller) :
+				base( id,channel, controller) {
 			
 		}
 		

@@ -17,35 +17,38 @@
 //
 //
 using System;
-using System.Dynamic;
-using R2Core.Device;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace R2Core.Network
+namespace R2Core.Tests
 {
-	/// <summary>
-	/// Abstracts details of a network connection
-	/// </summary>
-	public interface IHostConnection: IDevice
-	{
-	
-		/// <summary>
-		/// Returns the address of the remote host.
-		/// </summary>
-		/// <value>The address.</value>
-		string Address { get; }
+	class InvokableDummy {
 
-		/// <summary>
-		/// Access the request headers. 
-		/// </summary>
-		/// <value>The headers.</value>
-		IDictionary<string, object> Headers { get; }
+		public int Member = 0;
 
-		/// <summary>
-		/// Synchronously transmits the message
-		/// </summary>
-		/// <param name="message">Message.</param>
-		dynamic Send(dynamic payload);
+		private string m_propertyMember;
+		public string Property { get { return m_propertyMember; } set { m_propertyMember = value;} }
+
+		public IEnumerable<int> EnumerableInts = null;
+
+		public string AddBar(string value) {
+
+			return value + "bar";
+
+		}
+
+		public int GiveMeAnArray(IEnumerable<string> array) {
+
+			return array.Count();
+
+		}
+
+		public IEnumerable<int> GiveMeADictionary(IDictionary<string,int> dictionary) {
+
+			IEnumerable<int> values = dictionary.Values.ToArray();
+			return values;
+
+		}
 
 	}
 

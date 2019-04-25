@@ -24,7 +24,7 @@ using R2Core.Audio.TTS;
 
 namespace R2Core.Audio.ASR
 {
-	public class ScriptASRObserver: DeviceBase, IASRObserver, ITTSObserver
+	public class ScriptASRObserver : DeviceBase, IASRObserver, ITTSObserver
 	{
 
 		public const string INTERPRET_FUNCTION_NAME = "interpretx";
@@ -33,26 +33,25 @@ namespace R2Core.Audio.ASR
 
 		private IScript m_script;
 
-		public ScriptASRObserver (string id, IScript script): base (id)
-		{
+		public ScriptASRObserver(string id, IScript script): base(id) {
 			m_script = script;
 		}
 
 		public void TextReceived(string text) {
 		
-			m_script.Invoke (INTERPRET_FUNCTION_NAME, text);
+			m_script.Invoke(INTERPRET_FUNCTION_NAME, text);
 
 		}
 
 
 		public void TalkStarted(ITTS tts) {
 		
-			m_script.Invoke (SPEACH_START_FUNCTION_NAME, tts);
+			m_script.Invoke(SPEACH_START_FUNCTION_NAME, tts);
 		}
 
 		public void TalkEnded(ITTS tts) {
 
-			m_script.Invoke (SPEACH_END_FUNCTION_NAME, tts);
+			m_script.Invoke(SPEACH_END_FUNCTION_NAME, tts);
 		
 		}
 

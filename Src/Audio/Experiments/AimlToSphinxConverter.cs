@@ -31,28 +31,25 @@ namespace R2Core.Audio.ASR
 	/// and an IModelCreator to create a set of models
 	/// used by the CMU Sphinx engine.
 	/// </summary>
-	public class AimlToSphinxConverter
-	{
+	public class AimlToSphinxConverter {
+		
 		private IModelCreator m_modelCreator;
 		private IList<string> m_data;
 		
-		public AimlToSphinxConverter (IModelCreator languageUpdater)
-		{
+		public AimlToSphinxConverter(IModelCreator languageUpdater) {
 			m_modelCreator = languageUpdater;
-			Reset ();
+			Reset();
 		}
 		
-		public void Reset ()
-		{
-			m_data = new List<string> ();
+		public void Reset() {
+			m_data = new List<string>();
 		}
 		
-		public void ParseFiles (string path, string fileName = null, int maxCount = int.MaxValue)
-		{
+		public void ParseFiles(string path, string fileName = null, int maxCount = int.MaxValue) {
 			int count = 0;
 			foreach (string file in Directory.GetFiles(path, fileName)) {
 				
-				if (ParseFile (file)) {
+				if (ParseFile(file)) {
 					return;
 				}
 				if (count++ >= maxCount) {
@@ -63,25 +60,23 @@ namespace R2Core.Audio.ASR
 			
 		}
 		
-		public void CreateLanguageFiles (string corpusFileName, string wordsFileName)
-		{
-			m_modelCreator.CreateLanguageFiles (m_data, corpusFileName, wordsFileName);
+		public void CreateLanguageFiles(string corpusFileName, string wordsFileName) {
+			m_modelCreator.CreateLanguageFiles(m_data, corpusFileName, wordsFileName);
 		}
 		
-		public bool ParseFile (string fileName)
-		{
-			Console.WriteLine ("\nReading: " + fileName);
-			XmlDocument doc = new XmlDocument ();
+		public bool ParseFile(string fileName) {
+			Console.WriteLine("\nReading: " + fileName);
+			XmlDocument doc = new XmlDocument();
 			
-			doc.LoadXml (File.ReadAllText (fileName));
+			doc.LoadXml(File.ReadAllText(fileName));
 
 			
 			foreach (XmlNode element in doc.DocumentElement.SelectNodes("//pattern")) {
 				
-				string res = Clean (element.InnerText);
+				string res = Clean(element.InnerText);
 				if (Console.KeyAvailable)  {
 					
-					ConsoleKeyInfo key = Console.ReadKey (true); 
+					ConsoleKeyInfo key = Console.ReadKey(true); 
 					
 					switch (key.Key) {  
 						case ConsoleKey.Escape:  
@@ -92,11 +87,11 @@ namespace R2Core.Audio.ASR
 
 				}
 				
-				if (!m_data.Contains (res)) {
-					m_data.Add (res);
-					Console.Write (".");
+				if (!m_data.Contains(res)) {
+					m_data.Add(res);
+					Console.Write(".");
 				} else {
-					Console.Write ("!");
+					Console.Write("!");
 				}
 				
 			}
@@ -113,19 +108,18 @@ namespace R2Core.Audio.ASR
 		/// <param name='input'>
 		/// Input.
 		/// </param>
-		public string Clean (string input)
-		{
+		public string Clean(string input) {
 
-			Regex rgx = new Regex ("[^a-zA-Z0-9 -]");
-			string replaced = rgx.Replace (input, "").ToUpper ().Trim ();
-			rgx = new Regex (@"\d+");
+			Regex rgx = new Regex("[^a-zA-Z0-9 -]");
+			string replaced = rgx.Replace(input, "").ToUpper ().Trim();
+			rgx = new Regex(@"\d+");
 			
 			foreach (Match m in rgx.Matches(replaced)) {
 				try {
-					replaced = replaced.Replace (m.Groups [0].Value, NumberToWords (int.Parse (m.Groups [0].Value)));
+					replaced = replaced.Replace(m.Groups [0].Value, NumberToWords(int.Parse(m.Groups [0].Value)));
 				} catch (OverflowException ex) {
-					Log.w ("BOOOM: " + ex.Message + " " + m.Groups [0].Value);
-					replaced = replaced.Replace (m.Groups [0].Value, NumberToWords (42));
+					Log.w("BOOOM: " + ex.Message + " " + m.Groups [0].Value);
+					replaced = replaced.Replace(m.Groups [0].Value, NumberToWords(42));
 
 				}
 			

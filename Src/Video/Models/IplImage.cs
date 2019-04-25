@@ -33,14 +33,14 @@ namespace R2Core.Video
 		protected static extern void _ext_create_dump(string filename, System.IntPtr image);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_release_ipl_image (System.IntPtr image);
+		protected static extern void _ext_release_ipl_image(System.IntPtr image);
 
 		private System.IntPtr m_ptr;
 		private bool m_destroyed;
 
 		public System.IntPtr Ptr {get { return m_ptr; }}
 
-		public IplImage (System.IntPtr ptr) {
+		public IplImage(System.IntPtr ptr) {
 			
 			m_ptr = ptr;
 
@@ -50,11 +50,11 @@ namespace R2Core.Video
 		
 			if (m_destroyed) {
 
-				throw new InvalidOperationException ("Unable to save: Image has been destroyed.");
+				throw new InvalidOperationException("Unable to save: Image has been destroyed.");
 			
 			} 
 
-			_ext_create_dump (filename, m_ptr);
+			_ext_create_dump(filename, m_ptr);
 
 		}
 
@@ -62,12 +62,12 @@ namespace R2Core.Video
 		
 			if (m_destroyed) {
 
-				throw new InvalidOperationException ("Unable to save: Image has been destroyed.");
+				throw new InvalidOperationException("Unable to save: Image has been destroyed.");
 
 			}
 
 			m_destroyed = true;
-			_ext_release_ipl_image (m_ptr);
+			_ext_release_ipl_image(m_ptr);
 			m_ptr = default(System.IntPtr);
 
 		}
@@ -76,7 +76,7 @@ namespace R2Core.Video
 			
 			if (!m_destroyed) {
 			
-				Destroy ();
+				Destroy();
 
 			}
 

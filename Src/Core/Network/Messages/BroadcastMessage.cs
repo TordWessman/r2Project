@@ -26,9 +26,16 @@ namespace R2Core.Network
 	/// <summary>
 	/// Broadcast message containing Identifier in order for receiver to identify messages. 
 	/// </summary>
-	public class BroadcastMessage : INetworkMessage
-	{
+	public class BroadcastMessage : INetworkMessage {
+		
+		/// <summary>
+		/// Messages with this header key is considered to be broadcast messages... eh. 
+		/// </summary>
 		public const string BroadcastMessageUniqueIdentifierHeaderKey = "BroadcastMessageUniqueIdentifier";
+
+		public const string BroadcastMessagePortHeaderKey = "BroadcastMessagePortHeaderKey";
+
+		public const string BroadcastMessageAddressHeaderKey = "BroadcastMessageAddressHeaderKey";
 
 		public int Code { get; set; }
 		public string Destination { get; set; }
@@ -41,11 +48,11 @@ namespace R2Core.Network
 		/// <value>The identifier.</value>
 		public String Identifier { 
 
-			get { return Headers [BroadcastMessageUniqueIdentifierHeaderKey].ToString (); } 
+			get { return Headers [BroadcastMessageUniqueIdentifierHeaderKey].ToString(); } 
 
 			set {
 
-				if (Headers == null) { Headers = new Dictionary<string, object> (); }
+				if (Headers == null) { Headers = new Dictionary<string, object>(); }
 				Headers [BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey] = value;
 
 			}
@@ -53,57 +60,43 @@ namespace R2Core.Network
 		}
 
 		/// <summary>
-		/// The endpoint from where this message was sent. This information is typically set on the receiver side ands hould not be included in the message.
+		/// The endpoint from where this message was sent.
 		/// </summary>
-		/// <value>The origin.</value>
-		public IPEndPoint Origin { get; set; }
+		public string OriginAddress { get { return(string)Headers[BroadcastMessageAddressHeaderKey]; } }
+
+		/// <summary>
+		/// The port from where this message was sent.
+		/// </summary>
+		/// <value>The origin port.</value>
+		public int OriginPort { get { return(int)Headers[BroadcastMessagePortHeaderKey]; } }
 
 		/// <summary>
 		/// Constructor used for incomming broadcasts
 		/// </summary>
 		/// <param name="message">Message.</param>
-		/// <param name="origin">Origin.</param>
-		public BroadcastMessage(INetworkMessage message, IPEndPoint origin = null) {
+		/// <param name="address">Sender address.</param>
+		/// <param name="port">Sender port.</param>
+		public BroadcastMessage(INetworkMessage message, string address, int port) {
 		
 			Code = message.Code;
 			Destination = message.Destination;
 			Headers = message.Headers ?? new System.Collections.Generic.Dictionary<string, object>();
 			Payload = message.Payload;
-			Origin = origin;
 
-			if (!Headers.ContainsKey (BroadcastMessageUniqueIdentifierHeaderKey)) {
+			if (!Headers.ContainsKey(BroadcastMessageUniqueIdentifierHeaderKey)) {
 			
-				Headers.Add (BroadcastMessageUniqueIdentifierHeaderKey, Guid.NewGuid ().ToString());
+				Headers.Add(BroadcastMessageUniqueIdentifierHeaderKey, Guid.NewGuid().ToString());
 
 			}
 
+			Headers[BroadcastMessagePortHeaderKey] = port;
+			Headers[BroadcastMessageAddressHeaderKey] = address;
+
 		}
 
-	}
+		public override string ToString() {
 
-	public static class INetworkMessageExtensions {
-	
-		/// <summary>
-		/// Determines if the message is a broadcast message.
-		/// </summary>
-		/// <returns><c>true</c> if is broadcast message the specified self; otherwise, <c>false</c>.</returns>
-		/// <param name="self">Self.</param>
-		public static bool IsBroadcastMessage(this INetworkMessage self) {
-		
-			return self.GetBroadcastMessageKey() != null;
-				
-		}
-
-		/// <summary>
-		/// Returns the unique message id for this message if it's a broadcast message or null if not.
-		/// </summary>
-		/// <returns>The broadcast message key.</returns>
-		/// <param name="self">Self.</param>
-		public static MessageIdType GetBroadcastMessageKey(this INetworkMessage self) {
-		
-			object responseKey = null;
-
-			return self.Headers?.TryGetValue (BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, out responseKey) == true ? responseKey?.ToString() : null;
+			return string.Format("[BroadcastMessage: Code={0}, Destination={1}, Payload={2}]", Code, Destination, Payload);
 
 		}
 

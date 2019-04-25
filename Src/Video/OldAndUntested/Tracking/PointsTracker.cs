@@ -30,62 +30,54 @@ namespace R2Core.Video
 		private const string dllPath = "OpenCvModule.so";
 	
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern TrackerPtr _ext_create_tracker_roi (System.IntPtr frame, CvRect roi);
+		protected static extern TrackerPtr _ext_create_tracker_roi(System.IntPtr frame, CvRect roi);
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern TrackerPtr _ext_create_tracker (System.IntPtr frame);
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern CvPoint _ext_get_point (TrackerPtr tracker, int number);
+		protected static extern CvPoint _ext_get_point(TrackerPtr tracker, int number);
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern void _ext_release_tracker (TrackerPtr tracker);
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern int _ext_update_tracker (System.IntPtr frame, TrackerPtr tracker);
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_count_points (TrackerPtr tracker);
+		protected static extern int _ext_count_points(TrackerPtr tracker);
 		
-		public PointsTracker ()
-		{
+		public PointsTracker () {
 
-			throw new NotImplementedException ("This will probably not work.");
+			throw new NotImplementedException("This will probably not work.");
 		}
 
 		#region IPointsTracker implementation
-		public TrackerPtr CreateTracker (IFrameSource video, CvRect roi)
-		{
+		public TrackerPtr CreateTracker (IFrameSource video, CvRect roi) {
 			TrackerPtr tracker = CreateTracker (video.CurrentFrame, roi);
 
 			return tracker;
 		}
 		
-		public TrackerPtr CreateTracker (IFrameSource video)
-		{
+		public TrackerPtr CreateTracker (IFrameSource video) {
 
 			TrackerPtr tracker = CreateTracker (video.CurrentFrame);
 
 			return tracker;
 		}
 		
-		public TrackerPtr CreateTracker (IplImage frame, CvRect roi)
-		{
-			return _ext_create_tracker_roi (frame.Ptr, roi);
+		public TrackerPtr CreateTracker (IplImage frame, CvRect roi) {
+			return _ext_create_tracker_roi(frame.Ptr, roi);
 		}
 
-		public TrackerPtr CreateTracker (IplImage frame)
-		{
+		public TrackerPtr CreateTracker (IplImage frame) {
 			return _ext_create_tracker (frame.Ptr);
 		}
 
-		public CvPoint GetPoint (TrackerPtr tracker, int pointNumber)
-		{
-			return _ext_get_point (tracker, pointNumber);
+		public CvPoint GetPoint(TrackerPtr tracker, int pointNumber) {
+			return _ext_get_point(tracker, pointNumber);
 		}
 
-		public void ReleaseTracker (TrackerPtr tracker)
-		{
+		public void ReleaseTracker (TrackerPtr tracker) {
 			_ext_release_tracker (tracker);
 		}
 
-		public int UpdateTracker (IplImage frame, TrackerPtr tracker)
-		{
+		public int UpdateTracker (IplImage frame, TrackerPtr tracker) {
 			return _ext_update_tracker (frame.Ptr, tracker);
 		}
 		
@@ -96,9 +88,8 @@ namespace R2Core.Video
 			return pointsFound;
 		}
 		
-		public int CountPoints (TrackerPtr tracker)
-		{
-			return _ext_count_points (tracker);
+		public int CountPoints(TrackerPtr tracker) {
+			return _ext_count_points(tracker);
 		}
 		#endregion
 	}

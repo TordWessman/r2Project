@@ -32,12 +32,11 @@ namespace R2Core.Common
 	/// <summary>
 	/// Device factory for the creation of uncategorized shared devices. Most of the factory methods should be moved to a more domain specific factory.
 	/// </summary>
-	public class DeviceFactory : DeviceBase
-	{
+	public class DeviceFactory : DeviceBase {
+		
 		private IDeviceManager m_deviceManager;
 
-		public DeviceFactory (string id, IDeviceManager deviceManager) : base (id)
-		{
+		public DeviceFactory(string id, IDeviceManager deviceManager) : base(id) {
 			m_deviceManager = deviceManager;
 		}
 
@@ -49,20 +48,14 @@ namespace R2Core.Common
 		/// <param name="pipeline">Pipeline.</param>
 		public IGstream CreateGstream(string id, string pipeline) {
 		
-			return new Gstream (id, pipeline);
+			return new Gstream(id, pipeline);
 		
 		}
 
 		public WebFactory CreateWebFactory(string id, ISerialization serializer) {
 		
-			return new WebFactory (id, serializer);
+			return new WebFactory(id, serializer);
 
-		}
-
-		public JsonMessageFactory CreateJsonMessageFactory(string id) {
-		
-			return new JsonMessageFactory (id);
-		
 		}
 
 		public DataFactory CreateDataFactory(string id, IEnumerable<string> searchPaths) {

@@ -21,15 +21,15 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	internal class SerialHCSR04Sonar: SerialDeviceBase<int[]>, IInputMeter<int>
-	{
+	internal class SerialHCSR04Sonar: SerialDeviceBase<int[]>, IInputMeter<int> {
+		
 		private byte m_echoPort;
 		private byte m_triggerPort;
 
-		internal SerialHCSR04Sonar (string id, ISerialNode node, ISerialHost host, int triggerPort, int echoPort): base(id, node, host) {
+		internal SerialHCSR04Sonar(string id, ISerialNode node, ISerialHost host, int triggerPort, int echoPort): base(id, node, host) {
 
-			m_echoPort = (byte) echoPort;
-			m_triggerPort = (byte) triggerPort;
+			m_echoPort = (byte)echoPort;
+			m_triggerPort = (byte)triggerPort;
 		
 		}
 
@@ -37,7 +37,7 @@ namespace R2Core.GPIO
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.Sonar_HCSR04; } }
 
-		public int Value { get { return GetValue () [0]; } }
+		public int Value { get { return GetValue() [0]; } }
 
 	}
 }

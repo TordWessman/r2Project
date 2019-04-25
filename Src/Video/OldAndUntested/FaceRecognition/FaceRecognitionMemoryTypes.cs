@@ -19,9 +19,11 @@
 using System;
 namespace R2Core.Video
 {
-	public enum FaceRecognitionMemoryTypes
-	{
+	public enum FaceRecognitionMemoryTypes {
+		
 		Model
+	
 	}
+
 }
 

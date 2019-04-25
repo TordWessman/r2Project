@@ -4,13 +4,14 @@ using System.Linq;
 
 namespace R2Core
 {
-	public class LinearDataSet: ILinearDataSet<double>
-	{
-		private IDictionary<double, double> m_points;
+	
+	public class LinearDataSet : ILinearDataSet<double> {
+		
+		private IDictionary<double,double> m_points;
 
-		public IDictionary<double, double> Points { get { return m_points; } }
+		public IDictionary<double,double> Points { get { return m_points; } }
 			
-		public LinearDataSet (IDictionary<double, double> points) {
+		public LinearDataSet(IDictionary<double, double> points) {
 
 			// Sort the data
 			m_points = points.OrderBy(kvp => kvp.Key).ToDictionary((key) => key.Key, (value) => value.Value); 
@@ -27,7 +28,7 @@ namespace R2Core
 
 				if (x < m_points.Keys.ElementAt(i)) {
 			
-					return CalculateWeightedAverage (x, m_points.Keys.ElementAt(i - 1), m_points.Keys.ElementAt(i), m_points.Values.ElementAt(i - 1), m_points.Values.ElementAt (i));
+					return CalculateWeightedAverage(x, m_points.Keys.ElementAt(i - 1), m_points.Keys.ElementAt(i), m_points.Values.ElementAt(i - 1), m_points.Values.ElementAt(i));
 
 				}
 			}

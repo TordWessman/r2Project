@@ -23,14 +23,14 @@ namespace R2Core.Device
 	/// <summary>
 	/// A notification indicatiing a change in a device.
 	/// </summary>
-	public class DeviceNotification: IDeviceNotification<object>
-	{
+	public class DeviceNotification : IDeviceNotification<object> {
+		
 		private string m_id;
 		private string m_action;
 		private object m_newValue;
 
-		public DeviceNotification (string id, string action, object newValue = null)
-		{
+		public DeviceNotification(string id, string action, object newValue = null) {
+			
 			m_id = id;
 			m_action = action;
 			m_newValue = newValue;
@@ -51,7 +51,7 @@ namespace R2Core.Device
 		public string Action { get { return m_action; } }
 
 		/// <summary>
-		/// The new value of the property or the return value of the method (should be null if it's a void method).
+		/// The new value of the property or the return value of the method(should be null if it's a void method).
 		/// </summary>
 		/// <value>The new value.</value>
 		public object NewValue { get { return m_newValue; } }

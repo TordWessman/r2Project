@@ -26,8 +26,7 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// Base interface for scripting 
 	/// </summary>
-	public interface IScript: IDevice, IInvokable, ITaskMonitored
-	{
+	public interface IScript : IDevice, IInvokable, ITaskMonitored {
 		
 		/// <summary>
 		/// Reloads the script from script file.
@@ -38,7 +37,7 @@ namespace R2Core.Scripting
 		/// Adds the observe which will be notified upon script changes.
 		/// </summary>
 		/// <param name="observer">Observer.</param>
-		void AddObserver (IScriptObserver observer);
+		void AddObserver(IScriptObserver observer);
 
 		/// <summary>
 		/// Returns true if the process is in it's main loop.

@@ -23,15 +23,14 @@ using System.Collections.Generic;
 
 namespace R2Core.Scripting
 {
-	public abstract class ScriptFactoryBase<T>: DeviceBase, IScriptFactory<T> where T: IScript
-	{
+	
+	public abstract class ScriptFactoryBase<T> : DeviceBase, IScriptFactory<T> where T : IScript {
 
 		private IList<string> m_scriptSourcePaths;
 
 		protected IList<string> ScriptSourcePaths { get { return m_scriptSourcePaths; } }
 
-		public ScriptFactoryBase (string id) : base (id)
-		{
+		public ScriptFactoryBase(string id) : base(id) {
 
 			m_scriptSourcePaths = new List<string>();
 
@@ -40,7 +39,7 @@ namespace R2Core.Scripting
 
 		public void AddSourcePath(string path) {
 
-			m_scriptSourcePaths.Add (path);
+			m_scriptSourcePaths.Add(path);
 
 		}
 
@@ -48,13 +47,13 @@ namespace R2Core.Scripting
 
 			string fileName = id + FileExtension;
 
-			if (!File.Exists (fileName)) {
+			if (!File.Exists(fileName)) {
 
 				foreach (string path in m_scriptSourcePaths) {
 
-					string evaluatedPath = path.EndsWith (Path.DirectorySeparatorChar.ToString ()) ? path + fileName : path + Path.DirectorySeparatorChar + fileName;
+					string evaluatedPath = path.EndsWith (Path.DirectorySeparatorChar.ToString()) ? path + fileName : path + Path.DirectorySeparatorChar + fileName;
 
-					if (File.Exists (evaluatedPath)) {
+					if (File.Exists(evaluatedPath)) {
 
 						return evaluatedPath;
 
@@ -62,7 +61,7 @@ namespace R2Core.Scripting
 
 				}
 
-				throw new FileNotFoundException ($"Unable to locate '{fileName}'. Is there a search path missing?");
+				throw new FileNotFoundException($"Unable to locate '{fileName}'. Is there a search path missing?");
 
 			}
 
@@ -70,11 +69,11 @@ namespace R2Core.Scripting
 
 		}
 
-		public abstract T CreateScript (string id);
+		public abstract T CreateScript(string id);
 		public abstract IScriptInterpreter CreateInterpreter(T script);
 
 		/// <summary>
-		/// Must be overridden. Should return the common extension used by the scripts (i.e: ".lua").
+		/// Must be overridden. Should return the common extension used by the scripts(i.e: ".lua").
 		/// </summary>
 		/// <value>The file extension.</value>
 		protected abstract string FileExtension { get; }

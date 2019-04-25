@@ -7,7 +7,7 @@ using System.Linq;
 namespace R2Core.DataManagement.Memory
 {
 
-	public class TemporaryMemoryReference: IMemoryReference {
+	public class TemporaryMemoryReference : IMemoryReference {
 
 		private int m_id;
 
@@ -29,38 +29,37 @@ namespace R2Core.DataManagement.Memory
 	/// <summary>
 	/// Does not persist any data.
 	/// </summary>
-	public class TemporaryMemorySource: DeviceBase, IMemorySource
-	{
+	public class TemporaryMemorySource : DeviceBase, IMemorySource {
+		
 		private IDictionary<IMemory, IList<IMemory>> m_memories;
 		private int m_refCount;
 
 
-		public TemporaryMemorySource (string id): base(id)
-		{
-			m_memories = new Dictionary<IMemory, IList<IMemory>> ();
+		public TemporaryMemorySource(string id) : base(id) {
+			m_memories = new Dictionary<IMemory,IList<IMemory>>();
 			m_refCount = 0;
 
 		}
 
-		public IMemory Get (MemoryType type) {
+		public IMemory Get(MemoryType type) {
 
-			return m_memories.Keys.Where (m => m.Type == type).FirstOrDefault ();
-
-		}
-
-		public IMemory Get (int memoryId) {
-
-			return m_memories.Keys.Where (m => m.Id == memoryId).FirstOrDefault ();
+			return m_memories.Keys.Where(m => m.Type == type).FirstOrDefault();
 
 		}
 
-		public ICollection<IMemory> Get (int[] memoryIds) {
+		public IMemory Get(int memoryId) {
+
+			return m_memories.Keys.Where(m => m.Id == memoryId).FirstOrDefault();
+
+		}
+
+		public ICollection<IMemory> Get(int[] memoryIds) {
 		
-			IList<IMemory> memories = new List<IMemory> ();
+			IList<IMemory> memories = new List<IMemory>();
 
 			foreach (int memoryId in memoryIds) {
 			
-				memories.Add( Get (memoryId));
+				memories.Add( Get(memoryId));
 
 			}
 
@@ -68,7 +67,7 @@ namespace R2Core.DataManagement.Memory
 
 		}
 
-		public ICollection<IMemory> All (MemoryType type = null) {
+		public ICollection<IMemory> All(MemoryType type = null) {
 
 			if (type == null) {
 			
@@ -76,31 +75,31 @@ namespace R2Core.DataManagement.Memory
 
 			}
 
-			return m_memories.Keys.Where (m => m.Type == type).ToList();
+			return m_memories.Keys.Where(m => m.Type == type).ToList();
 
 		}
 
-		public ICollection<IMemory> GetAssociations (IMemory memory) {
+		public ICollection<IMemory> GetAssociations(IMemory memory) {
 	
 			return m_memories [memory];
 
 		}
 
-		public IMemory Create (MemoryType type, string name) {
+		public IMemory Create(MemoryType type, string name) {
 		
-			IMemoryReference reference = new TemporaryMemoryReference (m_refCount++);
+			IMemoryReference reference = new TemporaryMemoryReference(m_refCount++);
 			reference.Type = type;
 			reference.Value = name;
-			IMemory memory = new Memory (reference, this);
-			m_memories.Add (memory, new List<IMemory> ());
+			IMemory memory = new Memory(reference, this);
+			m_memories.Add(memory, new List<IMemory>());
 
 			return memory;
 
 		}
 
-		public bool Delete (int memoryId) {
+		public bool Delete(int memoryId) {
 		
-			IMemory memory = m_memories.Keys.Where (m => m.Id == memoryId).FirstOrDefault ();
+			IMemory memory = m_memories.Keys.Where(m => m.Id == memoryId).FirstOrDefault();
 
 			if (memory == null) {
 			
@@ -112,10 +111,10 @@ namespace R2Core.DataManagement.Memory
 
 			foreach (KeyValuePair<IMemory, IList<IMemory>> kvp in m_memories) {
 			
-				if (kvp.Value.Contains (memory)) {
+				if (kvp.Value.Contains(memory)) {
 				
 					IList<IMemory> associations = kvp.Value;
-					associations.Remove (memory);
+					associations.Remove(memory);
 					removeFromUs [kvp.Key] = associations;
 
 				}
@@ -127,26 +126,26 @@ namespace R2Core.DataManagement.Memory
 				m_memories [kvp.Key] = kvp.Value;
 			}
 
-			return m_memories.Remove (memory);
+			return m_memories.Remove(memory);
 
 		}
 
-		public bool Delete (IMemory memory) {
+		public bool Delete(IMemory memory) {
 		
-			return Delete (memory.Id);
+			return Delete(memory.Id);
 
 		}
 
-		public bool Update (IMemory memory) {
+		public bool Update(IMemory memory) {
 		
 			return true;
 
 		}
 
-		public void Associate (IMemory one, IMemory two) {
+		public void Associate(IMemory one, IMemory two) {
 		
-			m_memories [one]?.Add (two);
-			m_memories [two]?.Add (one);
+			m_memories [one]?.Add(two);
+			m_memories [two]?.Add(one);
 		}
 
 	}

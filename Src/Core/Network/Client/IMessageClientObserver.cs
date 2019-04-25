@@ -25,6 +25,13 @@ namespace R2Core.Network
 	/// </summary>
 	public interface IMessageClientObserver {
 
+		/// <summary>
+		/// Called when a client loses connection
+		/// </summary>
+		/// <param name="client">Client.</param>
+		/// <param name="ex">Ex.</param>
+		void OnClose(IMessageClient client, Exception ex);
+
         /// <summary>
         /// Called just before a message is sent.
         /// </summary>
@@ -42,13 +49,12 @@ namespace R2Core.Network
 		/// <summary>
 		/// Will be called whenever a client receives a new broadcast message. 
 		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="ex">Ex.</param>
-		void OnBroadcast(INetworkMessage response, Exception ex);
+		/// <param name="message">Ex.</param>
+		void OnBroadcast(INetworkMessage message);
 
 		/// <summary>
 		/// The INetworkMessage.Destination this observer are interested in.
-		/// Can be null (any message) or a regular expression.
+		/// Can be null(any message) or a regular expression.
 		/// </summary>
 		/// <value>The destination.</value>
 		string Destination { get; }

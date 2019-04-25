@@ -35,10 +35,9 @@ namespace R2Core.Network
 	/// Keeps track of remote hosts by polling for TCP-servers available in remote UDP server. Will connect and synchronize devices with 
 	/// the current instance of IDeviceManager and thus adding the remote devices to the IDeviceManager.
 	/// </summary>
-	public class HostSynchronizer : DeviceBase
-	{
-
-		// Used for polling (UDP-broadcasting) for connections/devices. 
+	public class HostSynchronizer : DeviceBase {
+		
+		// Used for polling(UDP-broadcasting) for connections/devices. 
 		private Timer m_broadcastTimer;
 
 		// Used to create nessecary stuff
@@ -54,7 +53,7 @@ namespace R2Core.Network
 		private IDeviceManager m_deviceManager;
 
 		// Contains a list of all hosts ever connected to.
-		private IList<IHostConnection> m_hosts;
+		private IList<IClientConnection> m_hosts;
 
 		// Broadcast port.
 		private int m_port;
@@ -63,17 +62,12 @@ namespace R2Core.Network
 		private int m_broadcastInterval = 10000;
 
 		/// <summary>
-		/// Contains the remote destination (i.e. "/devices")
-		/// </summary>
-		public string Destination = Settings.Consts.DeviceDestination();
-
-		/// <summary>
-		/// The identifier for the remote TCP Server instance (i.e. "tcp_server")
+		/// The identifier for the remote TCP Server instance(i.e. "tcp_server")
 		/// </summary>
 		public string TCPServerIdentifier = Settings.Identifiers.TcpServer();
 
 		/// <summary>
-		/// The port on which this broadcaster sends messages (remote UDP servers must be listening on this port).
+		/// The port on which this broadcaster sends messages(remote UDP servers must be listening on this port).
 		/// </summary>
 		/// <value>The broadcast port.</value>
 		public int BroadcastPort { get { return m_port; } }
@@ -83,6 +77,10 @@ namespace R2Core.Network
 		/// </summary>
 		public int BroadcastTimeout = 2000;
 
+		/// <summary>
+		/// Contains the remote destination(i.e. "/devices")
+		/// </summary>
+		public string Destination = Settings.Consts.DeviceDestination();
 
 		/// <summary>
 		/// Interval between broadcast events.
@@ -111,38 +109,42 @@ namespace R2Core.Network
 		public INetworkBroadcaster Broadcaster { get { return m_broadcaster; } }
 
 		/// <summary>
-		/// `port` is the port the remote host is listening on. 
-		/// `Destination` is the path (i.e. /devices) where the broadcast listener expects requests from.
+		/// `port` is the UDP port the remote UDP server is listening on.
 		/// `deviceManager` is responsible for keeping track of all devices...
 		/// </summary>
 		/// <param name="id">Identifier.</param>
 		/// <param name="port">Port.</param>
 		/// <param name="deviceManager">DeviceManager.</param>
 		/// <param name="factory">Factory.</param>
-		public HostSynchronizer (string id, int port, IDeviceManager deviceManager, WebFactory factory) : base (id) {
+		public HostSynchronizer(string id, int port, IDeviceManager deviceManager, WebFactory factory) : base(id) {
 
 			m_port = port;
 			m_factory = factory;
-			m_broadcaster = factory.CreateUdpClient("udp_broadcaster", port);
+			m_broadcaster = factory.CreateUdpClient(Settings.Identifiers.UdpBroadcaster(), port);
 			m_deviceManager = deviceManager;
-			m_hosts = new List<IHostConnection> ();
-			m_broadcastTimer = new Timer (BroadcastInterval);
+			m_hosts = new List<IClientConnection>();
+			m_broadcastTimer = new Timer(BroadcastInterval);
 			m_broadcastTimer.Elapsed += new ElapsedEventHandler(OnBroadcastEvent);
-			m_broadcastTimer.Enabled = true;
+
+		}
+
+		~HostSynchronizer() {
+ 	
+			Stop();
 
 		}
 
 		/// <summary>
 		/// Broadcast for TCPServers. Will try to establish a connection to any server found and synchronize their devices.
 		/// </summary>
-		public void Broadcast () {
-			
-			DeviceRequest request = new DeviceRequest () {
+		public void Broadcast() {
+
+			DeviceRequest request = new DeviceRequest() {
 				Identifier = TCPServerIdentifier,
 				ActionType = DeviceRequest.ObjectActionType.Get
 			};
 
-			INetworkMessage message = new NetworkMessage () { Payload = request, Destination = Destination };
+			INetworkMessage message = new NetworkMessage() { Payload = request, Destination = Settings.Consts.DeviceDestination() };
 
 			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
 
@@ -153,12 +155,12 @@ namespace R2Core.Network
 
 					if (endpoint == null) {
 
-						Log.e($"Did not receive an Endpoint in response from {response.Origin.ToString()}. Payload: {response?.Payload}");
+						Log.e($"Did not receive an Endpoint in response from ´{response.GetBroadcastAddress()}´. Payload: {response?.Payload}");
 
 					} else {
 
-						string address = GetAvailableAddress((IEnumerable<dynamic>) endpoint.Addresses);
-						int port = (int) endpoint.Port;
+						string address = GetAvailableAddress((IEnumerable<dynamic>)endpoint.Addresses);
+						int port = (int)endpoint.Port;
 
 						if (address != null) {
 
@@ -167,7 +169,7 @@ namespace R2Core.Network
 						} else {
 
 							string addressList = String.Join(",", endpoint.Addresses);
-							Log.e($"HostSynchronizer was unable to connect to host (port {port}). No address in list ´{addressList}´replied on ping.");
+							Log.e($"HostSynchronizer was unable to connect to host(port {port}). No address in list ´{addressList}´replied on ping.");
 
 						}
 
@@ -175,14 +177,14 @@ namespace R2Core.Network
 
 				} else if (exception != null) {
 					
-					Log.w ($"Broadcast message to `{message.Destination}` resulted in exception ({exception}), message: `{exception.Message}` (response code '{response?.Code}'). ");
+					Log.w($"Broadcast message to `{message.Destination}` resulted in exception({exception}), message: `{exception.Message}` (response code '{response?.Code}'). ");
 					Log.x(exception); 
 
 				} else {
 
 					if (response?.Code != WebStatusCode.SameOrigin.Raw()) {
 							
-						Log.w ($"Broadcast received from {response?.Destination} got response code '{response?.Code}'.");
+						Log.w($"Broadcast received from {response?.Destination} got response code '{response?.Code}'.");
 				
 					}
 
@@ -195,23 +197,24 @@ namespace R2Core.Network
 		/// <summary>
 		/// Fires of a broadcast and initiate the perpetual broadcaster
 		/// </summary>
-		public override void Start () {
+		public override void Start() {
 
-			Broadcast ();
-			m_broadcastTimer.Start ();
+			m_broadcastTimer.Start();
 
 		}
 
 		/// <summary>
 		/// Stop the broadcast timer and disconnect all hosts.
 		/// </summary>
-		public override void Stop () {
+		public override void Stop() {
 
-			m_broadcastTimer.Stop ();
-			m_hosts.All ( host => {
+			m_broadcastTimer.Stop();
+
+			m_hosts.All( host => {
+				
 				host.Stop();
 				return true;
-
+			
 			});
 
 		}
@@ -221,9 +224,9 @@ namespace R2Core.Network
 		/// </summary>
 		/// <param name="address">Address.</param>
 		/// <param name="port">Port.</param>
-		public IHostConnection Synchronize(string address, int port) {
+		public IClientConnection Synchronize(string address, int port) {
 
-			IHostConnection connection = EstablishConnection(address, port);
+			IClientConnection connection = EstablishConnection(address, port);
 			SynchronizeDevices(connection);
 
 			return connection;
@@ -231,8 +234,8 @@ namespace R2Core.Network
 		}
 
 		/// <summary>
-		/// Tells all connected IHostConnection's to connect and synchronize with me.
-		/// Returns true if all remote IHostConnection's did synchronize successfully.
+		/// Tells all connected IClientConnection's to connect and synchronize with me.
+		/// Returns true if all remote IClientConnection's did synchronize successfully.
 		/// </summary>
 		/// <returns><c>true</c>, if all remote host was synchronize, <c>false</c> otherwise.</returns>
 		/// <param name="deviceServer">Device server.</param>
@@ -240,10 +243,10 @@ namespace R2Core.Network
 
 			bool success = true;
 
-			foreach (IHostConnection host in m_hosts) {
+			foreach (IClientConnection host in m_hosts) {
 			
-				dynamic remoteHostSynchronizer = new RemoteDevice (Settings.Identifiers.HostSynchronizer (), Guid.Empty, host);
-				success &= remoteHostSynchronizer.RequestSynchronization (deviceServer.Addresses, deviceServer.Port);
+				dynamic remoteHostSynchronizer = new RemoteDevice(Settings.Identifiers.HostSynchronizer(), Guid.Empty, host);
+				success &= remoteHostSynchronizer.RequestSynchronization(deviceServer.Addresses, deviceServer.Port);
 
 			}
 
@@ -251,10 +254,9 @@ namespace R2Core.Network
 
 		}
 
-
 		/// <summary>
 		/// Evaluates a list of addresses and tries to connect to the first one available.
-		/// This method is typically called by remote already connected IHostConnection connected to this HostSynchronizer. 
+		/// This method is typically called by remote already connected IClientConnection connected to this HostSynchronizer. 
 		/// The other ´host is then allowed to make ´self´ to connect to ´host´ as if it was localy requested by ´self´.
 		/// Return false if none of the provided ´addresses´ replied on a ping.
 		/// </summary>
@@ -267,13 +269,13 @@ namespace R2Core.Network
 
 			if (address == null) {
 			
-				string addressList = String.Join (",", addresses);
-				Log.e ($"Unable to retrieve address from address list: {addressList}. (Requested port: {port}).");
+				string addressList = String.Join(",", addresses);
+				Log.e($"Unable to retrieve address from address list: {addressList}. (Requested port: {port}).");
 				return false;
 
 			} else {
 			
-				Synchronize (address, port);
+				Synchronize(address, port);
 				return true;
 
 			}
@@ -310,16 +312,15 @@ namespace R2Core.Network
 		/// <returns>The connection.</returns>
 		/// <param name="address">Address.</param>
 		/// <param name="port">Port.</param>
-		private IHostConnection EstablishConnection(string address, int port) {
+		private IClientConnection EstablishConnection(string address, int port) {
 
-			string id = GetHostConnectionIdentifier (address, port);
+			string id = GetHostConnectionIdentifier(address, port);
 
-			IHostConnection connection = m_hosts.FirstOrDefault( (h) => { return h.Identifier == id; });
+			IClientConnection connection = m_hosts.FirstOrDefault( (h) => { return h.Identifier == id; });
 
 			if (connection == null) {
 
-				connection = new HostConnection(id, Destination, address,
-					m_factory.CreateTcpClient($"tcp_client_{address}:{port}", address, port));
+				connection = new HostConnection(id, m_factory.CreateTcpClient($"tcp_client_{address}:{port}", address, port));
 
 				connection.Start();
 
@@ -342,7 +343,7 @@ namespace R2Core.Network
 		/// <param name="e">E.</param>
 		private void OnBroadcastEvent(object source, ElapsedEventArgs e) {
 
-			Broadcast ();
+			Broadcast();
 
 		}
 
@@ -362,32 +363,41 @@ namespace R2Core.Network
 		/// Will fetch the devices from host ´connection´ and synchronize them with the devices in ´m_deviceManager´.
 		/// </summary>
 		/// <param name="connection">Connection.</param>
-		private void SynchronizeDevices(IHostConnection connection) {
+		private void SynchronizeDevices(IClientConnection connection) {
 
-			DeviceRequest deviceManagerRequest = new DeviceRequest () {
+			DeviceRequest deviceManagerRequest = new DeviceRequest() {
 				Identifier = Settings.Identifiers.DeviceManager(),
 				ActionType = DeviceRequest.ObjectActionType.Get
 			};
 
-			// Retrieve a DeviceResponse which should contain the device manager in the Object property.
-			DeviceResponse deviceResponse = new DeviceResponse(connection.Send(deviceManagerRequest));
+			INetworkMessage message = new TCPMessage() { Destination = Destination, Payload = deviceManagerRequest };
 
-			// Create IRemoteDevice for each device and add it to device manager.
-			foreach (dynamic device in deviceResponse.Object.LocalDevices) {
+			INetworkMessage response = connection.Send(message);
 
-				Log.t ($"--- HostSynchronizer got (and might add) device: {device.Identifier}");
+			if (!WebStatusCode.Ok.Is(response.Code)) {
+			
+				Log.e($"HostSynchronizer unable to synchronize. Error from client: {response}.");
 
-				Guid guid = Guid.Parse((string) device.Guid);
+			} else {
+			
+				// Retrieve a DeviceResponse which should contain the device manager in the Object property.
+				DeviceResponse deviceResponse = new DeviceResponse(response.Payload);
 
-				// Check if a device with the same Guid exists and that no local devices with the same ´Identifier´ is overwritten.
-				if (m_deviceManager.GetByGuid<IDevice>(guid) == null &&
-					m_deviceManager.LocalDevices.Where(localDevice => localDevice.Identifier == device.Identifier).Count() == 0) {
+				// Create IRemoteDevice for each device and add it to device manager.
+				foreach (dynamic device in deviceResponse.Object.LocalDevices) {
 
-					// If not, add the to our (local) device manager
-					IRemoteDevice remote = new RemoteDevice(device.Identifier, guid, connection);
-					Log.t($"Adding device: {device.Identifier}");
+					Guid guid = Guid.Parse((string)device.Guid);
 
-					m_deviceManager.Add(remote);
+					// Check if a device with the same Guid exists and that no local devices with the same ´Identifier´ is overwritten.
+					if (m_deviceManager.GetByGuid<IDevice>(guid) == null &&
+						m_deviceManager.LocalDevices.Where(localDevice => localDevice.Identifier == device.Identifier).Count() == 0) {
+
+						// If not, add the to our (local) device manager
+						IRemoteDevice remote = new RemoteDevice(device.Identifier, guid, connection);
+
+						m_deviceManager.Add(remote);
+
+					}
 
 				}
 

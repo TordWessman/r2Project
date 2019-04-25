@@ -22,22 +22,21 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// Creates device packages used for serial communication. Implementations are tightly coupled to the target platform.
 	/// </summary>
-	public interface ISerialPackageFactory
-	{
+	public interface ISerialPackageFactory {
 
 		/// <summary>
 		/// Parses raw response into a response package.
 		/// </summary>
 		/// <returns>The response.</returns>
 		/// <param name="response">Response.</param>
-		DeviceResponsePackage<T> ParseResponse<T> (byte[] response);
+		DeviceResponsePackage<T> ParseResponse<T>(byte[] response);
 
 		/// <summary>
 		/// Serializes a request package into a byte array representation before transmission.
 		/// </summary>
 		/// <returns>The request.</returns>
 		/// <param name="request">Request.</param>
-		byte[] SerializeRequest (DeviceRequestPackage request);
+		byte[] SerializeRequest(DeviceRequestPackage request);
 
 		/// <summary>
 		/// Creates a "Create device package". ports-requirements must be applicable to the requirements of the device.  
@@ -48,7 +47,7 @@ namespace R2Core.GPIO
 		DeviceRequestPackage CreateDevice(byte nodeId, SerialDeviceType type, byte[] ports);
 
 		/// <summary>
-		/// Creates a "Set device package" used to set the value of a device (previously created through a CreateDevice package call).
+		/// Creates a "Set device package" used to set the value of a device(previously created through a CreateDevice package call).
 		/// </summary>
 		/// <returns>The device.</returns>
 		/// <param name="remoteDeviceId">Remote device identifier.</param>

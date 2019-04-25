@@ -29,8 +29,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Contains some general functionality used by all IServers
 	/// </summary>
-	public abstract class ServerBase : DeviceBase,  IServer, ITaskMonitored
-	{
+	public abstract class ServerBase : DeviceBase,  IServer, ITaskMonitored {
 
 		int m_port;
 		private bool m_shouldRun;
@@ -44,11 +43,18 @@ namespace R2Core.Network
 		/// </summary>
 		protected Task ServiceTask { get {return m_serviceTask; } }
 
-		public ServerBase (string id, int port) : base(id)
-		{
+		public ServerBase(string id, int port) : base(id) {
 			
 			m_port = port;
-			m_endpoints = new List<IWebEndpoint> ();
+			m_endpoints = new List<IWebEndpoint>();
+
+		}
+
+		~ServerBase() {
+
+			Log.d($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
+			Stop();
+			m_serviceTask?.Dispose();
 
 		}
 
@@ -58,9 +64,9 @@ namespace R2Core.Network
 
 			get {
 
-				foreach (IPAddress address in Dns.GetHostEntry (Dns.GetHostName ()).AddressList.Where (ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)) {
+				foreach (IPAddress address in Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)) {
 				
-					yield return address?.ToString ();
+					yield return address?.ToString();
 
 				}
 
@@ -70,20 +76,20 @@ namespace R2Core.Network
 
 		protected IWebEndpoint GetEndpoint(string path) {
 		
-			return m_endpoints.Where (endpoint => System.Text.RegularExpressions.Regex.IsMatch (path, endpoint.UriPath)).FirstOrDefault ();
+			return m_endpoints.Where(endpoint => System.Text.RegularExpressions.Regex.IsMatch (path, endpoint.UriPath)).FirstOrDefault();
 
 		}
 
 		public void AddEndpoint(IWebEndpoint interpreter) {
 
-			m_endpoints.Add (interpreter);
+			m_endpoints.Add(interpreter);
 
 		}
 
-		public override void Start () {
+		public override void Start() {
 
 			m_shouldRun = true;
-			m_serviceTask = Task.Factory.StartNew (Service);
+			m_serviceTask = Task.Factory.StartNew(Service, TaskCreationOptions.LongRunning);
 
 		}
 
@@ -98,16 +104,15 @@ namespace R2Core.Network
 		/// </summary>
 		protected abstract void Service();
 
-		public override void Stop () {
+		public override void Stop() {
 
 			m_shouldRun = false;
-			Cleanup ();
+			try { Cleanup(); } catch (Exception ex) { Log.x(ex); } 
 		
 		}
 
 		#region ITaskMonitored implementation
-		public IDictionary<string,Task> GetTasksToObserve ()
-		{
+		public IDictionary<string,Task> GetTasksToObserve() {
 			return new Dictionary<string, Task>() { { Identifier, ServiceTask} };
 		}
 		#endregion

@@ -26,8 +26,7 @@ using System.Threading.Tasks;
 
 namespace R2Core.Video
 {
-	public class GstWebCam: DeviceBase, IFrameSource
-	{
+	public class GstWebCam : DeviceBase, IFrameSource {
 		//private const string dllPath = "Test.so";
 
 		private const string dllPath = "r2webcam.so";
@@ -63,7 +62,7 @@ namespace R2Core.Video
 		protected static extern System.IntPtr _ext_get_frame();	
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_set_input_vars (string width, string height);
+		protected static extern void _ext_set_input_vars(string width, string height);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern void _ext_pause_frame_fetching();
@@ -87,81 +86,75 @@ namespace R2Core.Video
 		private ICameraController m_camera;
 		private static readonly object m_lock = new object();
 
-		public GstWebCam (string id, int width, int height) 
-			: base (id)
-		{
-			_ext_set_input_vars (width.ToString(), height.ToString());
-			m_errorCb = new ErrorCallBack (this.DefaultErrorReceived);
-			m_eosCb = new EOSCallBack (this.EOSReceived);
+		public GstWebCam(string id, int width, int height) 
+			: base(id) {
+			_ext_set_input_vars(width.ToString(), height.ToString());
+			m_errorCb = new ErrorCallBack(this.DefaultErrorReceived);
+			m_eosCb = new EOSCallBack(this.EOSReceived);
 
 
-			if (_ext_init () == 1) {
+			if (_ext_init() == 1) {
 				_isInitialized = true;
 
-				_ext_set_callbacks (m_errorCb, m_eosCb);
+				_ext_set_callbacks(m_errorCb, m_eosCb);
 			} else {
 				throw new InvalidOperationException("Unable to initialize video server module.");
 			}
 
 		}
 
-		public void SetCamera (ICameraController camera)
-		{
+		public void SetCamera(ICameraController camera) {
 			m_camera = camera;
 		}
 
-		protected void EOSReceived ()
-		{
-			Task.Factory.StartNew (() => {
-				while (m_camera == null || !m_camera.Ready) {
-					Thread.Sleep (1000);
-					Log.t ("Waiting for camera...");
+		protected void EOSReceived() {
+			Task.Factory.StartNew(() => {
+				while(m_camera == null || !m_camera.Ready) {
+					Thread.Sleep(1000);
+					Log.t("Waiting for camera...");
 				}
-				Thread.Sleep (2000);
-				if (_ext_init () == 1) {
-					Log.d ("Re-initializing video router.");
-					Thread.Sleep (2000);
-					Start ();
+				Thread.Sleep(2000);
+				if (_ext_init() == 1) {
+					Log.d("Re-initializing video router.");
+					Thread.Sleep(2000);
+					Start();
 				} else {
-					Log.e ("Unable to reinitialize router.");
+					Log.e("Unable to reinitialize router.");
 				}
 
-				//_ext_resume_from_eos ();	
+				//_ext_resume_from_eos();	
 			}
 			).Start();
 
 			//
 		}
 
-		protected void DefaultErrorReceived (int errorType, string errorMessage)
-		{
-			Log.e ("VideoServer Error: " + errorMessage + " type: " + errorType.ToString ());
+		protected void DefaultErrorReceived(int errorType, string errorMessage) {
+			Log.e("VideoServer Error: " + errorMessage + " type: " + errorType.ToString());
 
 		}
 
 		#region IDeviceBase implementation
-		public override void Start ()
-		{
-			if (_ext_is_running () == 1) {
-				throw new InvalidOperationException ("Unable to start video server. Device is already running.");
+		public override void Start() {
+			if (_ext_is_running() == 1) {
+				throw new InvalidOperationException("Unable to start video server. Device is already running.");
 			}
 
-			_serverTask = Task.Factory.StartNew (() => {
+			_serverTask = Task.Factory.StartNew(() => {
 
-				_ext_start ();
-				Log.t ("...video thread is no longer running.");
+				_ext_start();
+				Log.t("...video thread is no longer running.");
 			});
 		
 		}
 
-		public override void Stop ()
-		{
-			if (_ext_is_running () == 0) {
-				Log.e ("Unable to stop video server. Device is not running.");
+		public override void Stop() {
+			if (_ext_is_running() == 0) {
+				Log.e("Unable to stop video server. Device is not running.");
 			} else {
-				Log.d ("Terminating video thread...");
-				_ext_stop ();
-				_ext_dealloc ();
+				Log.d("Terminating video thread...");
+				_ext_stop();
+				_ext_dealloc();
 
 			}
 
@@ -169,7 +162,7 @@ namespace R2Core.Video
 
 		public override bool Ready {
 			get {
-				return _ext_is_running () == 1;
+				return _ext_is_running() == 1;
 			}
 		}
 		#endregion
@@ -177,14 +170,14 @@ namespace R2Core.Video
 		public IplImage CurrentFrame
 		{
 			get {
-				lock (m_lock) {
-					return new IplImage( _ext_get_frame ());
+				lock(m_lock) {
+					return new IplImage( _ext_get_frame());
 				}
 			}
 		}
 
 		public CvSize Size{ get {
-				return new CvSize (_ext_get_video_width(), _ext_get_video_height());
+				return new CvSize(_ext_get_video_width(), _ext_get_video_height());
 			}
 		}
 	}

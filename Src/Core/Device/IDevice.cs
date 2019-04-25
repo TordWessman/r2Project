@@ -25,13 +25,24 @@ namespace R2Core.Device
 	/// </summary>
 	public interface IDeviceObservable {
 
-		void AddObserver (IDeviceObserver observer);
+		/// <summary>
+		/// Adds a reference to a ´IDeviceObserver´.
+		/// </summary>
+		/// <param name="observer">Observer.</param>
+		void AddObserver(IDeviceObserver observer);
+
+		/// <summary>
+		/// Removes a reference to a ´IDeviceObserver´.
+		/// </summary>
+		/// <param name="observer">Observer.</param>
         void RemoveObserver(IDeviceObserver observer);
 
     }
 
-	public interface IDevice : IStartable, IStopable, IDeviceObservable
-	{
+	/// <summary>
+	/// Standard interface of all components.
+	/// </summary>
+	public interface IDevice : IStartable, IStopable, IDeviceObservable {
 		/// <summary>
 		/// Textual representation of the device. Used as key for retrieving the device from a device manager.
 		/// </summary>

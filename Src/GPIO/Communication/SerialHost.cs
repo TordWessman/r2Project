@@ -13,20 +13,21 @@ namespace R2Core.GPIO
 
 		public SerialErrorType ErrorType { get { return m_errorType; } } 
 
-		public SerialConnectionException(string message, SerialErrorType type) : base (message, (int) type) {
+		public SerialConnectionException(string message, SerialErrorType type) : base(message, (int)type) {
 		
 			m_errorType = type;
 		
 		}
+
 	}
 
 	/// <summary>
-	/// SerialHost handles communication to a r2I2C device (see the r2I2CDeviceRouter Arduino project).
+	/// SerialHost handles communication to a r2I2C device(see the r2I2CDeviceRouter Arduino project).
 	/// It's heavily coupled to the r2I2CDeviceRouter implementation. Any changes there should be reflected
 	/// in changes in this class.
 	/// </summary>
-	public class SerialHost: DeviceBase, ISerialHost
-	{
+	public class SerialHost : DeviceBase, ISerialHost {
+		
 		private ISerialConnection m_connection;
 		private ISerialPackageFactory m_packageFactory;
 		private int m_retryCount = 9;
@@ -40,7 +41,7 @@ namespace R2Core.GPIO
 		private readonly object m_lock = new object();
 
 		/// <summary>
-		/// Informs that a host has been reinitialized and need to be reconfigured (i.e. add devices). 
+		/// Informs that a host has been reinitialized and need to be reconfigured(i.e. add devices). 
 		/// </summary>
 		public Action<byte> HostDidReset { 
 			get { return m_delegate; }
@@ -52,28 +53,28 @@ namespace R2Core.GPIO
 			set { m_retryCount = value; } 
 		}
 
-		public SerialHost (string id, ISerialConnection connection, ISerialPackageFactory packageFactory) : base(id) {
+		public SerialHost(string id, ISerialConnection connection, ISerialPackageFactory packageFactory) : base(id) {
 			
 			m_connection = connection;
 			m_packageFactory = packageFactory;
 
 		}
 
-		public override void Start () {
+		public override void Start() {
 
 			if (m_connection?.Ready == false) {
 
-				m_connection.Start ();
+				m_connection.Start();
 
 			}
 
 		}
 
-		public override void Stop () {
+		public override void Stop() {
 
 			if (m_connection?.Ready == true) {
 
-				m_connection.Stop ();
+				m_connection.Stop();
 
 			}
 
@@ -81,9 +82,9 @@ namespace R2Core.GPIO
 
 		public override bool Ready { get { return m_connection?.Ready == true; } }
 
-		public DeviceData<T> GetValue<T>(byte deviceId, int nodeId) {
+		public DeviceData<T>GetValue<T>(byte deviceId, int nodeId) {
 
-			DeviceResponsePackage<T> response = Send<T> (m_packageFactory.GetDevice (deviceId, (byte)nodeId));
+			DeviceResponsePackage<T>response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId));
 
 			return new DeviceData<T>() { Id = response.Id, Value = response.Value };
 
@@ -91,15 +92,15 @@ namespace R2Core.GPIO
 
 		public void Set(byte deviceId, int nodeId, int value) {
 
-			DeviceResponsePackage<int> response = Send<int> (m_packageFactory.SetDevice (deviceId, (byte)nodeId, value));
+			DeviceResponsePackage<int> response = Send<int> (m_packageFactory.SetDevice(deviceId, (byte)nodeId, value));
 
 		}
 
 		public DeviceData<T> Create<T>(int nodeId, SerialDeviceType type, byte[] parameters) {
 
-			DeviceRequestPackage request = m_packageFactory.CreateDevice ((byte)nodeId, type, parameters);
+			DeviceRequestPackage request = m_packageFactory.CreateDevice((byte)nodeId, type, parameters);
 
-			DeviceResponsePackage<T> response = Send<T> (request);
+			DeviceResponsePackage<T> response = Send<T>(request);
 
 			return new DeviceData<T>() { Id = response.Id, Value = response.Value };
 
@@ -107,20 +108,20 @@ namespace R2Core.GPIO
 
 		public void Initialize(int host = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			ResetNode ((byte)host);
+			ResetNode((byte)host);
 
 		}
 
 		public void Reset(int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 		
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.Reset, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.Reset, NodeId = (byte)nodeId };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 		}
 
 		public bool IsNodeAvailable(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.IsNodeAvailable, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.IsNodeAvailable, NodeId = (byte)nodeId };
 			DeviceResponsePackage<bool> response = Send<bool> (request);
 
 			return response.Value;
@@ -129,7 +130,7 @@ namespace R2Core.GPIO
 
 		public bool IsNodeSleeping(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.CheckSleepState, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.CheckSleepState, NodeId = (byte)nodeId };
 			DeviceResponsePackage<bool> response = Send<bool> (request);
 
 			return response.Value;
@@ -138,7 +139,7 @@ namespace R2Core.GPIO
 
 		public byte[] GetNodes() {
 		
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.GetNodes };
+			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.GetNodes };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 			return response.Value;
@@ -147,7 +148,7 @@ namespace R2Core.GPIO
 
 		public void Sleep(int nodeId, bool toggle, int cycles = ArduinoSerialPackageFactory.RH24_SLEEP_UNTIL_MESSAGE_RECEIVED) {
 
-			DeviceRequestPackage request = m_packageFactory.Sleep ((byte) nodeId, toggle, (byte) cycles);
+			DeviceRequestPackage request = m_packageFactory.Sleep((byte)nodeId, toggle, (byte)cycles);
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 		}
@@ -156,23 +157,23 @@ namespace R2Core.GPIO
 
 			if (seconds > ArduinoSerialPackageFactory.RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL) {
 			
-				throw new ArgumentException ($"`seconds` ({seconds}) exceeds the maximum pause sleep interval of { ArduinoSerialPackageFactory.RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL}.");
+				throw new ArgumentException($"`seconds` ({seconds}) exceeds the maximum pause sleep interval of { ArduinoSerialPackageFactory.RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL}.");
 			
 			}
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.PauseSleep, NodeId = (byte) nodeId, Content = new byte[1] {(byte) seconds} };
+			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.PauseSleep, NodeId = (byte)nodeId, Content = new byte[1] {(byte)seconds} };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 		}
 
 		public void SetNodeId(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.SetNodeId, Id = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.SetNodeId, Id = (byte)nodeId };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 			if (!response.IsError && response.NodeId != 0) {
 			
-				Log.w ($"Node has changed id to {response.NodeId}. I2C connection might fail.");
+				Log.w($"Node has changed id to {response.NodeId}. I2C connection might fail.");
 
 			}
 
@@ -180,7 +181,7 @@ namespace R2Core.GPIO
 
 		public byte[] GetChecksum(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage () { Action = SerialActionType.GetChecksum, NodeId = (byte) nodeId };
+			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.GetChecksum, NodeId = (byte)nodeId };
 			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
 
 			return response.Value;
@@ -190,11 +191,11 @@ namespace R2Core.GPIO
 		// For debugging...
 		public void WaitFor(int nodeId) {
 		
-			while (!IsNodeAvailable (nodeId)) {
-				Console.Write ("x");
-				System.Threading.Thread.Sleep (1000);
+			while(!IsNodeAvailable(nodeId)) {
+				Console.Write("x");
+				System.Threading.Thread.Sleep(1000);
 			}
-			System.Threading.Thread.Sleep (1000);
+			System.Threading.Thread.Sleep(1000);
 		}
 
 		/// <summary>
@@ -204,14 +205,14 @@ namespace R2Core.GPIO
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
 		private DeviceResponsePackage<T> _Send<T>(DeviceRequestPackage request, int retryCount = 0) {
 		
-			byte[] requestData = m_packageFactory.SerializeRequest (request);
+			byte[] requestData = m_packageFactory.SerializeRequest(request);
 
 			bool retry = request.Action != SerialActionType.Initialization;
 
 			try {
 			
-				byte[] responseData = m_connection.Send (requestData);
-				DeviceResponsePackage<T> response = m_packageFactory.ParseResponse<T> (responseData);
+				byte[] responseData = m_connection.Send(requestData);
+				DeviceResponsePackage<T> response = m_packageFactory.ParseResponse<T>(responseData);
 
 				if ( retry && response.Action != SerialActionType.Initialization //Intialization is not considered an error
 					&& response.Error != SerialErrorType.NO_DEVICE_FOUND &&	// This error will cause the caller to recreate the device
@@ -220,20 +221,20 @@ namespace R2Core.GPIO
 
 					Log.t($"Retry: {retryCount}. Error: {response.Error}. {request.Description()}");
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
-					return _Send<T> (request, retryCount + 1);
+					return _Send<T>(request, retryCount + 1);
 
 				}
 
 				return response;
 
 			} catch (IOException ex) {
-			
+
 				// IO exceptions can occur from time to time. Give it a few more shots, mamma.
 				if (retryCount < RetryCount) {
 			
 					Log.t($"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
-					return _Send<T> (request, retryCount + 2);
+					return _Send<T>(request, retryCount + 2);
 
 				}
 
@@ -249,43 +250,43 @@ namespace R2Core.GPIO
 		/// <param name="request">Request.</param>
 		private DeviceResponsePackage<T> Send<T>(DeviceRequestPackage request) {
 
-			lock (m_lock) {
+			lock(m_lock) {
 
-				if (!Ready) { throw new System.IO.IOException ("Communication busy/not started."); }
+				if (!Ready) { throw new System.IO.IOException("Communication busy/not started."); }
 
-				//Log.t ($"Sending package: {request.Action} to node: {request.NodeId}.");
+				//Log.t($"Sending package: {request.Action} to node: {request.NodeId}.");
 
-				DeviceResponsePackage<T> response = _Send<T> (request);
+				DeviceResponsePackage<T> response = _Send<T>(request);
 
-				//Log.t ($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
+				//Log.t($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
 
 				if (!response.IsChecksumValid) {
 
-					throw new SerialConnectionException ($"Response checksum is bad ({response.Checksum}): Node: '{request.NodeId}'. Action: '{request.Action}'. ", SerialErrorType.ERROR_BAD_CHECKSUM);
+					throw new SerialConnectionException($"Response checksum is bad({response.Checksum}): Node: '{request.NodeId}'. Action: '{request.Action}'. ", SerialErrorType.ERROR_BAD_CHECKSUM);
 
 				} else if (response.Action == SerialActionType.Initialization) {
 
 					// The node needs to be reset. Reset the node and notify delegate, allowing it to re-create and/or re-send
-					ResetNode (response.NodeId);
+					ResetNode(response.NodeId);
 
-					if (HostDidReset != null) { HostDidReset (response.NodeId); }
+					if (HostDidReset != null) { HostDidReset(response.NodeId); }
 
 					// Resend the current request
 					response = _Send<T>(request);
 
 				} else if (response.IsError) { 
 
-					throw new SerialConnectionException ($"Response contained an error for action '{request.Action}': '{response.Error}'. Info: {response.ErrorInfo}. NodeId: {request.NodeId}.", response.Error);
+					throw new SerialConnectionException($"Response contained an error for action '{request.Action}': '{response.Error}'. Info: {response.ErrorInfo}. NodeId: {request.NodeId}.", response.Error);
 
 				} else if (request.Action != SerialActionType.SetNodeId && response.NodeId != request.NodeId) {
 
-					throw new SerialConnectionException ($"Response node id missmatch: Requested '{request.NodeId}'. Got: '{response.NodeId}'. Request action: '{request.Action}'. Response action: '{response.Action}'.", SerialErrorType.ERROR_DATA_MISMATCH);
+					throw new SerialConnectionException($"Response node id missmatch: Requested '{request.NodeId}'. Got: '{response.NodeId}'. Request action: '{request.Action}'. Response action: '{response.Action}'.", SerialErrorType.ERROR_DATA_MISMATCH);
 
 				} else if (!(request.Action == SerialActionType.Initialization && response.Action == SerialActionType.InitializationOk) &&
 					response.Action != request.Action) {
 
 					// The .InitializationOk is a response to a successfull .Initialization. Other successfull requests should return the requested Action.
-					throw new SerialConnectionException ($"Response action missmatch: Expected '{request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.", SerialErrorType.ERROR_DATA_MISMATCH);
+					throw new SerialConnectionException($"Response action missmatch: Expected '{request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.", SerialErrorType.ERROR_DATA_MISMATCH);
 
 				}
 

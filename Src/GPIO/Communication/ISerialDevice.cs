@@ -22,14 +22,14 @@ using R2Core.Device;
 namespace R2Core.GPIO
 {
 	/// <summary>
-	/// Represents a device available through the serial bus (i.e. I2C or Serial)
+	/// Represents a device available through the serial bus(i.e. I2C or Serial)
 	/// </summary>
-	public interface ISerialDevice: IDevice {
+	public interface ISerialDevice : IDevice {
 
 		/// <summary>
 		/// (Re)creates the device representation on the node, typically after node reboot.
 		/// </summary>
-		void Synchronize ();
+		void Synchronize();
 
 		/// <summary>
 		/// Allows the device to retrieve it's value from the node. 

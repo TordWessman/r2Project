@@ -22,8 +22,8 @@ namespace R2Core.Audio.ASR
 {
 	public interface IConversationLock
 	{
-		bool TryRelease (string text);
-		//void ForceRelease ();
+		bool TryRelease(string text);
+		//void ForceRelease();
 	}
 }
 

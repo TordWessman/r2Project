@@ -90,10 +90,10 @@ namespace R2Core.Audio.ASR
 		/// <param name="lm">Lm.</param>
 		/// <param name="dic">Dic.</param>
 		/// <param name="hmmDir">Hmm dir.</param>
-		public SphinxASRServer (string id, string lm = null, string dic = null, string hmmDir = null)
-			: base (id) {
+		public SphinxASRServer(string id, string lm = null, string dic = null, string hmmDir = null)
+			: base(id) {
 
-			initialize (null, 0, lm, dic, hmmDir, false, false);
+			initialize(null, 0, lm, dic, hmmDir, false, false);
 
 		}
 
@@ -106,33 +106,31 @@ namespace R2Core.Audio.ASR
 		/// <param name="lm">Lm.</param>
 		/// <param name="dic">Dic.</param>
 		/// <param name="hmmDir">Hmm dir.</param>
-		public SphinxASRServer (string id, int port, string hostIp, string lm = null, string dic = null, string hmmDir = null, bool dryRun = false)
-			: base (id)
-		{
-			initialize (hostIp, port, lm, dic, hmmDir, true, dryRun);
+		public SphinxASRServer(string id, int port, string hostIp, string lm = null, string dic = null, string hmmDir = null, bool dryRun = false)
+			: base(id) {
+			initialize(hostIp, port, lm, dic, hmmDir, true, dryRun);
 		}
 
 
-		public void initialize (string hostIp, int port, string lm, string dic, string hmmDir, bool as_tcp_server,  bool dryRun = false, int threshold = 90)
-		{
+		public void initialize(string hostIp, int port, string lm, string dic, string hmmDir, bool as_tcp_server,  bool dryRun = false, int threshold = 90) {
 
 			m_ip = hostIp;
 			m_port = port;
 
-			m_observers = new List<IASRObserver> ();
+			m_observers = new List<IASRObserver>();
 			
-			m_textReceivedCallBack = new TextInterpretedCallBack (this.DefaultTextReceived);
-			m_errorReceivedCallBack = new SphinxErrorCallBack (this.DefaultErrorReceived);
+			m_textReceivedCallBack = new TextInterpretedCallBack(this.DefaultTextReceived);
+			m_errorReceivedCallBack = new SphinxErrorCallBack(this.DefaultErrorReceived);
 			
-			m_asrTask = new Task (() => {
+			m_asrTask = new Task(() => {
 				
-				while (m_isRunning) {
+				while(m_isRunning) {
 					
-					if (_ext_asr_start () != 0) {
+					if (_ext_asr_start() != 0) {
 
 						m_isRunning = false;
 
-						throw new ExternalException ("Unable to start ASR!");
+						throw new ExternalException("Unable to start ASR!");
 					
 					}
 				
@@ -140,7 +138,7 @@ namespace R2Core.Audio.ASR
 
 			});
 
-			if (_ext_asr_init (
+			if (_ext_asr_init(
 				    m_textReceivedCallBack, 
 				    m_errorReceivedCallBack,
 				    lm, dic, hmmDir,
@@ -151,7 +149,7 @@ namespace R2Core.Audio.ASR
 				threshold
 			    ) != 0) {
 
-				throw new ExternalException ("Unable to initialize ASR engine");
+				throw new ExternalException("Unable to initialize ASR engine");
 
 			}
 
@@ -174,47 +172,42 @@ namespace R2Core.Audio.ASR
 		
 		}
 		
-		public override void Start ()
-		{
+		public override void Start() {
 
 			if (m_isRunning) {
 				
-				throw new DeviceException ("ASR is already running...");
+				throw new DeviceException("ASR is already running...");
 			}
 			
 			m_isRunning = true;
-			m_asrTask.Start ();
+			m_asrTask.Start();
 		}
 		
-		public override void Stop ()
-		{
+		public override void Stop() {
 			m_isRunning = false;
-			_ext_asr_turn_off ();
+			_ext_asr_turn_off();
 		}
 		
 		
-		protected void DefaultTextReceived (string text)
-		{
-			Console.WriteLine ("ASR: " + text);
+		protected void DefaultTextReceived(string text) {
+			Console.WriteLine("ASR: " + text);
 
 			Parallel.ForEach (m_observers, observer => {
 				try {
-					observer.TextReceived (text);
+					observer.TextReceived(text);
 				} catch (Exception ex) {
-					Log.x (ex);
+					Log.x(ex);
 				}
 			});
 		}
 		
-		protected void DefaultErrorReceived (int errorType, string errorMessage)
-		{
+		protected void DefaultErrorReceived(int errorType, string errorMessage) {
 			Log.e("ASR ERROR: " + errorMessage + " type: " + errorType.ToString());
 			
 		}
 		
 		#region ITaskMonitored implementation
-		public IDictionary<string,Task> GetTasksToObserve ()
-		{
+		public IDictionary<string,Task> GetTasksToObserve() {
 			return new Dictionary<string, Task>() {{"SPHINX ASR",m_asrTask}};
 		}
 		#endregion
@@ -223,7 +216,7 @@ namespace R2Core.Audio.ASR
 
 		public override bool Ready {
 			get {
-				return m_isRunning && _ext_asr_get_is_running ();
+				return m_isRunning && _ext_asr_get_is_running();
 			}
 		}
 		#endregion
@@ -231,31 +224,28 @@ namespace R2Core.Audio.ASR
 
 
 		#region IASR implementation
-		private void ReloadLanguageModels ()
-		{
-			Stop ();
-			while (_ext_asr_get_is_running()) {
-				Console.Write ("x");
+		private void ReloadLanguageModels() {
+			Stop();
+			while(_ext_asr_get_is_running()) {
+				Console.Write("x");
 			}
 			
-			Start ();
+			Start();
 			
 		}
 		#endregion
 
 		#region ILanguageUpdated implementation
 		
-		public void Reload ()
-		{
-			ReloadLanguageModels ();
+		public void Reload() {
+			ReloadLanguageModels();
 		}
 		
-		public void AddObserver (IASRObserver observer)
-		{
+		public void AddObserver(IASRObserver observer) {
 			if (observer == null) {
 				throw new ArgumentNullException("IASRObserver can not be null!");
 			}
-			m_observers.Add (observer);
+			m_observers.Add(observer);
 		}
 		
 		#endregion

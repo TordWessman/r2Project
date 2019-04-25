@@ -23,15 +23,15 @@ using R2Core.Device;
 
 namespace R2Core.Scripting
 {
-	public interface IScriptFactory<T>: IDevice where T: IScript
-	{
+	public interface IScriptFactory<T>: IDevice where T: IScript {
+		
 		/// <summary>
 		/// Creates an IScript of type T
 		/// </summary>
 		/// <returns>The script.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="sourceFile">Source file.</param>
-		T CreateScript (string id);
+		T CreateScript(string id);
 
 		/// <summary>
 		/// Creates a script interpreter capable of evaluating string expressions. The requirements of the implementations of the interpreted script is dependent on the IScriptInterpreter implementation.
@@ -44,7 +44,7 @@ namespace R2Core.Scripting
 		/// Adds a search path for script source files.
 		/// </summary>
 		/// <param name="path">Path.</param>
-		void AddSourcePath (string path);
+		void AddSourcePath(string path);
 
 		/// <summary>
 		/// Gets the default name of the script source file based upon the id.
@@ -55,7 +55,7 @@ namespace R2Core.Scripting
 		/// <param name='id'>
 		/// Identifier. The id of the script to evaluate the name of
 		/// </param>
-		string GetScriptFilePath (string id);
+		string GetScriptFilePath(string id);
 
 	}
 

@@ -20,8 +20,8 @@ using System;
 
 namespace R2Core.Scripting
 {
-	public class IronScriptInterpreter: IScriptInterpreter
-	{
+	public class IronScriptInterpreter : IScriptInterpreter {
+		
 		// The interpret method of the script. Takes a string argument containing the command to be interpreted.
 		public const string METHOD_INTERPRET = "interpret"; 
 
@@ -32,11 +32,10 @@ namespace R2Core.Scripting
 		/// The IScript must be of type 
 		/// </summary>
 		/// <param name="rubyScript">Ruby script.</param>
-		public IronScriptInterpreter (IronScript rubyScript, string interpretMethodName = METHOD_INTERPRET)
-		{
+		public IronScriptInterpreter(IronScript rubyScript, string interpretMethodName = METHOD_INTERPRET) {
 
 			m_rubyScript = rubyScript;
-			m_rubyScript.Invoke (IronScript.HANDLE_SETUP);
+			m_rubyScript.Invoke(IronScript.HANDLE_SETUP);
 			m_interpretMethodName = interpretMethodName;
 		
 		}

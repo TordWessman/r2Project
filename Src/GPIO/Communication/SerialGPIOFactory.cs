@@ -24,8 +24,7 @@ using System.Linq;
 namespace R2Core.GPIO
 {
 
-	public class SerialGPIOFactory: DeviceBase
-	{
+	public class SerialGPIOFactory : DeviceBase {
 
 		// Interface to the host(s)
 		private ISerialHost m_connection;
@@ -33,10 +32,10 @@ namespace R2Core.GPIO
 		// Keeps track of all devices per host
 		private SerialDeviceManager m_devices;
 
-		public SerialGPIOFactory (string id, ISerialHost connection) : base (id) {
+		public SerialGPIOFactory(string id, ISerialHost connection) : base(id) {
 
 			m_connection = connection;
-			m_devices = new SerialDeviceManager (connection);
+			m_devices = new SerialDeviceManager(connection);
 
 		}
 
@@ -45,80 +44,80 @@ namespace R2Core.GPIO
 		/// </summary>
 		/// <returns>The node.</returns>
 		/// <param name="nodeId">Node identifier.</param>
-		public ISerialNode GetNode(int nodeId) { return m_devices.Nodes.Where (node => (int) node.NodeId == nodeId).FirstOrDefault (); } 
-		public ISerialNode this[int key] { get { return GetNode (key); } }
+		public ISerialNode GetNode(int nodeId) { return m_devices.Nodes.Where(node => (int)node.NodeId == nodeId).FirstOrDefault(); } 
+		public ISerialNode this[int key] { get { return GetNode(key); } }
 			
 		//public IDictionary<byte, ISerialNode> Nodes { get { return m_devices.Nodes; } }
 
 		public override void Start() { 
 		
-			if (Ready) { throw new ApplicationException ("Unable to start. We are connected!"); } 
+			if (Ready) { throw new ApplicationException("Unable to start. We are connected!"); } 
 		
-			m_connection.Start ();
+			m_connection.Start();
 
 		}
 
 		public override void Stop() { 
 
-			if (!Ready) { Log.w ("Will not stop ISerialHost. Not connected!"); } 
-			else { m_connection.Stop (); } 
+			if (!Ready) { Log.w("Will not stop ISerialHost. Not connected!"); } 
+			else { m_connection.Stop(); } 
 
 		}
 
 		public override bool Ready { get { return m_connection.Ready; } }
 
-		public IInputMeter<double> CreateAnalogInput (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+		public IInputMeter<double> CreateAnalogInput(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			return InstantiateDevice(new SerialAnalogInput (id, m_devices.GetNode(nodeId), m_connection, new int[1] {port})); 
+			return InstantiateDevice(new SerialAnalogInput(id, m_devices.GetNode(nodeId), m_connection, new int[1] {port})); 
 
-
-		}
-
-		public IInputMeter<double> CreateMoisture (string id, int analogueInput, int digitalOutput, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
-
-			return InstantiateDevice(new SimpleAnalogueHumiditySensor (id, m_devices.GetNode(nodeId), m_connection, new int[2] {analogueInput, digitalOutput})); 
 
 		}
 
-		public IInputPort CreateInputPort (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+		public IInputMeter<double> CreateMoisture(string id, int analogueInput, int digitalOutput, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+			return InstantiateDevice(new SimpleAnalogueHumiditySensor(id, m_devices.GetNode(nodeId), m_connection, new int[2] {analogueInput, digitalOutput})); 
+
+		}
+
+		public IInputPort CreateInputPort(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 		
-			return InstantiateDevice(new SerialDigitalInput (id, m_devices.GetNode(nodeId), m_connection, port)); 
+			return InstantiateDevice(new SerialDigitalInput(id, m_devices.GetNode(nodeId), m_connection, port)); 
 
 		}
 
 
-		public IOutputPort CreateOutputPort (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+		public IOutputPort CreateOutputPort(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			return InstantiateDevice(new SerialDigitalOutput (id, m_devices.GetNode(nodeId), m_connection, port)); 
-
-		}
-
-		public IServo CreateServo (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
-
-			return InstantiateDevice(new SerialServo (id, m_devices.GetNode(nodeId), m_connection, port)); 
-		}
-
-		public IInputMeter<int> CreateSonar (string id, int triggerPort, int echoPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
-
-			return InstantiateDevice(new SerialHCSR04Sonar (id, m_devices.GetNode(nodeId), m_connection, triggerPort, echoPort)); 
+			return InstantiateDevice(new SerialDigitalOutput(id, m_devices.GetNode(nodeId), m_connection, port)); 
 
 		}
 
-		public IDHT11 CreateDht11 (string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+		public IServo CreateServo(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+			return InstantiateDevice(new SerialServo(id, m_devices.GetNode(nodeId), m_connection, port)); 
+		}
+
+		public IInputMeter<int> CreateSonar(string id, int triggerPort, int echoPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+			return InstantiateDevice(new SerialHCSR04Sonar(id, m_devices.GetNode(nodeId), m_connection, triggerPort, echoPort)); 
+
+		}
+
+		public IDHT11 CreateDht11(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
 			return InstantiateDevice(new SerialDHT11(id, m_devices.GetNode(nodeId), m_connection, port)); 
 
 		}
 
 		/// <summary>
-		/// Synchronizes (remotely creates) the device.
+		/// Synchronizes(remotely creates) the device.
 		/// </summary>
 		/// <returns>The device.</returns>
 		/// <param name="device">Device.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
 		private T InstantiateDevice<T>(T device) where T: ISerialDevice {
 
-			device.Synchronize ();
+			device.Synchronize();
 			return device;
 
 		}

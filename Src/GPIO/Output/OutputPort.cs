@@ -23,18 +23,17 @@ using R2Core;
 
 namespace R2Core.GPIO
 {
-	public class OutputPort : DeviceBase, IOutputPort
-	{
+	public class OutputPort : DeviceBase, IOutputPort {
+		
 		private RaspberryPiDotNet.GPIO m_gpi;
 		private bool m_value;
 
-		public OutputPort (string id, RaspberryPiDotNet.GPIO gpio, bool initialValue = false) : base (id)
-		{
+		public OutputPort(string id, RaspberryPiDotNet.GPIO gpio, bool initialValue = false) : base(id) {
 			m_gpi = gpio;
 			
 			if (m_gpi.PinDirection != RaspberryPiDotNet.GPIODirection.Out) {
 				
-				throw new ArgumentException ("Provided GPIO pin had not out-direction");
+				throw new ArgumentException("Provided GPIO pin had not out-direction");
 
 			}
 
@@ -49,7 +48,7 @@ namespace R2Core.GPIO
 			set {
 				
 				m_value = value;
-				m_gpi.Write (value);
+				m_gpi.Write(value);
 
 			}
 

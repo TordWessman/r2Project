@@ -25,8 +25,8 @@ namespace R2Core.PushNotifications
 	/// <summary>
 	/// Push notification message representation
 	/// </summary>
-	public interface IPushNotification
-	{
+	public interface IPushNotification {
+		
 		/// <summary>
 		/// Which PushNotificationClientTypes are targeted
 		/// </summary>

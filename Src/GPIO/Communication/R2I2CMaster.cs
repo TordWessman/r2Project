@@ -6,8 +6,7 @@ using R2Core;
 
 namespace R2Core.GPIO
 {
-	public class R2I2CMaster: DeviceBase, ISerialConnection
-	{
+	public class R2I2CMaster : DeviceBase, ISerialConnection {
 
 		private const string dllPath = "libr2I2C.so";
 
@@ -55,15 +54,14 @@ namespace R2Core.GPIO
 		private int m_bus;
 		private int m_port;
 
-		public R2I2CMaster (string id, int? bus = null, int? port = null) : base (id)
-		{
+		public R2I2CMaster(string id, int? bus = null, int? port = null) : base(id) {
 
 			m_bus = bus ?? Settings.Consts.I2CDefaultBus();
 			m_port = port ?? Settings.Consts.I2CDefaultPort();
 
 		}
 
-		public override bool Ready { get { return r2I2C_is_ready (); } }
+		public override bool Ready { get { return r2I2C_is_ready(); } }
 
 		public override void Start() {
 
@@ -71,18 +69,17 @@ namespace R2Core.GPIO
 
 			if (status < 0) {
 
-				r2I2C_should_run (false);
-				throw new System.IO.IOException ($"Unable to open I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
+				r2I2C_should_run(false);
+				throw new System.IO.IOException($"Unable to open I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
 
 			}
 
-			r2I2C_should_run (true);
+			r2I2C_should_run(true);
 
 		}
 
-		public override void Stop()
-		{
-			r2I2C_should_run (false);
+		public override void Stop() {
+			r2I2C_should_run(false);
 		}
 
 		private byte[] Response {
@@ -91,7 +88,7 @@ namespace R2Core.GPIO
 				
 				byte[] response = new byte[r2I2C_get_response_size()];
 
-				for (int i = 0; i < r2I2C_get_response_size (); i++) { response [i] = r2I2C_get_response (i); }
+				for (int i = 0; i < r2I2C_get_response_size(); i++) { response [i] = r2I2C_get_response(i); }
 
 				return response;
 
@@ -99,18 +96,18 @@ namespace R2Core.GPIO
 
 		}
 
-		public byte[] Send (byte []data) {
+		public byte[] Send(byte []data) {
 		
-			lock (m_lock) {
+			lock(m_lock) {
 
 				int status = r2I2C_send(data, data.Length);
 				if (status < 0) {
 
-					throw new System.IO.IOException ($"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
+					throw new System.IO.IOException($"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
 
 				} 
 
-				return Read ();
+				return Read();
 
 			}
 
@@ -122,7 +119,7 @@ namespace R2Core.GPIO
 
 			if (status < 0) {
 
-				throw new System.IO.IOException ($"Unable to receive from I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}..");
+				throw new System.IO.IOException($"Unable to receive from I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}..");
 
 			}
 

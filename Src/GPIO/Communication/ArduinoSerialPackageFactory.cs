@@ -21,9 +21,12 @@ using System.Linq;
 
 namespace R2Core.GPIO
 {
-	public class ArduinoSerialPackageFactory: ISerialPackageFactory
-	{
-		// Default local nodeId value. This is the default nodeId used. Data sent to other nodeIds requires a RH24 enabled node (configured as RH24 master).
+	/// <summary>
+	/// Handles serialization & deserialization of the packages communicated to the Arduino r2I2CDeviceRouter 
+	/// </summary>
+	public class ArduinoSerialPackageFactory : ISerialPackageFactory {
+		
+		// Default local nodeId value. This is the default nodeId used. Data sent to other nodeIds requires a RH24 enabled node(configured as RH24 master).
 		public const byte DEVICE_NODE_LOCAL = 0x0;
 
 		// Max size for content in packages
@@ -63,12 +66,12 @@ namespace R2Core.GPIO
 		public const int REQUEST_POSITION_CONTENT_LENGTH = 0x4;
 		public const int REQUEST_POSITION_CONTENT = 0x5;
 
-		// In the content part of the (create) message, here be the Type
+		// In the content part of the(create) message, here be the Type
 		public const int POSITION_CONTENT_DEVICE_TYPE = 0x0;
 
 		// Where the the error code resides in the response content
 		public const int POSITION_CONTENT_POSITION_ERROR_TYPE = 0x0;
-		// Where (potentional) additional error information resides int response content.
+		// Where(potentional) additional error information resides int response content.
 		public const int POSITION_CONTENT_POSITION_ERROR_INFO = 0x1;
 
 		// Content positions for Sleep data
@@ -79,7 +82,7 @@ namespace R2Core.GPIO
 
 		public ArduinoSerialPackageFactory() {
 
-			m_deviceCount = new byte[sizeof(byte) * 256];
+			m_deviceCount = new byte[sizeof(byte)* 256];
 
 		}
 
@@ -89,7 +92,7 @@ namespace R2Core.GPIO
 
 			if (contentLength > MAX_CONTENT_LENGTH) {
 				
-				throw new ArgumentOutOfRangeException ($"Invalid content length: {contentLength}. Max contentLength: {MAX_CONTENT_LENGTH}");
+				throw new ArgumentOutOfRangeException($"Invalid content length: {contentLength}. Max contentLength: {MAX_CONTENT_LENGTH}");
 			
 			}
 
@@ -102,7 +105,7 @@ namespace R2Core.GPIO
 
 			if (contentLength > 0) {
 			
-				Array.Copy (request.Content, 0, requestData, REQUEST_POSITION_CONTENT, contentLength);
+				Array.Copy(request.Content, 0, requestData, REQUEST_POSITION_CONTENT, contentLength);
 
 			}
 
@@ -117,11 +120,11 @@ namespace R2Core.GPIO
 
 		}
 
-		public DeviceResponsePackage<T> ParseResponse<T> (byte[] response) {
+		public DeviceResponsePackage<T> ParseResponse<T>(byte[] response) {
 
 			if (response.Length < RESPONSE_POSITION_CONTENT_LENGTH) {
 			
-				return new DeviceResponsePackage<T> () {
+				return new DeviceResponsePackage<T>() {
 					Checksum = 0,
 					Action = SerialActionType.Error,
 					Content = new byte[] {(byte)SerialErrorType.ERROR_INVALID_RESPONSE_SIZE}
@@ -131,13 +134,13 @@ namespace R2Core.GPIO
 
 			int contentLength = response [RESPONSE_POSITION_CONTENT_LENGTH];
 
-			return new DeviceResponsePackage<T> () {
+			return new DeviceResponsePackage<T>() {
 				Checksum = response[RESPONSE_POSITION_CHECKSUM],
 				MessageId = response [RESPONSE_POSITION_MESSAGE_ID],
 				NodeId = response [RESPONSE_POSITION_HOST],
 				Action = (SerialActionType)response [RESPONSE_POSITION_ACTION],
 				Id = response [RESPONSE_POSITION_ID],
-				Content = contentLength > 0 ? response.Skip (RESPONSE_POSITION_CONTENT).Take (contentLength)?.ToArray () ?? new byte[]{ } : new byte[]{ }
+				Content = contentLength > 0 ? response.Skip(RESPONSE_POSITION_CONTENT).Take(contentLength)?.ToArray() ?? new byte[]{ } : new byte[]{ }
 			};
 
 		}
@@ -147,15 +150,15 @@ namespace R2Core.GPIO
 			// Node expects <device type><IOPort1><IOPort2> ...
 			byte[] content = new byte[1 + ports.Length];
 			content [POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
-			Array.Copy (ports, 0, content, 1, ports.Length);
+			Array.Copy(ports, 0, content, 1, ports.Length);
 
 			if ((type == SerialDeviceType.AnalogueInput || type == SerialDeviceType.SimpleMoist) && !(VALID_ANALOGUE_PORTS_ON_ARDUINO.Contains(ports[0]))) {
 
-				throw new System.IO.IOException ($"Not a valid analogue port: '{ports[0]}'. Use: {string.Concat (VALID_ANALOGUE_PORTS_ON_ARDUINO.Select (b => b.ToString () + ' '))}");
+				throw new System.IO.IOException($"Not a valid analogue port: '{ports[0]}'. Use: {string.Concat(VALID_ANALOGUE_PORTS_ON_ARDUINO.Select(b => b.ToString() + ' '))}");
 
 			}
 
-			DeviceRequestPackage package = new DeviceRequestPackage () { 
+			DeviceRequestPackage package = new DeviceRequestPackage() { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Create, 
 				Id = m_deviceCount[nodeId]++, //Actually decided by the node...
@@ -168,9 +171,9 @@ namespace R2Core.GPIO
 
 		public DeviceRequestPackage SetDevice(byte deviceId, byte nodeId, int value) {
 
-			byte[] content = { (byte) (value & 0xFF) , (byte) ((value >> 8) & 0xFF) };
+			byte[] content = { (byte)(value & 0xFF) , (byte)((value >> 8) & 0xFF) };
 
-			return new DeviceRequestPackage () { 
+			return new DeviceRequestPackage() { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Set, 
 				Id = deviceId, 
@@ -181,7 +184,7 @@ namespace R2Core.GPIO
 
 		public DeviceRequestPackage GetDevice(byte deviceId, byte nodeId) {
 
-			return new DeviceRequestPackage () { 
+			return new DeviceRequestPackage() { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Get, 
 				Id = deviceId, 
@@ -194,18 +197,18 @@ namespace R2Core.GPIO
 		
 			byte[] content = new byte[2];
 			content [POSITION_CONTENT_SLEEP_TOGGLE] = (byte)(toggle ? 1 : 0);
-			content [POSITION_CONTENT_SLEEP_CYCLES] = (byte) cycles;
+			content [POSITION_CONTENT_SLEEP_CYCLES] = (byte)cycles;
 
-			return new DeviceRequestPackage () {
+			return new DeviceRequestPackage() {
 				NodeId = nodeId,
 				Action = SerialActionType.SendToSleep, 
 				Content = content
 			};
 		}
 
-		public DeviceRequestPackage SetNodeId (byte nodeId) {
+		public DeviceRequestPackage SetNodeId(byte nodeId) {
 
-			return new DeviceRequestPackage () {
+			return new DeviceRequestPackage() {
 				NodeId = 0x0, 
 				Action = SerialActionType.Initialization, 
 				Id = nodeId, 

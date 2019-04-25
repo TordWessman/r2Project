@@ -26,10 +26,9 @@ using System.Linq;
 namespace R2Core.DataManagement.Memory
 {
 	/// <summary>
-	/// Shared memory source is a possibly inter connected memory source (can be chained and combined with other sources). Deletions, updates etc will affect linked sources.
+	/// Shared memory source is a possibly inter connected memory source(can be chained and combined with other sources). Deletions, updates etc will affect linked sources.
 	/// </summary>
-	public class SharedMemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver
-	{
+	public class SharedMemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver {
 
 		public const string F_GetAssociations = "GetAssociations";
 		public const string F_GetId = "GetId";
@@ -48,50 +47,48 @@ namespace R2Core.DataManagement.Memory
 		private IAssociationsDBAdapter m_assDb;
 		private IList<IMemorySource> m_otherSources;
 
-		public SharedMemorySource (string id, IDeviceManager deviceManager, IDatabase db) : base (id)
-		{
+		public SharedMemorySource(string id, IDeviceManager deviceManager, IDatabase db) : base(id) {
 
 			m_memDb = new MemoryDBAdapter(db);
 			m_assDb = new AssociationsDBAdapter(db);
 			m_deviceManager = deviceManager;
-			m_memoryFactory = new MemoryFactory (m_memDb);
+			m_memoryFactory = new MemoryFactory(m_memDb);
 
-			m_deviceManager.AddObserver (this);
-			m_otherSources = new List<IMemorySource> ();
+			m_deviceManager.AddObserver(this);
+			m_otherSources = new List<IMemorySource>();
 
 		}
 
-		public void PrintAll () {
+		public void PrintAll() {
 		
 			foreach (IMemory memory in All()) {
 			
-				Log.t (memory.Id + ": " + memory.Type + " = " + memory.Value + " " + (memory.IsLocal ? "" : "[remote]"));
+				Log.t(memory.Id + ": " + memory.Type + " = " + memory.Value + " " + (memory.IsLocal ? "" : "[remote]"));
 
 			}
 
 		}
 
-		public override void Start ()
-		{
+		public override void Start() {
 
-			m_memDb.SetUp ();
-			m_assDb.SetUp ();
-
-		}
-
-		public IMemory Get (int memoryId) {
-
-			return _Get (new int[]{ memoryId }, true).FirstOrDefault();
+			m_memDb.SetUp();
+			m_assDb.SetUp();
 
 		}
 
-		public IMemory Get (MemoryType type) {
+		public IMemory Get(int memoryId) {
 
-			return _Get (type, true);
+			return _Get(new int[]{ memoryId }, true).FirstOrDefault();
 
 		}
 
-		public ICollection<IMemory> All (MemoryType type = null) {
+		public IMemory Get(MemoryType type) {
+
+			return _Get(type, true);
+
+		}
+
+		public ICollection<IMemory> All(MemoryType type = null) {
 		 
 			if (type == null) {
 			
@@ -99,55 +96,53 @@ namespace R2Core.DataManagement.Memory
 
 			}
 
-			return _All (type, true);
+			return _All(type, true);
 
 		}
 
-		public ICollection<IMemory> GetAssociations (IMemory memory) {
+		public ICollection<IMemory> GetAssociations(IMemory memory) {
 
-			return _GetAssociations (memory, true);
-
-		}
-
-		public ICollection<IMemory> Get (int[] memoryIds) {
-
-			return _Get (memoryIds, true);
+			return _GetAssociations(memory, true);
 
 		}
 
-		public void Associate (IMemory one, IMemory two) {
+		public ICollection<IMemory> Get(int[] memoryIds) {
 
-			_Associate (one, two, true);
+			return _Get(memoryIds, true);
 
 		}
 
-		public IMemory Create (string type, string name)
-		{
+		public void Associate(IMemory one, IMemory two) {
+
+			_Associate(one, two, true);
+
+		}
+
+		public IMemory Create(string type, string name) {
 
 			IMemoryReference reference = m_memoryFactory.StoreMemoryReference(NextMemoryReference, name, type);
-			IMemory memory = m_memoryFactory.CreateMemory (reference, this, true);
+			IMemory memory = m_memoryFactory.CreateMemory(reference, this, true);
 
 			return memory;
 
 		}
 
 
-		public bool Update (IMemory memory)
-		{
+		public bool Update(IMemory memory) {
 
 			return _Update(memory.Reference, true);
 
 		}
 
-		public bool Delete (IMemory memory) {
+		public bool Delete(IMemory memory) {
 
-			return _Delete (memory.Id, true);
+			return _Delete(memory.Id, true);
 
 		}
 
-		public bool Delete (int memoryId) {
+		public bool Delete(int memoryId) {
 		
-			return _Delete (memoryId, true);
+			return _Delete(memoryId, true);
 
 		}
 
@@ -155,7 +150,7 @@ namespace R2Core.DataManagement.Memory
 
 		private bool _Update(IMemoryReference reference, bool affectOther) {
 		
-			if (m_memDb.Update (reference)) {
+			if (m_memDb.Update(reference)) {
 			
 				return true;
 
@@ -163,7 +158,7 @@ namespace R2Core.DataManagement.Memory
 
 			foreach (IMemorySource source in m_otherSources) {
 			
-				if (source.Update (m_memoryFactory.CreateMemory(reference, null, false))) {
+				if (source.Update(m_memoryFactory.CreateMemory(reference, null, false))) {
 				
 					return true;
 
@@ -175,16 +170,15 @@ namespace R2Core.DataManagement.Memory
 
 		}
 
-		private bool _Delete (int memoryId, bool affectOther)
-		{
+		private bool _Delete(int memoryId, bool affectOther) {
 
-			m_assDb.RemoveAssociations (memoryId);
+			m_assDb.RemoveAssociations(memoryId);
 
-			if (!m_memDb.Delete (memoryId) && affectOther) {
+			if (!m_memDb.Delete(memoryId) && affectOther) {
 
 				foreach (IMemorySource source in m_otherSources) {
 
-					if (source.Delete (memoryId)) {
+					if (source.Delete(memoryId)) {
 
 						return true;
 
@@ -202,10 +196,9 @@ namespace R2Core.DataManagement.Memory
 		}
 
 
-		private ICollection<IMemory> _Get (int[] memoryIds, bool affectOther = false)
-		{
+		private ICollection<IMemory> _Get(int[] memoryIds, bool affectOther = false) {
 
-			List<IMemory> memories = new List<IMemory> (m_memDb.Get (memoryIds).Select (r => m_memoryFactory.CreateMemory (r, this, true)));
+			List<IMemory> memories = new List<IMemory> (m_memDb.Get(memoryIds).Select(r => m_memoryFactory.CreateMemory(r, this, true)));
 
 			if (affectOther) {
 			
@@ -221,23 +214,22 @@ namespace R2Core.DataManagement.Memory
 		
 		}
 
-		private IMemory _Get (MemoryType type, bool affectOther) {
+		private IMemory _Get(MemoryType type, bool affectOther) {
 
-			return _All (type, affectOther).FirstOrDefault ();
+			return _All(type, affectOther).FirstOrDefault();
 
 		}
 
-		private ICollection<IMemory> _GetAssociations (IMemory memory, bool affectOther)
-		{
+		private ICollection<IMemory> _GetAssociations(IMemory memory, bool affectOther) {
 
-			List<IMemory> memories = new List<IMemory> ();
-			memories.AddRange(m_memDb.Get (m_assDb.GetAssociations (memory.Id)).Select (r => m_memoryFactory.CreateMemory (r, this, true)));
+			List<IMemory> memories = new List<IMemory>();
+			memories.AddRange(m_memDb.Get(m_assDb.GetAssociations(memory.Id)).Select(r => m_memoryFactory.CreateMemory(r, this, true)));
 
 			if (affectOther) {
 
 				foreach (IMemorySource source in m_otherSources) {
 
-					memories.AddRange (source.GetAssociations (memory).Select (m => m_memoryFactory.CreateMemory (m.Reference, source, false)));
+					memories.AddRange(source.GetAssociations(memory).Select(m => m_memoryFactory.CreateMemory(m.Reference, source, false)));
 
 				}
 
@@ -247,16 +239,15 @@ namespace R2Core.DataManagement.Memory
 
 		}
 
-		private void _Associate (IMemory one, IMemory two, bool affectOther)
-		{
+		private void _Associate(IMemory one, IMemory two, bool affectOther) {
 
-			m_assDb.SetAssociation (one.Id, two.Id);
+			m_assDb.SetAssociation(one.Id, two.Id);
 
 			if (affectOther) {
 
 				foreach (IMemorySource source in m_otherSources) {
 
-					source.Associate (one, two);
+					source.Associate(one, two);
 
 				}
 
@@ -264,13 +255,12 @@ namespace R2Core.DataManagement.Memory
 
 		}
 
-		private ICollection<IMemory> _All (MemoryType type, bool affectOther = false)
-		{
+		private ICollection<IMemory> _All(MemoryType type, bool affectOther = false) {
 
-			IEnumerable<IMemoryReference> references = type == string.Empty ? m_memDb.LoadAll() : m_memDb.Get (type);
-			List<IMemory> memories = new List<IMemory> ();
+			IEnumerable<IMemoryReference> references = type == string.Empty ? m_memDb.LoadAll() : m_memDb.Get(type);
+			List<IMemory> memories = new List<IMemory>();
 
-			var refs = references.Select (r => m_memoryFactory.CreateMemory (r, this, true));
+			var refs = references.Select(r => m_memoryFactory.CreateMemory(r, this, true));
 
 			if (refs != null) {
 			
@@ -284,11 +274,11 @@ namespace R2Core.DataManagement.Memory
 
 					if (source != null) {
 
-						references = source.All (type).Select(r => r.Reference);
+						references = source.All(type).Select(r => r.Reference);
 
 						if (references != null) {
 						
-							memories.AddRange(references.Select(r => m_memoryFactory.CreateMemory (r, source, false)));
+							memories.AddRange(references.Select(r => m_memoryFactory.CreateMemory(r, source, false)));
 
 						}
 
@@ -307,8 +297,8 @@ namespace R2Core.DataManagement.Memory
 			get {
 
 				//TODO: fix this
-				Random random = new Random ();
-				return random.Next (0, Int32.MaxValue);
+				Random random = new Random();
+				return random.Next(0, Int32.MaxValue);
 
 			}
 
@@ -318,25 +308,23 @@ namespace R2Core.DataManagement.Memory
 
 		#region IDeviceManagerObserver implementation
 
-		public void DeviceAdded (IDevice device)
-		{
+		public void DeviceAdded(IDevice device) {
 
 			if (device is IMemorySource && device.Identifier != Identifier) {
 
-				m_otherSources.Add (device as IMemorySource);
+				m_otherSources.Add(device as IMemorySource);
 
 			}
 
 		}
 
-		public void DeviceRemoved (IDevice device)
-		{
+		public void DeviceRemoved(IDevice device) {
 
 			if (device is IMemorySource) {
 
-				if (m_otherSources.Contains (device as IMemorySource)) {
+				if (m_otherSources.Contains(device as IMemorySource)) {
 
-					m_otherSources.Remove (device as IMemorySource);
+					m_otherSources.Remove(device as IMemorySource);
 
 				}
 
@@ -346,17 +334,17 @@ namespace R2Core.DataManagement.Memory
 
 		#endregion
 
-		public void AddSource (IMemorySource source) {
+		public void AddSource(IMemorySource source) {
 		
 			if (source == null) {
 			
-				throw new ArgumentException ("Source can't be null.");
+				throw new ArgumentException("Source can't be null.");
 
 			}
 
 			if (source.Guid != Guid) {
 
-				m_otherSources.Add (source);
+				m_otherSources.Add(source);
 
 			}
 

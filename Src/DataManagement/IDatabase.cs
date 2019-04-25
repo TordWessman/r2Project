@@ -27,13 +27,13 @@ using R2Core.Device;
 
 namespace R2Core.DataManagement
 {
-	public interface IDatabase : IDevice
-	{
+	public interface IDatabase : IDevice {
+		
 		/// <summary>
 		/// Returns a data set containing query result.
 		/// </summary>
 		/// <param name="queryString">Query string.</param>
-		DataSet Select (string queryString);
+		DataSet Select(string queryString);
 
 		/// <summary>
 		/// Returns the number of rows affected
@@ -45,7 +45,7 @@ namespace R2Core.DataManagement
 		/// Execute an insert statement and returns the id of the inserted row. Can also be used for create statements.
 		/// </summary>
 		/// <param name="queryString">Query string.</param>
-		Int64 Insert (string queryString);
+		Int64 Insert(string queryString);
 
 	}
 

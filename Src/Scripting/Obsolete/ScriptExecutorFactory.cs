@@ -25,7 +25,7 @@ using System.IO;
 namespace R2Core.Scripting
 {
 	/// <summary>
-	/// Remotly accessible implementation of a IScriptExecutorFactory. Use the Create on a remote ScriptExecutorFactory in order to create a (remotly accessible) script on a remote machine.
+	/// Remotly accessible implementation of a IScriptExecutorFactory. Use the Create on a remote ScriptExecutorFactory in order to create a(remotly accessible) script on a remote machine.
 	/// </summary>
 	public class ScriptExecutorFactory<T> : DeviceBase, IScriptExecutorFactory where T : IScript
 	{
@@ -33,11 +33,10 @@ namespace R2Core.Scripting
 		private ITaskMonitor m_taskMonitor;
 		private IScriptFactory<T> m_scriptFactory;
 		
-		public ScriptExecutorFactory (string id,
+		public ScriptExecutorFactory(string id,
 		                      IDeviceManager deviceManager,
 		                      ITaskMonitor taskMonitor, 
-			IScriptFactory<T> scriptFactory) : base (id)
-		{
+			IScriptFactory<T> scriptFactory) : base(id) {
 		
 			m_deviceManager = deviceManager;
 			m_taskMonitor = taskMonitor;
@@ -48,8 +47,7 @@ namespace R2Core.Scripting
 
 
 		#region INetScriptFactory implementation
-		public void Create (string id, string scriptId = null)
-		{
+		public void Create(string id, string scriptId = null) {
 
 			if (scriptId == null) {
 			
@@ -57,18 +55,18 @@ namespace R2Core.Scripting
 			
 			}
 				
-			IScriptExecutor executor = new ScriptExecutor<T> (id, 
+			IScriptExecutor executor = new ScriptExecutor<T>(id, 
 			                                               scriptId,
 			                                               m_deviceManager,
 			                                               m_taskMonitor,
 			                                               m_scriptFactory);
-			if (m_deviceManager.Has (id)) {
+			if (m_deviceManager.Has(id)) {
 
-				m_deviceManager.Remove (id);
+				m_deviceManager.Remove(id);
 			
 			}
 			
-			m_deviceManager.Add (executor);
+			m_deviceManager.Add(executor);
 			
 		}
 		#endregion

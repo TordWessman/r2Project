@@ -27,13 +27,20 @@ namespace R2Core.Network
 	/// <summary>
 	/// Represents an implementation capable of handdling objects through network requests
 	/// </summary>
-	public interface IWebObjectReceiver
-	{
+	public interface IWebObjectReceiver {
+		
 		/// <summary>
 		/// Handles the receival of the input object. Output object should contain
 		/// </summary>
 		/// <param name="input">Input.</param>
-		INetworkMessage OnReceive (INetworkMessage input, IPEndPoint source);
+		INetworkMessage OnReceive(INetworkMessage input, IPEndPoint source);
+
+		/// <summary>
+		/// Default URI path this receiver expects.
+		/// </summary>
+		/// <value>The default path.</value>
+		string DefaultPath { get; }
 
 	}
+
 }

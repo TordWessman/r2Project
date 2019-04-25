@@ -7,8 +7,7 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// Base implementation for serial devices. Contains standard functionality including access to the ISerialHost and node management.
 	/// </summary>
-	internal abstract class SerialDeviceBase<T>: DeviceBase, ISerialDevice
-	{
+	internal abstract class SerialDeviceBase<T>: DeviceBase, ISerialDevice {
 
 		// Defined by the host application. A port with this value is not in use.
 		private const byte DEVICE_PORT_NOT_IN_USE = 0xFF;
@@ -34,16 +33,16 @@ namespace R2Core.GPIO
 		public byte NodeId { get { return m_node.NodeId; } }
 		public bool IsSleeping { get { return m_node.Sleep; } }
 
-		internal SerialDeviceBase (string id, ISerialNode node, ISerialHost host): base(id) {
+		internal SerialDeviceBase(string id, ISerialNode node, ISerialHost host): base(id) {
 			
 			m_host = host;
 			m_node = node;
-			m_node.Track (this);
+			m_node.Track(this);
 
 		}
 
 		/// <summary>
-		/// For creation of the device remotely: Parameters (i.e. ports) required
+		/// For creation of the device remotely: Parameters(i.e. ports) required
 		/// </summary>
 		protected abstract byte[] CreationParameters { get; }
 
@@ -60,7 +59,7 @@ namespace R2Core.GPIO
 		/// <returns>The value.</returns>
 		protected T GetValue() {
 
-			if (!IsSleeping) { Update (); }
+			if (!IsSleeping) { Update(); }
 
 			return InternalValue; 
 
@@ -68,20 +67,20 @@ namespace R2Core.GPIO
 
 		public void Update() {
 
-			InternalValue = Host.GetValue<T> (m_deviceId, NodeId).Value;
+			InternalValue = Host.GetValue<T>(m_deviceId, NodeId).Value;
 
 		}
 
 		public void Synchronize() {
 					
-			DeviceData<T> info = Host.Create<T> ((byte)NodeId, DeviceType, CreationParameters);
+			DeviceData<T>info = Host.Create<T>((byte)NodeId, DeviceType, CreationParameters);
 			m_deviceId = info.Id;
 			InternalValue = info.Value;
 
 		}
 
 		// Calculation is defined by the node application
-		public byte Checksum { get { return (byte) (((int)DeviceType << 4) + m_deviceId + ((CreationParameters.Length == 0 ? DEVICE_PORT_NOT_IN_USE : CreationParameters[0]) ^ 0xFF)) ; } }
+		public byte Checksum { get { return (byte)(((int)DeviceType << 4) + m_deviceId + ((CreationParameters.Length == 0 ? DEVICE_PORT_NOT_IN_USE : CreationParameters[0]) ^ 0xFF)); } }
 
 	}
 

@@ -37,23 +37,21 @@ namespace R2Core.DataManagement.Memory
 		
 		private const string DELETE_SQL = "DELETE FROM {0} WHERE {1}={3} OR {2}={3}";
 		
-		public AssociationsDBAdapter (IDatabase db)
-		{
+		public AssociationsDBAdapter(IDatabase db) {
 			m_db = db;
 		}
 
 		#region IDBAdapter implementation
-		public void SetUp ()
-		{
-			string sql = string.Format (CREATE_TABLE_SQL,
+		public void SetUp() {
+			string sql = string.Format(CREATE_TABLE_SQL,
 			                           	ASSOCIATIONS_TABLE_NAME,
 			                           	ID_COL_ONE,
 			                           	ID_COL_TWO);
 			if (!m_db.Ready) {
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 			}
 			
-			m_db.Update (sql);
+			m_db.Update(sql);
 		}
 
 		public bool Ready {
@@ -64,16 +62,15 @@ namespace R2Core.DataManagement.Memory
 		#endregion
 
 		#region IAssociationsDBAdapter implementation
-		public void SetAssociation (int memoryId1, int memoryId2)
-		{
+		public void SetAssociation(int memoryId1, int memoryId2) {
 			
 			if (memoryId1 == memoryId2) {
-				throw new ArgumentException ("Unable to create Association - memory1 == memory2: " + memoryId1);
+				throw new ArgumentException("Unable to create Association - memory1 == memory2: " + memoryId1);
 			}
 			
 			foreach (int assocId in GetAssociations(memoryId1)) {
 				if (assocId == memoryId2) {
-					//Log.w ($"Will not add association for {memoryId1} and {memoryId2} since they already are associated.");
+					//Log.w($"Will not add association for {memoryId1} and {memoryId2} since they already are associated.");
 					return;
 				}
 			}
@@ -85,43 +82,42 @@ namespace R2Core.DataManagement.Memory
 				memoryId2 = temp;
 			}
 			
-			string sql = string.Format (INSERT_ROW_SQL,
+			string sql = string.Format(INSERT_ROW_SQL,
 			                           	ASSOCIATIONS_TABLE_NAME,
 			                           	ID_COL_ONE,
 			                           	ID_COL_TWO,
 			                            memoryId1,
 			                            memoryId2);
 			if (!m_db.Ready) {
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 			}
 			
-			m_db.Insert (sql);
+			m_db.Insert(sql);
 			
 		}
 
-		public int[] GetAssociations (int memoryId)
-		{
+		public int[] GetAssociations(int memoryId) {
 			//ICollection<int> memories = new List<int>();
 			
 			if (!m_db.Ready) {
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 			}
 			
-			string sql = string.Format (SELECT_SQL,
+			string sql = string.Format(SELECT_SQL,
 			                           	ID_COL_ONE,
 			                            ASSOCIATIONS_TABLE_NAME,
 			                           	ID_COL_TWO,
 			                            memoryId);
 			
-			DataSet dsId1 = m_db.Select (sql);
+			DataSet dsId1 = m_db.Select(sql);
 			
-			sql = string.Format (SELECT_SQL,
+			sql = string.Format(SELECT_SQL,
 			                           	ID_COL_TWO,
 			                            ASSOCIATIONS_TABLE_NAME,
 			                           	ID_COL_ONE,
 			                            memoryId);
 			
-			DataSet dsId2 = m_db.Select (sql);
+			DataSet dsId2 = m_db.Select(sql);
 			
 			
 			DataTable dt1 = dsId1.Tables [0];
@@ -144,19 +140,18 @@ namespace R2Core.DataManagement.Memory
 			
 		}
 		
-		public void RemoveAssociations (int memoryId)
-		{
-			string sql = string.Format (DELETE_SQL,
+		public void RemoveAssociations(int memoryId) {
+			string sql = string.Format(DELETE_SQL,
 			                           	ASSOCIATIONS_TABLE_NAME,
 			                           	ID_COL_ONE,
 			                           	ID_COL_TWO,
 			                            memoryId);
 			
 			if (!m_db.Ready) {
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 			}
 			
-			m_db.Update (sql);
+			m_db.Update(sql);
 			
 		}
 		

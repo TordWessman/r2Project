@@ -21,9 +21,11 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	public interface IOutputPort : IDevice
-	{
+	public interface IOutputPort : IDevice {
+		
 		bool Value { get; set; }
+	
 	}
+
 }
 

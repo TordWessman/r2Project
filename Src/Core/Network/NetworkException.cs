@@ -3,33 +3,23 @@ using R2Core.Network;
 
 namespace R2Core
 {
-	public static class NetworkMessageErrorExtensions {
-	
-		public static bool IsError(this INetworkMessage self) {
 
-			return self.Code != (int)WebStatusCode.Ok;
+	/// <summary>
+	/// Represents an exception occuring in a ´R2Core.Network´ class.
+	/// </summary>
+	public class NetworkException : ApplicationException {
 
-		}
+		/// <summary>
+		/// Constructor where description is retrieved from an ´INetworkMessage´
+		/// </summary>
+		/// <param name="message">Message.</param>
+		public NetworkException(INetworkMessage message) : base(message.ErrorDescription()) { }
 
-		public static string ErrorDescription(this INetworkMessage self) {
-		
-			if (!self.IsError()) { return ""; }
-
-			string description = $"Error: {self.Code}. Description: ";
-			if (self.Payload is string) { return description + (string)self.Payload; }
-
-			return description + Convert.ToString (self.Payload);
-
-		}
-
-	}
-
-	public class NetworkException : ApplicationException
-	{
-		
-		public NetworkException (INetworkMessage message) : base(message.ErrorDescription()) {
-
-		}
+		/// <summary>
+		/// Use ´description´ as error message.
+		/// </summary>
+		/// <param name="description">Error message.</param>
+		public NetworkException(string description) : base(description) {}
 
 	}
 

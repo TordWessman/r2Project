@@ -27,8 +27,8 @@ namespace R2Core.Network
 	/// <summary>
 	/// Uses as a very primitive file server within an IHttpServer.
 	/// </summary>
-	public class WebFileEndpoint: IWebEndpoint
-	{
+	public class WebFileEndpoint : IWebEndpoint {
+		
 		private string m_basePath;
 		private string m_responsePath;
 		private IDictionary<string, object> m_extraHeaders;
@@ -38,58 +38,56 @@ namespace R2Core.Network
 
 		/// <summary>
 		/// image path is the local directory where the served files resides
-		/// responsePath is the response resource uri part (ie "/images")
+		/// responsePath is the response resource uri part(ie "/images")
 		/// </summary>
 		/// <param name="basePath">Path containing file resources.</param>
 		/// <param name="responsePath">Response path.</param>
-		public WebFileEndpoint (string basePath, string responsePath)
-		{
+		public WebFileEndpoint(string basePath, string responsePath) {
 			
 			m_basePath = basePath;
 			m_responsePath = responsePath;
-			m_extraHeaders = new Dictionary<string, object> ();
+			m_extraHeaders = new Dictionary<string, object>();
 		
 			// Allow cross domain access from browsers. 
-			m_extraHeaders.Add ("Access-Control-Allow-Origin", "*");
-			m_extraHeaders.Add ("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
-			m_extraHeaders.Add ("Access-Control-Allow-Headers", "Content-Type, Content-Range, Content-Disposition, Content-Description");
+			m_extraHeaders.Add("Access-Control-Allow-Origin", "*");
+			m_extraHeaders.Add("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+			m_extraHeaders.Add("Access-Control-Allow-Headers", "Content-Type, Content-Range, Content-Disposition, Content-Description");
 		}
 
 		#region IHttpServerInterpreter implementation
 
-		public INetworkMessage Interpret (INetworkMessage input, System.Net.IPEndPoint endpoint)
-		{
+		public INetworkMessage Interpret(INetworkMessage input, System.Net.IPEndPoint endpoint) {
 			
 			if (input.Destination == null) {
 			
-				throw new MissingFieldException ("Unable to process request. Uri was null.");
+				throw new MissingFieldException("Unable to process request. Uri was null.");
 
 			}
 
-			Match fileNameMatch = Regex.Match (input.Destination, FileMatchRegexp);
+			Match fileNameMatch = Regex.Match(input.Destination, FileMatchRegexp);
 			string imageName = fileNameMatch?.Value;
 
 			if (string.IsNullOrEmpty(imageName)) {
 
-				throw new InvalidDataException ($"Unable to retrieve file name. Using regexp: '{FileMatchRegexp}' to match url '{input.Destination}'.");
+				throw new InvalidDataException($"Unable to retrieve file name. Using regexp: '{FileMatchRegexp}' to match url '{input.Destination}'.");
 
 			}
 
 			string fileName = m_basePath + Path.DirectorySeparatorChar + imageName;
 
-			if (!File.Exists (fileName)) {
+			if (!File.Exists(fileName)) {
 			
-				throw new IOException ($"File '{fileName}' not found.");
+				throw new IOException($"File '{fileName}' not found.");
 
 			}
 
-			string extension = new Regex (ExtensionMatchRegexp).Match (imageName)?.Value?.ToLower();
+			string extension = new Regex(ExtensionMatchRegexp).Match(imageName)?.Value?.ToLower();
 
 			IDictionary<string, object> headers = m_extraHeaders;
-			headers ["Content-Type"] = GetMimeType (extension);
+			headers ["Content-Type"] = GetMimeType(extension);
 
 			return new NetworkMessage() {
-				Payload = File.ReadAllBytes (fileName), 
+				Payload = File.ReadAllBytes(fileName), 
 				Headers = headers,
 				Destination = fileName
 			}; 
@@ -679,8 +677,7 @@ namespace R2Core.Network
 
 		};
 
-		public static string GetMimeType(string extension)
-		{
+		public static string GetMimeType(string extension) {
 			if (extension == null)
 			{
 				throw new ArgumentNullException("extension");

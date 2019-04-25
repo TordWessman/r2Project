@@ -23,14 +23,13 @@ using R2Core.Data;
 
 namespace R2Core.Network
 {
-	public class WebSocketSender: DeviceBase, IWebSocketSender
+	public class WebSocketSender : DeviceBase, IWebSocketSender
 	{
 		private string m_uriPath;
 		private IWebSocketSenderDelegate m_delegate;
 		private ISerialization m_serialization;
 
-		public WebSocketSender (string id, string uriPath, ISerialization serialization) : base (id)
-		{
+		public WebSocketSender(string id, string uriPath, ISerialization serialization) : base(id) {
 			m_uriPath = uriPath;
 			m_serialization = serialization;
 		}
@@ -42,12 +41,12 @@ namespace R2Core.Network
 
 		public void Send(dynamic outputObject) {
 		
-			string outputString = Convert.ToString (JsonConvert.SerializeObject (outputObject)) ?? "";
-			byte[] outputData = m_serialization.Encoding.GetBytes (outputString);
+			string outputString = Convert.ToString(JsonConvert.SerializeObject(outputObject)) ?? "";
+			byte[] outputData = m_serialization.Encoding.GetBytes(outputString);
 
 			if (outputData.Length > 0) {
 			
-				Delegate.OnSend (outputData);
+				Delegate.OnSend(outputData);
 
 			}
 		

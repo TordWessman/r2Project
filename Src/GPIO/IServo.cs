@@ -21,9 +21,10 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	public interface IServo : IDevice
-	{
+	public interface IServo : IDevice {
+		
 		float Value {get; set;}
+	
 	}
 }
 

@@ -23,8 +23,7 @@ using System.Net;
 namespace R2Core.Network
 {
 
-	public struct TCPMessage: INetworkMessage
-	{
+	public struct TCPMessage : INetworkMessage {
 		
 		public int Code { get; set; }
 		public string Destination { get; set; }
@@ -43,7 +42,13 @@ namespace R2Core.Network
 			Headers = message.Headers;
 			Payload = message.Payload;
 
-			PayloadType = TCPPackageFactory.GetPayloadType (message);
+			PayloadType = TCPPackageFactory.GetPayloadType(message);
+
+		}
+
+		public override string ToString() {
+
+			return string.Format("[TCPMessage: Code={0}, Destination={1}, Payload={2}]", Code, Destination, Payload);
 
 		}
 

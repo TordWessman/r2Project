@@ -24,9 +24,11 @@ using System.Linq;
 
 namespace R2Core.Common
 {
-	
-	public class InterpreterRunLoop : DeviceBase, IRunLoop, IDeviceObserver
-	{
+	/// <summary>
+	/// The runloop for the internal console (where one writes stuff).
+	/// </summary>
+	public class InterpreterRunLoop : DeviceBase, IRunLoop, IDeviceObserver {
+		
 		// The string that is dislpayed before an executed command.
 		private const string COMMAND_DEFINITION = "> ";
 
@@ -44,15 +46,15 @@ namespace R2Core.Common
 		/// <param name="id">Identifier.</param>
 		/// <param name="script">Script.</param>
 		/// <param name="logger">LOgger.</param>
-		public InterpreterRunLoop (string id, IScriptInterpreter interpreter, IMessageLogger logger) : base (id) {
+		public InterpreterRunLoop(string id, IScriptInterpreter interpreter, IMessageLogger logger) : base(id) {
 		
 			m_interpreter = interpreter;
-			m_history = new List<string> ();
+			m_history = new List<string>();
 			m_logger = logger;
 
 		}
 
-		public override void Start () {
+		public override void Start() {
 
 			if (m_isRunning) {
 				throw new ApplicationException("Unable to start run loop, since it has started.");
@@ -61,13 +63,13 @@ namespace R2Core.Common
 			m_shouldRun = true;
 			m_isRunning = true;
 
-			RunLoop ();
+			RunLoop();
 
 			m_isRunning = false;
 
 		}
 
-		public override void Stop () {
+		public override void Stop() {
 
 			m_shouldRun = false;
 
@@ -82,7 +84,7 @@ namespace R2Core.Common
 
 			do {
 
-				ConsoleKeyInfo key = Console.ReadKey (true);
+				ConsoleKeyInfo key = Console.ReadKey(true);
 
 				if (key.Key == ConsoleKey.Escape) {
 
@@ -90,14 +92,14 @@ namespace R2Core.Common
 
 				} else if (key.Key == ConsoleKey.UpArrow && m_historyPosition > 0) {
 
-					ClearLine (line);
+					ClearLine(line);
 					m_historyPosition--;
 					line = m_history[m_historyPosition];
 					PrintLine(line);
 
 				} else if (key.Key == ConsoleKey.DownArrow ) {
 
-					ClearLine (line);
+					ClearLine(line);
 
 					if (m_historyPosition < m_history.Count - 1) {
 
@@ -114,7 +116,7 @@ namespace R2Core.Common
 
 				} else if (key.Key == ConsoleKey.Backspace && line.Length > 0) {
 
-					ClearLine (line);
+					ClearLine(line);
 					line = line.Substring(0,line.Length - 1);
 					PrintLine(line);
 
@@ -129,7 +131,7 @@ namespace R2Core.Common
 
 					try {
 
-						InterpretText (line);
+						InterpretText(line);
 
 					} catch (Exception ex) {
 
@@ -147,7 +149,7 @@ namespace R2Core.Common
 
 				}
 
-			} while (m_shouldRun);
+			} while(m_shouldRun);
 
 		}
 
@@ -157,13 +159,13 @@ namespace R2Core.Common
 		/// <param name="text">Text.</param>
 		public void InterpretText(string text) {
 			
-			m_interpreter.Interpret (text);
+			m_interpreter.Interpret(text);
 
 		}
 
 		public IEnumerable<ILogMessage> GetHistory(int historyCount) {
 		
-			return m_logger.History.Reverse().Take (historyCount);
+			return m_logger.History.Reverse().Take(historyCount);
 				
 		}
 
@@ -171,7 +173,7 @@ namespace R2Core.Common
 		
 			if (notification.Type == typeof(LogMessage)) {
 			
-				OnValueChanged (notification);
+				OnValueChanged(notification);
 
 			}
 
@@ -183,13 +185,13 @@ namespace R2Core.Common
 		/// <param name="line">Line.</param>
 		private void ClearLine(string line) {
 
-			string clearLine = new string (' ', line.Length < Console.LargestWindowWidth ? line.Length : Console.LargestWindowWidth);
+			string clearLine = new string(' ', line.Length < Console.LargestWindowWidth ? line.Length : Console.LargestWindowWidth);
 
 			int currentRow = Console.LargestWindowHeight - 1;
 
-			Console.SetCursorPosition (0, currentRow);
-			Console.Write (clearLine);
-			Console.SetCursorPosition (0, currentRow);
+			Console.SetCursorPosition(0, currentRow);
+			Console.Write(clearLine);
+			Console.SetCursorPosition(0, currentRow);
 
 		}
 
@@ -200,8 +202,8 @@ namespace R2Core.Common
 		private void PrintLine(string line) {
 
 			int currentRow = Console.LargestWindowHeight - 1;
-			Console.SetCursorPosition (0, currentRow);
-			Console.Write (line);
+			Console.SetCursorPosition(0, currentRow);
+			Console.Write(line);
 
 		}
 

@@ -24,13 +24,12 @@ using System.Threading.Tasks;
 
 namespace R2Core.Audio.ASR
 {
-	public interface ILanguageUpdater : IDevice
-	{
+	public interface ILanguageUpdater : IDevice {
 		
 		string BasePath {get;}
-		Task UpdateAsync ();	
-		void AddObserver (ILanguageUpdated observer);
-		void InsertCommands (IList<string> commands);
+		Task UpdateAsync();	
+		void AddObserver(ILanguageUpdated observer);
+		void InsertCommands(IList<string> commands);
 		
 		
 	}

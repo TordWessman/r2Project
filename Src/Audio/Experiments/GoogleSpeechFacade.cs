@@ -37,22 +37,20 @@ namespace R2Core.Audio.ASR
 		private int m_sampleRate;
 		private string m_language;
 		
-		public GoogleSpeechFacade (string language = DEFAULT_LANGUAGE,
-		                           int sampleRate = DEFAULT_SAMPLE_RATE)
-		{
+		public GoogleSpeechFacade(string language = DEFAULT_LANGUAGE,
+		                           int sampleRate = DEFAULT_SAMPLE_RATE) {
 			m_sampleRate = sampleRate;
 			m_language = language;
 		}
 		
-		private string GoogleSpeechRequest (string flacFileName)
-		{
+		private string GoogleSpeechRequest(string flacFileName) {
 	
-			if (!System.IO.File.Exists (flacFileName)) {
-				throw new IOException ("Flac file does not exist: " + flacFileName);
+			if (!System.IO.File.Exists(flacFileName)) {
+				throw new IOException("Flac file does not exist: " + flacFileName);
 			}
 			
 			HttpWebRequest request =
-                    (HttpWebRequest)HttpWebRequest.Create (
+                    (HttpWebRequest)HttpWebRequest.Create(
                       URL +
 				"xjerr=1" +
 				"&client=" + USER_AGENT +
@@ -76,38 +74,38 @@ namespace R2Core.Audio.ASR
 
 			byte[] data;
 
-			using (FileStream fStream = new FileStream(
+			using(FileStream fStream = new FileStream(
                                                 flacFileName,
                                                 FileMode.Open,
                                                 FileAccess.Read)) {
 				data = new byte[fStream.Length];
-				fStream.Read (data, 0, (int)fStream.Length);
-				fStream.Close ();
+				fStream.Read(data, 0, (int)fStream.Length);
+				fStream.Close();
 			}
 		
-			using (Stream wrStream = request.GetRequestStream()) {
-				wrStream.Write (data, 0, data.Length);
+			using(Stream wrStream = request.GetRequestStream()) {
+				wrStream.Write(data, 0, data.Length);
 			}
 
 			string returnString = null;
 			Stream resp = null;
 			
 			try {
-				resp = ((HttpWebResponse)request.GetResponse ()).GetResponseStream ();
+				resp = ((HttpWebResponse)request.GetResponse()).GetResponseStream();
 				
 				if (resp != null) {
-					using (StreamReader sr = new StreamReader (resp)) {
-						returnString = sr.ReadToEnd ();
+					using(StreamReader sr = new StreamReader(resp)) {
+						returnString = sr.ReadToEnd();
 					}
 
-					resp.Close ();
-					resp.Dispose ();	
+					resp.Close();
+					resp.Dispose();	
 				} else {
-					Log.w ("SpeechFacade. Got NULL");
+					Log.w("SpeechFacade. Got NULL");
 				}
 			} catch (Exception ex) {
 				
-				Log.w ("SpeechFacade.WARNING: " + ex.Message);
+				Log.w("SpeechFacade.WARNING: " + ex.Message);
 				
 				
 			}
@@ -118,36 +116,35 @@ namespace R2Core.Audio.ASR
 			return returnString;
 		}
 		
-		public string GetReply (string flacFileName)
-		{
-			string jsonResult = GoogleSpeechRequest (flacFileName);
-			//Log.t ("HEJ:" + jsonResult);
+		public string GetReply(string flacFileName) {
+			string jsonResult = GoogleSpeechRequest(flacFileName);
+			//Log.t("HEJ:" + jsonResult);
 			if (jsonResult != null) {
-				string [] jsonResults = jsonResult.Split ('\n');
+				string [] jsonResults = jsonResult.Split('\n');
 				jsonResult = null;
 				foreach (string result in jsonResults) {
-					if (result.Contains ("\"status\":0")) {
+					if (result.Contains("\"status\":0")) {
 						jsonResult = result;
 					}
 				}
 				if (jsonResult != null) {
 				
-					//Log.d ("PAPPA:" + jsonResult);
-					JObject jsonObject = JObject.Parse (jsonResult);
+					//Log.d("PAPPA:" + jsonResult);
+					JObject jsonObject = JObject.Parse(jsonResult);
 					JToken hyp;
-					if (jsonObject.TryGetValue ("hypotheses", out hyp)) {
+					if (jsonObject.TryGetValue("hypotheses", out hyp)) {
 						if (hyp.First != null) {
-							return (string)(hyp.First ["utterance"]);
+							return(string)(hyp.First ["utterance"]);
 						} 
 						
 					} else {
-						Log.w ("GoogleASR - strange reply: " + jsonResult);
+						Log.w("GoogleASR - strange reply: " + jsonResult);
 					}
 				}
 				
 			}
 			
-			Log.w ("GoogleASR - Got no reply.");
+			Log.w("GoogleASR - Got no reply.");
 			
 			return null;
 		}

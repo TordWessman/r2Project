@@ -27,8 +27,9 @@ using System.Threading.Tasks;
 
 namespace R2Core
 {
-	public class Log: DeviceBase, IMessageLogger
-	{
+	
+	public class Log : DeviceBase, IMessageLogger {
+		
 		private List<IMessageLogger> loggers;
 		protected static Log instance;
 
@@ -46,7 +47,7 @@ namespace R2Core
 
 			get {
 
-				return loggers.SelectMany (t => t.History);
+				return loggers.SelectMany(t => t.History);
 
 			}
 
@@ -60,7 +61,7 @@ namespace R2Core
 
 			} else {
 			
-				Log.w ("Can't SetLogLevelForCurrentTask. Not in a Task.");
+				Log.w("Can't SetLogLevelForCurrentTask. Not in a Task.");
 
 			}
 
@@ -69,7 +70,7 @@ namespace R2Core
 
 		public static void Instantiate(string id) {
 		
-			Log.instance = new Log (id);
+			Log.instance = new Log(id);
 
 		}
 		
@@ -83,10 +84,10 @@ namespace R2Core
 
 		}
 		
-		public Log (string id): base (id) {
+		public Log(string id) : base(id) {
 
 			loggers = new List<IMessageLogger>();
-			m_threadLogLevels = new Dictionary<int, LogType> ();
+			m_threadLogLevels = new Dictionary<int, LogType>();
 
 		}
 		
@@ -96,11 +97,11 @@ namespace R2Core
 		
 		}
 	
-		public void Write (ILogMessage message) {
+		public void Write(ILogMessage message) {
 			
 			if (loggers.Count == 0) {
 
-				throw new InvalidOperationException ($"No logger attached for message '{message.Message}' and type '{message.Type}'.");
+				throw new InvalidOperationException($"No logger attached for message '{message.Message}' and type '{message.Type}'.");
 			
 			}
 
@@ -125,32 +126,32 @@ namespace R2Core
 
 			return message.Type >= LogLevel && 
 					message.Type >= 
-						((Task.CurrentId != null && m_threadLogLevels.ContainsKey ((int)Task.CurrentId)) ? 
+						((Task.CurrentId != null && m_threadLogLevels.ContainsKey((int)Task.CurrentId)) ? 
 							m_threadLogLevels [(int)Task.CurrentId] : LogType.Temp);
 
 		}
 
 		public void message(object message, string tag = null) {
 			
-			Log.Instance.Write (new LogMessage (message, LogType.Message, tag));
+			Log.Instance.Write(new LogMessage(message, LogType.Message, tag));
 		
 		}
 
 		public void warning(object message, string tag = null) {
 		
-			Log.Instance.Write (new LogMessage (message, LogType.Warning, tag));
+			Log.Instance.Write(new LogMessage(message, LogType.Warning, tag));
 		
 		}
 
 		public void error(object message, string tag = null) {
 		
-			Log.Instance.Write (new LogMessage (message, LogType.Error, tag));
+			Log.Instance.Write(new LogMessage(message, LogType.Error, tag));
 		
 		}
 
 		public void temp(object message, string tag = null) {
 		
-			Log.Instance.Write (new LogMessage (message, LogType.Temp, tag));
+			Log.Instance.Write(new LogMessage(message, LogType.Temp, tag));
 		
 		}
 
@@ -164,7 +165,7 @@ namespace R2Core
 
 			if (Log.Instance != null) {
 
-				Log.Instance.message (message, tag);
+				Log.Instance.message(message, tag);
 			
 			}
 
@@ -179,7 +180,7 @@ namespace R2Core
 		{
 			if (Log.Instance != null) {
 
-				Log.Instance.warning (message, tag);	
+				Log.Instance.warning(message, tag);	
 			}
 
 		}
@@ -194,7 +195,7 @@ namespace R2Core
 
 			if (Log.Instance != null) {
 
-				Log.Instance.error (message, tag);
+				Log.Instance.error(message, tag);
 
 			}
 
@@ -204,11 +205,10 @@ namespace R2Core
 		/// Used for temporary testing outprint
 		/// </summary>
 		/// <param name="message">Message.</param>
-		public static void t (object message)
-		{
+		public static void t(object message) {
 			if (Log.Instance != null) {
 
-				Log.Instance.temp (message);
+				Log.Instance.temp(message);
 
 			}
 
@@ -219,45 +219,40 @@ namespace R2Core
 		/// </summary>
 		/// <param name="ex">Ex.</param>
 		/// <param name="recursionCount">Recursion count.</param>
-		public static void x (Exception ex, int recursionCount = 0)
-		{
+		public static void x(Exception ex, int recursionCount = 0) {
 
-			if (!string.IsNullOrEmpty (ex.Message)) {
+			if (!string.IsNullOrEmpty(ex.Message)) {
 				
-				IList<string> stackTrace = ex.StackTrace?.Split ('\n').ToList() ?? new List<string>();
+				IList<string> stackTrace = ex.StackTrace?.Split('\n').ToList() ?? new List<string>();
 
 				if (stackTrace.Count > Log.instance.MaxStackTrace) {
 
-					stackTrace = stackTrace.Take (Log.instance.MaxStackTrace).ToList();
-					stackTrace.Add ("... (Ignoring the rest) ...");
+					stackTrace = stackTrace.Take(Log.instance.MaxStackTrace).ToList();
+					stackTrace.Add("... (Ignoring the rest) ...");
 
 				}
 
-				string stackTraceString = stackTrace.Aggregate ("", (current, next) => current + "\n" + next);
+				string stackTraceString = stackTrace.Aggregate("", (current, next) => current + "\n" + next);
 				string exString = 
-					new string ('-', recursionCount * 2) + "--" + ex.Source + "--" + "\n" +
-					new string ('-', recursionCount * 2) + ex.Message + "\n" +
-					new string ('-', recursionCount * 2) + stackTraceString + "\n";
+					new string('-', recursionCount * 2) + "--" + ex.ToString() + "--" + "\n" +
+					new string('-', recursionCount * 2) + ex.Source + "\n" +
+					new string('-', recursionCount * 2) + ex.Message + "\n" +
+					new string('-', recursionCount * 2) + stackTraceString + "\n";
 
-				Log.Instance.Write (new LogMessage (exString, LogType.Error, null));
+				Log.Instance.Write(new LogMessage(exString, LogType.Error, null));
 
 			}
 			
 			if (ex.InnerException != null && recursionCount < 10) {
 
-				Log.Instance.Write (new LogMessage("==== Inner Exception ====", LogType.Error));
-				x (ex.InnerException, recursionCount + 1);
+				Log.Instance.Write(new LogMessage("==== Inner Exception ====", LogType.Error));
+				x(ex.InnerException, recursionCount + 1);
 			
 			}
 		
 		}
 
-		~Log() 
-		{
-
-			instance = null;
-		
-		}
+		~Log() { instance = null; }
 
 	}
 

@@ -23,8 +23,8 @@ using MemoryType = System.String;
 namespace R2Core.DataManagement.Memory
 {
 	[Serializable]
-	public class MemoryReference : IMemoryReference
-	{
+	public class MemoryReference : IMemoryReference {
+		
 		public static readonly int NULL_REFERENCE_ID = -1;
 		
 		protected int m_id;
@@ -52,7 +52,7 @@ namespace R2Core.DataManagement.Memory
 
 			set {
 
-				m_type = value.Replace ("\"", "");
+				m_type = value.Replace("\"", "");
 			
 			}
 		
@@ -68,16 +68,15 @@ namespace R2Core.DataManagement.Memory
 		
 			set {
 
-				m_value = value.Replace ("\"", "");
+				m_value = value.Replace("\"", "");
 			
 			}
 
 		}
 
-		public MemoryReference (int id, 
+		public MemoryReference(int id, 
 		                        string value, 
-		                        string type)
-		{
+		                        string type) {
 
 			m_id = id;
 			m_value = value;
@@ -85,8 +84,7 @@ namespace R2Core.DataManagement.Memory
 			
 		}
 		
-		public override bool Equals (Object obj)
-		{
+		public override bool Equals(Object obj) {
 
 			IMemoryReference reference = obj as MemoryReference; 
 
@@ -104,15 +102,13 @@ namespace R2Core.DataManagement.Memory
 
 	   }
 		
-		public override string ToString ()
-		{
+		public override string ToString() {
 
-			return string.Format ("MEMORY [{0}] - TYPE: [{1}] NAME: [{2}] ", m_id, m_type, m_value);
+			return string.Format("MEMORY [{0}] - TYPE: [{1}] NAME: [{2}] ", m_id, m_type, m_value);
         
 		}
 		
-		public override int GetHashCode ()
-		{
+		public override int GetHashCode() {
 
 			return m_id;
 		

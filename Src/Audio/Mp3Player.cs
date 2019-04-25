@@ -28,9 +28,8 @@ using System.Linq;
 namespace R2Core.Audio
 {
 
-	public class Mp3Player : DeviceBase, IAudioPlayer
-	{
-	
+	public class Mp3Player : DeviceBase, IAudioPlayer {
+
 		private const string dllPath = "libr2mp3.so";
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
@@ -57,25 +56,23 @@ namespace R2Core.Audio
 		private string m_basePath;
 		private Task m_playTaks;
 
-		public Mp3Player (string id, string basePath) :base(id)
-		{
+		public Mp3Player(string id, string basePath) : base(id) {
 			m_basePath = basePath;
 		}
 
-		public void Play (string fileName)
-		{
+		public void Play(string fileName) {
 
 			if (_ext_is_initialized_mp3() != 1) {
 
-				throw new DeviceException ("Unable to play: not initialized!");
+				throw new DeviceException("Unable to play: not initialized!");
 			
 			}
 
 			fileName = m_basePath + Path.DirectorySeparatorChar + fileName;
 
-			if (!File.Exists (fileName)) {
+			if (!File.Exists(fileName)) {
 
-				throw new IOException ("FIle name " + fileName + " does not exist.");
+				throw new IOException("FIle name " + fileName + " does not exist.");
 			
 			}
 
@@ -85,7 +82,7 @@ namespace R2Core.Audio
 
 			}
 
-			m_playTaks = Task.Factory.StartNew (() => {
+			m_playTaks = Task.Factory.StartNew(() => {
 			
 				_ext_play_file_mp3(fileName);
 			
@@ -104,12 +101,11 @@ namespace R2Core.Audio
 		}
 
 
-		public override void Start ()
-		{
+		public override void Start() {
 		
 			if (_ext_is_initialized_mp3 () != 1) {
 
-				if (_ext_init_mp3_file () != 1) {
+				if (_ext_init_mp3_file() != 1) {
 			
 					throw new DeviceException("Unable to initialize mp3 player.");
 				
@@ -119,8 +115,7 @@ namespace R2Core.Audio
 
 		}
 
-		public override void Stop ()
-		{
+		public override void Stop() {
 
 			if (IsPlaying) {
 			
@@ -145,8 +140,8 @@ namespace R2Core.Audio
 
 			get { 
 
-				string[] fileList = Directory.GetFiles (m_basePath, Settings.Consts.AudioFileExtension());
-				return Array.ConvertAll (fileList, x => x.Split (Path.DirectorySeparatorChar).Last ()); 
+				string[] fileList = Directory.GetFiles(m_basePath, Settings.Consts.AudioFileExtension());
+				return Array.ConvertAll(fileList, x => x.Split(Path.DirectorySeparatorChar).Last()); 
 
 			}
 

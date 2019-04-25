@@ -30,34 +30,34 @@ namespace R2Core.Device
 	/// <summary>
 	/// Base class usable by IDevice implementations. Providing some standard properties and functionality
 	/// </summary>
-	public abstract class DeviceBase: IDevice
-	{
+	public abstract class DeviceBase : IDevice {
+		
 		protected string m_id;
 		protected Guid m_guid;
 		private List<WeakReference<IDeviceObserver>> m_observers;
         private readonly object m_lock;
 
-		public DeviceBase (string id) {
+		public DeviceBase(string id) {
 
             m_lock = new object();
 			m_id = id;
-			m_guid = Guid.NewGuid ();
-			m_observers = new List<WeakReference<IDeviceObserver>> ();
+			m_guid = Guid.NewGuid();
+			m_observers = new List<WeakReference<IDeviceObserver>>();
 		}
 
 		public string Identifier { get { return m_id; } }
 
 		public Guid Guid { get { return m_guid; } }
 		
-		public virtual void Start () {}
+		public virtual void Start() {}
 		
-		public virtual void Stop () {}
+		public virtual void Stop() {}
 		
 		public virtual bool Ready { get { return true; } }
 
 		public void AddObserver(IDeviceObserver observer) {
 
-            lock (m_lock)  {
+            lock(m_lock)  {
 
                 m_observers.Add(new WeakReference<IDeviceObserver>(observer));
             
@@ -67,7 +67,7 @@ namespace R2Core.Device
 
         public void RemoveObserver(IDeviceObserver observer) {
 
-            lock (m_lock) {
+            lock(m_lock) {
 
                 WeakReference<IDeviceObserver> remove = null;
 
@@ -100,14 +100,14 @@ namespace R2Core.Device
 		
 			if (m_observers?.Count == 0) { return; }
 
-			IDeviceNotification<object> deviceNotification = new DeviceNotification (m_id, GetCurrentMethod ().Name, value);
-			NotifyChange (deviceNotification);
+			IDeviceNotification<object> deviceNotification = new DeviceNotification(m_id, GetCurrentMethod().Name, value);
+			NotifyChange(deviceNotification);
 
 		}
 
 		protected void NotifyChange(IDeviceNotification<object> notification) {
 
-            lock (m_lock)  {
+            lock(m_lock)  {
 
                 m_observers = m_observers.RemoveEmpty();
 
@@ -120,8 +120,8 @@ namespace R2Core.Device
 		[MethodImpl(MethodImplOptions.NoInlining)]
 		private System.Reflection.MethodBase GetCurrentMethod() {
 
-			StackTrace st = new StackTrace ();
-			StackFrame sf = st.GetFrame (2);
+			StackTrace st = new StackTrace();
+			StackFrame sf = st.GetFrame(2);
 
 			return sf.GetMethod();
 

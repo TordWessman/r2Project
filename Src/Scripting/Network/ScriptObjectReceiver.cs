@@ -32,24 +32,34 @@ namespace R2Core.Scripting.Network
 	/// <para>The type T must be an IWebIntermediate implementation used to transcibe data from script to sub system.</para>
 	/// The outputObject is required for the script implementation to know how to return a data type compatible with a serializer.
 	/// </summary>
-	public class ScriptObjectReceiver<T>: IWebObjectReceiver where T: IWebIntermediate, new()
-	{
+	public class ScriptObjectReceiver<T>: IWebObjectReceiver where T: IWebIntermediate, new() {
 
 		public static readonly string ON_RECEIVE_METHOD_NAME = "on_receive";
 
-		IScript m_script;
+		private IScript m_script;
+		private string m_path;
 
-		public ScriptObjectReceiver (IScript script) {
+		/// <summary>
+		/// Initializes a new instance of the <see cref="R2Core.Scripting.Network.ScriptObjectReceiver`1"/> class.
+		/// ´script´ must conform to the requirements(i.e. have a ´ON_RECEIVE_METHOD_NAME´ method). ´path´ will be translated to an
+		/// URI-path when determening if the containing IWebEndpoint should respond using this IWebObjectReceiver. 
+		/// </summary>
+		/// <param name="script">Script.</param>
+		/// <param name="path">Path.</param>
+		public ScriptObjectReceiver(IScript script, string path) {
 
 			m_script = script;
-		
+			m_path = path;
+
 		}
 
-		public INetworkMessage OnReceive (INetworkMessage message, IPEndPoint source) {
+		public string DefaultPath { get { return m_path; } }
+
+		public INetworkMessage OnReceive(INetworkMessage message, IPEndPoint source) {
 			
 			T response = m_script.Invoke(ON_RECEIVE_METHOD_NAME, message, new T(), source);
 
-			response.CLRConvert ();
+			response.CLRConvert();
 
 			return response;
 

@@ -24,112 +24,106 @@ using System.Linq;
 namespace R2Core.Scripting
 {
 	/// <summary>
-	/// Implementation of an IScriptExecutor. Remotely accissble (which allows communication with scripts created on other instances).
+	/// Implementation of an IScriptExecutor. Remotely accissble(which allows communication with scripts created on other instances).
 	/// </summary>
-	public class ScriptExecutor<T> : DeviceBase, IScriptExecutor, IScriptObserver where T: IScript
+	public class ScriptExecutor<T> : DeviceBase, IScriptExecutor, IScriptObserver where T : IScript
 	{
 		
 		private IDictionary<string, IScript> m_scripts;
 		private IDeviceManager m_deviceManager;
 		private ITaskMonitor m_taskMonitor;
-		private IScriptFactory<T> m_scriptFactory;
+		private IScriptFactory<T>m_scriptFactory;
 		private Random m_random;
 		private string m_scriptId;
 		private string m_currentScriptId;
 		
-		public ScriptExecutor (	string id, 
+		public ScriptExecutor(string id, 
 		                       	string scriptId,
 		                      	IDeviceManager deviceManager,
 		                      	ITaskMonitor taskMonitor, 
-								IScriptFactory<T> scriptFactory) : base(id)
-		{
+								IScriptFactory<T> scriptFactory) : base(id) {
 
 			m_deviceManager = deviceManager;
 			m_taskMonitor = taskMonitor;
 			m_scriptFactory = scriptFactory;
 			m_scriptId = scriptId;
 			
-			m_random = new Random ();
-			m_scripts = new Dictionary<string, IScript> ();
+			m_random = new Random();
+			m_scripts = new Dictionary<string, IScript>();
 			
-			CreateScript ();
+			CreateScript();
 						
 		}
 		
-		private void CreateScript ()
-		{
+		private void CreateScript() {
 
-			throw new NotImplementedException ("Fix this if/when it's time to figure out what the script-executor thing is good for.");
+			throw new NotImplementedException("Fix this if/when it's time to figure out what the script-executor thing is good for.");
 			/*
-			IScriptProcess script = m_scriptFactory.CreateProcess (m_scriptId + "_" + m_random.Next (int.MaxValue),
-				m_scriptFactory.GetScriptFilePath (m_scriptId));
+			IScriptProcess script = m_scriptFactory.CreateProcess(m_scriptId + "_" + m_random.Next(int.MaxValue),
+				m_scriptFactory.GetScriptFilePath(m_scriptId));
 
-			m_scripts.Add (script.Identifier, script);
+			m_scripts.Add(script.Identifier, script);
 			m_currentScriptId = script.Identifier;
 			*/	
 		}
 			                                          
 			                                          
 		
-		public override void Start ()
-		{
+		public override void Start() {
 			
 			IScript script = m_scripts [m_currentScriptId];
 			
-			m_deviceManager.Add (script);
+			m_deviceManager.Add(script);
 			
-			script.AddObserver (this);
+			script.AddObserver(this);
 			
-			m_taskMonitor.AddMonitorable (script);
-			script.Start ();
+			m_taskMonitor.AddMonitorable(script);
+			script.Start();
 			
-			CreateScript ();
+			CreateScript();
 
 		}
 		
-		private void RemoveScript (string scriptId)
-		{
-			Log.t ("removing script: " + scriptId);
+		private void RemoveScript(string scriptId) {
+			Log.t("removing script: " + scriptId);
 
 			if (m_scripts [scriptId].IsRunning) {
 
-				m_scripts [scriptId].Stop ();
+				m_scripts [scriptId].Stop();
 			
 			}
 			
-			m_deviceManager.Remove (scriptId);
+			m_deviceManager.Remove(scriptId);
 
 		}
 		
-		public override void Stop ()
-		{
+		public override void Stop() {
 			foreach (IScript process in m_scripts.Values) {
 
 				if (process.IsRunning) {
 				
-					process.Stop ();
+					process.Stop();
 				
 				}
 			
 			}
 			
-			//m_scripts = new Dictionary<string, IScript> ();
+			//m_scripts = new Dictionary<string, IScript>();
 		
 		}
 
 		#region IScriptObserver implementation
 
-		public void OnScriptFinished (IScript script)
-		{
+		public void OnScriptFinished(IScript script) {
 		
-			RemoveScript (script.Identifier);
-			m_scripts.Remove (script.Identifier);
+			RemoveScript(script.Identifier);
+			m_scripts.Remove(script.Identifier);
 		
 		}
 
-		public void OnScriptErrors (IScript script) {
+		public void OnScriptErrors(IScript script) {
 
-			OnScriptFinished (script);
+			OnScriptFinished(script);
 
 		}
 
@@ -137,14 +131,13 @@ namespace R2Core.Scripting
 
 		#region IScriptExecutor implementation
 	
-		public void Set (string handle, dynamic value)
-		{
+		public void Set(string handle, dynamic value) {
 
 			foreach (IScript process in m_scripts.Values) {
 
 				if (process.Ready) {
 				
-					process.Set (handle, value);
+					process.Set(handle, value);
 			
 				}
 			
@@ -152,14 +145,13 @@ namespace R2Core.Scripting
 
 		}
 
-		public dynamic Get (string handle)
-		{
+		public dynamic Get(string handle) {
 
 			foreach (IScript process in m_scripts.Values) {
 
 				if (process.Ready) {
 				
-					return process.Get (handle);
+					return process.Get(handle);
 				
 				}
 			

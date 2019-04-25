@@ -35,27 +35,24 @@ namespace R2Core.Network
 	/// <summary>
 	/// Primitive HTTP server.
 	/// </summary>
-	public class HttpServer : ServerBase
-	{
-
-
+	public class HttpServer : ServerBase {
+		
 		private HttpListener m_listener;
 		private ISerialization m_serialization;
 
-		public HttpServer (string id, int port, ISerialization serialization) :  base (id, port)
-		{
+		public HttpServer(string id, int port, ISerialization serialization) :  base(id, port) {
 			m_serialization = serialization;
 
 		}
 
 		protected override void Service() {
 
-			m_listener = new HttpListener ();
+			m_listener = new HttpListener();
 			m_listener.Prefixes.Add(String.Format("http://*:{0}/", Port));
 
-			m_listener.Start ();
+			m_listener.Start();
 
-			while (ShouldRun) {
+			while(ShouldRun) {
 
  				HttpListenerContext context = m_listener.GetContext();
 
@@ -64,18 +61,18 @@ namespace R2Core.Network
 					HttpListenerRequest request = context.Request;
 					HttpListenerResponse response = context.Response;
 
-					IWebEndpoint endpoint = GetEndpoint (request.Url.AbsolutePath);
+					IWebEndpoint endpoint = GetEndpoint(request.Url.AbsolutePath);
 
 					if (endpoint != null) {
 					
-						Interpret (request, response, endpoint);
+						Interpret(request, response, endpoint);
 					
 					} else {
 
-						Log.w ("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
+						Log.w("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
 						response.StatusCode = WebStatusCode.NotFound.Raw();
 
-						Write (response,  m_serialization.Serialize(new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Url.AbsolutePath}") ));
+						Write(response,  m_serialization.Serialize(new WebErrorMessage(WebStatusCode.NotFound.Raw(), $"Path not found: {request.Url.AbsolutePath}") ));
 
 					}
 
@@ -89,11 +86,11 @@ namespace R2Core.Network
 
 		public override bool Ready { get { return m_listener?.IsListening == true; }}
 
-		protected override void Cleanup () {
+		protected override void Cleanup() {
 			
 			try {
 			
-				m_listener.Stop ();
+				m_listener.Stop();
 
 			} catch (System.Net.Sockets.SocketException) {}
 
@@ -101,23 +98,23 @@ namespace R2Core.Network
 
 		private void Interpret(HttpListenerRequest request, HttpListenerResponse response, IWebEndpoint endpoint) {
 		
-			using (StreamReader reader = new StreamReader(request.InputStream, m_serialization.Encoding))
+			using(StreamReader reader = new StreamReader(request.InputStream, m_serialization.Encoding))
 			{
 
 				byte[] responseBody = new byte[0];
 				byte[] requestBody = default(byte[]);
-				HttpMessage requestObject = new HttpMessage () {Destination = request.Url.AbsolutePath, Headers = new Dictionary<string, object> () };
+				HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = new Dictionary<string, object>() };
 
 				requestObject.Method = request.HttpMethod;
 
 				// TODO: If one needs querystring parameters 
-				//NameValueCollection queryStringParameters = HttpUtility.ParseQueryString (request.Url.Query);
+				//NameValueCollection queryStringParameters = HttpUtility.ParseQueryString(request.Url.Query);
 				//foreach (string key in  queryStringParameters.AllKeys) { requestObject.Headers[key] = queryStringParameters[key]; }
 
 				try {
 					
 					// Read body
-					using (var memstream = new MemoryStream())
+					using(var memstream = new MemoryStream())
 					{
 
 						reader.BaseStream.CopyTo(memstream);
@@ -143,7 +140,7 @@ namespace R2Core.Network
 					}
 
 					// Parse request and create response body.
-					INetworkMessage responseObject = endpoint.Interpret (requestObject, request.RemoteEndPoint);
+					INetworkMessage responseObject = endpoint.Interpret(requestObject, request.RemoteEndPoint);
 					string contentType = responseObject.Headers?.ContainsKey("Content-Type") == true ? responseObject.Headers["Content-Type"] as string : null;
 
 					if (responseObject.Payload is byte[]) {
@@ -155,7 +152,7 @@ namespace R2Core.Network
 					} else if (responseObject.Payload is string) {
 
 						// Data was a string.
-						responseBody = m_serialization.Encoding.GetBytes (responseObject.Payload);
+						responseBody = m_serialization.Encoding.GetBytes(responseObject.Payload);
 						response.ContentType = contentType ?? "text/plain";
 
 					} else {
@@ -172,17 +169,15 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					Log.x (ex);
+					Log.x(ex);
 
 					response.StatusCode = WebStatusCode.ServerError.Raw();
 
-					#if DEBUG
-					responseBody = m_serialization.Serialize(new HttpMessage() { Payload = new HttpError(ex.Message), Code = response.StatusCode } );
-					#endif
+					responseBody = m_serialization.Serialize(new HttpMessage(new NetworkErrorMessage(ex)));
 
 				}
 
-				Write (response, responseBody);
+				Write(response, responseBody);
 
 			}
 

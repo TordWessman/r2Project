@@ -28,15 +28,15 @@ using System.Collections.Generic;
 using R2Core.Scripting.Network;
 using R2Core.Common;
 
-namespace R2CoreTests
+namespace R2Core.Tests
 {
 	[TestFixture]
-	public class HttpTests: NetworkTests
-	{
+	public class HttpTests: NetworkTests {
+		
 		[TestFixtureSetUp]
 		public override void Setup() {
 
-			base.Setup ();
+			base.Setup();
 
 		}
 
@@ -44,37 +44,37 @@ namespace R2CoreTests
 		[Test]
 		public void TestEndpointUsingDummyReceiver() {
 
-			IWebIntermediate response = new RubyWebIntermediate ();
+			IWebIntermediate response = new RubyWebIntermediate();
 
 			response.Payload.Foo = "Bar";
 
-			DummyReceiver receiver = new DummyReceiver ();
+			DummyReceiver receiver = new DummyReceiver();
 			receiver.Response = response;
 
-			IWebEndpoint ep = factory.CreateJsonEndpoint ("/json", receiver);
+			IWebEndpoint ep = factory.CreateJsonEndpoint(receiver);
 
-			INetworkMessage inputObject = new NetworkMessage () { 
-				Payload = new DummyInput (),
-				Headers = new Dictionary<string, object> () { { "InputBaz", "InputFooBar" } },
-				Destination = "/json"
+			INetworkMessage inputObject = new NetworkMessage() { 
+				Payload = new DummyInput(),
+				Headers = new Dictionary<string, object>() { { "InputBaz", "InputFooBar" } },
+				Destination = receiver.DefaultPath
 			};
 
 			INetworkMessage output = ep.Interpret(inputObject, null);
 
 
 			Assert.AreEqual(response.Payload.Foo, output.Payload.Foo);
-			Assert.AreEqual (response.Headers ["Baz"], "FooBar");
+			Assert.AreEqual(response.Headers ["Baz"], "FooBar");
 
 		}
 
 		[Test]
 		public void TestDeviceRouterInvoke() {
 
-			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
+			DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
 			dummyObject.Bar = "XYZ";
 
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
-			rec.AddDevice (dummyObject);
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter(m_deviceManager);
+			rec.AddDevice(dummyObject);
 
 			var request = new DeviceRequest() {
 				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
@@ -86,47 +86,47 @@ namespace R2CoreTests
 			dynamic deserialized = serialization.Deserialize(serialized);
 
 			Assert.AreEqual("dummy_device", deserialized.Identifier);
-			Assert.NotNull (deserialized.Params[2]);
-			Assert.AreEqual ("Dog", deserialized.Params [2].Cat);
+			Assert.NotNull(deserialized.Params[2]);
+			Assert.AreEqual("Dog", deserialized.Params [2].Cat);
 
-			INetworkMessage result = rec.OnReceive (new NetworkMessage{Payload = deserialized}, null);
+			INetworkMessage result = rec.OnReceive(new NetworkMessage{Payload = deserialized}, null);
 
 			// Make sure the identifiers are the same.
-			Assert.AreEqual (deserialized.Identifier, result.Payload.Object.Identifier);
+			Assert.AreEqual(deserialized.Identifier, result.Payload.Object.Identifier);
 
 			// This is what the function should return
-			Assert.AreEqual (12.34f, result.Payload.ActionResponse);
+			Assert.AreEqual(12.34f, result.Payload.ActionResponse);
 
 			// The dummy object should now have been changed.
-			Assert.AreEqual ("Foo", dummyObject.Bar);
+			Assert.AreEqual("Foo", dummyObject.Bar);
 
 			int fortytwo = 42;
-			DeviceRequest wob = new DeviceRequest () { 
+			DeviceRequest wob = new DeviceRequest() { 
 				Identifier = "dummy_device",
 				ActionType = DeviceRequest.ObjectActionType.Invoke,
 				Action = "MultiplyByTen",
 				Params = new object[] { fortytwo }
 			};
 
-			serialized = serialization.Serialize (wob);
+			serialized = serialization.Serialize(wob);
 			//Mimic transformation to byte array -> send to host -> hoste deserialize
 			deserialized = serialization.Deserialize(serialized);
 
-			result = rec.OnReceive (new NetworkMessage{Payload = deserialized}, null);
-			Assert.AreEqual (result.Payload.ActionResponse, fortytwo * 10);
-			Assert.AreEqual (result.Payload.Object.Identifier, "dummy_device");
-			Assert.AreEqual (result.Payload.Action, "MultiplyByTen");
+			result = rec.OnReceive(new NetworkMessage{Payload = deserialized}, null);
+			Assert.AreEqual(result.Payload.ActionResponse, fortytwo * 10);
+			Assert.AreEqual(result.Payload.Object.Identifier, "dummy_device");
+			Assert.AreEqual(result.Payload.Action, "MultiplyByTen");
 
 		}
 
 		[Test]
 		public void TestDeviceRouterSet() {
 
-			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
+			DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
 			dummyObject.HAHA = 0;
 
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
-			rec.AddDevice (dummyObject);
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter(m_deviceManager);
+			rec.AddDevice(dummyObject);
 
 			string jsonString = 
 				"{ " +
@@ -140,13 +140,13 @@ namespace R2CoreTests
 			dynamic deserialized = serialization.Deserialize(serialized);
 			Assert.AreEqual("dummy_device", deserialized.Identifier);
 
-			INetworkMessage result = rec.OnReceive (new NetworkMessage{Payload = deserialized}, null);
+			INetworkMessage result = rec.OnReceive(new NetworkMessage{Payload = deserialized}, null);
 
 			// Make sure the identifiers are the same.
-			Assert.AreEqual (deserialized.Identifier, result.Payload.Object.Identifier);
+			Assert.AreEqual(deserialized.Identifier, result.Payload.Object.Identifier);
 
 			// The dummy object should now have been changed.
-			Assert.AreEqual (42.1d, dummyObject.HAHA);
+			Assert.AreEqual(42.1d, dummyObject.HAHA);
 
 
 		}
@@ -155,46 +155,46 @@ namespace R2CoreTests
 		[Test]
 		public void HttpBinaryMessageAndScriptServerTests() {
 
-			var webServer = factory.CreateHttpServer ("test_server", 9999);
+			var webServer = factory.CreateHttpServer("test_server", 9999);
 
-			var scriptFactory = new RubyScriptFactory ("sf", BaseContainer.RubyPaths , m_deviceManager);
+			var scriptFactory = new RubyScriptFactory("sf", BaseContainer.RubyPaths, m_deviceManager);
 
-			scriptFactory.AddSourcePath (Settings.Paths.TestData ());
+			scriptFactory.AddSourcePath(Settings.Paths.TestData());
 
 			var file_server_script = scriptFactory.CreateScript("file_server");
-			var file_server_receiver = scriptFactory.CreateRubyScriptObjectReceiver (file_server_script);
-			var file_server_endpoint = factory.CreateJsonEndpoint (@"/test2", file_server_receiver);
+			var file_server_receiver = scriptFactory.CreateRubyScriptObjectReceiver(file_server_script, @"/test2");
+			var file_server_endpoint = factory.CreateJsonEndpoint(file_server_receiver);
 
-			webServer.AddEndpoint (file_server_endpoint);
-			webServer.Start ();
+			webServer.AddEndpoint(file_server_endpoint);
+			webServer.Start();
 
-			Thread.Sleep (100);
+			Thread.Sleep(100);
 
-			var client = factory.CreateHttpClient ("client");
+			var client = factory.CreateHttpClient("client");
 
-			HttpMessage message = factory.CreateHttpMessage ("http://localhost:9999/test2");
+			HttpMessage message = factory.CreateHttpMessage("http://localhost:9999/test2");
 			message.ContentType = "application/json";
 
 			// Test binary message:
 
-			message.Payload = new R2Dynamic ();
-			message.Payload.FlName = Settings.Paths.TestData ("test.bin");
+			message.Payload = new R2Dynamic();
+			message.Payload.FlName = Settings.Paths.TestData("test.bin");
 
-			var response = client.Send (message);
-			Assert.AreEqual (200, response.Code);
-			Assert.AreEqual (6, (response.Payload as byte[]).Length);
+			var response = client.Send(message);
+			Assert.AreEqual(200, response.Code);
+			Assert.AreEqual(6, (response.Payload as byte[]).Length);
 
-			Assert.AreEqual ('d', (response.Payload as byte[]) [0]);
-			Assert.AreEqual ('h', (response.Payload as byte[]) [4]);
+			Assert.AreEqual('d', (response.Payload as byte[]) [0]);
+			Assert.AreEqual('h', (response.Payload as byte[]) [4]);
 
-			webServer.Stop ();
+			webServer.Stop();
 
 			/*TODO: create endpoint that takes binary input
 			 * 
 			 * //message.ContentType = "application/octet-stream";
 			* 			var file_server_script = scriptFactory.CreateScript("file_server");
-			var file_server_receiver = factory.CreateRubyScriptObjectReceiver (file_server_script);
-			var file_server_endpoint = factory.CreateJsonEndpoint (@"/test2", file_server_receiver);
+			var file_server_receiver = factory.CreateRubyScriptObjectReceiver(file_server_script);
+			var file_server_endpoint = factory.CreateJsonEndpoint(@"/test2", file_server_receiver);
 			*/
 
 		}
@@ -202,45 +202,45 @@ namespace R2CoreTests
 		[Test]
 		public void HttpServerTests() {
 
-			var webServer = factory.CreateHttpServer ("s", 9999);
+			var webServer = factory.CreateHttpServer("s", 9999);
 
-			var fileEndpoint = factory.CreateFileEndpoint (Settings.Paths.TestData (), @"/test/[A-Za-z0-9\.]+");
+			var fileEndpoint = factory.CreateFileEndpoint(Settings.Paths.TestData(), @"/test/[A-Za-z0-9\.]+");
 
-			webServer.AddEndpoint (fileEndpoint);
+			webServer.AddEndpoint(fileEndpoint);
 
-			webServer.Start ();
+			webServer.Start();
 
-			Thread.Sleep (100);
+			Thread.Sleep(100);
 
-			var client = factory.CreateHttpClient ("client");
+			var client = factory.CreateHttpClient("client");
 
 			// Test json-message:
 
-			HttpMessage message = factory.CreateHttpMessage ("http://localhost:9999/test/test.json");
+			HttpMessage message = factory.CreateHttpMessage("http://localhost:9999/test/test.json");
 			message.Method = "GET";
 			message.ContentType = "application/json";
-			var response = client.Send (message);
-			Assert.AreEqual (200, response.Code);
-			Assert.NotNull (response.Payload);
-			Assert.AreEqual ("Bar", response.Payload.Foo);
+			var response = client.Send(message);
+			Assert.AreEqual(200, response.Code);
+			Assert.NotNull(response.Payload);
+			Assert.AreEqual("Bar", response.Payload.Foo);
 
 
-			webServer.Stop ();
+			webServer.Stop();
 
 		}
 
 		[Test]
-		public void HttpDeviceRouterTes() {
+		public void HttpDeviceRouterTest() {
 
-			var webServer = factory.CreateHttpServer ("s", 9999);
+			var webServer = factory.CreateHttpServer("s", 9999);
 
-			DummyDevice dummyObject = m_deviceManager.Get ("dummy_device");
+			DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
 			dummyObject.Bar = "XYZ";
 
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter ();
-			rec.AddDevice (dummyObject);
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter(m_deviceManager);
+			rec.AddDevice(dummyObject);
 
-			IWebEndpoint ep = factory.CreateJsonEndpoint ("/test", rec);
+			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 
 			var requestPayload = new DeviceRequest() {
 				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
@@ -248,32 +248,32 @@ namespace R2CoreTests
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
 
-			webServer.AddEndpoint (ep);
+			webServer.AddEndpoint(ep);
 
-			webServer.Start ();
+			webServer.Start();
 
-			Thread.Sleep (100);
+			Thread.Sleep(100);
 
-			var client = factory.CreateHttpClient ("client");
+			var client = factory.CreateHttpClient("client");
 
 			// Test json-message:
 
-			HttpMessage message = factory.CreateHttpMessage ("http://localhost:9999/test");
+			HttpMessage message = factory.CreateHttpMessage($"http://localhost:9999{Settings.Consts.DeviceDestination()}");
 
 			// Test json-message:
 			message.ContentType = "application/json";
 			message.Payload = requestPayload;
 
-			var response = client.Send (message);
-			Assert.AreEqual (200, response.Code);
+			var response = client.Send(message);
+			Assert.AreEqual(200, response.Code);
 
 			// Make sure the identifiers are the same.
-			Assert.AreEqual (dummyObject.Identifier, response.Payload.Object.Identifier);
+			Assert.AreEqual(dummyObject.Identifier, response.Payload.Object.Identifier);
 
 			// This is what the function should return
-			Assert.AreEqual (12.34,  response.Payload.ActionResponse);
+			Assert.AreEqual(12.34,  response.Payload.ActionResponse);
 
-			webServer.Stop ();
+			webServer.Stop();
 
 		}
 

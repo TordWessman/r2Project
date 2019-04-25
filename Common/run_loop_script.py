@@ -38,10 +38,10 @@ class MainClass:
 			#args not yet implemented
 
 			# only load ruby if explicit ".rb" ending is specified
-			if(script_name.endwith(".rb")):
-				script = self.device_manager.Get(self.settings.I.RubyScriptFactory).CreateScript(script_name[:-3])
+			if(script_name.endswith(".rb")):
+				script = self.device_manager.Get(self.settings.I.RubyScriptFactory()).CreateScript(script_name[:-3])
 			else:
-				script = self.device_manager.Get(self.settings.I.PythonScriptFactory).CreateScript(script_name)
+				script = self.device_manager.Get(self.settings.I.PythonScriptFactory()).CreateScript(script_name)
 			
 			self.task_monitor.AddMonitorable(script)
 			self.device_manager.Add(script)
@@ -64,7 +64,7 @@ class MainClass:
 
 			script_name = line_split[1]
 
-			args = nil
+			args = None
 
 			# TODO: Arghz!
 			#if line_split.length > 2
@@ -73,7 +73,7 @@ class MainClass:
 
 			if (self.device_manager.Has(script_name)):
 				
-				script =  self.device_manager.Get(script_name)
+				script = self.device_manager.Get(script_name)
 				
 				if (script.Ready):
 

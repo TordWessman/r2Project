@@ -22,12 +22,15 @@ using System.Collections.Generic;
 
 namespace R2Core
 {
-	public static class ExpandoObjectExtensions
-	{
+	public static class ExpandoObjectExtensions {
 
-		public static bool Contains (this ExpandoObject self, string key) {
+		/// <summary>
+		/// Returns true if a key named ´key´ is found.
+		/// </summary>
+		/// <param name="key">Key.</param>
+		public static bool Contains(this ExpandoObject self, string key) {
 
-			return (self as IDictionary<string, Object>).ContainsKey (key);
+			return(self as IDictionary<string, Object>)?.ContainsKey(key) == true;
 
 		}
 

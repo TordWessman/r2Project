@@ -28,96 +28,192 @@ using System.Threading;
 namespace R2Core.Network
 {
 	
-	public class TCPClientConnection : DeviceBase, IClientConnection
-	{
-		private TcpClient m_client;
-		private ITCPPackageFactory<TCPMessage> m_packageFactory;
-		private Task m_listener;
-		private readonly object m_writeLock = new object();
-		private AutoResetEvent m_readLock;
+	public class TCPClientConnection : DeviceBase, IClientConnection {
 
-		public bool ShouldRun = false;
-		public event OnReceiveHandler OnReceive;
-		public event OnDisconnectHandler OnDisconnect;
+		// Delegate called when a message has been received
+		private Func<INetworkMessage,IPEndPoint,INetworkMessage> m_responseDelegate;
+
+		// Accept-client provided by the server
+		private TcpClient m_client;
+
+		// Used to serialize/deserialize packages
+		private ITCPPackageFactory<TCPMessage> m_packageFactory;
+
+		// Thread listening on incomming data
+		private Task m_listener;
+
+		// Lock for network writes
+		private readonly object m_writeLock = new object();
+
+		// Keeps track of weither this instance has been stopped or nor
+		private bool m_shouldRun = false;
 
 		// Contains an Exception from the Received if thrown there.
 		private Exception m_readError;
 
-		// Contains the latest previous response
-		TCPMessage m_latestResponse;
+		// Contains the latest previous broadcast response
+		private TCPMessage m_broadcastResponse;
 
-		public TCPClientConnection (string id, ITCPPackageFactory<TCPMessage> factory, TcpClient client) : base (id) {
-			
+		// Re-do every failed poll.
+		private bool m_previousPollSuccess = true;
+
+		// Responsible for making sure the connection has not been lost
+		PingService m_ping;
+
+		private System.Timers.Timer m_connectionCheckTimer;
+
+		public event OnReceiveHandler OnReceive;
+		public event OnDisconnectHandler OnDisconnect;
+
+		public TCPClientConnection(
+			string id, 
+			ITCPPackageFactory<TCPMessage> factory, 
+			TcpClient client,
+			Func<INetworkMessage,IPEndPoint,INetworkMessage> responseDelegate) : base(id) {
+
+			m_responseDelegate = responseDelegate;
 			m_client = client;
 			m_packageFactory = factory;
+			m_ping = new PingService(this, m_client.SendTimeout);
+
+			m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
+			m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
+
+		}
+
+		~TCPClientConnection() {
+		
+			Log.d($"Deallocating {this}.");
 		
 		}
 
-		public override bool Ready { get { return ShouldRun && m_client.Connected; } }
+		public string Address { get { return m_client.GetEndPoint()?.GetAddress(); } }
 
-		public IPEndPoint Endpoint { get { return  (IPEndPoint)m_client.Client.RemoteEndPoint; } }
+		public int Port { get { return m_client.GetEndPoint()?.GetPort() ?? 0; } }
+
+		public override bool Ready { get { return m_shouldRun && m_client?.IsConnected() == true; } }
 
 		public override void Start() {
 
-			ShouldRun = true;
+			m_shouldRun = true;
 
-			Log.d ($"Connecting to {m_client.GetDescription()}.");
+			Log.d($"Server accepted connection from {m_client.GetDescription()}.");
+
 			m_listener = Task.Factory.StartNew(() => {
 			
-				using (m_client) {
+				using(m_client) {
 				
-					while (ShouldRun && m_client.Connected) { Connection(); }
+					while(m_shouldRun && m_client.Connected) { Connection(); }
 
 				}
 
 			});
 
+			m_connectionCheckTimer.Start();
+			//m_ping.Start();
+
 		}
 
-		public override void Stop() { Disconnect (this); }
+		public override void Stop() { Disconnect(); }
 
+		/// <summary>
+		/// Sends a BroadcastMessage
+		/// </summary>
+		/// <param name="message">Message.</param>
 		public INetworkMessage Send(INetworkMessage message) {
+			
+			if (!Ready) {
 
-			m_readLock = new AutoResetEvent (false);
+				throw new InvalidOperationException($"Unable to send ´{message}´. TCPClientConnection ´{this} is´ not running.");
 
-			Write (new BroadcastMessage(message));
+			}
 
-			// Wait for receiver thread to fetch data.
-			if (!m_readLock.WaitOne (m_client.SendTimeout)) { throw new SocketException ((int)SocketError.TimedOut); }
+			Write(new BroadcastMessage(message, Address, Port));
+
+			return new OkMessage();
+
+		}
+
+		public override string ToString() {
+
+			return $"TCPClientConnection [`{m_client.GetDescription()}`. Ready: {Ready}]."; //string.Format("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
+
+		}
+
+		private void Disconnect(Exception ex = null) {
+
+			m_shouldRun = false;
+
+			Log.d($"{this} disconnected.");
+
+			m_connectionCheckTimer?.Stop();
+
+			//m_ping.Stop();
 
 			try {
 
-				// If there was an error during the read process, throw it here.
-				if (m_readError != null) { throw m_readError; }
+				if (m_client.IsConnected()) { m_client.Close(); }
 
-				return m_latestResponse;
+			} catch (Exception exception) { 
 
-			} finally {
+				Log.e($"Client disconnection [{this}] crashed:");
+				Log.x(exception); 
+			
+			}
 
-				m_readError = null;
+			if (OnDisconnect != null) { OnDisconnect(this, ex); } 
+
+		}
+
+		private void Reply(TCPMessage clientRequest) {
+		
+			try {
+
+				INetworkMessage responseToClient = m_responseDelegate(clientRequest, (IPEndPoint) m_client.GetEndPoint());
+
+				// Only write directly back to stream if not a broadcast message. 
+				Write(new TCPMessage(responseToClient));
+
+			} catch (Exception ex) {
+
+				Write(new NetworkErrorMessage(ex, clientRequest));
 
 			}
 
 		}
 
-		private void Disconnect(IClientConnection connection, Exception ex = null) {
-
-			ShouldRun = false;
-			if (m_client.Connected) { m_client.Close (); }
-			if (OnDisconnect != null) { OnDisconnect (this, ex); }
-
-		}
-
 		private void Connection() {
-			
+
+			TCPMessage clientRequest = default(TCPMessage);
+
 			try {
-				 
-				m_latestResponse = m_packageFactory.DeserializePackage (new BlockingNetworkStream(m_client.Client));
+				
+				clientRequest = m_packageFactory.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
 
-				if (!m_latestResponse.IsBroadcastMessage()) {
+				if (!m_client.IsConnected()) {
 
-					// Only write directly back to stream if not a broadcast message. 
-					Write(new TCPMessage(OnReceive(m_latestResponse, (IPEndPoint) m_client.Client.RemoteEndPoint)));
+					if (m_shouldRun) { Stop(); }
+					return;
+
+				} else if (clientRequest.IsPong()) { return; }
+
+				else if (clientRequest.IsPing()) {
+
+					m_ping.Pong();
+
+				} else if (!clientRequest.IsBroadcastMessage()) {
+					
+					Reply(clientRequest);
+
+				} else if (clientRequest.IsBroadcastMessage()) {
+				
+					m_broadcastResponse = clientRequest;
+
+				}
+
+				if (!clientRequest.IsPingOrPong()) {
+				
+					if (OnReceive != null) { OnReceive(clientRequest, m_client.GetEndPoint()); }
 
 				}
 
@@ -125,48 +221,73 @@ namespace R2Core.Network
 
 				m_readError = ex;
 
-				if (ex is SocketException) {
-					
-					Log.d($"TCPClientConnection `{m_client.GetDescription()}` aborted. Code: `{(ex as SocketException).SocketErrorCode}`.");
-					Disconnect (this);
+				if (m_shouldRun) {
 
-				} else {
-
-					Log.x (ex);
-
-					if (Ready && !m_latestResponse.IsBroadcastMessage()) {
-						
-						Write (new TCPMessage () { Code = WebStatusCode.ServerError.Raw (),
-							#if DEBUG
-							Payload = ex.ToString ()
-							#endif
-						});
+					if (!ex.IsClosingNetwork()) {
 					
-					} else {
-					
-						Disconnect (this, Ready ? ex : null);
+						Log.x(ex);
 
 					}
 
+					Disconnect(m_shouldRun ? ex : null);
+
 				}
 			
-			} finally {
+			} 
+
+		}
+
+		private void Write(INetworkMessage message) {
 			
-				m_readLock?.Set();
-				m_readLock = null;
+			lock(m_writeLock) {
+
+				try {
+
+					Socket socket = m_client.GetSocket();
+
+					if (socket == null) {
+
+						Log.w($"{this} was unable to connect to socket.");
+						if (m_shouldRun) { Stop(); }
+
+					} else {
+
+						byte[] response = m_packageFactory.SerializeMessage(new TCPMessage(message));
+						new BlockingNetworkStream(m_client.Client).Write(response, 0, response.Length);
+
+					}
+
+				} catch (Exception ex) {
+
+					Log.x(ex);
+					throw ex;
+
+				}
+			
+			}
+
+			if (m_shouldRun && !Ready) {
+			
+				// I'm disconnected, but not quite aware of it yet.
+				Stop();
 
 			}
 
 		}
 
-		private void Write (INetworkMessage message) {
+		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
+		
+			if (!m_shouldRun) { return; }
 
-			lock (m_writeLock) {
+			bool pollSuccessful = m_client.GetSocket()?.Poll(m_client.ReceiveTimeout * 1000, SelectMode.SelectError) ?? false;
 
-				byte[] response = m_packageFactory.SerializeMessage (new TCPMessage (message));
-				m_client.GetStream ().Write (response, 0, response.Length);
+			if (Ready || !(pollSuccessful && m_previousPollSuccess)) {
+
+				Disconnect();
 
 			}
+
+			m_previousPollSuccess = pollSuccessful;
 
 		}
 

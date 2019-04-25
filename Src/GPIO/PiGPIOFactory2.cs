@@ -36,28 +36,27 @@ namespace R2Core.GPIO
 			{4, ConnectorPin.P1Pin07},
 			{17, ConnectorPin.P1Pin11}
 		};
-		public PiGPIOFactory2 (string id) : base (id)
-		{
+		public PiGPIOFactory2(string id) : base(id) {
 		}
 
-		public IInputMeter<double> CreateAnalogInput (string id, int adcPort) {
+		public IInputMeter<double> CreateAnalogInput(string id, int adcPort) {
 		
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
 		}
 
-		public IServoController CreateServoController (string id, int bus = 1, int address = 0x40, int frequency = 63) {
+		public IServoController CreateServoController(string id, int bus = 1, int address = 0x40, int frequency = 63) {
 
-			return new PCA9685ServoController (id, bus, address, frequency);
+			return new PCA9685ServoController(id, bus, address, frequency);
 
 		}
 
-		public IInputPort CreateInputPort (string id, int gpioPort) {
+		public IInputPort CreateInputPort(string id, int gpioPort) {
 		
 			return new InputPort2(id,AvailablePorts[gpioPort]);
 
 		}
 
-		public IOutputPort CreateOutputPort (string id, int gpioPort) {
+		public IOutputPort CreateOutputPort(string id, int gpioPort) {
 
 			return new OutputPort2(id, AvailablePorts[gpioPort]);
 
@@ -65,7 +64,7 @@ namespace R2Core.GPIO
 
 		public IDHT11 CreateTempHumidity(string id, int pin) {
 		
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
 
 		}
 

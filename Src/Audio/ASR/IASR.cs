@@ -22,15 +22,17 @@ using R2Core.Device;
 
 namespace R2Core.Audio.ASR
 {
-	public interface IASR : ITaskMonitored, IDevice, ILanguageUpdated
-	{
+	public interface IASR : ITaskMonitored, IDevice, ILanguageUpdated {
+		
 		/// <summary>
 		/// If Active, the ASR will be listening to incomming speech. 
 		/// </summary>
 		/// <value><c>true</c> if active; otherwise, <c>false</c>.</value>
 		bool Active {get; set;}
 
-		void AddObserver (IASRObserver observer);	
+		void AddObserver(IASRObserver observer);	
+
 	}
+
 }
 

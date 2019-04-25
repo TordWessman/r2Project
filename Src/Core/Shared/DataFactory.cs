@@ -10,14 +10,18 @@ namespace R2Core
 	/// <summary>
 	/// Use this factory to create data containers
 	/// </summary>
-	public class DataFactory: DeviceBase
-	{
+	public class DataFactory : DeviceBase {
+		
 		IEnumerable<string> m_searchPaths;
 
-		public DataFactory (string id, IEnumerable<string> searchPaths = null) : base(id)
-		{
+		/// <summary>
+		/// Instantiate with search path for data set files.
+		/// </summary>
+		/// <param name="id">Identifier.</param>
+		/// <param name="searchPaths">Search paths.</param>
+		public DataFactory(string id, IEnumerable<string> searchPaths = null) : base(id) {
 			
-			m_searchPaths = searchPaths ?? new List<string> ();
+			m_searchPaths = searchPaths ?? new List<string>();
 
 		}
 
@@ -28,17 +32,17 @@ namespace R2Core
 		/// <param name="fileName">File name.</param>
 		public ILinearDataSet<double> CreateDataSet(string fileName) {
 
-			string filePath = GetFilePath (fileName);
-			string[] fileData = File.ReadAllText (filePath).Trim( new char[]{'\n', '\r', ' ', '	'}).Replace(Environment.NewLine, ",").Split(',');
+			string filePath = GetFilePath(fileName);
+			string[] fileData = File.ReadAllText(filePath).Trim( new char[]{'\n', '\r', ' ', '	'}).Replace(Environment.NewLine, ",").Split(',');
 
 			if (fileData.Length % 2 != 0) {
 
-				throw new InvalidDataException ($"Unable to parse CSV data in file {filePath}. Uneven number of coordinates ({fileData.Length})");
+				throw new InvalidDataException($"Unable to parse CSV data in file {filePath}. Uneven number of coordinates({fileData.Length})");
 
 			}
 
 
-			IDictionary<double, double> points = new Dictionary<double, double> ();
+			IDictionary<double, double> points = new Dictionary<double, double>();
 			int i = 0;
 			double x = 0;
 
@@ -49,11 +53,11 @@ namespace R2Core
 				
 					if (points.Keys.Contains(x)) { 
 
-						Log.e ($"Trying to add duplicate values for x = {x}");
+						Log.e($"Trying to add duplicate values for x = {x}");
 
 					} else {
 
-						points.Add (x, value); 
+						points.Add(x, value); 
 
 					}
 						
@@ -61,7 +65,7 @@ namespace R2Core
 
 			}
 
-			return new LinearDataSet (points);
+			return new LinearDataSet(points);
 
 		}
 
@@ -72,13 +76,13 @@ namespace R2Core
 		/// <param name="fileName">File name.</param>
 		public string GetFilePath(string fileName) {
 		
-			if (!File.Exists (fileName)) {
+			if (!File.Exists(fileName)) {
 
 				foreach (string path in m_searchPaths) {
 				
-					string evaluatedPath = path.EndsWith (Path.DirectorySeparatorChar.ToString ()) ? path + fileName : path + Path.DirectorySeparatorChar + fileName;
+					string evaluatedPath = path.EndsWith(Path.DirectorySeparatorChar.ToString()) ? path + fileName : path + Path.DirectorySeparatorChar + fileName;
 
-					if (File.Exists (evaluatedPath)) {
+					if (File.Exists(evaluatedPath)) {
 					
 						return evaluatedPath;
 
@@ -86,7 +90,7 @@ namespace R2Core
 
 				}
 
-				throw new FileNotFoundException ($"Unable to locate {fileName}. Is there a search path missing?");
+				throw new FileNotFoundException($"Unable to locate {fileName}. Is there a search path missing?");
 
 			}
 

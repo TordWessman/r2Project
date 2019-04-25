@@ -37,8 +37,7 @@ namespace R2Core.Video
 		protected static extern void _ext_testish (HaarCascade cascade);
 		
 		
-		public Vision ()
-		{
+		public Vision() {
 
 		}
 

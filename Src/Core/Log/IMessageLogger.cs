@@ -59,8 +59,11 @@ namespace R2Core
 
 	}
 
-	public interface IMessageLogger
-	{
+	/// <summary>
+	/// An object capable of logging ´ILogMessage´s
+	/// </summary>
+	public interface IMessageLogger {
+		
 		/// <summary>
 		/// Writes message to the logger.
 		/// </summary>
@@ -68,7 +71,7 @@ namespace R2Core
 		void Write(ILogMessage message);
 
 		/// <summary>
-		/// Returns output history (descending age) 
+		/// Returns output history(descending age) 
 		/// </summary>
 		/// <returns>The history.</returns>
 		/// <param name="count">Maximum number of output messages.</param>

@@ -20,18 +20,17 @@ using System;
 
 namespace R2Core.Network
 {
-	public static class WebFactoryExtensions
-	{
+	public static class WebFactoryExtensions {
 		
 		public static IWebSocketServer CreateWebSocketServer(this WebFactory self, string id, int port) {
 
-			return new WebSocketServer (id, port, new TCPPackageFactory(self.Serialization));
+			return new WebSocketServer(id, port, new TCPPackageFactory(self.Serialization));
 
 		}
 
 		public static IWebSocketSender CreateWebSocketSender(this WebFactory self, string id, string uriPath) {
 
-			return new WebSocketSender (id, uriPath, self.Serialization);
+			return new WebSocketSender(id, uriPath, self.Serialization);
 
 		}
 

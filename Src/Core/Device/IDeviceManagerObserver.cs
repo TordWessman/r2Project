@@ -20,8 +20,8 @@
 
 namespace R2Core.Device
 {
-	public interface IDeviceManagerObserver
-	{
+	public interface IDeviceManagerObserver {
+		
 		/// <summary>
 		/// After a new IDevice have been added, this delegate method is being called.
 		/// </summary>

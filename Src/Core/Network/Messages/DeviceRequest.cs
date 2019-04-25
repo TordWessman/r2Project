@@ -37,7 +37,7 @@ namespace R2Core.Network {
 		public dynamic ActionResponse;
 
 		/// <summary>
-		/// The name of the method or property wich was invoked (or null if no changes was made).
+		/// The name of the method or property wich was invoked(or null if no changes was made).
 		/// </summary>
 		public string Action;
 
@@ -54,8 +54,7 @@ namespace R2Core.Network {
 	/// <summary>
 	/// Message used to invoke and retrieve data from objects.
 	/// </summary>
-	public struct DeviceRequest
-	{
+	public struct DeviceRequest {
 
 		/// <summary>
 		/// Actions to perform on a requested object.
@@ -73,7 +72,7 @@ namespace R2Core.Network {
 			Set = 1,
 
 			/// <summary>
-			/// Invokes a method using params (if any).
+			/// Invokes a method using params(if any).
 			/// </summary>
 			Invoke = 2,
 
@@ -85,12 +84,12 @@ namespace R2Core.Network {
 		public dynamic Identifier;
 
 		/// <summary>
-		/// Type of action to be performed (ignored if ActionType is Get).
+		/// Type of action to be performed(ignored if ActionType is Get).
 		/// </summary>
 		public ObjectActionType ActionType;
 
 		/// <summary>
-		/// Name of the method or property which will be invoked (ignored if ActionType is Get).
+		/// Name of the method or property which will be invoked(ignored if ActionType is Get).
 		/// </summary>
 		public string Action;
 
@@ -98,6 +97,13 @@ namespace R2Core.Network {
 		/// Containing a list of parameters used while setting values and invoking methods.
 		/// </summary>
 		public object[] Params;
+
+
+		public override string ToString() {
+			
+			return $"[DeviceRequest- Identifier: '{Identifier}', ActionType: '{ActionType}', Action: '{Action}']";
+		
+		}
 
 	}
 

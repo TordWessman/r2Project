@@ -26,9 +26,9 @@ namespace R2Core.Video
 	public struct CvSize
 	{
 		
-		public CvSize (int width, int height) {
+		public CvSize(int width, int height) {
 
-			if (width < 0 || height < 0) { throw new ArgumentException ($"width and height must be > 0 width: {width} height: {height}"); }
+			if (width < 0 || height < 0) { throw new ArgumentException($"width and height must be > 0 width: {width} height: {height}"); }
 			
 			this.Width = width;
 			this.Height = height;

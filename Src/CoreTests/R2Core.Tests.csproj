@@ -42,12 +42,16 @@
     <Reference Include="NLua">
       <HintPath>..\..\3rdParty\NLua.dll</HintPath>
     </Reference>
+    <Reference Include="IronPython.Modules">
+      <HintPath>..\..\3rdParty\IronLanguages\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython">
+      <HintPath>..\..\3rdParty\IronLanguages\IronPython.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Test.cs" />
     <Compile Include="DummyClasses\DummyDevice.cs" />
     <Compile Include="DummyClasses\DummyTaskMonitor.cs" />
-    <Compile Include="CoreTests\CoreTests.cs" />
     <Compile Include="CoreTests\DataTests.cs" />
     <Compile Include="CoreTests\NetworkTests.cs" />
     <Compile Include="CoreTests\ScriptTests.cs" />
@@ -58,14 +62,20 @@
     <Compile Include="CoreTests\HttpTests.cs" />
     <Compile Include="CoreTests\UDPTests.cs" />
     <Compile Include="DummyClasses\Networking\DummyEndpoint.cs" />
-    <Compile Include="CoreTests\TestAsyncRemoteDevice.cs" />
     <Compile Include="DummyClasses\Networking\DummyClientObserver.cs" />
+    <Compile Include="DummyClasses\DummyInput.cs" />
+    <Compile Include="DummyClasses\Networking\DummyReceiver.cs" />
+    <Compile Include="Integration\NetworkIntegrationTests.cs" />
+    <Compile Include="DummyClasses\InvokerDummyDevice.cs" />
+    <Compile Include="CoreTests\DeviceTests.cs" />
+    <Compile Include="DummyClasses\InvokableDummy.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="DummyClasses\" />
     <Folder Include="CoreTests\" />
     <Folder Include="GPIOTests\" />
+    <Folder Include="Integration\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\R2Core.csproj">

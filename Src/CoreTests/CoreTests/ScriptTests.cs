@@ -29,8 +29,7 @@ namespace R2Core.Tests
 {
 	
 	[TestFixture]
-	public class ScriptTests: TestBase
-	{
+	public class ScriptTests: TestBase {
 		
 		private IScriptFactory<IronScript> m_rubyScriptFactory;
 		private IScriptFactory<IronScript> m_pythonScriptFactory;
@@ -39,70 +38,70 @@ namespace R2Core.Tests
 		[TestFixtureSetUp]
 		public override void Setup() {
 
-			base.Setup ();
+			base.Setup();
 
-			Log.t ("mamma");
-			Log.t ("L: " + BaseContainer.RubyPaths.Count);
+			Log.t("mamma");
+			Log.t("L: " + BaseContainer.RubyPaths.Count);
 
 			foreach (string path in BaseContainer.RubyPaths) {
 			
-				Log.t (path);
+				Log.t(path);
 
 			}
 
-			m_rubyScriptFactory = new RubyScriptFactory ("rf", BaseContainer.RubyPaths, m_deviceManager);
-			m_rubyScriptFactory.AddSourcePath (Settings.Paths.TestData ());
+			m_rubyScriptFactory = new RubyScriptFactory("rf", BaseContainer.RubyPaths, m_deviceManager);
+			m_rubyScriptFactory.AddSourcePath(Settings.Paths.TestData());
 
-			m_pythonScriptFactory = new PythonScriptFactory ("rf", BaseContainer.PythonPaths , m_deviceManager);
-			m_pythonScriptFactory.AddSourcePath (Settings.Paths.TestData ());
-			m_pythonScriptFactory.AddSourcePath (Settings.Paths.Common ());
+			m_pythonScriptFactory = new PythonScriptFactory("rf", BaseContainer.PythonPaths , m_deviceManager);
+			m_pythonScriptFactory.AddSourcePath(Settings.Paths.TestData());
+			m_pythonScriptFactory.AddSourcePath(Settings.Paths.Common());
 
-			m_luaScriptFactory = new LuaScriptFactory ("ls");
-			m_luaScriptFactory.AddSourcePath (Settings.Paths.TestData ());
+			m_luaScriptFactory = new LuaScriptFactory("ls");
+			m_luaScriptFactory.AddSourcePath(Settings.Paths.TestData());
 
 		}
 
 		[Test]
 		public void RubyTest1() {
 	
-			dynamic ruby = m_rubyScriptFactory.CreateScript ("RubyTest1");
-			Assert.NotNull (ruby);
+			dynamic ruby = m_rubyScriptFactory.CreateScript("RubyTest1");
+			Assert.NotNull(ruby);
 
-			Assert.AreEqual (ruby.set_up_foo (), "baz");
+			Assert.AreEqual(ruby.set_up_foo(), "baz");
 
-			Assert.AreEqual ("bar", (string) ruby.foo);
+			Assert.AreEqual("bar", (string)ruby.foo);
 
 			ruby.bar = 42;
 
-			Assert.AreEqual (42, ruby.Get ("bar"));
+			Assert.AreEqual(42, ruby.Get("bar"));
 
 		}
 
 		[Test]
 		public void LuaTest1() {
 		
-			dynamic lua = m_luaScriptFactory.CreateScript ("LuaTest1");
+			dynamic lua = m_luaScriptFactory.CreateScript("LuaTest1");
 		
-			Assert.AreEqual ("fish", lua.str);
+			Assert.AreEqual("fish", lua.str);
 
 		}
 
 		[Test]
 		public void PythonTests() {
 		
-			dynamic python = m_pythonScriptFactory.CreateScript ("PythonTest");
+			dynamic python = m_pythonScriptFactory.CreateScript("python_test");
 
-			Assert.AreEqual (142, python.add_42 (100));
+			Assert.AreEqual(142, python.add_42 (100));
 
 			python.katt = 99;
 
-			Assert.AreEqual (99, python.katt);
+			Assert.AreEqual(99, python.katt);
 
-			Assert.AreEqual (99 * 10 , python.return_katt_times_10());
+			Assert.AreEqual(99 * 10 , python.return_katt_times_10());
 
 			python.dog_becomes_value("foo");
 
-			Assert.AreEqual ("foo", python.dog);
+			Assert.AreEqual("foo", python.dog);
 		
 		}
 	

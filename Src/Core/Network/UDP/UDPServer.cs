@@ -20,21 +20,20 @@ using System;
 using System.Net.Sockets;
 using System.Net;
 using System.IO;
+using System.Linq;
 
-//TODO: add support for UDP signatures (create a new UDP package factory capable of distinguishing package identifiers)
+//TODO: add support for UDP signatures(create a new UDP package factory capable of distinguishing package identifiers)
 using System.Collections.Generic;
-
 
 namespace R2Core.Network
 {
-	public class UDPServer: ServerBase
-	{
+	public class UDPServer: ServerBase {
 
 		private UdpClient m_listener;
 		private IPEndPoint m_groupEndpoint;
 		private ITCPPackageFactory<TCPMessage> m_packageFactory;
 
-		public UDPServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base (id, port) {
+		public UDPServer(string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id, port) {
 			
 			m_groupEndpoint = new IPEndPoint(IPAddress.Any, Port);
 			m_packageFactory = packageFactory;
@@ -50,14 +49,14 @@ namespace R2Core.Network
 
 		protected override void Service() {
 
-			m_listener = new UdpClient ();
+			m_listener = new UdpClient();
 			m_listener.EnableBroadcast = true;
 			m_listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-			m_listener.Client.Bind (m_groupEndpoint);
+			m_listener.Client.Bind(m_groupEndpoint);
 
-			while (ShouldRun) {
+			while(ShouldRun) {
 			
-				TCPMessage response = new TCPMessage();
+				INetworkMessage response = new TCPMessage();
 				IPEndPoint client = null;
 
 				// Any request should contain this identifier. It will automatically be bundled with the reply.
@@ -65,7 +64,7 @@ namespace R2Core.Network
 
 				try {
 
-					byte [] requestData = m_listener.Receive (ref client);
+					byte [] requestData = m_listener.Receive(ref client);
 					if (!AllowLocalRequests && IPAddress.IsLoopback(client.Address)) {
 					
 						// Ignore requests sent by the same Ip
@@ -73,17 +72,17 @@ namespace R2Core.Network
 
 					}
 
-					using (MemoryStream requestDataStream = new MemoryStream (requestData)) {
+					using(MemoryStream requestDataStream = new MemoryStream(requestData)) {
 
-						TCPMessage request = m_packageFactory.DeserializePackage (requestDataStream);
+						TCPMessage request = m_packageFactory.DeserializePackage(requestDataStream);
 
 						broadcastMessageUniqueIdentifierHeaderValue = request.GetBroadcastMessageKey();
 
-						IWebEndpoint ep = GetEndpoint (request.Destination);
+						IWebEndpoint ep = GetEndpoint(request.Destination);
 
 						if (ep != null) {
 
-							response = new TCPMessage(ep.Interpret (request, client));
+							response = new TCPMessage(ep.Interpret(request, client));
 
 						} else {
 							
@@ -96,21 +95,12 @@ namespace R2Core.Network
 					}
 
 				} catch (Exception ex) {
-				
+
 					if (ShouldRun) {
 
 						Log.x(ex);
 
-						response = new TCPMessage() {
-							Code = WebStatusCode.ServerError.Raw(),
-
-							#if DEBUG
-							Payload = ex.ToString()
-							#endif
-
-						};
-
-						response.PayloadType = TCPPackageFactory.PayloadType.String;
+						response = new NetworkErrorMessage(ex);
 
 					}
 
@@ -119,11 +109,11 @@ namespace R2Core.Network
 				if (ShouldRun) {
 				
 					// Make sure the request returns the expected broadcast key.
-					BroadcastMessage responseBroadcast = new BroadcastMessage(response);
+					BroadcastMessage responseBroadcast = new BroadcastMessage(response, Addresses.Aggregate((a1,a2) => a1 + ";" + a2) , Port);
 					responseBroadcast.Identifier = broadcastMessageUniqueIdentifierHeaderValue;
 
-					byte[] responseData = m_packageFactory.SerializeMessage (new TCPMessage(responseBroadcast)); 
-					m_listener.Send (responseData, responseData.Length, client);
+					byte[] responseData = m_packageFactory.SerializeMessage(new TCPMessage(responseBroadcast)); 
+					m_listener.Send(responseData, responseData.Length, client);
 
 				}
 
@@ -131,9 +121,9 @@ namespace R2Core.Network
 		
 		}
 
-		protected override void Cleanup () {
+		protected override void Cleanup() {
 			
-			m_listener.Close ();
+			m_listener?.Close();
 			m_listener = null;
 
 		}

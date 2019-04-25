@@ -29,26 +29,25 @@ using Newtonsoft.Json.Linq;
 
 namespace R2Core.PushNotifications
 {
-	public class ApplePushNotificationFacade: DeviceBase, IPushNotificationFacade
-	{
+	public class ApplePushNotificationFacade : DeviceBase, IPushNotificationFacade {
+		
 		private ApnsServiceBroker m_push;
 		private ApnsConfiguration m_configuration;
 
-		public ApplePushNotificationFacade (string id,  string certFileName, string password) : base (id)
-		{
+		public ApplePushNotificationFacade(string id,  string certFileName, string password) : base(id) {
 			
-			if (!File.Exists (certFileName)) {
+			if (!File.Exists(certFileName)) {
 			
-				throw new IOException ($"A push notification certificate with name '{certFileName}' could not be found.");
+				throw new IOException($"A push notification certificate with name '{certFileName}' could not be found.");
 
 			}
 
-			m_configuration = new ApnsConfiguration (ApnsConfiguration.ApnsServerEnvironment.Sandbox, 
+			m_configuration = new ApnsConfiguration(ApnsConfiguration.ApnsServerEnvironment.Sandbox, 
 				certFileName, password);
 			
 			//Create our push services broker
 
-			var fbs = new FeedbackService (m_configuration);
+			var fbs = new FeedbackService(m_configuration);
 
 			fbs.FeedbackReceived += (string deviceToken, DateTime timestamp) => {
 
@@ -58,7 +57,7 @@ namespace R2Core.PushNotifications
 
 			try {
 
-				fbs.Check ();
+				fbs.Check();
 
 			} catch (System.AggregateException ex) {
 
@@ -72,13 +71,13 @@ namespace R2Core.PushNotifications
 
 			if (!AcceptsNotification(notification)) {
 				
-				throw new ArgumentException ($"Cannot push notification with mask: '{notification.ClientTypeMask}' to Apple.");
+				throw new ArgumentException($"Cannot push notification with mask: '{notification.ClientTypeMask}' to Apple.");
 			
 			}
 
-			SetupBroker ();
+			SetupBroker();
 
-			m_push.Start ();
+			m_push.Start();
 
 			foreach (string deviceId in deviceIds) {
 
@@ -91,11 +90,11 @@ namespace R2Core.PushNotifications
 				}
 
 				payload += "}}";
-				var pl = JObject.Parse (payload);
+				var pl = JObject.Parse(payload);
 
-				Log.t (payload);
+				Log.t(payload);
 
-				m_push.QueueNotification (new ApnsNotification {
+				m_push.QueueNotification(new ApnsNotification {
 
 					DeviceToken = deviceId,
 					Payload = pl
@@ -104,7 +103,7 @@ namespace R2Core.PushNotifications
 
 			}
 
-			m_push.Stop ();
+			m_push.Stop();
 
 		}
 
@@ -114,7 +113,7 @@ namespace R2Core.PushNotifications
 
 			m_push.OnNotificationFailed += (notification, aggregateEx) => {
 
-				aggregateEx.Handle (ex => {
+				aggregateEx.Handle(ex => {
 
 					// See what kind of exception it was to further diagnose
 					if (ex is ApnsNotificationException) {
@@ -125,12 +124,12 @@ namespace R2Core.PushNotifications
 						var apnsNotification = notificationException.Notification;
 						var statusCode = notificationException.ErrorStatusCode;
 
-						Log.e ($"Apple Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
+						Log.e($"Apple Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
 
 					} else {
 
 						// Inner exception might hold more useful information like an ApnsConnectionException           
-						Log.e ($"Apple Notification Failed for some unknown reason : {ex.InnerException}");
+						Log.e($"Apple Notification Failed for some unknown reason : {ex.InnerException}");
 
 					}
 
@@ -150,10 +149,9 @@ namespace R2Core.PushNotifications
 
 		}
 
-		public bool AcceptsNotification (IPushNotification notification)
-		{
+		public bool AcceptsNotification(IPushNotification notification) {
 
-			return (notification.ClientTypeMask & (int)PushNotificationClientType.Apple) > 0;
+			return(notification.ClientTypeMask & (int)PushNotificationClientType.Apple) > 0;
 
 		}
 

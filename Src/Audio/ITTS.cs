@@ -21,13 +21,13 @@ using R2Core.Device;
 
 namespace R2Core.Audio
 {
-	public interface ITTS : IDevice
-	{
-		//void AddObserver (ITTSObserver observer);
-		bool IsQuiet{get; set;}
-		string CurrentText {get;}
+	public interface ITTS : IDevice {
+		
+		bool IsQuiet{ get; set; }
+		string CurrentText { get; }
 		void Say(string text);
 
 	}
+
 }
 

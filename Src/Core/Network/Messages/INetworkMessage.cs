@@ -23,8 +23,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Represents the core features requirements of a network message sent/received by IWebServer or IMessageClient implementations
 	/// </summary>
-	public interface INetworkMessage
-	{
+	public interface INetworkMessage {
 
 		/// <summary>
 		/// Represents a status. See <see cref="WebStatusCode"/> 
@@ -33,7 +32,7 @@ namespace R2Core.Network
 		int Code { get; set; }
 
 		/// <summary>
-		/// A string describing the final destination of the message (i.e. /products/cats/42)
+		/// A string describing the final destination of the message(i.e. /products/cats/42)
 		/// </summary>
 		/// <value>The destination.</value>
 		string Destination { get; set; }
@@ -58,22 +57,8 @@ namespace R2Core.Network.Extensions {
 
 	public static class INetworkMessage {
 
-		public static bool IsPrimitive(this R2Core.Network.INetworkMessage self) {
 
-			return self.Payload is sbyte
-				|| self.Payload is byte
-				|| self.Payload is short
-				|| self.Payload is ushort
-				|| self.Payload is int
-				|| self.Payload is uint
-				|| self.Payload is long
-				|| self.Payload is ulong
-				|| self.Payload is float
-				|| self.Payload is double
-				|| self.Payload is decimal
-				|| self.Payload is string;
 
-		}
 	}
 
 }

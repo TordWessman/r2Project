@@ -27,23 +27,23 @@ namespace R2Core
 	/// The task monitor is a primitive tool used to monitor tasks and to 
 	/// display messages when they crashes
 	/// </summary>
-	public interface ITaskMonitor : IDevice
-	{
+	public interface ITaskMonitor : IDevice {
+		
 		/// <summary>
 		/// Adds a task to be monitored assiciated with an id
 		/// </summary>
 		/// <param name='task'>
 		/// Task to be monitored
 		/// </param>
-		void AddTask (string id, Task task);
+		void AddTask(string id, Task task);
 		
 		/// <summary>
-		/// Adds a ITaskMonitored instance (possibly containing several tasks to monitor)
+		/// Adds a ITaskMonitored instance(possibly containing several tasks to monitor)
 		/// </summary>
 		/// <param name='observer'>
 		/// Observer.
 		/// </param>
-		void AddMonitorable (ITaskMonitored observer);
+		void AddMonitorable(ITaskMonitored observer);
 
 		Task MonitorTask {get;}
 		/// <summary>
@@ -52,7 +52,7 @@ namespace R2Core
 		/// <param name='observer'>
 		/// Observer.
 		/// </param>
-		void RemoveMonitorable (ITaskMonitored observer);
+		void RemoveMonitorable(ITaskMonitored observer);
 
 		void PrintTasks();
 	}

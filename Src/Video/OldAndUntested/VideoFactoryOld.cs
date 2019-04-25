@@ -26,8 +26,7 @@ namespace R2Core.Video
 		private IImageStorage m_storage;
 		private HaarOperations m_haar;
 		
-		public VideoFactoryOld (string id, IImageStorage storage, HaarOperations haar) : base (id)
-		{
+		public VideoFactoryOld(string id, IImageStorage storage, HaarOperations haar) : base(id) {
 			m_storage = storage;
 			m_haar = haar;
 		}
@@ -35,7 +34,7 @@ namespace R2Core.Video
 		/*
 		public IFaceRecognizer CreateFaceRecognizer (string id) {
 
-			throw new NotImplementedException ("This will probably not work");
+			throw new NotImplementedException("This will probably not work");
 			return new FaceRecognizer (	id, 
 			                           	m_storage,
 			                          	m_haar.CreateHaar ("left_eye.xml"),
@@ -44,35 +43,35 @@ namespace R2Core.Video
 			
 		}
 		
-		public ITrackerFactory CreateTrackerFactory (string id) {
+		public ITrackerFactory CreateTrackerFactory(string id) {
 			
-			throw new NotImplementedException ("This will probably not work");
-			return new TrackerFactory (id);
+			throw new NotImplementedException("This will probably not work");
+			return new TrackerFactory(id);
 		}
 
 
 		public IFrameSource CreateWebCam(string id, int width, int height) {
 
-			throw new NotImplementedException ("This will probably not work");
-			return new WebCam (id, width, height);
+			throw new NotImplementedException("This will probably not work");
+			return new WebCam(id, width, height);
 		}
 
 
 		public IFrameSource CreateVideoRouter(string id, string remoteIp, int remotePort, string localIp ) {
 
-			throw new NotImplementedException ("This will probably not work");
+			throw new NotImplementedException("This will probably not work");
 			return new VideoRouter (id, remoteIp, remotePort, localIp);
 		}
 		*/
-		public CvRect CreateRect (int x, int y, int width, int height) {
+		public CvRect CreateRect(int x, int y, int width, int height) {
 
-			return new CvRect () { X = x, Y = y, Width = width, Height = height };
+			return new CvRect() { X = x, Y = y, Width = width, Height = height };
 
 		}
 
 		public HaarOperations CreateHaarOperator(string id, string basePath = null) {
 	
-			return new HaarOperations (id, basePath);
+			return new HaarOperations(id, basePath);
 
 		}
 

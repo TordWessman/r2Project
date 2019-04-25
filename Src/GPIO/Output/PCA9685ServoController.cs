@@ -25,8 +25,7 @@ using R2Core;
 namespace R2Core.GPIO
 {
 	
-	public class PCA9685ServoController : DeviceBase, IServoController
-	{
+	public class PCA9685ServoController : DeviceBase, IServoController {
 	
 		private const string dllPath = "libr2servo.so";
 		
@@ -34,31 +33,28 @@ namespace R2Core.GPIO
    	 	protected static extern void _ext_init_pca9685(int bus, int address, int frequency);
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_set_pwm_pca9685 (int channel, int value);
+		protected static extern void _ext_set_pwm_pca9685(int channel, int value);
 		
-		public PCA9685ServoController (string id, int bus = 1, int address = 0x40, int frequency = 63) : base (id)
-		{
+		public PCA9685ServoController(string id, int bus = 1, int address = 0x40, int frequency = 63) : base(id) {
 
-			Log.t ("GOTOTOTOTOT");
+			Log.t("GOTOTOTOTOT");
 			_ext_init_pca9685(bus, address, frequency);
 		
 		}
 
 		#region IServoController implementation
-		public void Set (int channel, int value)
-		{
+		public void Set(int channel, int value) {
 
 			if (value < 100 || value > 1000) {
 			
-				throw new ArgumentException ("Bad value: " + value + " cannel: " + channel);
+				throw new ArgumentException("Bad value: " + value + " cannel: " + channel);
 			
 			}
 			
 			_ext_set_pwm_pca9685 (channel, value);
 		}
 
-		public IServo CreateServo (string id, int channel)
-		{
+		public IServo CreateServo(string id, int channel) {
 
 			return new CheapBlueServo(id, channel, this);
 		

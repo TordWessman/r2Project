@@ -20,8 +20,8 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	internal class SerialDigitalInput : SerialDeviceBase<bool>, IInputPort
-	{
+	internal class SerialDigitalInput : SerialDeviceBase<bool>, IInputPort {
+		
 		// The I/O port on the device
 		private byte m_port;
 
@@ -35,7 +35,7 @@ namespace R2Core.GPIO
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.DigitalInput; } }
 
-		public bool Value { get { return GetValue (); } }
+		public bool Value { get { return GetValue(); } }
 
 		public void SetTrigger(Func<object> triggerFunc, bool pullUp = false, int interval = 100) {
 			//TODO:

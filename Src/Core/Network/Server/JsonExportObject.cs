@@ -26,7 +26,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Used to pass parsed input json to the IWebObjectReceiver (Currently used since it enables us to expose various ExpandoObject properties to scripts).
 	/// </summary>
-	public class JsonExportObject<T> where T : IDictionary<string, Object> {
+	public class JsonExportObject<T>where T : IDictionary<string, Object> {
 
 		private T m_exportObjectContainer;
 
@@ -44,14 +44,14 @@ namespace R2Core.Network
 
 
 		/// <Docs>The object to locate in the current collection.</Docs>
-		/// <para>Determines whether an object of the internal data type (T) contains a specific value.</para>
+		/// <para>Determines whether an object of the internal data type(T) contains a specific value.</para>
 		/// <summary>
 		/// Returns true if the key was found amon the object's members.
 		/// </summary>
 		/// <param name="key">Key.</param>
 		public bool Contains(string key) {
 
-			return m_exportObjectContainer.ContainsKey (key);
+			return m_exportObjectContainer.ContainsKey(key);
 
 		}
 
@@ -61,7 +61,7 @@ namespace R2Core.Network
 		/// <param name="key">Key.</param>
 		public Object Get(string key) {
 		
-			if (!Contains (key)) {
+			if (!Contains(key)) {
 			
 				return null;
 
@@ -69,7 +69,7 @@ namespace R2Core.Network
 
 			if (m_exportObjectContainer [key] is T) {
 			
-				return new JsonExportObject<T> ((T) m_exportObjectContainer [key]);
+				return new JsonExportObject<T>((T) m_exportObjectContainer [key]);
 
 			} else {
 			

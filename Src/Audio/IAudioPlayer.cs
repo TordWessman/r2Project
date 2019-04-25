@@ -21,8 +21,8 @@ using R2Core.Device;
 
 namespace R2Core.Audio
 {
-	public interface IAudioPlayer : IDevice
-	{
+	public interface IAudioPlayer : IDevice {
+		
 		/// <summary>
 		/// Starts to play the fileName asynchronously
 		/// </summary>

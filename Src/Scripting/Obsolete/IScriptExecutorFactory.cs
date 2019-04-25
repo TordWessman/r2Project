@@ -25,15 +25,13 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// Allows creation of script executors. This can be handly if remote access to scripts on other machines is needed.
 	/// </summary>
-
-	public interface IScriptExecutorFactory : IDevice
-	{
+	public interface IScriptExecutorFactory : IDevice {
 		/// <summary>
 		/// Creates a script using id
 		/// </summary>
 		/// <param name="id">Identifier.</param>
 		/// <param name="scriptId">Script identifier.</param>
-		void Create (string id, string scriptId = null);
+		void Create(string id, string scriptId = null);
 	}
 }
 

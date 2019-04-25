@@ -28,18 +28,17 @@ namespace R2Core
 	/// <summary>
 	/// Represents a dynamic object which implements IDictionary and whose dynamic properties are exposed through the IDictionary interface..
 	/// </summary>
-	public class R2Dynamic: DynamicObject, IDictionary<TKey, TValue> 
-	{
+	public class R2Dynamic : DynamicObject, IDictionary<TKey, TValue> {
 
 		private IDictionary<TKey, TValue> m_members;
 
 		public R2Dynamic(ExpandoObject expandoObject) {
 			
-			m_members = new Dictionary<TKey, TValue> ();
+			m_members = new Dictionary<TKey, TValue>();
 
 			foreach (KeyValuePair<TKey, Object> kvp in (expandoObject as IDictionary<TKey, Object>)) {
 				
-				m_members [kvp.Key] = kvp.Value is ExpandoObject ? new R2Dynamic (kvp.Value as ExpandoObject) : kvp.Value;
+				m_members [kvp.Key] = kvp.Value is ExpandoObject ? new R2Dynamic(kvp.Value as ExpandoObject) : kvp.Value;
 
 			}
 
@@ -51,9 +50,9 @@ namespace R2Core
 
 		}
 
-		public R2Dynamic () {
+		public R2Dynamic() {
 
-			m_members = new Dictionary<TKey, TValue> ();
+			m_members = new Dictionary<TKey, TValue>();
 
 		}
 
@@ -64,20 +63,20 @@ namespace R2Core
 		/// <param name="memberName">Member name.</param>
 		public bool Has(string memberName) {
 
-			return m_members.ContainsKey (memberName) && m_members[memberName] != null;
+			return m_members.ContainsKey(memberName) && m_members[memberName] != null;
 
 		}
 
-		public override bool TrySetMember (SetMemberBinder binder, TValue value) {
+		public override bool TrySetMember(SetMemberBinder binder, TValue value) {
 
-			m_members [binder.Name] = value;
+			m_members[binder.Name] = value;
 			return true;
 
 		}
 
-		public override bool TryGetMember (GetMemberBinder binder, out TValue result) {
+		public override bool TryGetMember(GetMemberBinder binder, out TValue result) {
 
-			result = m_members.ContainsKey (binder.Name) ? m_members [binder.Name] : default(TValue);
+			result = m_members.ContainsKey(binder.Name) ? m_members[binder.Name] : default(TValue);
 			return true;
 
 		}
@@ -103,24 +102,24 @@ namespace R2Core
 		//
 		// Methods
 		//
-		public void Add (TKey key, TValue value) { m_members.Add(key, value); }
+		public void Add(TKey key, TValue value) { m_members.Add(key, value); }
 
-		public bool ContainsKey (TKey key) { return m_members.ContainsKey (key); }
+		public bool ContainsKey(TKey key) { return m_members.ContainsKey(key); }
 
-		public bool Remove (TKey key) { return m_members.Remove (key); }
+		public bool Remove(TKey key) { return m_members.Remove(key); }
 
-		public bool TryGetValue (TKey key, out TValue value) { return m_members.TryGetValue (key, out value); }
+		public bool TryGetValue(TKey key, out TValue value) { return m_members.TryGetValue(key, out value); }
 
 		#endregion
 
 		#region IEnumerable
 
-		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator () {
-			return m_members.GetEnumerator ();
+		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() {
+			return m_members.GetEnumerator();
 		}
 
 		System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
-			return m_members.GetEnumerator ();
+			return m_members.GetEnumerator();
 		}
 
 		#endregion
@@ -141,23 +140,38 @@ namespace R2Core
 		//
 		// Methods
 		//
-		public void Add (KeyValuePair<TKey, TValue> item) { m_members.Add(item); }
+		public void Add(KeyValuePair<TKey, TValue> item) { m_members.Add(item); }
 
-		public void Clear () {
-			m_members.Clear ();
+		public void Clear() {
+			m_members.Clear();
 		}
 
-		public bool Contains (KeyValuePair<TKey, TValue> item) { return m_members.Contains(item); }
+		public bool Contains(KeyValuePair<TKey, TValue> item) { return m_members.Contains(item); }
 
-		public void CopyTo (KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
-			m_members.CopyTo (array, arrayIndex);
+		public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) {
+			m_members.CopyTo(array, arrayIndex);
 		}
 
-		public bool Remove (KeyValuePair<TKey, TValue> item) {
-			return m_members.Remove (item);
+		public bool Remove(KeyValuePair<TKey, TValue> item) {
+			return m_members.Remove(item);
 		}
 
 		#endregion
+
+		public override string ToString() {
+			
+			string dictionary = "";
+
+			foreach (var kvp in m_members) {
+
+				dictionary += $"[{kvp.Key}:{kvp.Value}]";
+
+			}
+
+			return $"[R2Dynamic: {dictionary}]";
+
+		}
+
 	}
 
 }

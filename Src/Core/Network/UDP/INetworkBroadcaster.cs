@@ -26,17 +26,17 @@ namespace R2Core.Network
 	/// <summary>
 	/// Represents a broadcast client, capable of sending INetworkMessages
 	/// </summary>
-	public interface INetworkBroadcaster: IDevice
-	{
+	public interface INetworkBroadcaster : IDevice {
+		
 		/// <summary>
-		/// Will broadcast `message` through the implentation specific medium (i.e. UDP). 
+		/// Will broadcast `message` through the implentation specific medium(i.e. UDP). 
 		/// Waits `timeout` for any response. Upon response, `responseDelegate` is called.
 		/// Returns an unique identifier for the broadcast message sent.
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="timeout">Timeout.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		MessageIdType Broadcast (INetworkMessage message, Action<BroadcastMessage, Exception> responseDelegate = null, int timeout = 2000);
+		MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = 2000);
 
 		/// <summary>
 		/// Contains the task used for broadcast requests

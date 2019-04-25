@@ -25,8 +25,7 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// Device types defined in r2I2CDeviceRouter.h
 	/// </summary>
-	public enum SerialDeviceType: byte
-	{
+	public enum SerialDeviceType : byte {
 		
 		DigitalInput = 0x1,		// Simple digital input
 		DigitalOutput = 0x2,	// Simple digital output
@@ -40,7 +39,7 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// Actions defined in r2I2CDeviceRouter.h
 	/// </summary>
-	public enum SerialActionType: byte {
+	public enum SerialActionType : byte {
 
 		/// <summary>
 		/// Hmm... This must be an error
@@ -88,7 +87,7 @@ namespace R2Core.GPIO
 		IsNodeAvailable = 0x7,
 
 		/// <summary>
-		/// Returns all node Id:s currently connected (the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
+		/// Returns all node Id:s currently connected(the number is limited by MAX_CONTENT_SIZE in r2I2CDeviceRouter.h)
 		/// </summary>
 		GetNodes = 0x8,
 
@@ -119,7 +118,7 @@ namespace R2Core.GPIO
 
 	}
 
-	public enum SerialErrorType: byte {
+	public enum SerialErrorType : byte {
 	
 		// No error status was received, but response indicated an error.
 		Undefined = 0,
@@ -139,7 +138,7 @@ namespace R2Core.GPIO
 		UNKNOWN_ACTION = 7,
 		// DHT11 read error (is it connected)
 		DHT11_READ_ERROR = 8,
-		// The node (during remote communication) was not available.
+		// The node(during remote communication) was not available.
 		RH24_NODE_NOT_AVAILABLE = 9,
 		// Whenever a read did not return the expected size
 		RH24_BAD_SIZE_READ = 10,
@@ -180,7 +179,7 @@ namespace R2Core.GPIO
 		bool IsError { get; }
 
 		/// <summary>
-		/// Returns the error type of the response (or Undefined if no error was received).
+		/// Returns the error type of the response(or Undefined if no error was received).
 		/// </summary>
 		/// <value>The error.</value>
 		SerialErrorType Error { get; }
@@ -200,7 +199,7 @@ namespace R2Core.GPIO
 	}
 
 	/// <summary>
-	/// Response message from node. Besides response data, it contains helper functionality for evaluating the result of an operation (Value) and error-information.
+	/// Response message from node. Besides response data, it contains helper functionality for evaluating the result of an operation(Value) and error-information.
 	/// The type ´T´ should normally be an array of either int[] (normal values, for sensors) or byte[] (everything else).
 	/// </summary>
 	public struct DeviceResponsePackage<T> : IDeviceResponsePackageErrorInformation {
@@ -217,10 +216,10 @@ namespace R2Core.GPIO
 		// Action required by node.
 		public SerialActionType Action;
 
-		// Id of an affected device on node. A node have a limited range of id:s (i.e. 0-19).
+		// Id of an affected device on node. A node have a limited range of id:s(i.e. 0-19).
 		public byte Id;
 
-		// Contains the response data (value, error message or null).
+		// Contains the response data(value, error message or null).
 		public byte[] Content;
 
 		// The number of int16 returned from node upon a ActionType.Get request.
@@ -246,7 +245,7 @@ namespace R2Core.GPIO
 		
 				if (IsError) {
 
-					return (Content?.Length ?? 0) > 0 ? (SerialErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : SerialErrorType.Undefined;
+					return(Content?.Length ?? 0) > 0 ? (SerialErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : SerialErrorType.Undefined;
 
 				} else  { return SerialErrorType.Undefined; }
 
@@ -265,7 +264,7 @@ namespace R2Core.GPIO
 
 				}
 
-				return info.ToString ();
+				return info.ToString();
 			}
 
 		}
@@ -280,23 +279,23 @@ namespace R2Core.GPIO
 			
 				if (typeof(T) == typeof(bool)) {
 					
-					return (T)(object)(Content [0] > 0);
+					return(T)(object)(Content [0] > 0);
 	
 				} else if (typeof(T) == typeof(int[])) {
 						
 					int[] values = new int[NUMBER_OF_RETURN_VALUES];
 
-					for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt (i * 2, 2); }
+					for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt(i * 2, 2); }
 
-					return (T)(object)values;
+					return(T)(object)values;
 
 				} else if (typeof(T) != typeof(byte[])) {
 				
-					throw new InvalidCastException ($"Expected type constraint T to be of type ´byte[], bool, int or byte´, but was ´{typeof(T)}´."); 
+					throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int or byte´, but was ´{typeof(T)}´."); 
 
 				}
 
-				return (T)(object)Content;
+				return(T)(object)Content;
 			
 			}
 		
@@ -305,7 +304,7 @@ namespace R2Core.GPIO
 	}
 
 	/// <summary>
-	/// Represents a request sent to a node (for creating a device, getting a value etc).
+	/// Represents a request sent to a node(for creating a device, getting a value etc).
 	/// </summary>
 	[StructLayout(LayoutKind.Sequential, Pack=1)]
 	public struct DeviceRequestPackage {
@@ -321,7 +320,7 @@ namespace R2Core.GPIO
 		public SerialActionType Action;
 
 		/// <summary>
-		/// Id of an affected device on the node. A node have a limited range of id:s (i.e. 0-19).
+		/// Id of an affected device on the node. A node have a limited range of id:s(i.e. 0-19).
 		/// </summary>
 		public byte Id;
 

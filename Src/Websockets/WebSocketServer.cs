@@ -40,7 +40,7 @@ namespace R2Core.Network
 			
 			m_senders = senders;
 			m_packageFactory = packageFactory;
-			m_senders?.AsParallel ().ForAll (s => s.Delegate = this);
+			m_senders?.AsParallel().ForAll(s => s.Delegate = this);
 			m_endpoint = endpoint;
 
 		}
@@ -54,12 +54,11 @@ namespace R2Core.Network
 		public void AddSender(IWebSocketSender sender) {
 		
 			sender.Delegate = this;
-			//m_senders.Add (sender);
+			//m_senders.Add(sender);
 
 		}
 
-		protected override void OnMessage (MessageEventArgs e)
-		{
+		protected override void OnMessage(MessageEventArgs e) {
 			
 			if (m_endpoint != null) {
 
@@ -69,16 +68,16 @@ namespace R2Core.Network
 					INetworkMessage request = m_packageFactory.DeserializePackage(e.RawData);
 				
 
-					//TODO: Fix Web socket server. Should use packetization (Requests should be serialized with headers, uri etc). 
+					//TODO: Fix Web socket server. Should use packetization(Requests should be serialized with headers, uri etc). 
 
-					//Interpret response. No metadata is provided (and thus null).
-					INetworkMessage response = m_endpoint.Interpret (request, e.);
+					//Interpret response. No metadata is provided(and thus null).
+					INetworkMessage response = m_endpoint.Interpret(request, e.);
 
 					if (response != null && response.Length > 0) {
 
 						if (this.State == WebSocketState.Open) {
 
-							Send (response);
+							Send(response);
 
 						}
 
@@ -86,7 +85,7 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					R2Core.Log.x (ex);
+					R2Core.Log.x(ex);
 
 				}
 
@@ -94,23 +93,21 @@ namespace R2Core.Network
 
 		}
 
-		protected override void OnClose (CloseEventArgs e)
-		{
-			R2Core.Log.d ("Web socket: OnClose");
+		protected override void OnClose(CloseEventArgs e) {
+			R2Core.Log.d("Web socket: OnClose");
 
-			//Sessions.Broadcast (String.Format ("{0} got logged off...", _name));
+			//Sessions.Broadcast(String.Format("{0} got logged off...", _name));
 		}
 
-		protected override void OnOpen ()
-		{
-			R2Core.Log.d ("Web socket: OnOpen");
+		protected override void OnOpen() {
+			R2Core.Log.d("Web socket: OnOpen");
 		}
 
-		public void OnSend (byte[] data) {
+		public void OnSend(byte[] data) {
 		
 			if (this.State == WebSocketState.Open) {
 			
-				Send (data);
+				Send(data);
 
 			}
 
@@ -118,7 +115,7 @@ namespace R2Core.Network
 
 	}
 
-	public class WebSocketServer: DeviceBase, IWebSocketServer
+	public class WebSocketServer : DeviceBase, IWebSocketServer
 	{
 		private WebSocketSharp.Server.WebSocketServer m_server;
 		//private IDictionary<string,WebSocketHandler> m_handlers;
@@ -126,15 +123,15 @@ namespace R2Core.Network
 		private IDictionary<string, IList<IWebSocketSender>> m_senders;
 		private ITCPPackageFactory<TCPMessage> m_packageFactory;
 
-		public WebSocketServer (string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base (id) {
+		public WebSocketServer(string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id) {
 
-			throw new NotImplementedException ("Web socket server is broken");
+			throw new NotImplementedException("Web socket server is broken");
 			m_packageFactory = packageFactory;
-			m_server = new WebSocketSharp.Server.WebSocketServer (port);
+			m_server = new WebSocketSharp.Server.WebSocketServer(port);
 
 			m_server.KeepClean = true;
-			m_endpoints = new Dictionary<string, IWebEndpoint> ();
-			m_senders = new Dictionary<string, IList<IWebSocketSender>> ();
+			m_endpoints = new Dictionary<string, IWebEndpoint>();
+			m_senders = new Dictionary<string, IList<IWebSocketSender>>();
 
 			m_server.Log.Level = LogLevel.Trace;
 
@@ -142,17 +139,16 @@ namespace R2Core.Network
 
 		public override void Start() {
 		
-			m_server.Start ();
+			m_server.Start();
 
 		}
 
-		public override void Stop ()
-		{
-			m_server.Stop ();
+		public override void Stop() {
+			m_server.Stop();
 		}
 
 		public int Port { get { return m_server.Port; } }
-		public IEnumerable<string> Addresses { get { throw new NotImplementedException ("Web socket server is broken"); } }
+		public IEnumerable<string> Addresses { get { throw new NotImplementedException("Web socket server is broken"); } }
 
 		public override bool Ready { get { return m_server.IsListening; } }
 
@@ -167,7 +163,7 @@ namespace R2Core.Network
 
 		public void AddEndpoint(IWebEndpoint interpreter) {
 
-			m_server.RemoveWebSocketService (interpreter.UriPath);
+			m_server.RemoveWebSocketService(interpreter.UriPath);
 
 			m_endpoints [interpreter.UriPath] = interpreter;
 
@@ -177,15 +173,15 @@ namespace R2Core.Network
 
 		public void AddSender(IWebSocketSender sender) {
 
-			m_server.RemoveWebSocketService (sender.UriPath);
+			m_server.RemoveWebSocketService(sender.UriPath);
 
-			if (!m_senders.ContainsKey (sender.UriPath)) {
+			if (!m_senders.ContainsKey(sender.UriPath)) {
 
 				m_senders.Add(sender.UriPath, new List<IWebSocketSender>());
 
 			}
 
-			m_senders [sender.UriPath].Add (sender);
+			m_senders [sender.UriPath].Add(sender);
 
 			m_server.AddWebSocketService<WebSocketHandler> (sender.UriPath, delegate() { return CreateWebSocketHandler(sender.UriPath); });
 

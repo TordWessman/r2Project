@@ -76,10 +76,6 @@
     <Compile Include="Network\Http\HttpServer.cs" />
     <Compile Include="Network\Messages\DeviceRequest.cs" />
     <Compile Include="Network\Messages\INetworkMessage.cs" />
-    <Compile Include="Network\Messages\JsonAddRecordMessage.cs" />
-    <Compile Include="Network\Messages\JsonBaseMessage.cs" />
-    <Compile Include="Network\Messages\JsonMessageFactory.cs" />
-    <Compile Include="Network\Messages\JsonRegisterMessage.cs" />
     <Compile Include="Network\Messages\NetworkMessage.cs" />
     <Compile Include="Network\Messages\WebErrorMessage.cs" />
     <Compile Include="Network\TCP\ITCPPackageFactory.cs" />
@@ -88,7 +84,6 @@
     <Compile Include="Network\TCP\TCPMessage.cs" />
     <Compile Include="Network\TCP\TCPPackageFactory.cs" />
     <Compile Include="Network\TCP\TCPServer.cs" />
-    <Compile Include="Network\UDP\BroadcastMessage.cs" />
     <Compile Include="Network\UDP\INetworkBroadcaster.cs" />
     <Compile Include="Network\UDP\UDPBroadcaster.cs" />
     <Compile Include="Network\UDP\UDPServer.cs" />
@@ -97,7 +92,6 @@
     <Compile Include="Network\WebFactory.cs" />
     <Compile Include="Network\WebStatusCode.cs" />
     <Compile Include="Network\Server\DeviceRouter.cs" />
-    <Compile Include="Network\Server\IHostConnection.cs" />
     <Compile Include="Network\Server\IServer.cs" />
     <Compile Include="Network\Server\IWebEndpoint.cs" />
     <Compile Include="Network\Server\IWebIntermediate.cs" />
@@ -124,6 +118,17 @@
     <Compile Include="Shared\IInvokable.cs" />
     <Compile Include="Network\NetworkException.cs" />
     <Compile Include="Network\Server\HostSynchronizer.cs" />
+    <Compile Include="Extensions\NetworkExtensions.cs" />
+    <Compile Include="Network\Messages\PingMessage.cs" />
+    <Compile Include="Network\Client\PingService.cs" />
+    <Compile Include="Network\Client\INetworkConnection.cs" />
+    <Compile Include="Network\Messages\BroadcastMessage.cs" />
+    <Compile Include="Network\Messages\NetworkErrorMessage.cs" />
+    <Compile Include="Extensions\NetworkMessageExtensions.cs" />
+    <Compile Include="Extensions\StreamExtensions.cs" />
+    <Compile Include="Settings\Shared.cs">
+      <DependentUpon>Shared.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

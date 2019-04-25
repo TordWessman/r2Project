@@ -20,8 +20,7 @@ using System;
 
 namespace R2Core.Network
 {
-	public interface IWebSocketServer: IServer
-	{
+	public interface IWebSocketServer : IServer {
 
 		/// <summary>
 		/// Adds a sender capable of transmitting data to clients.

@@ -27,7 +27,7 @@ namespace R2Core.DataManagement.Memory
 		/// Creates a new memory using reference.
 		/// </summary>
 		/// <param name="reference">Reference.</param>
-		void Create (IMemoryReference reference);
+		void Create(IMemoryReference reference);
 
 		/// <summary>
 		/// Returns a list of memories.
@@ -39,7 +39,7 @@ namespace R2Core.DataManagement.Memory
 		/// Returns the memories with reference ids.
 		/// </summary>
 		/// <param name="id">Identifier.</param>
-		System.Collections.Generic.ICollection<IMemoryReference> Get (int[] ids);
+		System.Collections.Generic.ICollection<IMemoryReference> Get(int[] ids);
 
 		/// <summary>
 		/// Updates the reference's name and type. Returns true if the reference was updated.
@@ -51,7 +51,7 @@ namespace R2Core.DataManagement.Memory
 		/// Returns everything...
 		/// </summary>
 		/// <returns>The all.</returns>
-		System.Collections.Generic.ICollection<IMemoryReference> LoadAll ();
+		System.Collections.Generic.ICollection<IMemoryReference> LoadAll();
 
 		/// <summary>
 		/// Deletes a memory using reference. Returns true if a memory was deleted.

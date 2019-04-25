@@ -25,8 +25,8 @@ namespace R2Core.Network
 	/// Interprets data input and returns a decoded response.
 	/// sent back to the client
 	/// </summary>
-	public interface IWebEndpoint
-	{
+	public interface IWebEndpoint {
+		
 		/// <summary>
 		/// Interprets inputData and returns an intermediate object. This object should not have a serialized payload, since serialization is performed by the server.
 		/// </summary>

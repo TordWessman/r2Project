@@ -30,8 +30,7 @@ namespace R2Core.GPIO
 		private ProcessorPin m_pin;
 		private IGpioConnectionDriver m_driver;
 
-		public OutputPort2 (string id, ConnectorPin pin, IGpioConnectionDriver driver = null) : base(id)
-		{
+		public OutputPort2(string id, ConnectorPin pin, IGpioConnectionDriver driver = null) : base(id) {
 			
 			m_pin = pin.ToProcessor();
 			m_driver = driver ?? GpioConnectionSettings.DefaultDriver;
@@ -53,7 +52,7 @@ namespace R2Core.GPIO
 
 		public void Set(bool value) {
 		
-			m_driver.Write (m_pin, value);
+			m_driver.Write(m_pin, value);
 
 		}
 

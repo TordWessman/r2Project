@@ -38,7 +38,7 @@ namespace R2Core.DataManagement.Memory
 		/// Returns the first occurrence of the memory of type.
 		/// </summary>
 		/// <param name="type">Type.</param>
-		IMemory Get (MemoryType type);
+		IMemory Get(MemoryType type);
 
 		/// <summary>
 		/// Get the specified IMemory by providing the id.
@@ -46,13 +46,13 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='memoryId'>
 		/// Memory identifier.
 		/// </param>
-		IMemory Get (int memoryId);
+		IMemory Get(int memoryId);
 
 		/// <summary>
 		/// Returns a collection of memories matching the provided id's
 		/// </summary>
 		/// <param name="memoryIds">Memory identifiers.</param>
-		ICollection<IMemory> Get (int[] memoryIds);
+		ICollection<IMemory> Get(int[] memoryIds);
 
 		/// <summary>
 		/// Returns a collection of memories of the specified type or
@@ -65,7 +65,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='type'>
 		/// Type.
 		/// </param>
-		ICollection<IMemory> All (MemoryType type = null);
+		ICollection<IMemory> All(MemoryType type = null);
 
 		/// <summary>
 		/// Returns the associations of a specified memory reference or
@@ -77,7 +77,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='memory'>
 		/// Reference.
 		/// </param>
-		ICollection<IMemory> GetAssociations (IMemory memory);
+		ICollection<IMemory> GetAssociations(IMemory memory);
 		
 		/// <summary>
 		/// Creates a new memory and returns it. Saves it in the local
@@ -93,7 +93,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='name'>
 		/// Name.
 		/// </param>
-		IMemory Create (MemoryType type, string name);
+		IMemory Create(MemoryType type, string name);
 
 		/// <summary>
 		/// Delete the specified memory locally and it's
@@ -102,8 +102,8 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='memory'>
 		/// Memory.
 		/// </param>
-		bool Delete (int memoryId);
-		bool Delete (IMemory memory);
+		bool Delete(int memoryId);
+		bool Delete(IMemory memory);
 
 		/// <summary>
 		/// Update the specified memory.
@@ -112,7 +112,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='memory'>
 		/// Memory.
 		/// </param>
-		bool Update (IMemory memory);
+		bool Update(IMemory memory);
 
 		/// <summary>
 		/// Associate the two memories.
@@ -125,7 +125,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='two'>
 		/// Two.
 		/// </param>
-		void Associate (IMemory one, IMemory two);
+		void Associate(IMemory one, IMemory two);
 
 	}
 

@@ -21,7 +21,7 @@ namespace R2Core.Device
 {
 	/// <summary>
 	/// ASR controller.
-	/// Used to controll an ASR instance (ie remotely)
+	/// Used to controll an ASR instance(ie remotely)
 	/// </summary>
 	public interface IASRController : IDevice
 	{
@@ -35,7 +35,7 @@ namespace R2Core.Device
 		/// transcribed text
 		/// Active.
 		/// </param>
-		void SetActive (bool active);
+		void SetActive(bool active);
 	}
 }
 

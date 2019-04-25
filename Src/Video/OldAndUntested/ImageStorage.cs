@@ -49,7 +49,7 @@ namespace R2Core.Video
 		protected static extern void _ext_create_dump(string filename,  System.IntPtr image);
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern System.IntPtr _ext_load_image (string filename);
+		protected static extern System.IntPtr _ext_load_image(string filename);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern void _ext_release_ipl_image(System.IntPtr image);
@@ -58,62 +58,58 @@ namespace R2Core.Video
 		protected static extern int _ext_get_image_width (System.IntPtr image);
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_get_image_height (System.IntPtr image);
+		protected static extern int _ext_get_image_height(System.IntPtr image);
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern System.IntPtr _ext_create_32_bit_image (System.IntPtr image);
+		protected static extern System.IntPtr _ext_create_32_bit_image(System.IntPtr image);
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern System.IntPtr _ext_get_bitmap (System.IntPtr image);
+		protected static extern System.IntPtr _ext_get_bitmap(System.IntPtr image);
 		
 		public override bool Ready { get { return m_memory != null && m_memory.Ready;}}
 		
-		public ImageStorage (string id, IMemorySource memory, string basePath) : base (id)
-		{
+		public ImageStorage(string id, IMemorySource memory, string basePath) : base(id) {
 			m_basePath = basePath;
 			m_memory = memory;
-			m_loadedImages = new List<IplImage> ();
+			m_loadedImages = new List<IplImage>();
 		}
 		
-		~ImageStorage ()
-		{
+		~ImageStorage() {
 			foreach (IplImage image in m_loadedImages) {
-				_ext_release_ipl_image (image.Ptr);
+				_ext_release_ipl_image(image.Ptr);
 			}
 		}
 		
-		public void Delete (IMemory memory)
-		{
+		public void Delete(IMemory memory) {
 			string fileName = null;
 			if (memory.Type == 
-				FaceRecognitionMemoryTypes.Model.ToString ().ToLower ()) {
-				fileName = GetModelFileName (memory);
-			} else if (memory.Type == ImageTypes.Face.ToString ().ToLower ()) {
-				fileName = GetImageFileName (memory);
+				FaceRecognitionMemoryTypes.Model.ToString().ToLower ()) {
+				fileName = GetModelFileName(memory);
+			} else if (memory.Type == ImageTypes.Face.ToString().ToLower ()) {
+				fileName = GetImageFileName(memory);
 			} else {
-				throw new ArgumentException ("Invalid memory for image deletion. Type: " + memory.Type.ToString () +
+				throw new ArgumentException("Invalid memory for image deletion. Type: " + memory.Type.ToString() +
 					"id: " + memory.Id
 				);
 				                         
 			}
 			
-			Log.t ("TAR BORT: " + fileName + " type: "  + memory.Type );
-			System.IO.File.Delete (fileName);
-			m_memory.Delete (memory.Id);
+			Log.t("TAR BORT: " + fileName + " type: "  + memory.Type );
+			System.IO.File.Delete(fileName);
+			m_memory.Delete(memory.Id);
 		}
 		
 		
-		public void Delete (params int[] memoryIds)
-		{
+		public void Delete(params int[] memoryIds) {
 			
 			foreach (int memoryId in memoryIds) {
 
-				IMemory memory = m_memory.Get (memoryId);
+				IMemory memory = m_memory.Get(memoryId);
 			
 				if (memory == null) {
-					Log.w ("Memory id provided did not exist: " + memoryId);
+					Log.w("Memory id provided did not exist: " + memoryId);
 				} else {
-					Delete (memory);
+					Delete(memory);
 				}
 			
 				
@@ -121,129 +117,117 @@ namespace R2Core.Video
 			
 		}
 		
-		public IMemory Save (IplImage image, string type, IMemory parent)
-		{
+		public IMemory Save(IplImage image, string type, IMemory parent) {
 
-			IMemory memory = m_memory.Create (type.ToLower (), parent.Value);
+			IMemory memory = m_memory.Create(type.ToLower (), parent.Value);
 			
-			_ext_create_dump (GetImageFileName (memory), image.Ptr);
+			_ext_create_dump(GetImageFileName(memory), image.Ptr);
 			
 			return memory;
 		}
-//		public IMemory Save (CaptureObject captureObject, ImageTypes type)
+//		public IMemory Save(CaptureObject captureObject, ImageTypes type)
 //		{
 //
-//			IMemory memory = m_memory.Create (type.ToString ().ToLower (), IMAGE_MEMORY_TYPE);
+//			IMemory memory = m_memory.Create(type.ToString().ToLower (), IMAGE_MEMORY_TYPE);
 //			
-//			_ext_create_dump (GetImageFileName (memory), captureObject.captured_image);
+//			_ext_create_dump(GetImageFileName(memory), captureObject.captured_image);
 //			
 //			return memory;
 //		}
 		
 
-		public IMemory Save (IFrameSource source)
-		{
-			IMemory memory = m_memory.Create (ImageTypes.Frame.ToString ().ToLower (), IMAGE_MEMORY_TYPE);	
+		public IMemory Save(IFrameSource source) {
+			IMemory memory = m_memory.Create(ImageTypes.Frame.ToString().ToLower (), IMAGE_MEMORY_TYPE);	
 			
-			_ext_create_dump (GetImageFileName (memory), source.CurrentFrame.Ptr);
+			_ext_create_dump(GetImageFileName(memory), source.CurrentFrame.Ptr);
 
 			return memory;
 		}
 		
-		public void SaveDump (IplImage image, string fileName)
-		{
-			_ext_create_dump (fileName, image.Ptr);
+		public void SaveDump(IplImage image, string fileName) {
+			_ext_create_dump(fileName, image.Ptr);
 		}
 		
 
 		#region IImagePointerManager implementation
-		public IplImage LoadImage (IMemory memory)
-		{
+		public IplImage LoadImage(IMemory memory) {
 			
-			IplImage image = LoadImage (GetImageFileName (memory));
+			IplImage image = LoadImage(GetImageFileName(memory));
 			
 			return image;
 		}
 		
-		public void ReleaseImage (IplImage image)
-		{
-			_ext_release_ipl_image (image.Ptr);
+		public void ReleaseImage(IplImage image) {
+			_ext_release_ipl_image(image.Ptr);
 		}
 		
 		#endregion
-		public IplImage LoadImage (string fileName)
-		{
-			if (!System.IO.File.Exists (fileName)) {
-				throw new System.IO.FileNotFoundException ("Unable to load file: " + fileName + ". Does it exist?");
+		public IplImage LoadImage(string fileName) {
+			if (!System.IO.File.Exists(fileName)) {
+				throw new System.IO.FileNotFoundException("Unable to load file: " + fileName + ". Does it exist?");
 			}
 			
-			IplImage image = new IplImage( _ext_load_image (fileName));
-			m_loadedImages.Add (image);
+			IplImage image = new IplImage( _ext_load_image(fileName));
+			m_loadedImages.Add(image);
 			
 			return image;
 		}
 		
-		public IMemory UpdateFaceRecognitionMemory (ref IMemory modelMemory, int algorithmType)
-		{
-			m_memory.Delete (modelMemory.Id);
+		public IMemory UpdateFaceRecognitionMemory(ref IMemory modelMemory, int algorithmType) {
+			m_memory.Delete(modelMemory.Id);
 
 			modelMemory = null;
 
-			return CreateFaceRecognitionMemory (algorithmType);
+			return CreateFaceRecognitionMemory(algorithmType);
 		}
 		
-		public IMemory CreateFaceRecognitionMemory (int algorithmType)
-		{
-			return m_memory.Create (
-					FaceRecognitionMemoryTypes.Model.ToString ().ToLower (),
+		public IMemory CreateFaceRecognitionMemory(int algorithmType) {
+			return m_memory.Create(
+					FaceRecognitionMemoryTypes.Model.ToString().ToLower (),
 					algorithmType.ToString());
 		}
 		
 		
-		private string GetBasePath (IMemory memory)
-		{
+		private string GetBasePath (IMemory memory) {
 			string path = m_basePath + Path.DirectorySeparatorChar +
 				memory.Type;
 			
-			if (!Directory.Exists (path)) {
-				Directory.CreateDirectory (path);
+			if (!Directory.Exists(path)) {
+				Directory.CreateDirectory(path);
 			}
 			
 			return path += Path.DirectorySeparatorChar;
 		}
 
 		
-		public string GetImageFileName (IMemory memory)
-		{
+		public string GetImageFileName(IMemory memory) {
 			string path = GetBasePath (memory) + memory.Value;
 			
-			if (!Directory.Exists (path)) {
-				Directory.CreateDirectory (path);
+			if (!Directory.Exists(path)) {
+				Directory.CreateDirectory(path);
 			}
 
 			return path + Path.DirectorySeparatorChar +
 				memory.Id + IMAGE_EXTENSION;
 		}
 		
-		public string GetModelFileName (IMemory memory)
-		{
+		public string GetModelFileName(IMemory memory) {
 			if (memory.Type != "model") {
-				throw new ArgumentException ("Memory provided is not a model");
+				throw new ArgumentException("Memory provided is not a model");
 			}
 			
-			IMemory nameMemory = memory.GetAssociation ("name");
+			IMemory nameMemory = memory.GetAssociation("name");
 			
 			return GetBasePath (memory) + nameMemory.Value + MODEL_EXTENSION;
 			
 
 		}
 		
-		public Bitmap CreateBitmap (IplImage image)
-		{
+		public Bitmap CreateBitmap(IplImage image) {
 			int width = _ext_get_image_width (image.Ptr);
-			int height = _ext_get_image_height (image.Ptr);
+			int height = _ext_get_image_height(image.Ptr);
 			
-			return new Bitmap (
+			return new Bitmap(
 					
 				    width,
 				                       height,
@@ -252,17 +236,15 @@ namespace R2Core.Video
 				_ext_get_bitmap(image.Ptr));
 		}
 
-		public IplImage Create32BitImage (IplImage image)
-		{
-			return new IplImage(_ext_create_32_bit_image (image.Ptr));
+		public IplImage Create32BitImage(IplImage image) {
+			return new IplImage(_ext_create_32_bit_image(image.Ptr));
 		}
 		
 		
-		public byte[] ImageToByte (Image img, string format_string = "png")
-		{
+		public byte[] ImageToByte(Image img, string format_string = "png") {
 			
 			//ImageConverter converter = new ImageConverter();
-			//return (byte[])converter.ConvertTo(img, typeof(byte[]));
+			//return(byte[])converter.ConvertTo(img, typeof(byte[]));
 			
 			System.Drawing.Imaging.ImageFormat format = System.Drawing.Imaging.ImageFormat.Png;
 			
@@ -276,16 +258,16 @@ namespace R2Core.Video
 				format = System.Drawing.Imaging.ImageFormat.MemoryBmp;
 			}
 			
-			//img.Save ("hej." + format_string, format);
+			//img.Save("hej." + format_string, format);
 			
 			byte[] byteArray = new byte[0];
-			using (MemoryStream stream = new MemoryStream()) {
-				img.Save (stream, format);
-				stream.Close ();
+			using(MemoryStream stream = new MemoryStream()) {
+				img.Save(stream, format);
+				stream.Close();
 
-				byteArray = stream.ToArray ();
+				byteArray = stream.ToArray();
 			}
-			//Log.d ("Length: " + byteArray.Length);
+			//Log.d("Length: " + byteArray.Length);
 			return byteArray;
 		}
 	}

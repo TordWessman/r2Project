@@ -22,8 +22,7 @@ using R2Core.Device;
 namespace R2Core.Common
 {
 	
-	public interface IRunLoop : IDevice
-	{
+	public interface IRunLoop : IDevice {
 	}
 }
 

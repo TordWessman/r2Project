@@ -40,14 +40,11 @@ namespace R2Core.Audio.ASR
 		
 		private string m_xmlFileName;
 		
-		public UglyLanguageUpdater (string id, string xmlFileName, string outputPath) : base (id)
-		{
+		public UglyLanguageUpdater(string id, string xmlFileName, string outputPath) : base(id) {
 		
 			m_modelCreator = new SphinxModelCreator (outputPath);
-			
 			m_xmlFileName = xmlFileName;
 
-			
 		}
 		
 		public override bool Ready {
@@ -60,93 +57,88 @@ namespace R2Core.Audio.ASR
 				return m_modelCreator.BasePath;
 			}}
 		
-		public void AddObserver (ILanguageUpdated observer)
-		{
+		public void AddObserver(ILanguageUpdated observer) {
 			m_modelCreator.AddObserver (observer);
 		}
 		
 		
-		public Task UpdateAsync ()
-		{
-			CreateCorpusFromLanguageFile (m_xmlFileName, CORPUS_FILE_NAME, WORDS_FILE_NAME);
+		public Task UpdateAsync() {
+			CreateCorpusFromLanguageFile(m_xmlFileName, CORPUS_FILE_NAME, WORDS_FILE_NAME);
 			
-			return m_modelCreator.UpdateAsync (CORPUS_FILE_NAME);
+			return m_modelCreator.UpdateAsync(CORPUS_FILE_NAME);
 		}
 		
-		private void CreateCorpusFromLanguageFile (string sourceFileName, string corpusFileName, string wordsFileName)
-		{
+		private void CreateCorpusFromLanguageFile(string sourceFileName, string corpusFileName, string wordsFileName) {
 		
-			if (!File.Exists (sourceFileName)) {
-				throw new InvalidOperationException ("Source XML-file does not exist: " + sourceFileName);
+			if (!File.Exists(sourceFileName)) {
+				throw new InvalidOperationException("Source XML-file does not exist: " + sourceFileName);
 			}
 			
-			XPathDocument source = new XPathDocument (sourceFileName);
+			XPathDocument source = new XPathDocument(sourceFileName);
 			
-			List<string> output = new List<string> ();
-			List<string> words = new List<string> ();
+			List<string> output = new List<string>();
+			List<string> words = new List<string>();
 			
-			XPathNodeIterator inputIterator = source.CreateNavigator ().Select ("//q | //command");
+			XPathNodeIterator inputIterator = source.CreateNavigator ().Select("//q | //command");
 			
-			while (inputIterator.MoveNext()) {
+			while(inputIterator.MoveNext()) {
 				//remove everything that is not letters or spaces
-				string line = new Regex (@"[^a-z\s\']+").Replace (inputIterator.Current.Value.ToLower ().Trim (), "");
-				//adding lines to comprhends (sentences or words);
-				output.Add (line);
+				string line = new Regex(@"[^a-z\s\']+").Replace(inputIterator.Current.Value.ToLower ().Trim(), "");
+				//adding lines to comprhends(sentences or words);
+				output.Add(line);
 				foreach (string word in new Regex(@"[\s]+").Split(line))
-					if (!words.Contains (word))
-						words.Add (word);
+					if (!words.Contains(word))
+						words.Add(word);
 			}
 			
-			words.Sort ();
+			words.Sort();
 			
-			m_modelCreator.CreateLanguageFiles (output, corpusFileName, wordsFileName);
+			m_modelCreator.CreateLanguageFiles(output, corpusFileName, wordsFileName);
 		}
 		
-		public void InsertCommands (IList<string> commands)
-		{
+		public void InsertCommands(IList<string> commands) {
 				
 			if (!Ready) {
-				throw new InvalidOperationException ("Unable to update language data. Update of some kind in progress.");
+				throw new InvalidOperationException("Unable to update language data. Update of some kind in progress.");
 			}
 
 			XmlTextReader reader = new XmlTextReader (m_xmlFileName);
-			XmlDocument doc = new XmlDocument ();
-			doc.Load (reader);
-			reader.Close ();
+			XmlDocument doc = new XmlDocument();
+			doc.Load(reader);
+			reader.Close();
 	
 			foreach (string question in commands) {
-				XPathNodeIterator paragraphIterator = doc.CreateNavigator ().Select ("//commands/command");
+				XPathNodeIterator paragraphIterator = doc.CreateNavigator ().Select("//commands/command");
 				
-				while (paragraphIterator.MoveNext()) {
-					if (HasQuestion (paragraphIterator.Current, question)) {
+				while(paragraphIterator.MoveNext()) {
+					if (HasQuestion(paragraphIterator.Current, question)) {
 						
-						Console.WriteLine ("question alrready found: " + question);
+						Console.WriteLine("question alrready found: " + question);
 
 					} else {
-						doc.CreateNavigator ().SelectSingleNode ("//commands").AppendChild ("<command>" + question + "</command>");
+						doc.CreateNavigator ().SelectSingleNode("//commands").AppendChild("<command>" + question + "</command>");
 
 					}
 				}
 			}
 		
-			doc.Save (m_xmlFileName);
+			doc.Save(m_xmlFileName);
 	
 
 			
 		}
 
 		
-		public void InsertQuestionsAnswers (IList<string> questions, IList<string> answers)
-		{
+		public void InsertQuestionsAnswers(IList<string> questions, IList<string> answers) {
 				
 			if (!m_modelCreator.Ready) {
-				throw new InvalidOperationException ("Unable to update language data. Update of some kind in progress.");
+				throw new InvalidOperationException("Unable to update language data. Update of some kind in progress.");
 			}
 
 			XmlTextReader reader = new XmlTextReader (m_xmlFileName);
-			XmlDocument doc = new XmlDocument ();
-			doc.Load (reader);
-			reader.Close ();
+			XmlDocument doc = new XmlDocument();
+			doc.Load(reader);
+			reader.Close();
 			
 			bool foundQuestion = false;
 			
@@ -154,7 +146,7 @@ namespace R2Core.Audio.ASR
 			{
 				XPathNodeIterator paragraphIterator = doc.CreateNavigator().Select("//speech/p");
 				
-				while (paragraphIterator.MoveNext())
+				while(paragraphIterator.MoveNext())
 				{
 					if (HasQuestion(paragraphIterator.Current, question)) 
 					{
@@ -184,7 +176,7 @@ namespace R2Core.Audio.ASR
 				
 				doc.CreateNavigator().SelectSingleNode("//speech").AppendChild("<p>" + newP.InnerXml + "</p>");
 				
-				doc.Save (m_xmlFileName);
+				doc.Save(m_xmlFileName);
 
 			}
 
@@ -197,7 +189,7 @@ namespace R2Core.Audio.ASR
 			question = question.ToLower();
 			
 			XPathNodeIterator questionIterator = (XPathNodeIterator) questionNode.Select("q");
-			while (questionIterator.MoveNext())
+			while(questionIterator.MoveNext())
 				if (((string)questionIterator.Current.Value).ToLower() == question)
 					return true;
 			

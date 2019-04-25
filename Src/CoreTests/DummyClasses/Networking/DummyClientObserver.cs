@@ -18,6 +18,7 @@
 //
 using System;
 using R2Core.Network;
+using NUnit.Framework;
 
 namespace R2Core.Tests
 {
@@ -29,6 +30,8 @@ namespace R2Core.Tests
 		public bool OnResponseCalled = false;
 		public bool OnRequestCalled = false;
 		public bool OnBroadcastReceived = false;
+		public bool WasClosed = false;
+
 		public INetworkMessage LastResponse;
 		public INetworkMessage LastRequest;
 
@@ -38,26 +41,58 @@ namespace R2Core.Tests
 
 		}
 
-		public void OnBroadcast (INetworkMessage message, Exception ex) {
+		public void OnBroadcast(INetworkMessage message) {
 
-			Asserter (message);
+			Log.t($"DummyClientObserver: Broadcast: {message}");
+
+			if (Asserter != null) {
+
+				Asserter(message);
+
+			}
+
 			OnBroadcastReceived = true;
 
 		}
 
 		public void OnRequest(INetworkMessage request) { 
 
+			Log.t($"DummyClientObserver: OnRequest: {request}");
+
 			OnRequestCalled = true;
 			LastRequest = request;
-			Asserter (request);
+			if (Asserter != null) {
+			
+				Asserter(request);
+
+			}
+
 		}
 
 		public void OnResponse(INetworkMessage response, Exception ex) { 
-			
+
+			Log.t($"DummyClientObserver: OnResponse: {response}");
+
 			OnResponseCalled = true;
 			LastResponse = response;
-			Asserter (response);
+			if (Asserter != null) {
+
+				Asserter(response);
+
+			}
 		}
+
+		public void OnClose(IMessageClient client, Exception ex) {
+		
+			if (OnCloseAsserter != null) {
+
+				OnCloseAsserter(client, ex);
+
+			}
+
+		}
+
+		public Action<IMessageClient, Exception> OnCloseAsserter;
 
 		public Action<INetworkMessage> Asserter;
 

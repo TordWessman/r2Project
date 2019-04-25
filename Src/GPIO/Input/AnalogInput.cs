@@ -24,12 +24,12 @@ using R2Core.Data;
 
 namespace R2Core.GPIO
 {
-	public class AnalogInput: DeviceBase, IInputMeter<double>
-	{
+	public class AnalogInput : DeviceBase, IInputMeter<double> {
+		
 		private MCP3008 m_ad;
 		private ILinearDataSet<double> m_dataSet;
 
-		public AnalogInput (string id, MCP3008 ad) : base (id) {
+		public AnalogInput(string id, MCP3008 ad) : base(id) {
 			
 			m_ad = ad;
 
@@ -39,7 +39,7 @@ namespace R2Core.GPIO
 			
 			get {
 				
-				return  m_dataSet?.Interpolate (AnalogValue) ?? (double) AnalogValue;
+				return  m_dataSet?.Interpolate(AnalogValue) ?? (double) AnalogValue;
 
 			}
 

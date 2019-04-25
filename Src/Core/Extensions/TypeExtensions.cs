@@ -5,7 +5,7 @@ namespace R2Core
 	public static class TypeExtensions {
 
 		/// <summary>
-		/// Returns the default (null, 0 etc) value for the Type
+		/// Returns the default(null, 0 etc) value for the Type
 		/// </summary>
 		/// <returns>The value.</returns>
 		/// <param name="self">Self.</param>
@@ -13,7 +13,7 @@ namespace R2Core
 
 			if (self.IsValueType) {
 				
-				return Activator.CreateInstance (self);
+				return Activator.CreateInstance(self);
 			
 			}
 

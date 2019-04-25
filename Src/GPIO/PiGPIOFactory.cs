@@ -29,8 +29,7 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// PRimitive raspberry pi implementation of an IGPIOFactory
 	/// </summary>
-	public class PiGPIOFactory: DeviceBase, IGPIOFactory
-	{
+	public class PiGPIOFactory : DeviceBase, IGPIOFactory {
 
 		private RaspberryPiDotNet.GPIO m_clck;
 		private RaspberryPiDotNet.GPIO m_spiIn;
@@ -44,12 +43,11 @@ namespace R2Core.GPIO
 		/// Instantiation of the factory. Will set up the MCP3008 hub.
 		/// </summary>
 		/// <param name="id">Identifier.</param>
-		public PiGPIOFactory (string id) : base (id)
-		{
+		public PiGPIOFactory(string id) : base(id) {
 		
 			m_ioPortsUsed = new bool[40];
-			SetUpPinConfiguration ();
-			SetUpMCP3008 ();
+			SetUpPinConfiguration();
+			SetUpMCP3008();
 
 		}
 
@@ -60,10 +58,10 @@ namespace R2Core.GPIO
 			m_spiOut = new RaspberryPiDotNet.GPIOMem(GPIOPins.GPIO_09);
 			m_spiS = new RaspberryPiDotNet.GPIOMem(GPIOPins.GPIO_08);
 
-			ReservePort (m_clck);
-			ReservePort (m_spiIn);
-			ReservePort (m_spiOut);
-			ReservePort (m_spiS);
+			ReservePort(m_clck);
+			ReservePort(m_spiIn);
+			ReservePort(m_spiOut);
+			ReservePort(m_spiS);
 		
 		}
 
@@ -72,30 +70,30 @@ namespace R2Core.GPIO
 		/// </summary>
 		private void SetUpPinConfiguration() {
 			
-			m_pinConfiguration = new Dictionary<int,RaspberryPiDotNet.GPIOPins> ();
+			m_pinConfiguration = new Dictionary<int,RaspberryPiDotNet.GPIOPins>();
 
-			m_pinConfiguration.Add (7, GPIOPins.GPIO_04);
-			m_pinConfiguration.Add (8, GPIOPins.GPIO_14);
-			m_pinConfiguration.Add (10, GPIOPins.GPIO_15);
-			m_pinConfiguration.Add (11, GPIOPins.GPIO_17);
-			m_pinConfiguration.Add (12, GPIOPins.GPIO_18);
-			m_pinConfiguration.Add (15, GPIOPins.GPIO_22);
-			m_pinConfiguration.Add (16, GPIOPins.GPIO_23);
-			m_pinConfiguration.Add (18, GPIOPins.GPIO_24);
-			m_pinConfiguration.Add (19, GPIOPins.GPIO_10);
-			m_pinConfiguration.Add (21, GPIOPins.GPIO_09);
-			m_pinConfiguration.Add (22, GPIOPins.GPIO_25);
-			m_pinConfiguration.Add (23, GPIOPins.GPIO_11);
-			m_pinConfiguration.Add (24, GPIOPins.GPIO_08);
-			m_pinConfiguration.Add (26, GPIOPins.GPIO_07);
+			m_pinConfiguration.Add(7, GPIOPins.GPIO_04);
+			m_pinConfiguration.Add(8, GPIOPins.GPIO_14);
+			m_pinConfiguration.Add(10, GPIOPins.GPIO_15);
+			m_pinConfiguration.Add(11, GPIOPins.GPIO_17);
+			m_pinConfiguration.Add(12, GPIOPins.GPIO_18);
+			m_pinConfiguration.Add(15, GPIOPins.GPIO_22);
+			m_pinConfiguration.Add(16, GPIOPins.GPIO_23);
+			m_pinConfiguration.Add(18, GPIOPins.GPIO_24);
+			m_pinConfiguration.Add(19, GPIOPins.GPIO_10);
+			m_pinConfiguration.Add(21, GPIOPins.GPIO_09);
+			m_pinConfiguration.Add(22, GPIOPins.GPIO_25);
+			m_pinConfiguration.Add(23, GPIOPins.GPIO_11);
+			m_pinConfiguration.Add(24, GPIOPins.GPIO_08);
+			m_pinConfiguration.Add(26, GPIOPins.GPIO_07);
 
 		}
 		
-		private void ReservePort (RaspberryPiDotNet.GPIO port) {
+		private void ReservePort(RaspberryPiDotNet.GPIO port) {
 			
 			if (m_ioPortsUsed [(int)port.Pin]) {
 				
-				throw new InvalidOperationException ($"Port: {port } is already used!");
+				throw new InvalidOperationException($"Port: {port } is already used!");
 			
 			}
 			
@@ -103,8 +101,8 @@ namespace R2Core.GPIO
 
 		}
 		
-		private RaspberryPiDotNet.MCP3008 GetMPCFor (int adcPort) {
-			return  new RaspberryPiDotNet.MCP3008 (adcPort,
+		private RaspberryPiDotNet.MCP3008 GetMPCFor(int adcPort) {
+			return  new RaspberryPiDotNet.MCP3008(adcPort,
 				                                        m_clck,
 				            m_spiIn,
 				            m_spiOut,
@@ -119,36 +117,36 @@ namespace R2Core.GPIO
 		/// <param name="bus">Bus.</param>
 		/// <param name="address">Address.</param>
 		/// <param name="frequency">Frequency.</param>
-		public IServoController CreateServoController (string id, int bus = 1, int address = 0x40, int frequency = 63) {
-			return new PCA9685ServoController (id, bus, address, frequency);
-		}
-
-		public IInputMeter<double> CreateAnalogInput (string id, int adcPort) {
-
-			return new AnalogInput (id, GetMPCFor (adcPort));
-		
-		}
-		
-		public IInputPort CreateInputPort (string id, int gpioPort) {
+		public IServoController CreateServoController(string id, int bus = 1, int address = 0x40, int frequency = 63) {
 			
-			RaspberryPiDotNet.GPIO input = new GPIOFile (GetPort(gpioPort),
-				                                                          RaspberryPiDotNet.GPIODirection.In,
-				                                                         false);
+			return new PCA9685ServoController(id, bus, address, frequency);
+
+		}
+
+		public IInputMeter<double> CreateAnalogInput(string id, int adcPort) {
+
+			return new AnalogInput(id, GetMPCFor(adcPort));
+		
+		}
+		
+		public IInputPort CreateInputPort(string id, int gpioPort) {
+			
+			RaspberryPiDotNet.GPIO input = new GPIOFile(GetPort(gpioPort), RaspberryPiDotNet.GPIODirection.In, false);
 			input.PinDirection = GPIODirection.In;
 
-			ReservePort (input);
+			ReservePort(input);
 				
 			return new InputPort(id, input);
 
 		}
 		
-		public IOutputPort CreateOutputPort (string id, int gpioPort) {
+		public IOutputPort CreateOutputPort(string id, int gpioPort) {
 			
 
-			RaspberryPiDotNet.GPIO output = new RaspberryPiDotNet.GPIOMem (GetPort(gpioPort),
+			RaspberryPiDotNet.GPIO output = new RaspberryPiDotNet.GPIOMem(GetPort(gpioPort),
 			                                                             RaspberryPiDotNet.GPIODirection.Out,
                                                            false);
-			ReservePort (output);
+			ReservePort(output);
 				
 			return new OutputPort(id, output);
 
@@ -162,7 +160,7 @@ namespace R2Core.GPIO
 
 		public ISerialConnection CreateI2C(string id, int bus, int port) {
 		
-			return new R2I2CMaster (id, bus, port);
+			return new R2I2CMaster(id, bus, port);
 
 		}
 
@@ -181,7 +179,7 @@ namespace R2Core.GPIO
 		/// </summary>
 		/// <returns>The port.</returns>
 		/// <param name="number">Number.</param>
-		private RaspberryPiDotNet.GPIOPins GetPort (int number) {
+		private RaspberryPiDotNet.GPIOPins GetPort(int number) {
 
 			return m_pinConfiguration[number];
 		

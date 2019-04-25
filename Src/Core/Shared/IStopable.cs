@@ -20,9 +20,10 @@ using System;
 
 namespace R2Core.Device
 {
-	public interface IStopable
-	{
+	public interface IStopable {
+		
 		void Stop();
-	}
-}
 
+	}
+
+}

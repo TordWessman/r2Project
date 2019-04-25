@@ -27,27 +27,33 @@ using System.Threading.Tasks;
 
 namespace R2Core.Network
 {
-	public class HttpClient: DeviceBase, IMessageClient
-	{
+	public class HttpClient : DeviceBase, IMessageClient {
+		
 		public static string DefaultHttpMethod = "POST";
 		public int Timeout = 30000;
 
 		private ISerialization m_serializer;
+		private int m_lastPort;
+		private string m_lastHost;
 
-		public HttpClient (string id, ISerialization serializer) : base (id) {
+		public string Address { get { return m_lastHost; } }
+		public int Port { get { return m_lastPort; } }
+
+		public HttpClient(string id, ISerialization serializer) : base(id) {
 
 			m_serializer = serializer;
+
 		}
 
 		public INetworkMessage Send(INetworkMessage message) {
 		
-			return _Send (message);
+			return _Send(message);
 
 		}
 
 		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
 		
-			return Task.Factory.StartNew ( () => {
+			return Task.Factory.StartNew( () => {
 			
 				HttpMessage response;
 				Exception exception = null;
@@ -58,7 +64,7 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					response = new HttpMessage() { Payload = new HttpError() { Message = ex.Message }, Code = WebStatusCode.NetworkError.Raw() };
+					response = new HttpMessage() { Payload = new NetworkErrorDescription() { Message = ex.Message }, Code = WebStatusCode.NetworkError.Raw() };
 					exception =  ex;
 				}
 
@@ -70,13 +76,15 @@ namespace R2Core.Network
 
 		}
 
-		private HttpMessage _Send (INetworkMessage requestMessage) {
+		private HttpMessage _Send(INetworkMessage requestMessage) {
 		
-			HttpMessage message = new HttpMessage (requestMessage);
+			HttpMessage message = new HttpMessage(requestMessage);
 
-			HttpMessage responseObject = new HttpMessage () { Headers = new Dictionary<string, object> ()};
+			HttpMessage responseObject = new HttpMessage() { Headers = new Dictionary<string, object>()};
 
 			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(message.Destination ?? "");
+			m_lastPort = request.RequestUri.Port;
+			m_lastHost = request.RequestUri.Host;
 
 			request.Method = message.Method ?? DefaultHttpMethod;
 
@@ -90,16 +98,16 @@ namespace R2Core.Network
 
 			if (message.Headers != null) {
 				
-				message.Headers.ToList ().ForEach (kvp => request.Headers [kvp.Key] = kvp.Value?.ToString() ?? "");
+				message.Headers.ToList().ForEach(kvp => request.Headers [kvp.Key] = kvp.Value?.ToString() ?? "");
 
 			}
 
 			if (requestData.Length > 0) {
 			
-				using (Stream dataStream = request.GetRequestStream()) {
+				using(Stream dataStream = request.GetRequestStream()) {
 
 					dataStream.Write(requestData, 0, requestData.Length);
-					dataStream.Close ();
+					dataStream.Close();
 
 				}
 
@@ -112,19 +120,19 @@ namespace R2Core.Network
 				
 				response = (HttpWebResponse) request.GetResponse();
 			
-				using (Stream responseStream = response.GetResponseStream ()) {
+				using(Stream responseStream = response.GetResponseStream()) {
 					
-					MemoryStream ms = new MemoryStream ();
-					responseStream.CopyTo (ms);
-					responseData = ms.ToArray ();
+					MemoryStream ms = new MemoryStream();
+					responseStream.CopyTo(ms);
+					responseData = ms.ToArray();
 
 				}
 
 			} catch (System.Net.WebException ex) {
 				
-				Log.w ( $"Connection failed: {request.RequestUri.ToString()} exception: '{ex.Message}'");
+				Log.w( $"Connection failed: {request.RequestUri.ToString()} exception: '{ex.Message}'");
 					
-				responseObject.Payload = new HttpError() { Message = ex.Message };
+				responseObject.Payload = new NetworkErrorDescription() { Message = ex.Message };
 
 				if (ex.Status == System.Net.WebExceptionStatus.ProtocolError) {
 				
@@ -141,7 +149,7 @@ namespace R2Core.Network
 				 
 			} finally {
 			
-				response?.Close ();
+				response?.Close();
 
 			}
 
@@ -151,17 +159,17 @@ namespace R2Core.Network
 
 				responseObject.Code = WebStatusCode.Ok.Raw();
 
-				if (response.ContentType.ToLower().Contains ("text")) {
+				if (response.ContentType.ToLower().Contains("text")) {
 					
-					responseObject.Payload = m_serializer.Encoding.GetString (responseData);
+					responseObject.Payload = m_serializer.Encoding.GetString(responseData);
 
-				} else if (response.ContentType.ToLower().Contains ("json")) {
+				} else if (response.ContentType.ToLower().Contains("json")) {
 					
-					responseObject.Payload = m_serializer.Deserialize (responseData);
+					responseObject.Payload = m_serializer.Deserialize(responseData);
 
-				} else if (response.ContentType.ToLower().Contains ("xml")) {
+				} else if (response.ContentType.ToLower().Contains("xml")) {
 
-					responseObject.Payload = System.Text.Encoding.UTF8.GetString (responseData);
+					responseObject.Payload = System.Text.Encoding.UTF8.GetString(responseData);
 
 				}else {
 					
@@ -173,22 +181,21 @@ namespace R2Core.Network
 			
 				string error = $"HttpRequest got bad http status code: {response.StatusCode}.";
 
-				responseObject.Payload = new HttpError () {Message = error};
-				responseObject.Code = (int) response.StatusCode;
+				responseObject.Payload = new NetworkErrorDescription() {Message = error};
+				responseObject.Code = (int)response.StatusCode;
 
-				Log.w (error);
+				Log.w(error);
 
 			}
 
-			response.Close ();
+			response.Close();
 
 			return responseObject;
 
 		}
 
 		// http://stackoverflow.com/questions/1080442/how-to-convert-an-stream-into-a-byte-in-c
-		private byte[] ReadToEnd(System.IO.Stream stream)
-		{
+		private byte[] ReadToEnd(System.IO.Stream stream) {
 			long originalPosition = 0;
 
 			if(stream.CanSeek)
@@ -204,7 +211,7 @@ namespace R2Core.Network
 				int totalBytesRead = 0;
 				int bytesRead;
 
-				while ((bytesRead = stream.Read(readBuffer, totalBytesRead, readBuffer.Length - totalBytesRead)) > 0)
+				while((bytesRead = stream.Read(readBuffer, totalBytesRead, readBuffer.Length - totalBytesRead)) > 0)
 				{
 					totalBytesRead += bytesRead;
 

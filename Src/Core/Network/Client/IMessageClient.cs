@@ -25,13 +25,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Implementations are capable of transmitting data to a remote host.
 	/// </summary>
-	public interface IMessageClient: IDevice {
-
-		/// <summary>
-		/// Send a ´INetworkMessage´ to the remote host.
-		/// </summary>
-		/// <param name="message">Message.</param>
-        INetworkMessage Send (INetworkMessage message);
+	public interface IMessageClient : INetworkConnection {
 
 		/// <summary>
 		/// Send a ´INetworkMessage´ to the remote host asynchronously. ´responseDelegate´ will be called when the 
@@ -41,7 +35,6 @@ namespace R2Core.Network
 		/// <param name="message">Message.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
 		System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate);
-
 
 	}
 

@@ -22,25 +22,23 @@ using R2Core.Device;
 
 namespace R2Core.DataManagement.Memory
 {
-	public class MemoryFactory
-	{
+	public class MemoryFactory {
+		
 		IMemoryDBAdapter m_adapter;
 		
-		public MemoryFactory (IMemoryDBAdapter adapter)
-		{
+		public MemoryFactory(IMemoryDBAdapter adapter) {
 			m_adapter = adapter;
 		}
 		
 		/// <summary>
-		/// Creates a null reference (a serializable object not
+		/// Creates a null reference(a serializable object not
 		/// refering to anything).
 		/// </summary>
 		/// <returns>
 		/// A reference regarded as a null reference
 		/// </returns>
-		public IMemoryReference CreateNullReference ()
-		{
-			return new MemoryReference (MemoryReference.NULL_REFERENCE_ID, "", "");
+		public IMemoryReference CreateNullReference() {
+			return new MemoryReference(MemoryReference.NULL_REFERENCE_ID, "", "");
 		}
 		
 		/// <summary>
@@ -58,10 +56,9 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='type'>
 		/// Type.
 		/// </param>
-		public IMemoryReference StoreMemoryReference (int id, string name, string type)
-		{
-			IMemoryReference reference = new MemoryReference (id, name, type);
-			m_adapter.Create (reference);
+		public IMemoryReference StoreMemoryReference(int id, string name, string type) {
+			IMemoryReference reference = new MemoryReference(id, name, type);
+			m_adapter.Create(reference);
 			
 			return reference;
 		}
@@ -79,10 +76,9 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='source'>
 		/// Source.
 		/// </param>
-		public IMemory CreateMemory (IMemoryReference reference, IMemorySource source, bool isLocal)
-		{
+		public IMemory CreateMemory(IMemoryReference reference, IMemorySource source, bool isLocal) {
 
-			return new Memory (reference, source, isLocal);
+			return new Memory(reference, source, isLocal);
 
 		}
 	

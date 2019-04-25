@@ -25,24 +25,24 @@ namespace R2Core.Video
 {
 	public interface IImageStorage : IDevice
 	{
-		IMemory UpdateFaceRecognitionMemory (ref IMemory modelMemory, int algorithmType);
-		IMemory CreateFaceRecognitionMemory (int algorithmType);
-		IMemory Save (IplImage captureObject, string type, IMemory parent);
-		//IMemory Save (CaptureObject captureObject, ImageTypes type);
-		void SaveDump (IplImage image, string fileName);
-		IMemory Save (IFrameSource source);
-		void Delete (IMemory memory);
-		void Delete (params int[] memoryIds);
+		IMemory UpdateFaceRecognitionMemory(ref IMemory modelMemory, int algorithmType);
+		IMemory CreateFaceRecognitionMemory(int algorithmType);
+		IMemory Save(IplImage captureObject, string type, IMemory parent);
+		//IMemory Save(CaptureObject captureObject, ImageTypes type);
+		void SaveDump(IplImage image, string fileName);
+		IMemory Save(IFrameSource source);
+		void Delete(IMemory memory);
+		void Delete(params int[] memoryIds);
 		
-		string GetImageFileName (IMemory imageMemory);
-		string GetModelFileName (IMemory modelMemory);
+		string GetImageFileName(IMemory imageMemory);
+		string GetModelFileName(IMemory modelMemory);
 		
-		IplImage LoadImage (string fileName);
-		IplImage LoadImage (IMemory memory);
+		IplImage LoadImage(string fileName);
+		IplImage LoadImage(IMemory memory);
 		
-		void ReleaseImage (IplImage image);
+		void ReleaseImage(IplImage image);
 		IplImage Create32BitImage(IplImage image);
-		Bitmap CreateBitmap (IplImage image);
+		Bitmap CreateBitmap(IplImage image);
 		byte[] ImageToByte(Image img, string format_string = "png");
 		//byte
 		

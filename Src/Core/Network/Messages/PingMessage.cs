@@ -16,19 +16,46 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using NUnit.Framework;
 using System;
 
-namespace R2CoreTests
+namespace R2Core.Network
 {
-	[TestFixture ()]
-	public class Test
-	{
-		[Test ()]
-		public void TestCase ()
-		{
+
+	/// <summary>
+	/// Ping message. Internally used.
+	/// </summary>
+	internal class PingMessage : INetworkMessage {
+
+		public int Code { get; set; }
+
+		public string Destination { get; set; }
+
+		public  System.Collections.Generic.IDictionary<string, object> Headers { get; set; }
+
+		public dynamic Payload { get; set; }
+
+		public PingMessage() {
+			
+			Destination = Settings.Consts.PingDestination();
+			Code = WebStatusCode.Ping.Raw();
+		
+		}
+	
+	}
+
+	/// <summary>
+	/// Pong message. Internally used.
+	/// </summary>
+	internal class PongMessage : PingMessage {
+
+		public PongMessage() {
+			
+			Destination = Settings.Consts.PingDestination();
+			Code = WebStatusCode.Pong.Raw();
 
 		}
+
 	}
+
 }
 

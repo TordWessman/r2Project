@@ -29,8 +29,8 @@ using System.Threading;
 namespace R2Core.Tests
 {
 
-	public abstract class TestBase
-	{
+	public abstract class TestBase {
+		
 		protected IDeviceManager m_deviceManager;
 		protected ITaskMonitor m_dummyTaskMonitor;
 		protected IMessageLogger console;
@@ -40,8 +40,10 @@ namespace R2Core.Tests
 		[TestFixtureTearDown]
 		public virtual void Teardown() {
 
-			Thread.Sleep (200);
-			Log.d ($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` FINISHED ---");
+			Thread.Sleep(200);
+
+			Log.d($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` FINISHED ---");
+			Log.d("\n\n\n\n\n");
 
 		}
 
@@ -52,40 +54,48 @@ namespace R2Core.Tests
 				
 				if (Log.Instance == null) {
 					
-					Log.Instantiate(Settings.Identifiers.Logger ());
+					Log.Instantiate(Settings.Identifiers.Logger());
 
-					console = new ConsoleLogger (Settings.Identifiers.ConsoleLogger());
+					console = new ConsoleLogger(Settings.Identifiers.ConsoleLogger());
 
-					Log.Instance.AddLogger (new FileLogger("file_logger", "test_output.txt"));
+					Log.Instance.AddLogger(new FileLogger("file_logger", "test_output.txt"));
 
-					Log.Instance.AddLogger (console);
+					Log.Instance.AddLogger(console);
+					Log.Instance.MaxStackTrace = 100;
+
 				}
 
-				m_dummyTaskMonitor = new DummyTaskMonitor ();
+				m_dummyTaskMonitor = new DummyTaskMonitor();
 
-				m_deviceManager = new DeviceManager (Settings.Identifiers.DeviceManager());
+				m_deviceManager = new DeviceManager(Settings.Identifiers.DeviceManager());
 
-				m_deviceManager.Add (Settings.Instance);
-				m_deviceManager.Add (Log.Instance);
+				m_deviceManager.Add(Settings.Instance);
+				m_deviceManager.Add(Log.Instance);
 
-				m_deviceFactory = new DeviceFactory ("device_factory", m_deviceManager);
+				m_deviceFactory = new DeviceFactory("device_factory", m_deviceManager);
 
 				m_dataFactory = new DataFactory("f", new System.Collections.Generic.List<string>() {Settings.Paths.TestData()});
 
 			} catch (Exception ex) {
 			
-				Console.WriteLine (ex.Message);
+				Console.WriteLine(ex.Message);
 
 			}
 
-			Log.d ($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` STARTED ---");
+			Log.d($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` STARTED ---");
 
 		}
 
-		public TestBase ()
-		{
+		/// <summary>
+		/// Print the name of the current method
+		/// </summary>
+		protected void PrintName() {
 
+			StackTrace stackTrace = new StackTrace();
+
+			Log.d($"########################## {stackTrace.GetFrames()[1].GetMethod().Name} ##########################");
 		}
+
 	}
-}
 
+}

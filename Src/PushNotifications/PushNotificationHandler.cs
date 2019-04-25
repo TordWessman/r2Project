@@ -29,8 +29,7 @@ namespace R2Core.PushNotifications
 	/// <summary>
 	/// Uses the IMemorySource to keep track of and send push notifications.
 	/// </summary>
-	public class PushNotificationHandler: DeviceBase, IPushNotificationProxy, ITaskMonitored
-	{
+	public class PushNotificationHandler : DeviceBase, IPushNotificationProxy, ITaskMonitored {
 
 		public const string PUSH_CLIENT_ID = "push_client_id";
 		public const string PUSH_CLIENT_TYPE = "push_client_type";
@@ -41,47 +40,45 @@ namespace R2Core.PushNotifications
 		private bool m_isSending;
 		private Task m_sendTask;
 
-		public PushNotificationHandler (string id, IMemorySource memory) : base (id)
-		{
+		public PushNotificationHandler(string id, IMemorySource memory) : base(id) {
 			
 			m_memory = memory;
-			m_facades = new List<IPushNotificationFacade> ();
+			m_facades = new List<IPushNotificationFacade>();
 		
 		}
 
-		public void Register (string deviceId, string deviceToken, int rawType) {
+		public void Register(string deviceId, string deviceToken, int rawType) {
 		
-			RegisterClient (deviceId, deviceToken, (PushNotificationClientType) rawType);
+			RegisterClient(deviceId, deviceToken, (PushNotificationClientType) rawType);
 
 		}
 
 		public override bool Ready { get { return !m_isSending; } }
 
-		public void RegisterClient (string deviceId, string deviceToken, PushNotificationClientType type)
-		{
+		public void RegisterClient(string deviceId, string deviceToken, PushNotificationClientType type) {
 			
-			IMemory entry = m_memory.All (PUSH_CLIENT_ID).Where(d => d.Value == deviceId).FirstOrDefault();
+			IMemory entry = m_memory.All(PUSH_CLIENT_ID).Where(d => d.Value == deviceId).FirstOrDefault();
 
 			if (entry == null) {
 
-				entry = m_memory.Create (PUSH_CLIENT_ID, deviceId);
+				entry = m_memory.Create(PUSH_CLIENT_ID, deviceId);
 			
 			}
 
-			IMemory clientType = entry.GetAssociation (PUSH_CLIENT_TYPE);
+			IMemory clientType = entry.GetAssociation(PUSH_CLIENT_TYPE);
 
 			if (clientType == null) {
 
-				clientType = m_memory.Create (PUSH_CLIENT_TYPE, ((int)type).ToString());
-				entry.Associate (clientType);
+				clientType = m_memory.Create(PUSH_CLIENT_TYPE, ((int)type).ToString());
+				entry.Associate(clientType);
 			
 			}
 
-			IMemory token = entry.GetAssociation (PUSH_CLIENT_TOKEN);
+			IMemory token = entry.GetAssociation(PUSH_CLIENT_TOKEN);
 
 			if (token == null) {
 
-				token = m_memory.Create (PUSH_CLIENT_TOKEN, deviceToken);
+				token = m_memory.Create(PUSH_CLIENT_TOKEN, deviceToken);
 			
 			} else {
 
@@ -90,12 +87,12 @@ namespace R2Core.PushNotifications
 			}
 
 
-			entry.Associate (token);
-			clientType.Associate (token);
+			entry.Associate(token);
+			clientType.Associate(token);
 
 		}
 
-		public void AddFacade (IPushNotificationFacade facade) { m_facades.Add (facade); }
+		public void AddFacade(IPushNotificationFacade facade) { m_facades.Add(facade); }
 
 		public void Broadcast(IPushNotification notification) {
 
@@ -103,7 +100,7 @@ namespace R2Core.PushNotifications
 
 			m_sendTask = Task.Factory.StartNew( () => {
 			
-				m_facades.AsParallel().ForAll (facade => {
+				m_facades.AsParallel().ForAll(facade => {
 
 					SendNotifictation(notification, facade);
 
@@ -117,29 +114,29 @@ namespace R2Core.PushNotifications
 
 		public IDictionary<string,Task> GetTasksToObserve() {
 		
-			return new Dictionary<string,Task> () { { this.ToString (), m_sendTask } };
+			return new Dictionary<string,Task>() { { this.ToString(), m_sendTask } };
 		
 		}
 
-		private void SendNotifictation (IPushNotification notification, IPushNotificationFacade facade) {
+		private void SendNotifictation(IPushNotification notification, IPushNotificationFacade facade) {
 
 			if (facade.AcceptsNotification(notification)) {
 
-				List<string> tokens = new List<string> ();
+				List<string> tokens = new List<string>();
 
 				foreach (IMemory type in m_memory.All(PUSH_CLIENT_TYPE)) {
 
 					if ((notification.ClientTypeMask & Convert.ToInt32 (type.Value)) > 0) {
 
-						IMemory token = type.GetAssociation (PUSH_CLIENT_TOKEN);
+						IMemory token = type.GetAssociation(PUSH_CLIENT_TOKEN);
 
 						if (token != null) {
 
-							tokens.Add (token.Value);
+							tokens.Add(token.Value);
 
 						} else {
 
-							Log.e ($"PushNotification Broadcast error: A device of type '{PUSH_CLIENT_TYPE}' has no token.");
+							Log.e($"PushNotification Broadcast error: A device of type '{PUSH_CLIENT_TYPE}' has no token.");
 
 						}
 
@@ -147,7 +144,7 @@ namespace R2Core.PushNotifications
 
 				}
 
-				facade.QueuePushNotification (notification, tokens);
+				facade.QueuePushNotification(notification, tokens);
 
 			}
 

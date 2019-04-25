@@ -27,13 +27,11 @@ namespace R2Core.Audio.ASR
 	{
 		private IASR m_asr;
 		
-		public ASRController (string id, IASR asr) : base (id)
-		{
+		public ASRController(string id, IASR asr) : base(id) {
 			m_asr = asr;
 		}
 		
-		public void SetActive (bool active)
-		{
+		public void SetActive(bool active) {
 			m_asr.Active = active;
 		}
 

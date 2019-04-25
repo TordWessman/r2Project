@@ -24,16 +24,14 @@ namespace R2Core.Audio.ASR
 	{
 		private Func<string,bool> m_function;
 		
-		public ConversationLock (Func<string, bool> function)
-		{
+		public ConversationLock(Func<string, bool> function) {
 			m_function = function;
 		}
 		
 		
 		#region IConversationLock implementation
-		public bool TryRelease (string text)
-		{
-			return m_function.Invoke (text);
+		public bool TryRelease(string text) {
+			return m_function.Invoke(text);
 		}
 		#endregion
 	}

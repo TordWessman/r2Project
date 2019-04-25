@@ -25,8 +25,8 @@ using System.Threading.Tasks;
 
 namespace R2Core.Audio.TTS
 {
-	public class EspeakTTS : DeviceBase, ITTS
-	{
+	public class EspeakTTS : DeviceBase, ITTS {
+		
 		private const string dllPath = "libr2espeak.so";
 		
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
@@ -61,8 +61,7 @@ namespace R2Core.Audio.TTS
 		
 		private static readonly object m_lock = new object();					
 		
-		public EspeakTTS (string identifier) : base (identifier)
-		{
+		public EspeakTTS(string identifier) : base(identifier) {
 
 			m_observers = new List<ITTSObserver>();
 			_ext_init_espeak();
@@ -70,33 +69,32 @@ namespace R2Core.Audio.TTS
 		}
 		
 
-		public void Say (string text)
-		{
+		public void Say(string text) {
 
 			if (text == null && text.Trim().Length == 0) { return; }
 
 			if (!m_isStarted) {
-				throw new DeviceException ("Unable to speak: not started!");
+				throw new DeviceException("Unable to speak: not started!");
 			}
 
 			m_currentText = text;
-			Log.t ("Speech will start: " + text);
+			Log.t("Speech will start: " + text);
 
-			//lock (m_lock) {
+			//lock(m_lock) {
 
 			Task.Factory.StartNew( () => {
 			
 				foreach (ITTSObserver observer in m_observers) {
 
-					observer.TalkStarted (this);
+					observer.TalkStarted(this);
 
 				}
 
-				_ext_speak_espeak (text);
+				_ext_speak_espeak(text);
 
 				foreach (ITTSObserver observer in m_observers) {
 
-					observer.TalkEnded (this);
+					observer.TalkEnded(this);
 
 				}
 
@@ -105,7 +103,7 @@ namespace R2Core.Audio.TTS
 					
 			//}
 
-			Log.t ("Speech ended: " + text);
+			Log.t("Speech ended: " + text);
 
 		}
 
@@ -137,25 +135,23 @@ namespace R2Core.Audio.TTS
 		}
 		
 		
-		public override void Start ()
-		{
+		public override void Start() {
 			if (m_isStarted) {
 			
 				return;
 			
 			}
 			
-			if (_ext_init_espeak () != 1) {
+			if (_ext_init_espeak() != 1) {
 			
-				throw new DeviceException ("Unable to initialize espeak.");
+				throw new DeviceException("Unable to initialize espeak.");
 			}
 
 			m_isStarted = true;
 
 		}
 
-		public override void Stop ()
-		{
+		public override void Stop() {
 
 			_ext_stop_espeak();
 			m_isStarted = false;
@@ -166,7 +162,7 @@ namespace R2Core.Audio.TTS
 
 			get {
 
-				return (_ext_is_playing_espeak() == 0) && 
+				return(_ext_is_playing_espeak() == 0) && 
 						m_isStarted && 
 					_ext_is_initialized_espeak();
 
@@ -174,12 +170,12 @@ namespace R2Core.Audio.TTS
 
 		}
 		
-		public void AddObserver (ITTSObserver observer) 
+		public void AddObserver(ITTSObserver observer) 
 		{
 
-			if (m_observers.Contains (observer)) {
+			if (m_observers.Contains(observer)) {
 
-				throw new DeviceException ("Observer already added for me: " + m_id);
+				throw new DeviceException("Observer already added for me: " + m_id);
 			}
 
 			m_observers.Add(observer);

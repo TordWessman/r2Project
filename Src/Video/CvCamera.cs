@@ -22,8 +22,8 @@ using System.Runtime.InteropServices;
 
 namespace R2Core.Video
 {
-	public class CvCamera : DeviceBase, IFrameSource
-	{
+	public class CvCamera : DeviceBase, IFrameSource {
+		
 		private const string dllPath = "libr2opencv.so";
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
@@ -42,7 +42,7 @@ namespace R2Core.Video
 		protected static extern void _ext_release_image(System.IntPtr image);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern bool _ext_is_running_capture (int deviceId);
+		protected static extern bool _ext_is_running_capture(int deviceId);
 
 		/// <summary>
 		/// It seems like v4l2 uses a buffer set and thus returning the last image in this buffer. (see cap_v4l.cpp, DEFAULT_V4L_BUFFERS). 
@@ -55,22 +55,22 @@ namespace R2Core.Video
 		private IplImage m_lastFrame = null;
 
 		/// <summary>
-		/// Creates a camera source with lazy resource loading. the skipFrames parameter is used to drop (grab) frames from the v4l buffer in order to get the latest frame. Set to zero if it's not working (or if you like delays).  
+		/// Creates a camera source with lazy resource loading. the skipFrames parameter is used to drop(grab) frames from the v4l buffer in order to get the latest frame. Set to zero if it's not working(or if you like delays).  
 		/// </summary>
 		/// <param name="id">Identifier.</param>
 		/// <param name="width">Width.</param>
 		/// <param name="height">Height.</param>
 		/// <param name="cameraId">Camera identifier.</param>
 		/// <param name="skipFrames">Skip frames.</param>
-		public CvCamera (string id, int width, int height, int cameraId, int skipFrames = SkipFrames) : base (id) {
+		public CvCamera(string id, int width, int height, int cameraId, int skipFrames = SkipFrames) : base(id) {
 
 			m_cameraId = cameraId;
-			m_size = new CvSize () { Width = width, Height = height };
+			m_size = new CvSize() { Width = width, Height = height };
 			m_skipFrames = skipFrames;
 
 		}
 
-		public CvSize Size{ get { return _ext_get_video_size (m_cameraId); } }
+		public CvSize Size{ get { return _ext_get_video_size(m_cameraId); } }
 
 		/// <summary>
 		/// Captures a frame using the web cam
@@ -82,11 +82,11 @@ namespace R2Core.Video
 
 				if (m_lastFrame != null) {
 				
-					_ext_release_image (m_lastFrame.Ptr);
+					_ext_release_image(m_lastFrame.Ptr);
 
 				}
 
-				m_lastFrame = new IplImage (_ext_capture_camera (m_cameraId));
+				m_lastFrame = new IplImage(_ext_capture_camera(m_cameraId));
 
 				return m_lastFrame; 
 			
@@ -95,19 +95,19 @@ namespace R2Core.Video
 		}
 		
 
-		public override void Stop () {
+		public override void Stop() {
 		
-			_ext_stop_capture (m_cameraId);
+			_ext_stop_capture(m_cameraId);
 
 		}
 
-		public override bool Ready { get { return _ext_is_running_capture (m_cameraId); } }
+		public override bool Ready { get { return _ext_is_running_capture(m_cameraId); } }
 
-		public override void Start () {
+		public override void Start() {
 
-			if (!_ext_start_capture (m_cameraId, m_size, m_skipFrames)) {
+			if (!_ext_start_capture(m_cameraId, m_size, m_skipFrames)) {
 			
-				throw new ApplicationException ($"Unable to start camera for camera id: '{m_cameraId}'.");
+				throw new ApplicationException($"Unable to start camera for camera id: '{m_cameraId}'.");
 
 			}
 

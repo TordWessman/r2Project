@@ -39,22 +39,20 @@ namespace R2Core.Audio.ASR
 		
 		private System.Collections.Hashtable m_paragraphsU;
 		
-		public StaticAnswerMachine (string id, string xmlLanguageFile) : base (id)
-		{
+		public StaticAnswerMachine(string id, string xmlLanguageFile) : base(id) {
 		
-			m_randomISH = new Random ( );
+			m_randomISH = new Random( );
 			m_xmlLanguageFile = xmlLanguageFile;
 		}
 		
-		public bool KnowReply (string question)
-		{
+		public bool KnowReply(string question) {
 			if (!m_isReady)
-				throw new InvalidOperationException ("OOPs. concurency problem: Answering machine not ready: reloading data!");
+				throw new InvalidOperationException("OOPs. concurency problem: Answering machine not ready: reloading data!");
 	
-			question = question.ToLower ();
+			question = question.ToLower();
 			
 			foreach (string paragraph in m_paragraphs) {
-				if (new Regex ("^" + paragraph).IsMatch (question.ToLower ())) {
+				if (new Regex("^" + paragraph).IsMatch (question.ToLower ())) {
 					return true;
 				}
 			}
@@ -62,11 +60,10 @@ namespace R2Core.Audio.ASR
 			return false;
 		}
 		
-		public string GetReply (string question)
-		{
+		public string GetReply(string question) {
 			
 			if (!m_isReady)
-				throw new InvalidOperationException ("OOPs. concurency problem: Answering machine not ready: reloading data!");
+				throw new InvalidOperationException("OOPs. concurency problem: Answering machine not ready: reloading data!");
 			
 			
 			foreach (string paragraph in m_paragraphs)
@@ -87,28 +84,27 @@ namespace R2Core.Audio.ASR
 	
 		}
 		
-		private void LoadLanguageData ()
-		{
+		private void LoadLanguageData() {
 			//TODO: handle double question entries
-			XPathDocument source = new XPathDocument (m_xmlLanguageFile);
-			XPathNodeIterator paragraphIterator = source.CreateNavigator ().Select ("//speech/p");
+			XPathDocument source = new XPathDocument(m_xmlLanguageFile);
+			XPathNodeIterator paragraphIterator = source.CreateNavigator ().Select("//speech/p");
 			
-			m_paragraphsU = new System.Collections.Hashtable ();
+			m_paragraphsU = new System.Collections.Hashtable();
 			//paragraphs = new Dictionary<string, List<string>>();
-			m_paragraphs = new List<string> ();
+			m_paragraphs = new List<string>();
 			//List<string> unsortedP = new List<string>();
 
-			while (paragraphIterator.MoveNext()) {
+			while(paragraphIterator.MoveNext()) {
 				
-				List<string> answers = new List<string> ();
+				List<string> answers = new List<string>();
 				
-				XPathNodeIterator answerIterator = (XPathNodeIterator)paragraphIterator.Current.Select ("a");
-				while (answerIterator.MoveNext())
-					answers.Add (answerIterator.Current.Value);
+				XPathNodeIterator answerIterator = (XPathNodeIterator)paragraphIterator.Current.Select("a");
+				while(answerIterator.MoveNext())
+					answers.Add(answerIterator.Current.Value);
 				
-				XPathNodeIterator questionIterator = (XPathNodeIterator)paragraphIterator.Current.Select ("q");
-				while (questionIterator.MoveNext()) {
-					m_paragraphsU.Add (questionIterator.Current.Value.ToLower (), answers);
+				XPathNodeIterator questionIterator = (XPathNodeIterator)paragraphIterator.Current.Select("q");
+				while(questionIterator.MoveNext()) {
+					m_paragraphsU.Add(questionIterator.Current.Value.ToLower (), answers);
 					//Console.WriteLine(questionIterator.Current.Value);
 				}
 				
@@ -117,20 +113,18 @@ namespace R2Core.Audio.ASR
 			foreach (string key in from s in m_paragraphsU.Keys.Cast<string>() orderby s.Length descending select s) {
 				
 				//paragraphs.Add(key.ToLower(),(List<string>)paragraphsU[key]);
-				m_paragraphs.Add (key);
+				m_paragraphs.Add(key);
 			}
 
 		}
 		
-		public override void Start ()
-		{
-			LoadLanguageData ();
+		public override void Start() {
+			LoadLanguageData();
 			m_isReady = true;
 		}
 		
 		
-		public override void Stop ()
-		{
+		public override void Stop() {
 			m_isReady = false;
 		}
 		
@@ -142,10 +136,9 @@ namespace R2Core.Audio.ASR
 		}
 
 		#region ILanguageUpdated implementation
-		public void Reload ()
-		{
+		public void Reload() {
 			m_isReady = false;
-			LoadLanguageData ();
+			LoadLanguageData();
 			m_isReady = true;
 		}
 		#endregion

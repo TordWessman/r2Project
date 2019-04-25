@@ -37,7 +37,7 @@ namespace R2Core.DataManagement
 		/// Initializes a new instance of the <see cref="Core.DB.SqliteDatabase"/> class. If fileName is not found, the database file will be created.
 		/// </summary>
 		/// <param name="fileName">File name.</param>
-		public SqliteDatabase (string id, string fileName) : base(id) 
+		public SqliteDatabase(string id, string fileName) : base(id) 
 		{
 
 			m_fileName = fileName;
@@ -55,20 +55,19 @@ namespace R2Core.DataManagement
 		
 		}
 		
-		public override void Start ()
-		{
+		public override void Start() {
 
-			lock (m_queryLock) {
+			lock(m_queryLock) {
 				
-				if (!File.Exists (m_fileName)) {
+				if (!File.Exists(m_fileName)) {
 
-					SqliteConnection.CreateFile (m_fileName);
+					SqliteConnection.CreateFile(m_fileName);
 				
 				}
 
 				if (m_con != null) {
 
-					throw new InvalidOperationException ("Unable to sqlite instance - one instance for this file name already started.");
+					throw new InvalidOperationException("Unable to sqlite instance - one instance for this file name already started.");
 				
 				}
 			
@@ -76,8 +75,8 @@ namespace R2Core.DataManagement
 
 					string cs = "URI=file:" + m_fileName;
 
-					m_con = new SqliteConnection (cs);
-					m_con.Open ();
+					m_con = new SqliteConnection(cs);
+					m_con.Open();
 					
 				} finally {
 				}
@@ -86,13 +85,12 @@ namespace R2Core.DataManagement
 			
 		}
 		
-		public override void Stop ()
-		{
-			lock (m_queryLock) {
+		public override void Stop() {
+			lock(m_queryLock) {
 
 				if (m_con != null) {
 				
-					m_con.Close ();
+					m_con.Close();
 				
 				}
 				
@@ -102,22 +100,21 @@ namespace R2Core.DataManagement
 		
 		}
 		
-		public DataSet Select (string queryString)
-		{
+		public DataSet Select(string queryString) {
 
-			lock (m_queryLock) {
+			lock(m_queryLock) {
 
 				if (m_con == null) {
 
-					throw new InvalidOperationException ("Sqlite Database not started.");
+					throw new InvalidOperationException("Sqlite Database not started.");
 				
 				}
 				
-				DataSet ds = new DataSet ();
+				DataSet ds = new DataSet();
 				
-				using (SqliteDataAdapter adapter = new SqliteDataAdapter (queryString, m_con)) {
+				using(SqliteDataAdapter adapter = new SqliteDataAdapter(queryString, m_con)) {
 	
-					adapter.Fill (ds);
+					adapter.Fill(ds);
 	
 				}
 				
@@ -127,22 +124,21 @@ namespace R2Core.DataManagement
 			
 		}
 		
-		public int Update (string queryString)
-		{
+		public int Update(string queryString) {
 
-			lock (m_queryLock) {
+			lock(m_queryLock) {
 
 				if (m_con == null) {
 
-					throw new InvalidOperationException ("Sqlite Database not started.");
+					throw new InvalidOperationException("Sqlite Database not started.");
 				
 				}
 				
 				int rows = 0;
 			
-				using (SqliteCommand cmd = new SqliteCommand(queryString, m_con)) {
+				using(SqliteCommand cmd = new SqliteCommand(queryString, m_con)) {
 				
-					rows = cmd.ExecuteNonQuery ();                                                                   
+					rows = cmd.ExecuteNonQuery();                                                                   
 				
 				}
 			
@@ -152,25 +148,24 @@ namespace R2Core.DataManagement
 
 		}
 		
-		public Int64 Insert (string queryString)
-		{
-			lock (m_queryLock) {
+		public Int64 Insert(string queryString) {
+			lock(m_queryLock) {
 
 				if (m_con == null) {
 
-					throw new InvalidOperationException ("Sqlite Database not started.");
+					throw new InvalidOperationException("Sqlite Database not started.");
 				
 				}
 			
-				using (SqliteCommand cmd = new SqliteCommand(queryString, m_con)) {
+				using(SqliteCommand cmd = new SqliteCommand(queryString, m_con)) {
 
-					cmd.ExecuteNonQuery ();                                                                   
+					cmd.ExecuteNonQuery();                                                                   
 				
 				}
 			
-				using (SqliteCommand cmd = new SqliteCommand(@"select last_insert_rowid()", m_con)) {
+				using(SqliteCommand cmd = new SqliteCommand(@"select last_insert_rowid()", m_con)) {
 				
-					return (Int64)cmd.ExecuteScalar ();                                                         
+					return(Int64)cmd.ExecuteScalar();                                                         
 				
 				}
 

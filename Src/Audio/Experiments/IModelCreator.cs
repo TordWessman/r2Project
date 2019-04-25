@@ -26,10 +26,10 @@ namespace R2Core.Audio.ASR
 	public interface IModelCreator
 	{
 		bool Ready {get;}
-		Task UpdateAsync (string corpusFileName);
+		Task UpdateAsync(string corpusFileName);
 		string BasePath { get;}
-		void AddObserver (ILanguageUpdated observer);
-		void CreateLanguageFiles (IEnumerable<string> output, string corpusFileName, string wordsFileName);
+		void AddObserver(ILanguageUpdated observer);
+		void CreateLanguageFiles(IEnumerable<string> output, string corpusFileName, string wordsFileName);
 	}
 
 }

@@ -22,10 +22,9 @@ using R2Core.Device;
 namespace R2Core.PushNotifications
 {
 	/// <summary>
-	/// Represent a host environment specific push notification sender. Implementations should be specific for each host type (Apple, Google etc)
+	/// Represent a host environment specific push notification sender. Implementations should be specific for each host type(Apple, Google etc)
 	/// </summary>
-	public interface IPushNotificationFacade : IDevice
-	{
+	public interface IPushNotificationFacade : IDevice {
 
 		/// <summary>
 		/// Adds the notification to the host type specific message queue

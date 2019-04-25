@@ -23,8 +23,10 @@ using System.Net;
 namespace R2Core.Network
 {
 
-	public struct HttpMessage: INetworkMessage
-	{
+	/// <summary>
+	/// Default ´INetworkMessage´ for Http requests
+	/// </summary>
+	public struct HttpMessage : INetworkMessage {
 
 		public const string DefaultHttpMethod = "POST";
 		public const string DefaultContentType = "application/json";
@@ -58,15 +60,9 @@ namespace R2Core.Network
 
 		}
 
-	}
+		public override string ToString() {
 
-	public struct HttpError {
-	
-		public string Message;
-
-		public HttpError (string message) {
-		
-			Message = message;
+			return string.Format("[HttpMessage: Code={0}, Destination={1}, Payload={2}]", Code, Destination, Payload);
 
 		}
 

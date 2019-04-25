@@ -23,8 +23,11 @@ using System.Linq;
 
 namespace R2Core
 {
-	public class SimpleConsoleLogger : DeviceBase, IMessageLogger
-	{
+	/// <summary>
+	/// Simplified version of ´ConsoleLogger´. It just writes stuff to stdio
+	/// </summary>
+	public class SimpleConsoleLogger : DeviceBase, IMessageLogger {
+		
 		private ConsoleColor m_defaultColor;
 		private Stack<ILogMessage> m_history;
 		private int m_maxHistory;
@@ -34,10 +37,9 @@ namespace R2Core
 		/// </summary>
 		/// <param name="id">Identifier.</param>
 		/// <param name="maxHistory">Max history.</param>
-		public SimpleConsoleLogger (string id, int maxHistory) : base (id)
-		{
+		public SimpleConsoleLogger(string id, int maxHistory) : base(id) {
 			m_defaultColor = Console.ForegroundColor;
-			m_history = new Stack<ILogMessage> ();
+			m_history = new Stack<ILogMessage>();
 			m_maxHistory = maxHistory;
 		}
 
@@ -45,47 +47,47 @@ namespace R2Core
 		
 			get {
 		
-				return m_history.Reverse ().Select (t => t);
+				return m_history.Reverse().Select(t => t);
 
 			}
 		
 		}
 
-		public void Write (ILogMessage message) {
+		public void Write(ILogMessage message) {
 			
-			m_history.Push (message);
+			m_history.Push(message);
 
 			try {
 				
-				NotifyChange (message);
+				NotifyChange(message);
 			
 			} catch (Exception ex) {
 			
-				_Write (new LogMessage ("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogType.Error));
+				_Write(new LogMessage("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogType.Error));
 
 			}
 
-			_Write (message);
+			_Write(message);
 
 		}
 
-		private void _Write (ILogMessage message) {
+		private void _Write(ILogMessage message) {
 		
-			if (Console.OpenStandardOutput ().CanWrite) {
+			if (Console.OpenStandardOutput().CanWrite) {
 
 				SetConsoleColor(message.Type);
 
-				Console.WriteLine ((message.Tag != null ? "[" + message.Tag + "] " : "") + "[" +  message.TimeStamp + "] " + message.Message);
+				Console.WriteLine((message.Tag != null ? "[" + message.Tag + "] " : "") + "[" +  message.TimeStamp + "] " + message.Message);
 
-				SetConsoleColor( m_defaultColor);
+				SetConsoleColor(m_defaultColor);
 
 			}
 
 		}
 
-		private void SetConsoleColor (ConsoleColor color) {
+		private void SetConsoleColor(ConsoleColor color) {
 
-			if (Console.OpenStandardOutput ().CanWrite) {
+			if (Console.OpenStandardOutput().CanWrite) {
 				
 				Console.ForegroundColor = color;
 			
@@ -93,28 +95,28 @@ namespace R2Core
 		
 		}
 
-		private void SetConsoleColor (LogType logType) {
+		private void SetConsoleColor(LogType logType) {
 
 			switch (logType) {
 
 			case LogType.Error:
 
-				SetConsoleColor (ConsoleColor.Red);
+				SetConsoleColor(ConsoleColor.Red);
 				break;
 
 			case LogType.Warning:
 
-				SetConsoleColor (ConsoleColor.Yellow);
+				SetConsoleColor(ConsoleColor.Yellow);
 				break;
 
 			case LogType.Temp:
 
-				SetConsoleColor (ConsoleColor.Green);
+				SetConsoleColor(ConsoleColor.Green);
 				break;
 
 			case LogType.Message:
 
-				SetConsoleColor (ConsoleColor.Gray);
+				SetConsoleColor(ConsoleColor.Gray);
 				break;
 
 			}

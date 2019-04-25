@@ -21,9 +21,11 @@ using R2Core.Device;
 
 namespace R2Core.Common
 {
-	public interface IGstream : IDevice
-	{
-		bool IsRunning {get;}
+	public interface IGstream : IDevice {
+		
+		bool IsRunning { get; }
+	
 	}
+
 }
 

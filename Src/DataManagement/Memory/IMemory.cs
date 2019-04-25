@@ -27,8 +27,7 @@ namespace R2Core.DataManagement.Memory
 	/// the IMemoryReference.
 	/// 
 	/// </summary>
-	public interface IMemory : IMemoryReference
-	{
+	public interface IMemory : IMemoryReference {
 
 		/// <summary>
 		/// Returns true if this memory is local to this instance.
@@ -37,7 +36,7 @@ namespace R2Core.DataManagement.Memory
 		bool IsLocal { get; }
 
 		/// <summary>
-		/// Gets the reference (id) of the memory 
+		/// Gets the reference(id) of the memory 
 		/// </summary>
 		/// <value>
 		/// The reference.
@@ -63,7 +62,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='other'>
 		/// Other.
 		/// </param>
-		void Associate (IMemory other);
+		void Associate(IMemory other);
 		
 		/// <summary>
 		/// Gets the first occuring association of a specific type or 
@@ -77,7 +76,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='type'>
 		/// Type.
 		/// </param>
-		IMemory GetAssociation (MemoryType type);
+		IMemory GetAssociation(MemoryType type);
 		
 		/// <summary>
 		/// Gets the associations of a specific type
@@ -88,7 +87,7 @@ namespace R2Core.DataManagement.Memory
 		/// <param name='type'>
 		/// Type.
 		/// </param>
-		ICollection<IMemory> GetAssociations (MemoryType type);
+		ICollection<IMemory> GetAssociations(MemoryType type);
 
 	}
 }

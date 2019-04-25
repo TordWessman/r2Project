@@ -39,13 +39,13 @@ namespace R2Core.Video
 		/// <param name='algorithm'>
 		/// Algorithm.
 		/// </param>
-		IMemory Train (IMemory nameMemory, int algorithm, int skip = 0);
+		IMemory Train(IMemory nameMemory, int algorithm, int skip = 0);
 		
 		/// <summary>
 		/// Tries to predict weither a given IplImage belongs to the model set
-		/// defined by modelMemory (and thus, selecting the algorithm to use accordingly)
-		/// using threashold (lower value => more restrictive prediction)
-		/// Returns a prediction confidence value (lower means its more likely that the image
+		/// defined by modelMemory(and thus, selecting the algorithm to use accordingly)
+		/// using threashold(lower value => more restrictive prediction)
+		/// Returns a prediction confidence value(lower means its more likely that the image
 		/// was a part of the model) or -1.0 if the image did not belong.
 		/// </summary>
 		/// <param name='image'>
@@ -57,8 +57,8 @@ namespace R2Core.Video
 		/// <param name='threshold'>
 		/// If set to <c>true</c> threshold.
 		/// </param>
-		double Predict (IplImage image, IMemory modelMemory, double threshold = 70.0);
-		void Test (IplImage image, int id);
+		double Predict(IplImage image, IMemory modelMemory, double threshold = 70.0);
+		void Test(IplImage image, int id);
 		
 		/// <summary>
 		/// Sets the size of the face used by the pre-processor.
@@ -66,7 +66,7 @@ namespace R2Core.Video
 		/// <param name='size'>
 		/// Size.
 		/// </param>
-		void SetFaceSize (uint size);
+		void SetFaceSize(uint size);
 		
 		/// <summary>
 		/// If true, the bilateralFilter will be used during pre-processing
@@ -74,7 +74,7 @@ namespace R2Core.Video
 		/// <param name='useFilter'>
 		/// Use filter.
 		/// </param>
-		void SetUseFilter (bool useFilter);
+		void SetUseFilter(bool useFilter);
 		
 		/// <summary>
 		/// If true, the preprocessor will try to determine a face elipse
@@ -83,7 +83,7 @@ namespace R2Core.Video
 		/// <param name='useElipse'>
 		/// Use elipse.
 		/// </param>
-		void SetUseElipse (bool useElipse);
+		void SetUseElipse(bool useElipse);
 		
 		/// <summary>
 		/// Sets the equalization method used by the pre-processor. 
@@ -105,9 +105,9 @@ namespace R2Core.Video
 		/// <param name='numberOfRequiredFeatures'>
 		/// Number of required features.
 		/// </param>
-		void SetFeaturesRequirement (int numberOfRequiredFeatures);
+		void SetFeaturesRequirement(int numberOfRequiredFeatures);
 		
-		IplImage Equalize (IplImage image);
+		IplImage Equalize(IplImage image);
 		
 		/// <summary>
 		/// Caches the all the models and stores them into memory. You have to run this method
@@ -116,7 +116,7 @@ namespace R2Core.Video
 		/// <param name='memorySource'>
 		/// Memory source.
 		/// </param>
-		void LoadModels (IMemorySource memorySource);
+		void LoadModels(IMemorySource memorySource);
 		
 	}
 }

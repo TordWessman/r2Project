@@ -23,26 +23,25 @@ using NLua;
 
 namespace R2Core.Scripting
 {
-	public class LuaScriptFactory: ScriptFactoryBase<LuaScript>
-	{
+	public class LuaScriptFactory: ScriptFactoryBase<LuaScript> {
+		
 		private const string LUA_FILE_EXTENSION = ".lua";
 
 		protected override string FileExtension { get { return LUA_FILE_EXTENSION; } }
 
-		public LuaScriptFactory (string id) : base(id)
-		{
+		public LuaScriptFactory(string id) : base(id) {
 			
 		}
 
-		public override LuaScript CreateScript (string id) {
+		public override LuaScript CreateScript(string id) {
 
-			return new LuaScript (id, GetScriptFilePath(id));
+			return new LuaScript(id, GetScriptFilePath(id));
 
 		}
 
 		public override IScriptInterpreter CreateInterpreter(LuaScript script) {
 
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
 
 		}
 	

@@ -20,8 +20,8 @@ using System;
 
 namespace R2Core.Device
 {
-	public interface ICameraController : IDevice
-	{
+	public interface ICameraController : IDevice {
+		
 	}
 }
 

@@ -23,7 +23,7 @@ namespace R2Core.DataManagement
 	public interface IDBAdapter
 	{
 		bool Ready {get;}
-		void SetUp ();
+		void SetUp();
 	}
 }
 

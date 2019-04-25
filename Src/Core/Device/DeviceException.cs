@@ -20,12 +20,11 @@ using System;
 
 namespace R2Core.Device
 {
-	public class DeviceException : ApplicationException
-	{
-		public DeviceException (string message) : base (message)
-		{
+	public class DeviceException : ApplicationException {
 		
-		}
+		public DeviceException(string message) : base(message) { }
+
 	}
+
 }
 

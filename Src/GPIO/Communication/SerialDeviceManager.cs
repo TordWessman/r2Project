@@ -26,8 +26,8 @@ using R2Core;
 namespace R2Core.GPIO
 {
 	
-	internal class SerialDeviceManager
-	{
+	internal class SerialDeviceManager {
+		
 		private IList<ISerialNode> m_nodes;
 		private ISerialHost m_host;
 		private int m_updateInterval;
@@ -35,14 +35,14 @@ namespace R2Core.GPIO
 		internal IList<ISerialNode> Nodes { get { return m_nodes; } }
 
 		/// <summary>
-		/// ISerialHost used for serial communication. Update interval: how often (in seconds) should the nodes update if in sleep mode (if zero, do not update. if below zero, use default value). 
+		/// ISerialHost used for serial communication. Update interval: how often(in seconds) should the nodes update if in sleep mode(if zero, do not update. if below zero, use default value). 
 		/// </summary>
 		/// <param name="host">Host.</param>
 		/// <param name="updateInterval">Update interval.</param>
-		internal SerialDeviceManager (ISerialHost host, int updateInterval = -1) {
+		internal SerialDeviceManager(ISerialHost host, int updateInterval = -1) {
 
 			m_host = host;
-			m_nodes = new List<ISerialNode> ();
+			m_nodes = new List<ISerialNode>();
 			m_host.HostDidReset = NodeDidReset;
 			m_updateInterval = updateInterval < 0 ? Settings.Consts.SerialNodeUpdateTime() * 1000 : updateInterval * 1000;
 
@@ -51,7 +51,7 @@ namespace R2Core.GPIO
 		internal void NodeDidReset(byte nodeId) {
 		
 			// Wake up node, just in case
-			m_host.PauseSleep (nodeId, Settings.Consts.SerialNodePauseSleepInterval());
+			m_host.PauseSleep(nodeId, Settings.Consts.SerialNodePauseSleepInterval());
 
 			m_nodes.Where(n => n.NodeId == nodeId).FirstOrDefault()?.Synchronize();
 
@@ -63,14 +63,14 @@ namespace R2Core.GPIO
 
 			if (node == null) {
 
-				if (!m_host.IsNodeAvailable (nodeId)) {
+				if (!m_host.IsNodeAvailable(nodeId)) {
 				
-					throw new System.IO.IOException ($"Unable to retrieve node {nodeId}. It seems like it's unavailable...");
+					throw new System.IO.IOException($"Unable to retrieve node {nodeId}. It seems like it's unavailable...");
 
 				}
 
-				node = new SerialNode ((byte) nodeId, m_host, m_updateInterval);
-				m_nodes.Add (node);
+				node = new SerialNode((byte)nodeId, m_host, m_updateInterval);
+				m_nodes.Add(node);
 
 			}
 

@@ -20,8 +20,8 @@ using System;
 
 namespace R2Core.Common
 {
-	public interface IConsole
-	{
+	public interface IConsole {
+		
 		/// <summary>
 		/// Returns the history
 		/// </summary>

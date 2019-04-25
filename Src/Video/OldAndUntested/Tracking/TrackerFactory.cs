@@ -25,9 +25,8 @@ namespace R2Core.Video
 	{
 		private IPointsTracker m_pointsTracker;
 		
-		public TrackerFactory (string id) : base (id)
-		{
-			m_pointsTracker = new PointsTracker ();		
+		public TrackerFactory(string id) : base(id) {
+			m_pointsTracker = new PointsTracker();		
 		}
 		
 		public PtTracker CreatePointTracker (string id, IFrameSource frame, CvRect roi) {

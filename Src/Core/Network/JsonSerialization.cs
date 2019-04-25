@@ -27,7 +27,7 @@ namespace R2Core.Data
 	/// <summary>
 	/// Allows serialization of (generic) non-primitive data types.
 	/// </summary>
-	public class JsonSerialization: DeviceBase, ISerialization {
+	public class JsonSerialization : DeviceBase, ISerialization {
 
 		private System.Text.Encoding m_encoding;
 		private ExpandoObjectConverter m_converter;
@@ -47,11 +47,11 @@ namespace R2Core.Data
 
 		public System.Text.Encoding Encoding { get { return m_encoding; } }
 
-		public byte[] Serialize (dynamic obj) {
+		public byte[] Serialize(dynamic obj) {
 			
 			if (obj is string) {
 
-				return m_encoding.GetBytes (obj);
+				return m_encoding.GetBytes(obj);
 
 			} else if (obj is byte[]) {
 
@@ -60,18 +60,17 @@ namespace R2Core.Data
 			}
 		
 			// Data will be serialized to a JSON object string defore transformed into raw byte data.
-
-			string outputString = Convert.ToString (JsonConvert.SerializeObject (obj));
+			string outputString = Convert.ToString(JsonConvert.SerializeObject(obj));
 			return m_encoding.GetBytes(outputString) ?? new byte[0];
 
 		}
 
-		public dynamic Deserialize (byte[] data) {
+		public dynamic Deserialize(byte[] data) {
 			
 			if (data.Length > 0) {
 
 				//Deserialize complex object
-				return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(m_encoding.GetString (data), m_converter));
+				return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(m_encoding.GetString(data), m_converter));
 	
 			} 
 

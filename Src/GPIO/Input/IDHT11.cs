@@ -6,8 +6,8 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// DHT11 Temperature and humidity sensor.
 	/// </summary>
-	public interface IDHT11: IDevice
-	{
+	public interface IDHT11: IDevice {
+		
 		/// <summary>
 		/// Temperature in C
 		/// </summary>

@@ -28,12 +28,11 @@ namespace R2Core.Network
 	/// <summary>
 	/// Creates various http components
 	/// </summary>
-	public class WebFactory : DeviceBase
-	{
+	public class WebFactory : DeviceBase {
 		
 		private ISerialization m_serialization;
 
-		public WebFactory (string id, ISerialization serialization) : base (id) {
+		public WebFactory(string id, ISerialization serialization) : base(id) {
 
 			m_serialization = serialization;
 
@@ -41,9 +40,9 @@ namespace R2Core.Network
 
 		public ISerialization Serialization { get { return m_serialization; } }
 
-		public IServer CreateHttpServer (string id, int port) {
+		public IServer CreateHttpServer(string id, int port) {
 
-			return new HttpServer (id, port, m_serialization);
+			return new HttpServer(id, port, m_serialization);
 
 		}
 
@@ -55,7 +54,7 @@ namespace R2Core.Network
 
 		public R2Core.Network.HttpMessage CreateHttpMessage(string url) {
 		
-			return new R2Core.Network.HttpMessage () { Destination = url };
+			return new R2Core.Network.HttpMessage() { Destination = url };
 
 		}
 
@@ -64,22 +63,22 @@ namespace R2Core.Network
 		/// </summary>
 		/// <returns>The device object receiver.</returns>
 		/// <param name="security">Security.</param>
-		public IWebObjectReceiver CreateDeviceRouter() {
+		public IWebObjectReceiver CreateDeviceRouter(IDeviceContainer container) {
 		
-			return new DeviceRouter ();
+			return new DeviceRouter(container);
 
 		}
 
 		/// <summary>
-		/// Creates an endpoit that serves files. localPath is the path where files are stored, uriPath is the uri path (i.e. /images) and contentType is the contentType returned to the client (if contentType="images", the content-type header will be image/[file extension of the file being served.])
+		/// Creates an endpoit that serves files. localPath is the path where files are stored, uriPath is the uri path (i.e. /images) and contentType is the contentType returned to the client(if contentType="images", the content-type header will be image/[file extension of the file being served.])
 		/// </summary>
 		/// <returns>The file endpoint.</returns>
 		/// <param name="localPath">Local path.</param>
 		/// <param name="uriPath">URI path.</param>
 		/// <param name="contentType">Content type.</param>
-		public IWebEndpoint CreateFileEndpoint (string localPath, string uriPath) {
+		public IWebEndpoint CreateFileEndpoint(string localPath, string uriPath) {
 
-			return new WebFileEndpoint (localPath, uriPath);
+			return new WebFileEndpoint(localPath, uriPath);
 
 		}
 
@@ -89,15 +88,15 @@ namespace R2Core.Network
 		/// <returns>The json endpoint.</returns>
 		/// <param name="deviceListenerPath">Device listener path.</param>
 		/// <param name="receiver">Receiver.</param>
-		public IWebEndpoint CreateJsonEndpoint(string uriPath, IWebObjectReceiver receiver) {
+		public IWebEndpoint CreateJsonEndpoint(IWebObjectReceiver receiver) {
 
-			return new WebJsonEndpoint (uriPath, receiver, m_serialization);
+			return new WebJsonEndpoint(receiver, m_serialization);
 
 		}
 
 		public TCPMessage CreateTCPMessage(string path, dynamic payload, IDictionary<string, object> headers = null) {
 		
-			TCPMessage message = new TCPMessage () {
+			TCPMessage message = new TCPMessage() {
 				Destination = path,
 				Payload = payload,
 				Headers = headers
@@ -109,30 +108,30 @@ namespace R2Core.Network
 
 		public ITCPPackageFactory<TCPMessage> CreateTcpPackageFactory() {
 
-			return new TCPPackageFactory (m_serialization);
+			return new TCPPackageFactory(m_serialization);
 
 		}
 
 		public IMessageClient CreateTcpClient(string id, string host, int port) {
 		
-			return new TCPClient (id, CreateTcpPackageFactory (), host, port);
+			return new TCPClient(id, CreateTcpPackageFactory(), host, port);
 
 		}
 
 		public IServer CreateTcpServer(string id, int port) {
 		
-			return new TCPServer (id, port, new TCPPackageFactory (m_serialization));
+			return new TCPServer(id, port, new TCPPackageFactory(m_serialization));
 
 		}
 
 		public IServer CreateUdpServer(string id, int port) {
 		
-			return new UDPServer (id, port, new TCPPackageFactory (m_serialization));
+			return new UDPServer(id, port, new TCPPackageFactory(m_serialization));
 		}
 
 		public UDPBroadcaster CreateUdpClient(string id, int port) {
 		
-			return new UDPBroadcaster(id, port, new TCPPackageFactory (m_serialization));
+			return new UDPBroadcaster(id, port, new TCPPackageFactory(m_serialization));
 
 		}
 
@@ -145,7 +144,7 @@ namespace R2Core.Network
 		/// <param name="destination">Destination.</param>
 		public HostSynchronizer CreateHostSynchronizer(string id, int port, IDeviceManager deviceManager) {
 		
-			return new HostSynchronizer (id, port, deviceManager, this);
+			return new HostSynchronizer(id, port, deviceManager, this);
 		
 		}
 
@@ -157,7 +156,7 @@ namespace R2Core.Network
 		/// <param name="encoding">Encoding.</param>
 		public ISerialization CreateSerialization(string id, System.Text.Encoding encoding) {
 
-			return new JsonSerialization (id, encoding);
+			return new JsonSerialization(id, encoding);
 
 		}
 

@@ -23,8 +23,7 @@ using System.Collections.Generic;
 
 namespace R2Core
 {
-	public interface ITaskMonitored
-	{
+	public interface ITaskMonitored {
 		
 		IDictionary<string,Task> GetTasksToObserve();
 		

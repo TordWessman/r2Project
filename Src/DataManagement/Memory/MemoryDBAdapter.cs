@@ -25,8 +25,8 @@ using System.Linq;
 
 namespace R2Core.DataManagement.Memory
 {
-	public class MemoryDBAdapter : IMemoryDBAdapter
-	{
+	public class MemoryDBAdapter : IMemoryDBAdapter {
+		
 		private IDatabase m_db;
 		
 		private const string MEMORY_TABLE_NAME = "memory";
@@ -45,31 +45,29 @@ namespace R2Core.DataManagement.Memory
 
 		public bool Ready { get {return m_db.Ready; }}
 		
-		public MemoryDBAdapter (IDatabase db)
-		{
+		public MemoryDBAdapter(IDatabase db) {
 
 			m_db = db;
 		
 		}
 
-		public ICollection<IMemoryReference> Get (string type)
-		{
+		public ICollection<IMemoryReference> Get(string type) {
 
-			ICollection<IMemoryReference> memories = new List<IMemoryReference> ();
-			string sql = string.Format (SELECT, MEMORY_TABLE_NAME, TYPE_COL, type);
+			ICollection<IMemoryReference> memories = new List<IMemoryReference>();
+			string sql = string.Format(SELECT, MEMORY_TABLE_NAME, TYPE_COL, type);
 
 			if (!m_db.Ready) {
 
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 
 			}
 
-			DataSet ds = m_db.Select (sql);
+			DataSet ds = m_db.Select(sql);
 			DataTable dt = ds.Tables [0];
 
 			foreach (DataRow row in dt.Rows) {
 
-				memories.Add (CreateReference(row));
+				memories.Add(CreateReference(row));
 
 			}
 
@@ -77,24 +75,23 @@ namespace R2Core.DataManagement.Memory
 
 		}
 
-		public ICollection<IMemoryReference> Get (int[] ids)
-		{
+		public ICollection<IMemoryReference> Get(int[] ids) {
 
-			ICollection<IMemoryReference> memories = new List<IMemoryReference> ();
-			string sql = string.Format (SELECT_MANY, MEMORY_TABLE_NAME, ID_COL, String.Join(",", ids));
+			ICollection<IMemoryReference> memories = new List<IMemoryReference>();
+			string sql = string.Format(SELECT_MANY, MEMORY_TABLE_NAME, ID_COL, String.Join(",", ids));
 
 			if (!m_db.Ready) {
 
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 
 			}
 
-			DataSet ds = m_db.Select (sql);
+			DataSet ds = m_db.Select(sql);
 			DataTable dt = ds.Tables [0];
 
 			foreach (DataRow row in dt.Rows) {
 
-				memories.Add (CreateReference(row));
+				memories.Add(CreateReference(row));
 
 			}
 
@@ -102,32 +99,30 @@ namespace R2Core.DataManagement.Memory
 
 		}
 	
-		public bool Update (IMemoryReference reference)
-		{
-			string sql = string.Format (
+		public bool Update(IMemoryReference reference) {
+			string sql = string.Format(
 				UPDATE_ROW_SQL,
 				MEMORY_TABLE_NAME,
 				NAME_COL,
-				reference.Value.Replace ("\"", ""),
+				reference.Value.Replace("\"", ""),
 				TYPE_COL,
-				reference.Type.Replace ("\"", ""),
+				reference.Type.Replace("\"", ""),
 				ID_COL,
 				reference.Id);
 
 			if (!m_db.Ready) {
 
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 
 			}
 
-			return m_db.Update (sql) > 0;
+			return m_db.Update(sql) > 0;
 
 		}
 		
-		public void SetUp ()
-		{
+		public void SetUp() {
 
-			string sql = string.Format (CREATE_TABLE_SQL,
+			string sql = string.Format(CREATE_TABLE_SQL,
 			                           	MEMORY_TABLE_NAME,
 			                           	ID_COL,
 			                           	NAME_COL,
@@ -135,55 +130,53 @@ namespace R2Core.DataManagement.Memory
 
 			if (!m_db.Ready) {
 			
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 		
 			}
 			
-			m_db.Update (sql);
+			m_db.Update(sql);
 		
 		}
 		
-		public void Create (IMemoryReference reference)
-		{
+		public void Create(IMemoryReference reference) {
 
-			string sql = string.Format (
+			string sql = string.Format(
 				INSERT_ROW_SQL,
 			    MEMORY_TABLE_NAME,
 			    ID_COL,
 			    NAME_COL,
 			    TYPE_COL,
 			    reference.Id,
-				reference.Value.Replace ("\"", ""),
-				reference.Type.Replace ("\"", ""));
+				reference.Value.Replace("\"", ""),
+				reference.Type.Replace("\"", ""));
 				
 			if (!m_db.Ready) {
 
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 			
 			}
 			
-			m_db.Insert (sql);
+			m_db.Insert(sql);
 		
 		}
 		
-		public ICollection<IMemoryReference> LoadAll ()
-		{
+		public ICollection<IMemoryReference> LoadAll() {
 			
-			ICollection<IMemoryReference> memories = new List<IMemoryReference> ();
-			string sql = string.Format (SELECT_ALL_SQL, MEMORY_TABLE_NAME);
+			ICollection<IMemoryReference> memories = new List<IMemoryReference>();
+			string sql = string.Format(SELECT_ALL_SQL, MEMORY_TABLE_NAME);
 			
 			if (!m_db.Ready) {
 
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 			
 			}
 			
-			DataSet ds = m_db.Select (sql);
+			DataSet ds = m_db.Select(sql);
 			DataTable dt = ds.Tables [0];
 			
 			foreach (DataRow row in dt.Rows) {
 				
-				memories.Add (CreateReference(row));
+				memories.Add(CreateReference(row));
 			
 			}
 
@@ -191,10 +184,9 @@ namespace R2Core.DataManagement.Memory
 		
 		}
 		
-		public bool Delete (int memoryId)
-		{
+		public bool Delete(int memoryId) {
 
-			string sql = string.Format (
+			string sql = string.Format(
 				DELETE_SQL,
 			    MEMORY_TABLE_NAME,
 			    ID_COL,
@@ -202,11 +194,11 @@ namespace R2Core.DataManagement.Memory
 			
 			if (!m_db.Ready) {
 			
-				throw new InvalidOperationException ("Database not ready!");
+				throw new InvalidOperationException("Database not ready!");
 			
 			}
 			
-			int result = m_db.Update (sql);
+			int result = m_db.Update(sql);
 			
 			if (result > 0) {
 			
@@ -218,9 +210,9 @@ namespace R2Core.DataManagement.Memory
 		
 		}
 
-		private IMemoryReference CreateReference (DataRow row) {
+		private IMemoryReference CreateReference(DataRow row) {
 		
-			return new MemoryReference (
+			return new MemoryReference(
 				(int)((long)row [ID_COL]),
 				(string)row [NAME_COL],
 				(string)row [TYPE_COL] 

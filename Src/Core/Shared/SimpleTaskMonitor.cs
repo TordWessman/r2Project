@@ -25,34 +25,33 @@ using R2Core.Device;
 
 namespace R2Core
 {
-	public class SimpleTaskMonitor: DeviceBase, ITaskMonitor	
-	{
+	public class SimpleTaskMonitor : DeviceBase, ITaskMonitor {
+		
 		private IDictionary<string, Task> m_tasks;
 		
 		private Task m_monitorTask;
 		private bool m_shouldRun;
 		private static readonly object m_assignLock = new object();
 		
-		public SimpleTaskMonitor (string deviceId) : base (deviceId)
-		{
+		public SimpleTaskMonitor(string deviceId) : base(deviceId) {
 			m_shouldRun = true;
-			m_tasks = new Dictionary<string,Task> ();
-			m_monitorTask = new Task (() => {
+			m_tasks = new Dictionary<string,Task>();
+			m_monitorTask = new Task(() => {
 				
-				while (m_shouldRun) {
+				while(m_shouldRun) {
 					
-					lock (m_assignLock) {
+					lock(m_assignLock) {
 						
-						List<string> done = new List<string> ();
-						List<string> faulted = new List<string> ();
+						List<string> done = new List<string>();
+						List<string> faulted = new List<string>();
 						
 						foreach (string id in m_tasks.Keys) {
 							
 							if (m_tasks [id] != null) {
 								if (m_tasks [id].Status == TaskStatus.RanToCompletion) {
-									done.Add (id);
+									done.Add(id);
 								} else if (m_tasks [id].Status == TaskStatus.Faulted) {
-									faulted.Add (id);
+									faulted.Add(id);
 								}
 								                                                        
 								
@@ -61,28 +60,27 @@ namespace R2Core
 						}
 						
 						foreach (string id in done) {
-							m_tasks.Remove (id);
+							m_tasks.Remove(id);
 						}
 						
 						foreach (string id in faulted) {
-							Log.x (m_tasks [id].Exception);
-							m_tasks.Remove (id);
+							Log.x(m_tasks [id].Exception);
+							m_tasks.Remove(id);
 						}
 				
 					}
 					
-					Thread.Sleep (2000);
+					Thread.Sleep(2000);
 				}
 			});
 		}
 
 		#region ITaskMonitor implementation
-		public void AddTask (string id, System.Threading.Tasks.Task task)
-		{
-			lock (m_assignLock) {
+		public void AddTask(string id, System.Threading.Tasks.Task task) {
+			lock(m_assignLock) {
 				
-				if (m_tasks.ContainsKey (id)) {
-					id = id + task.GetHashCode ().ToString();
+				if (m_tasks.ContainsKey(id)) {
+					id = id + task.GetHashCode().ToString();
 				}
 
 				if (m_tasks.ContainsKey(id)) {
@@ -91,41 +89,37 @@ namespace R2Core
 
 					Log.w("AddTask encountered duplicate. Removing previous instance of task: " + id);
 
-					m_tasks.Add (id, task);
+					m_tasks.Add(id, task);
 				}
 				
 			}
 
 		}
 
-		public void AddMonitorable (ITaskMonitored observer)
-		{
+		public void AddMonitorable(ITaskMonitored observer) {
 
 			foreach (string id in observer.GetTasksToObserve().Keys) {
-				AddTask (id, observer.GetTasksToObserve ()[id]);
+				AddTask(id, observer.GetTasksToObserve()[id]);
 			}
 
 		}
 
-		public override void Start ()
-		{
+		public override void Start() {
 			m_shouldRun = true;
-			m_monitorTask.Start ();
+			m_monitorTask.Start();
 		}
 
-		public override void Stop ()
-		{
+		public override void Stop() {
 			m_shouldRun = false;
-			PrintTasks ();
+			PrintTasks();
 		}
 
-		public void RemoveMonitorable (ITaskMonitored observer)
-		{
-			lock (m_assignLock) {
-				List<string> ids = new List<string> ();
+		public void RemoveMonitorable(ITaskMonitored observer) {
+			lock(m_assignLock) {
+				List<string> ids = new List<string>();
 				
 				foreach (string id in observer.GetTasksToObserve().Keys) {
-					ids.Add (id);
+					ids.Add(id);
 					
 				}
 				
@@ -138,15 +132,14 @@ namespace R2Core
 			}
 		}
 
-		public void PrintTasks ()
-		{
+		public void PrintTasks() {
 			int workerThread = 0, other = 0;
-			ThreadPool.GetAvailableThreads (out workerThread, out other);
-			Log.d ("Number of worker threads: " + workerThread + " completionPortThreads: " + other + " ");
+			ThreadPool.GetAvailableThreads(out workerThread, out other);
+			Log.d("Number of worker threads: " + workerThread + " completionPortThreads: " + other + " ");
 			
-			lock (m_assignLock) {
+			lock(m_assignLock) {
 				foreach (string id in m_tasks.Keys) {
-					Log.d ("[" + id + "]" + (m_tasks [id] != null ? m_tasks [id].Status.ToString () + " (" + m_tasks [id].GetHashCode()  + ") " : "(null)"));
+					Log.d("[" + id + "]" + (m_tasks [id] != null ? m_tasks [id].Status.ToString() + " (" + m_tasks [id].GetHashCode()  + ") " : "(null)"));
 				}
 				
 			}

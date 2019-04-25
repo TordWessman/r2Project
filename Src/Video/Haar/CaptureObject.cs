@@ -33,7 +33,7 @@ namespace R2Core.Video
 		[System.Runtime.InteropServices.FieldOffset(16 + 4) ]
 		public bool initialized;					//is this CaptureObject loaded?
 		[System.Runtime.InteropServices.FieldOffset(16 + 8) ]
-		public System.IntPtr captured_image;				//capturedImage (if any) stored in RGBA format
+		public System.IntPtr captured_image;				//capturedImage(if any) stored in RGBA format
 
 	}
 }

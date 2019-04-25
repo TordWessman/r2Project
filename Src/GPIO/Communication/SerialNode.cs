@@ -27,7 +27,7 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// Default ISerialNode implementation. Capable of synchronizing devices on associated node.
 	/// </summary>
-	internal class SerialNode: DeviceBase, ISerialNode {
+	internal class SerialNode : DeviceBase, ISerialNode {
 
 		// Remote id of this node
 		private byte m_nodeId;
@@ -76,30 +76,30 @@ namespace R2Core.GPIO
 		public int FailCount { get { return m_failCount; } }
 
 		/// <summary>
-		/// If the node should perpetually be trying to fetch the values (Update) it's associated devices if in sleep mode. Defaults to true.
+		/// If the node should perpetually be trying to fetch the values(Update) it's associated devices if in sleep mode. Defaults to true.
 		/// </summary>
 		/// <value><c>true</c> if should update; otherwise, <c>false</c>.</value>
 		public bool ShouldUpdate { get { return m_shouldUpdate; } set { m_shouldUpdate = value; } }
 
 		/// <summary>
-		/// `nodeID` is the remote id of the node. ISerialHost is used for communication to remote. ISerialHost used for serial communication. `updateInterval`: how often should the nodes update if in sleep mode (if zero, do not update. if below zero, use default value).
+		/// `nodeID` is the remote id of the node. ISerialHost is used for communication to remote. ISerialHost used for serial communication. `updateInterval`: how often should the nodes update if in sleep mode(if zero, do not update. if below zero, use default value).
 		/// </summary>
 		/// <param name="nodeId">Node identifier.</param>
 		/// <param name="host">Host.</param>
 		/// <param name="updateInterval">Update interval.</param>
-		internal SerialNode(byte nodeId, ISerialHost host, int updateInterval) : base ($"{Settings.Consts.SerialNodeIdPrefix()}{nodeId}") {
+		internal SerialNode(byte nodeId, ISerialHost host, int updateInterval) : base($"{Settings.Consts.SerialNodeIdPrefix()}{nodeId}") {
 			
 			m_host = host;
 			m_nodeId = nodeId;
-			m_devices = new List<ISerialDevice> ();
+			m_devices = new List<ISerialDevice>();
 			m_updateInterval = updateInterval;
 			m_shouldUpdate = true;
-			m_shouldSleep = host.IsNodeSleeping (nodeId);
+			m_shouldSleep = host.IsNodeSleeping(nodeId);
 
 			if (m_shouldSleep) {
 
 				m_lastUpdate = DateTime.MinValue;
-				StartScheduledSynchronization ();
+				StartScheduledSynchronization();
 
 			} else {
 			
@@ -114,33 +114,33 @@ namespace R2Core.GPIO
 			get { return m_shouldSleep; }
 			set { 
 
-				m_host.Sleep (NodeId, value);
+				m_host.Sleep(NodeId, value);
 				m_shouldSleep = value;
 
-				if (value && m_updateInterval > 0) { StartScheduledSynchronization (); }
-				else if (m_updateInterval > 0) { StopScheduledSynchronization (); }
+				if (value && m_updateInterval > 0) { StartScheduledSynchronization(); }
+				else if (m_updateInterval > 0) { StopScheduledSynchronization(); }
 			}
 
 		}
 
-		public override bool Ready { get { return m_host.IsNodeAvailable (m_nodeId); } }
-		public override void Start () { StartScheduledSynchronization (); }
-		public override void Stop () { StopScheduledSynchronization (); }
-		public void Synchronize() { m_devices.ForEach (device => device.Synchronize ()); }
-		public void Track (ISerialDevice device) { m_devices.Add (device);  }
+		public override bool Ready { get { return m_host.IsNodeAvailable(m_nodeId); } }
+		public override void Start() { StartScheduledSynchronization(); }
+		public override void Stop() { StopScheduledSynchronization(); }
+		public void Synchronize() { m_devices.ForEach(device => device.Synchronize()); }
+		public void Track(ISerialDevice device) { m_devices.Add(device);  }
 
-		private void StopScheduledSynchronization () {
+		private void StopScheduledSynchronization() {
 
-			m_release?.Set ();
-			m_timer?.Change (0, 0);
-			m_timer?.Dispose ();
+			m_release?.Set();
+			m_timer?.Change(0, 0);
+			m_timer?.Dispose();
 			m_timer = null;
 
 		}
 
 		private void StartScheduledSynchronization() {
 
-			m_timer?.Change (0, 0);
+			m_timer?.Change(0, 0);
 			m_timer?.Dispose();
 
 			m_release = new AutoResetEvent(false);
@@ -166,16 +166,16 @@ namespace R2Core.GPIO
 			try {
 
 				// Wake up node, just in case
-				m_host.PauseSleep (m_nodeId, Settings.Consts.SerialNodePauseSleepInterval());
+				m_host.PauseSleep(m_nodeId, Settings.Consts.SerialNodePauseSleepInterval());
 
 				// Update the values of tracked devices
-				m_devices.ForEach (device => device.Update());
+				m_devices.ForEach(device => device.Update());
 
 				m_lastUpdate = DateTime.Now;
 
 			} catch (Exception ex) {
 				
-				Log.w ($"Node ({m_nodeId}) update error: {ex.Message}.");
+				Log.w($"Node({m_nodeId}) update error: {ex.Message}.");
 				m_failCount++;
 
 			} finally { m_isUpdating = false; } 
@@ -184,11 +184,11 @@ namespace R2Core.GPIO
 
 		public bool Validate() {
 
-			byte[] checksum = m_host.GetChecksum (m_nodeId);
+			byte[] checksum = m_host.GetChecksum(m_nodeId);
 
 			if ((checksum [0] & 63) != m_devices.Count) {
 			
-				Log.e ($"Checksum failed for device count (was {(checksum [0] & 63)}).");
+				Log.e($"Checksum failed for device count(was {(checksum [0] & 63)}).");
 				return false;
 			}
 
@@ -196,7 +196,7 @@ namespace R2Core.GPIO
 			
 				if (checksum [i + 1] != m_devices [i].Checksum) {
 
-					Log.e ($"Checksum failed for serial device '{m_devices[i].Identifier}'.");
+					Log.e($"Checksum failed for serial device '{m_devices[i].Identifier}'.");
 					return false;
 
 				}

@@ -25,11 +25,11 @@ namespace R2Core.Audio.ASR
 {
 	public interface IASRInterpreter :  IASRObserver, ILanguageUpdated, IDevice
 	{
-		void SetReplyMode (bool isActive);
+		void SetReplyMode(bool isActive);
 		bool TTSIsActive {get;}
-		void SetTTSId (string tts_Id);
-		//void AddLock (IConversationLock conversationLock);
-		void ScriptLock (string scriptHandle, string methodHandle);
+		void SetTTSId(string tts_Id);
+		//void AddLock(IConversationLock conversationLock);
+		void ScriptLock(string scriptHandle, string methodHandle);
 	}
 }
 

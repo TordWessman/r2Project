@@ -33,8 +33,8 @@ namespace R2Core.Network
 	/// <summary>
 	/// "Raw" UDP broadcasting. Should be able to handle errors and distinguish it's own messages if the server is set up correctly...
 	/// </summary>
-	public class UDPBroadcaster: DeviceBase, INetworkBroadcaster
-	{
+	public class UDPBroadcaster : DeviceBase, INetworkBroadcaster {
+		
 		ITCPPackageFactory<TCPMessage> m_serializer;
 		private IPEndPoint m_host;
 		private Socket m_socket;
@@ -55,11 +55,10 @@ namespace R2Core.Network
 		/// <value>The broadcast task.</value>
 		public Task BroadcastTask { get { return m_task; } }
 
-		public UDPBroadcaster (string id, int port, ITCPPackageFactory<TCPMessage> serializer, string address = null) : base(id)
-		{
+		public UDPBroadcaster(string id, int port, ITCPPackageFactory<TCPMessage> serializer, string address = null) : base(id) {
 
 			m_serializer = serializer;
-			m_host = new IPEndPoint (address != null ? IPAddress.Parse (address) : IPAddress.Any, port);
+			m_host = new IPEndPoint(address != null ? IPAddress.Parse(address) : IPAddress.Any, port);
 			m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,
 				ProtocolType.Udp);
 			
@@ -84,34 +83,34 @@ namespace R2Core.Network
 		/// <param name="message">Message.</param>
 		/// <param name="timout">Timout.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		public MessageIdType Broadcast(INetworkMessage requestMessage, Action<BroadcastMessage, Exception> responseDelegate = null, int timeout = 2000) {
+		public MessageIdType Broadcast(INetworkMessage requestMessage, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = 2000) {
 
 			if (!Ready) {
 			
-				throw new InvalidOperationException ($"Unable to broadcast. Previous broadcast is not completed (task status: {m_task?.Status}).");
+				throw new InvalidOperationException($"Unable to broadcast. Previous broadcast is not completed(task status: {m_task?.Status}).");
 
 			}
 
-			BroadcastMessage message = new BroadcastMessage (requestMessage);
+			BroadcastMessage message = new BroadcastMessage(requestMessage, m_host.GetAddress(), m_host.GetPort());
 
 			m_currentMessageId = message.Identifier;
 			m_cancelationToken = new CancellationTokenSource();
 			m_socket.ReceiveTimeout = timeout;
-			m_cancelationToken.CancelAfter (timeout);
+			m_cancelationToken.CancelAfter(timeout);
 
 			m_task = new Task(() => {
 
-				byte[] requestData = m_serializer.SerializeMessage (new TCPMessage(message));
+				byte[] requestData = m_serializer.SerializeMessage(new TCPMessage(message));
 
 				if (requestData.Length > MaximumPackageSize) {
 
-					throw new ArgumentException ($"UDP message is to lage ({requestData.Length} bytes). Maximum size is {MaximumPackageSize} bytes. ");
+					throw new ArgumentException($"UDP message is to lage({requestData.Length} bytes). Maximum size is {MaximumPackageSize} bytes. ");
 				
 				}
 
-				if (requestData.Length != m_socket.SendTo (requestData, m_host)) {
+				if (requestData.Length != m_socket.SendTo(requestData, m_host)) {
 
-					throw new System.Net.WebException ($"Bytes sent to host '{m_host.ToString()}' mismatch.");
+					throw new System.Net.WebException($"Bytes sent to host '{m_host.ToString()}' mismatch.");
 
 				}
 
@@ -142,7 +141,7 @@ namespace R2Core.Network
 
 			});
 
-			m_task.Start ();
+			m_task.Start();
 			return m_currentMessageId;
 
 		}
@@ -157,11 +156,11 @@ namespace R2Core.Network
 
 			EndPoint remoteHost = (EndPoint)m_host;
 
-			while (!m_cancelationToken.Token.IsCancellationRequested) {
+			while(!m_cancelationToken.Token.IsCancellationRequested) {
 				
-				int length = m_socket.ReceiveFrom (buffer, ref remoteHost);
+				int length = m_socket.ReceiveFrom(buffer, ref remoteHost);
 
-				INetworkMessage response = m_serializer.DeserializePackage (new MemoryStream (buffer, 0, length));
+				INetworkMessage response = m_serializer.DeserializePackage(new MemoryStream(buffer, 0, length));
 
 				if (m_currentMessageId?.ToString() != response.GetBroadcastMessageKey()) {
 				
@@ -169,7 +168,7 @@ namespace R2Core.Network
 					continue;
 				}
 
-				responseDelegate?.BeginInvoke(new BroadcastMessage(response, (IPEndPoint) remoteHost), null, (asyncResult) => {
+				responseDelegate?.BeginInvoke(new BroadcastMessage(response, m_host.GetAddress(), m_host.GetPort()), null, (asyncResult) => {
 					
 					try {
 						
@@ -178,7 +177,7 @@ namespace R2Core.Network
 
 					} catch (Exception ex) {
 						
-						Log.w("Broadcast client failed to call response deleage with the following exception:");
+						Log.w("Broadcast delegate crashed!");
 						Log.x(ex);
 
 					}

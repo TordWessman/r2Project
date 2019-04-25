@@ -27,9 +27,7 @@ namespace R2Core.Common
 	/// <summary>
 	/// Represent a gstreamer pipeline object. Use this object to create a simple gstreamer pipline. 
 	/// </summary>
-	public class Gstream : DeviceBase, IGstream, ITaskMonitored
-	{
-		private static readonly int START_LOCK_TIMEOUT_MS = 5000;
+	public class Gstream : DeviceBase, IGstream, ITaskMonitored {
 
 		private const string dllPath = "libr2gstparseline.so";
 
@@ -52,7 +50,7 @@ namespace R2Core.Common
 		protected static extern int _ext_is_playing_gstream(System.IntPtr ptr);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_is_initialized_gstream (System.IntPtr ptr);
+		protected static extern int _ext_is_initialized_gstream(System.IntPtr ptr);
 
 		private string m_pipeLine;
 		private Task m_task;
@@ -62,8 +60,7 @@ namespace R2Core.Common
 
 		readonly object m_startLock = new object();  
 
-		public Gstream (string id, string pipeline) : base (id)
-		{
+		public Gstream(string id, string pipeline) : base(id) {
 
 			m_pipeLine = pipeline;
 
@@ -73,7 +70,7 @@ namespace R2Core.Common
 		
 			if (m_ptr != System.IntPtr.Zero) {
 			
-				_ext_destroy_gstream (m_ptr);
+				_ext_destroy_gstream(m_ptr);
 
 			}
 
@@ -81,18 +78,18 @@ namespace R2Core.Common
 
 		private void CreatePipeline() {
 		
-			m_ptr = _ext_create_gstream (m_pipeLine);
+			m_ptr = _ext_create_gstream(m_pipeLine);
 
 			if (m_ptr == System.IntPtr.Zero) {
 
-				throw new ApplicationException ("Unable to create pipeline: " + m_pipeLine);
+				throw new ApplicationException("Unable to create pipeline: " + m_pipeLine);
 
 			}
 
 
-			if (_ext_init_gstream (m_ptr) != 1) {
+			if (_ext_init_gstream(m_ptr) != 1) {
 
-				Log.e ("Gstream '" + Identifier + "' Unable to parse pipeline: " + m_pipeLine);
+				Log.e("Gstream '" + Identifier + "' Unable to parse pipeline: " + m_pipeLine);
 
 			}
 
@@ -102,13 +99,13 @@ namespace R2Core.Common
 
 			if (!Ready) { 
 			
-				Stop ();
+				Stop();
 
 			}
 
 			if (m_ptr != System.IntPtr.Zero) {
 
-				_ext_destroy_gstream (m_ptr);
+				_ext_destroy_gstream(m_ptr);
 
 			}
 
@@ -118,61 +115,43 @@ namespace R2Core.Common
 		}
 
 
-		public override void Start ()
-		{
+		public override void Start() {
 
 			if (m_ptr == System.IntPtr.Zero) {
 			
-				CreatePipeline ();
+				CreatePipeline();
 
 			}
 
-			if (_ext_is_initialized_gstream (m_ptr) == 0) {
+			if (_ext_is_initialized_gstream(m_ptr) == 0) {
 			
-				throw new InvalidOperationException ("Unable to Start Gstream '" + Identifier + "'. Initialization failed.");
+				throw new InvalidOperationException("Unable to Start Gstream '" + Identifier + "'. Initialization failed.");
 
 			}
 
-			if (Monitor.IsEntered (m_startLock)) {
-
-				throw new InvalidOperationException ("Unable to Start Gstream '" + Identifier + "' since it's about to start.");
-
-			}
-
-			//Monitor.Enter (m_startLock);
-			m_task = Task.Factory.StartNew (() => {
+			m_task = Task.Factory.StartNew(() => {
 
 				m_isRunning = true;
-				//Monitor.Exit(m_startLock);
 
 				if (_ext_play_gstream(m_ptr) != 1) {
 
 					m_isRunning = false;
 
-					Log.e ("Gstream '" + Identifier + "' Unable to play pipeline: " + m_pipeLine);
+					Log.e("Gstream '" + Identifier + "' Unable to play pipeline: " + m_pipeLine);
 
 				}
 
 			});
-				
-			//Monitor.Wait (m_startLock, START_LOCK_TIMEOUT_MS);
 
 		}
 
-		public override void Stop ()
-		{
+		public override void Stop() {
 
 			m_isRunning = false;
 
-			//if (Monitor.IsEntered (m_startLock)) {
-			
-			//	Monitor.Exit(m_startLock);
-
-			//}
-
 			if (Ready && _ext_stop_gstream(m_ptr) != 1) {
 
-				Log.e ("Gstream '" + Identifier + "' Unable to stop pipeline: " + m_pipeLine);
+				Log.e("Gstream '" + Identifier + "' Unable to stop pipeline: " + m_pipeLine);
 
 			}
 
@@ -204,8 +183,7 @@ namespace R2Core.Common
 
 		#region ITaskMonitored implementation
 
-		public System.Collections.Generic.IDictionary<string, Task> GetTasksToObserve ()
-		{
+		public System.Collections.Generic.IDictionary<string, Task> GetTasksToObserve() {
 
 			return new System.Collections.Generic.Dictionary<string,Task>() {{ "Gst" + Identifier, m_task}};
 		

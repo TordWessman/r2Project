@@ -31,8 +31,8 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// Default script implementation for IronRuby & IronPython
 	/// </summary>
-	public class IronScript: ScriptBase
-	{
+	public class IronScript: ScriptBase {
+		
 		protected ScriptEngine m_engine;
 		protected ScriptScope m_scope;
 		protected ScriptSource m_source;
@@ -50,46 +50,45 @@ namespace R2Core.Scripting
 		// Contains a list of input parameters
 		private IDictionary<string, dynamic> m_params;
 
-		public IronScript(string id, string fileName, ScriptEngine engine, IDictionary<string, dynamic> parameters) : base (id)
-		{
+		public IronScript(string id, string fileName, ScriptEngine engine, IDictionary<string, dynamic> parameters) : base(id) {
 
 			m_engine = engine;
 			m_scope =  m_engine.CreateScope();
 			m_fileName = fileName;
 			m_params = parameters ?? new Dictionary<string,dynamic>();
 		
-			Reload ();
+			Reload();
 		}
 
 		public void AddSearchPath(string searchPath) {
 		
-			m_engine.SetSearchPaths (m_engine.GetSearchPaths ().Concat (new List<string> () { searchPath }).ToList());
+			m_engine.SetSearchPaths(m_engine.GetSearchPaths().Concat(new List<string>() { searchPath }).ToList());
 		
 		}
 
-		public override void Reload () {
+		public override void Reload() {
 
-			if (IsRunning) { Stop (); }
+			if (IsRunning) { Stop(); }
 
-			if (!File.Exists (m_fileName)) {
+			if (!File.Exists(m_fileName)) {
 
-				throw new IOException ($"Python file does not exist: {m_fileName}");
+				throw new IOException($"Python file does not exist: {m_fileName}");
 
 			} else {
 
-				Log.d ($"Loading script: {m_fileName}");
+				Log.d($"Loading script: {m_fileName}");
 
 			}
 
-			m_source = m_engine.CreateScriptSourceFromFile (m_fileName);
+			m_source = m_engine.CreateScriptSourceFromFile(m_fileName);
 
 			try {
 
-				m_source.Execute (m_scope);
+				m_source.Execute(m_scope);
 
 			} catch (Exception ex) {
 			
-				Log.x (ex);
+				Log.x(ex);
 
 				throw ex;
 
@@ -97,9 +96,9 @@ namespace R2Core.Scripting
 
 			System.Runtime.Remoting.ObjectHandle tmp;
 
-			if (!m_scope.TryGetVariableHandle (HANDLE_MAIN_CLASS, out tmp)) {
+			if (!m_scope.TryGetVariableHandle(HANDLE_MAIN_CLASS, out tmp)) {
 				
-				throw new ArgumentNullException ($"Unable to get main class: '{HANDLE_MAIN_CLASS}' from script: '{m_fileName}'" );
+				throw new ArgumentNullException($"Unable to get main class: '{HANDLE_MAIN_CLASS}' from script: '{m_fileName}'" );
 
 			}
 
@@ -107,48 +106,48 @@ namespace R2Core.Scripting
 
 			foreach (KeyValuePair<string, dynamic> kvp in m_params) {
 
-				Set (kvp.Key, kvp.Value);
+				Set(kvp.Key, kvp.Value);
 
 			}
 
-			Invoke (HANDLE_INIT_FUNCTION);
+			Invoke(HANDLE_INIT_FUNCTION);
 
 		}
 
 		public override bool Ready { get { return base.Ready && m_mainClass != null;} }
 
-		public override void Set (string handle, dynamic value) {
+		public override void Set(string handle, dynamic value) {
 
-			m_engine.Operations.SetMember (m_mainClass, handle, value);
+			m_engine.Operations.SetMember(m_mainClass, handle, value);
 
 		}
 
-		public override dynamic Get (string handle) {
+		public override dynamic Get(string handle) {
 
-			if (!Ready || !m_engine.Operations.ContainsMember (m_mainClass, handle)) {
+			if (!Ready || !m_engine.Operations.ContainsMember(m_mainClass, handle)) {
 
 				return null;
 
 			}
 
-			return m_engine.Operations.GetMember (m_mainClass, handle);
+			return m_engine.Operations.GetMember(m_mainClass, handle);
 
 		} 
 
-		public override dynamic Invoke (string handle, params dynamic[] args) {
+		public override dynamic Invoke(string handle, params dynamic[] args) {
 			
-			if (!m_engine.Operations.ContainsMember (m_mainClass, handle)) {
+			if (!m_engine.Operations.ContainsMember(m_mainClass, handle)) {
 
-				throw new ArgumentException ($"Error in script: {m_fileName}. Handle '{handle}' was not declared in {HANDLE_MAIN_CLASS}.");
+				throw new ArgumentException($"Error in script: {m_fileName}. Handle '{handle}' was not declared in {HANDLE_MAIN_CLASS}.");
 
 			}
 
-			dynamic member = m_engine.Operations.GetMember (m_mainClass, handle);
+			dynamic member = m_engine.Operations.GetMember(m_mainClass, handle);
 
 			if (member is IronPython.Runtime.Method || member is IronRuby.Runtime.Calls.RubyMethodInfo || member is IronRuby.Builtins.RubyMethod) {
 			
 				// Invoke as method
-				return m_engine.Operations.InvokeMember (m_mainClass, handle, args);
+				return m_engine.Operations.InvokeMember(m_mainClass, handle, args);
 
 			}
 

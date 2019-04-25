@@ -28,7 +28,7 @@ namespace R2Core
 	
 		public static byte[]ToBytes(this int self, int size = Int32Converter.ValueSize) {
 		
-			return new Int32Converter(self).GetContainedBytes (size);
+			return new Int32Converter(self).GetContainedBytes(size);
 
 		}
 
@@ -38,7 +38,7 @@ namespace R2Core
 	
 		public static int ToInt(this byte[] self, int offset = 0, int length = Int32Converter.ValueSize) {
 		
-			return new Int32Converter (self.Skip (offset).Take (length)).Value;
+			return new Int32Converter(self.Skip(offset).Take(length)).Value;
 
 		}
 
@@ -48,8 +48,7 @@ namespace R2Core
 	/// Conversion between int values and byte arrays. Original code by Christ Taylor (http://stackoverflow.com/users/314028/chris-taylor)
 	/// </summary>
 	[StructLayout(LayoutKind.Explicit)]
-	public struct Int32Converter
-	{
+	public struct Int32Converter {
 		
 		public const int ValueSize = 4;
 
@@ -103,11 +102,11 @@ namespace R2Core
 		/// <returns>The bytes.</returns>
 		public byte[] GetContainedBytes(int? size = null) {
 
-			IList<byte> byteArray = new List<byte> ();
+			IList<byte> byteArray = new List<byte>();
 
-			for (int i = 0; i < (size ?? Length); i++) { byteArray.Add (this [i]); }
+			for (int i = 0; i < (size ?? Length); i++) { byteArray.Add(this [i]); }
 
-			return byteArray.ToArray ();
+			return byteArray.ToArray();
 
 		}
 
@@ -127,7 +126,7 @@ namespace R2Core
 					return Byte4;
 				default:
 					
-					throw new IndexOutOfRangeException ();
+					throw new IndexOutOfRangeException();
 				}
 			}
 
@@ -149,7 +148,7 @@ namespace R2Core
 					break;
 				default:
 
-					throw new IndexOutOfRangeException ();
+					throw new IndexOutOfRangeException();
 				}
 			}
 		}

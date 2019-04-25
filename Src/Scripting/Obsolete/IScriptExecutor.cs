@@ -24,20 +24,20 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// Object representation of a IScript. Contains methods for communicating with the script.
 	/// </summary>
-	public interface IScriptExecutor: IDevice
-	{
+	public interface IScriptExecutor : IDevice {
+		
 		/// <summary>
 		/// Sets the variable handle to value within the script.
 		/// </summary>
 		/// <param name="handle">Handle.</param>
 		/// <param name="value">Value.</param>
-		void Set (string handle, dynamic value);
+		void Set(string handle, dynamic value);
 
 		/// <summary>
 		/// Returns the dynamically evaluated property of handle.
 		/// </summary>
 		/// <param name="handle">Handle.</param>
-		dynamic Get (string handle);
+		dynamic Get(string handle);
 		
 		/// <summary>
 		/// Gets a value indicating whether this <see cref="Core.Scripting.IScriptExecutor"/> is done executing.

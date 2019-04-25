@@ -21,18 +21,17 @@ using R2Core.Data;
 
 namespace R2Core.DataManagement
 {
-	public static class DataFactoryExtensions
-	{
+	public static class DataFactoryExtensions {
 
 		public static IDatabase CreateSqlDatabase(this DataFactory self, string id, string fileName) {
 
-			return new SqliteDatabase (id, self.GetFilePath (fileName));
+			return new SqliteDatabase(id, self.GetFilePath(fileName));
 
 		}
 
 		public static T CreateDatabaseAdapter<T>(this DataFactory self, IDatabase database) where T: IDBAdapter {
 
-			throw new NotImplementedException ();
+			throw new NotImplementedException();
 
 		}
 

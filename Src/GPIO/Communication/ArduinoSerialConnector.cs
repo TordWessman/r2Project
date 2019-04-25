@@ -27,8 +27,8 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// Used to interact with a device running a device router (see r2I2CDeviceRouter.ino). Currently only supports packages smaller than 256 bytes.
 	/// </summary>
-	public class ArduinoSerialConnector: DeviceBase, ISerialConnection
-	{
+	public class ArduinoSerialConnector : DeviceBase, ISerialConnection {
+		
 		/// <summary>
 		/// The package headers used as "checksum". Defined in the source code for the Arduino node in r2I2CDeviceRouter.h (PACKAGE_HEADER_IDENTIFIER).
 		/// </summary>
@@ -40,7 +40,7 @@ namespace R2Core.GPIO
 		private static readonly object m_lock = new object();
 
 		/// <summary>
-		/// portIdentifier is either an explicit name of the port (i.e. /dev/ttyACM0) or a regexp pattern (i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
+		/// portIdentifier is either an explicit name of the port(i.e. /dev/ttyACM0) or a regexp pattern(i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
 		/// </summary>
 		/// <param name="portIdentifier">Port identifier.</param>
 		/// <param name="baudRate">Baud rate.</param>
@@ -49,15 +49,15 @@ namespace R2Core.GPIO
 			string portName = GetSerialPort(portIdentifier);
 
 			m_packageHeader = Settings.Consts.ArduinoSerialConnectorPackageHeader().Split(',').Select( b => byte.Parse(b, System.Globalization.NumberStyles.HexNumber)).ToArray();
-			m_timeout = Settings.Consts.ArduinoSerialConnectorTimeout ();
+			m_timeout = Settings.Consts.ArduinoSerialConnectorTimeout();
 
 			if (portName == null) {
 
-				throw new System.IO.IOException ($"Unable to match any serial port to identifier '{portIdentifier}'.");
+				throw new System.IO.IOException($"Unable to match any serial port to identifier '{portIdentifier}'.");
 
 			}
 
-			m_serialPort = new SerialPort (portName, baudRate);
+			m_serialPort = new SerialPort(portName, baudRate);
 
 			m_serialPort.DtrEnable = true;
 			m_serialPort.Parity = Parity.None;
@@ -87,26 +87,26 @@ namespace R2Core.GPIO
 
 		private string GetSerialPort(string portIdentifier) {
 
-			return SerialPort.GetPortNames ().Where (p => p == portIdentifier).FirstOrDefault() ??
+			return SerialPort.GetPortNames().Where(p => p == portIdentifier).FirstOrDefault() ??
 				SerialPort.GetPortNames().FirstOrDefault(p => new Regex(portIdentifier).IsMatch(p));
 
 		}
 
 		public override void Start() {
 
-			Log.d ($"Connectiing to {m_serialPort.PortName}");
+			Log.d($"Connectiing to {m_serialPort.PortName}");
 
 			try {
-				m_serialPort.Open ();
+				m_serialPort.Open();
 			} catch (TimeoutException) {
 				//ehh this seems to be needed
-				m_serialPort.Open ();
-				Log.t ("The fulhack did work...");
+				m_serialPort.Open();
+				Log.t("The fulhack did work...");
 			
 			}
-			m_serialPort.DiscardOutBuffer ();
-			m_serialPort.DiscardInBuffer ();
-			System.Threading.Thread.Sleep (m_timeout);
+			m_serialPort.DiscardOutBuffer();
+			m_serialPort.DiscardInBuffer();
+			System.Threading.Thread.Sleep(m_timeout);
 
 		}
 
@@ -114,23 +114,23 @@ namespace R2Core.GPIO
 
 		public byte[] Send(byte[] request) {
 
-			lock (m_lock) {
+			lock(m_lock) {
 
 				// Make sure the input buffer is empty before sending.
-				ClearPipe ();
+				ClearPipe();
 
 				byte[] requestBytes = new byte[request.Length + 1 + m_packageHeader.Length];
 
-				System.Buffer.BlockCopy (m_packageHeader, 0, requestBytes, 0, m_packageHeader.Length);
+				System.Buffer.BlockCopy(m_packageHeader, 0, requestBytes, 0, m_packageHeader.Length);
 
 				// First byte of the non-package header should have the value of the rest of the transaction.
-				requestBytes [m_packageHeader.Length] = (byte) request.Length;
+				requestBytes [m_packageHeader.Length] = (byte)request.Length;
 
-				System.Buffer.BlockCopy (request, 0, requestBytes, 1 + m_packageHeader.Length, request.Length);
+				System.Buffer.BlockCopy(request, 0, requestBytes, 1 + m_packageHeader.Length, request.Length);
 
-				m_serialPort.Write (requestBytes, 0, requestBytes.Length);
+				m_serialPort.Write(requestBytes, 0, requestBytes.Length);
 
-				return Read ();
+				return Read();
 
 			}
 
@@ -140,28 +140,28 @@ namespace R2Core.GPIO
 			
 			for (int i = 0; i < m_packageHeader.Length; i++) {
 
-				byte headerByte = (byte) m_serialPort.ReadByte ();
+				byte headerByte = (byte)m_serialPort.ReadByte();
 
 				if (headerByte != m_packageHeader [i]) {
 
-					throw new System.IO.IOException ($"Bad Package header: {headerByte} at {i} (should have been {m_packageHeader [i]}).");
+					throw new System.IO.IOException($"Bad Package header: {headerByte} at {i} (should have been {m_packageHeader [i]}).");
 				
 				}
 
 			}
 
 			// First byte should contain the size of the rest of the transaction.
-			int responseSize = m_serialPort.ReadByte ();
+			int responseSize = m_serialPort.ReadByte();
 
 			byte[] readBuffer = new byte[responseSize];
 
 			for (int i = 0; i < readBuffer.Length; i++) {
 
-				readBuffer[i] = (byte)m_serialPort.ReadByte ();
+				readBuffer[i] = (byte)m_serialPort.ReadByte();
 
 			}
 
-			ClearPipe ();
+			ClearPipe();
 
 			return readBuffer;
 
@@ -169,7 +169,7 @@ namespace R2Core.GPIO
 
 		public override void Stop() {
 
-			m_serialPort.Close ();
+			m_serialPort.Close();
 
 		}
 
@@ -178,8 +178,8 @@ namespace R2Core.GPIO
 		/// </summary>
 		private void ClearPipe() {
 
-			if (m_serialPort.BytesToRead > 0) { Log.w ("Ahr, there was apparently some data in the pipe."); }
-			m_serialPort.DiscardInBuffer ();
+			if (m_serialPort.BytesToRead > 0) { Log.w("Ahr, there was apparently some data in the pipe."); }
+			m_serialPort.DiscardInBuffer();
 
 		}
 

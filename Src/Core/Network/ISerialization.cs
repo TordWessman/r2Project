@@ -26,20 +26,19 @@ namespace R2Core.Data
 	/// <summary>
 	/// Capable of serializing from any type and deserializing objects into a dynamic type.
 	/// </summary>
-	public interface ISerialization: IDevice
-	{
+	public interface ISerialization : IDevice {
 
 		/// <summary>
 		/// Serialize the data provided to byte array representation.
 		/// </summary>
 		/// <param name="data">Data.</param>
-		byte[] Serialize (dynamic data);
+		byte[] Serialize(dynamic data);
 
 		/// <summary>
 		/// Generates a dynamic object from the serialized data container. 
 		/// </summary>
 		/// <param name="data">Data.</param>
-		dynamic Deserialize (byte[] data);
+		dynamic Deserialize(byte[] data);
 
 		/// <summary>
 		/// The encoding used by the deserializer.

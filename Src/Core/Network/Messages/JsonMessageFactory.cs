@@ -23,7 +23,7 @@ namespace R2Core.Network
 {
 	public class JsonMessageFactory : DeviceBase
 	{
-		public JsonMessageFactory (string id): base (id)
+		public JsonMessageFactory(string id) : base(id)
 		{
 		}
 

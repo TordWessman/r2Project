@@ -26,7 +26,7 @@ namespace R2Core.Tests
 	{
 		private string m_path;
 
-		public DummyEndpoint (string path) {
+		public DummyEndpoint(string path) {
 
 			m_path = path;
 
@@ -36,7 +36,7 @@ namespace R2Core.Tests
 
 		public INetworkMessage Interpret(INetworkMessage message,  System.Net.IPEndPoint source) {
 		
-			Assert.AreEqual (source.Address.ToString (), "127.0.0.1");
+			Assert.AreEqual(source.Address.ToString(), "127.0.0.1");
 
 			return MessingUp == null ? message : MessingUp(message);
 

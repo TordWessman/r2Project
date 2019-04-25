@@ -25,8 +25,8 @@ namespace R2Core.Video
 {
 	public interface IImagePointerManager
 	{
-		IplImage LoadImage (IMemory memory);
-		//IplImage [] LoadImages (ICollection<IMemory> memories);
+		IplImage LoadImage(IMemory memory);
+		//IplImage [] LoadImages(ICollection<IMemory> memories);
 	}
 }
 

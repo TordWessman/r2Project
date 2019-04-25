@@ -36,7 +36,7 @@ namespace R2Core.Scripting
 
 		public ScriptException(Exception exception) : base($"\n[{exception.GetType()}]\n" + exception.Message, exception.InnerException) {
 			
-			m_stacktrace = String.Join(Environment.NewLine, exception.StackTrace.Split (new string[1] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToArray ().Where(line => !(new List<string> () { "Microsoft.Scripting.", "System.Dynamic.UpdateDelegates", ".Runtime.Calls.", "Microsoft.Scripting.Hosting", "(wrapper dynamic-method)", "(wrapper delegate-invoke)", "(wrapper remoting-invoke-with-check)" }).Any(l => line.Contains(l))).ToArray().Where(line => line != Environment.NewLine));
+			m_stacktrace = String.Join(Environment.NewLine, exception.StackTrace.Split(new string[1] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToArray().Where(line => !(new List<string>() { "Microsoft.Scripting.", "System.Dynamic.UpdateDelegates", ".Runtime.Calls.", "Microsoft.Scripting.Hosting", "(wrapper dynamic-method)", "(wrapper delegate-invoke)", "(wrapper remoting-invoke-with-check)" }).Any(l => line.Contains(l))).ToArray().Where(line => line != Environment.NewLine));
 
 		}
 
@@ -47,8 +47,7 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// IScript implementations should inherit from ScriptBase, since it's usingthe DynamicObject features for method and member access.
 	/// </summary>
-	public abstract class ScriptBase: DynamicObject, IScript 
-	{
+	public abstract class ScriptBase: DynamicObject, IScript {
 		/// <summary>
 		/// Will be called upon script initialization. This method must be defined in the MainClass. Defined in scriptbase.rb
 		/// </summary>
@@ -60,7 +59,7 @@ namespace R2Core.Scripting
 		public const string HANDLE_SHOULD_RUN = "should_run";
 
 		/// <summary>
-		/// (Optional) Method handle to the scripts 'stop' method (termination).
+		/// (Optional) Method handle to the scripts 'stop' method(termination).
 		/// </summary>
 		public const string HANDLE_STOP = "stop";
 
@@ -70,7 +69,7 @@ namespace R2Core.Scripting
 		public const string HANDLE_LOOP = "loop";
 
 		/// <summary>
-		/// (Optional) Method handle for the setup function (which will be executed before each execution).
+		/// (Optional) Method handle for the setup function(which will be executed before each execution).
 		/// </summary>
 		public const string HANDLE_SETUP = "setup";	
 
@@ -83,12 +82,12 @@ namespace R2Core.Scripting
 		private Task m_processTask;
 
 
-		public ScriptBase (string id) {
+		public ScriptBase(string id) {
 			
 			m_id = id;
-			m_guid = Guid.NewGuid ();
-			m_deviceObservers = new List<IDeviceObserver> ();
-			m_scriptObservers = new List<IScriptObserver> ();
+			m_guid = Guid.NewGuid();
+			m_deviceObservers = new List<IDeviceObserver>();
+			m_scriptObservers = new List<IScriptObserver>();
 
 		}
 
@@ -97,22 +96,22 @@ namespace R2Core.Scripting
 		public virtual bool Ready { get { return true; } }
 		public bool IsRunning { get { return m_isRunning; } }
 
-		public abstract void Set (string handle, dynamic value);
-		public abstract dynamic Get (string handle);
-		public abstract dynamic Invoke (string handle, params dynamic[] args);
+		public abstract void Set(string handle, dynamic value);
+		public abstract dynamic Get(string handle);
+		public abstract dynamic Invoke(string handle, params dynamic[] args);
 		public abstract void Reload();
 
-		public void AddObserver (IScriptObserver observer) { m_scriptObservers.Add (observer); }
-		public void AddObserver (IDeviceObserver observer) { m_deviceObservers.Add (observer); }
-		public void RemoveObserver (IDeviceObserver observer) { m_deviceObservers.Remove (observer); }
+		public void AddObserver(IScriptObserver observer) { m_scriptObservers.Add(observer); }
+		public void AddObserver(IDeviceObserver observer) { m_deviceObservers.Add(observer); }
+		public void RemoveObserver(IDeviceObserver observer) { m_deviceObservers.Remove(observer); }
 
-		private Task GetProcessTask () {
+		private Task GetProcessTask() {
 
-			return new Task (() => {
+			return new Task(() => {
 
 				try {
 
-					while (m_isRunning && (false != Get(HANDLE_SHOULD_RUN)) && (true == Invoke(HANDLE_LOOP))) {
+					while(m_isRunning && (false != Get(HANDLE_SHOULD_RUN)) && (true == Invoke(HANDLE_LOOP))) {
 
 						// In the class' loop function
 
@@ -132,7 +131,7 @@ namespace R2Core.Scripting
 
 				foreach (IScriptObserver observer in m_scriptObservers) {
 
-					observer?.OnScriptFinished (this);
+					observer?.OnScriptFinished(this);
 
 				}
 
@@ -142,11 +141,11 @@ namespace R2Core.Scripting
 
 		}
 
-		public void Start () {
+		public void Start() {
 
 			if (!Ready) {
 
-				throw new ApplicationException ($"Unable to start process. The script used to run the process ({Identifier} is not ready.");
+				throw new ApplicationException($"Unable to start process. The script used to run the process({Identifier} is not ready.");
 
 			}
 
@@ -154,28 +153,28 @@ namespace R2Core.Scripting
 
 				m_isRunning = true;
 
-				m_processTask = GetProcessTask ();
+				m_processTask = GetProcessTask();
 
 				// Run setup method if present
-				if (null != Get (HANDLE_SETUP)) { 
+				if (null != Get(HANDLE_SETUP)) { 
 
-					Invoke (HANDLE_SETUP); 
+					Invoke(HANDLE_SETUP); 
 
 				} else { 
 
-					Log.w ($"Warning: Script '{Identifier}' is missing 'setup' method."); 
+					Log.w($"Warning: Script '{Identifier}' is missing 'setup' method."); 
 				
 				} 
 
-				m_processTask.Start ();
+				m_processTask.Start();
 
 			} catch (Exception ex) {
 
 				m_isRunning = false;
 
-				foreach (IScriptObserver observer in m_scriptObservers) { observer?.OnScriptErrors (this); }
-				ScriptException exception = new ScriptException (ex);
-				Log.x (exception);
+				foreach (IScriptObserver observer in m_scriptObservers) { observer?.OnScriptErrors(this); }
+				ScriptException exception = new ScriptException(ex);
+				Log.x(exception);
 
 				throw exception;
 
@@ -183,38 +182,37 @@ namespace R2Core.Scripting
 
 		}
 
-		public void Stop () {
+		public void Stop() {
 
-			if (null != Get (HANDLE_STOP)) { Invoke (HANDLE_STOP); }
+			if (null != Get(HANDLE_STOP)) { Invoke(HANDLE_STOP); }
 
 			m_isRunning = false;
 
 		}
 
-		public override bool TrySetMember (SetMemberBinder binder, object value) {
+		public override bool TrySetMember(SetMemberBinder binder, object value) {
 
-			Set (binder.Name, value);
+			Set(binder.Name, value);
 			return true;
 
 		}
 
-		public override bool TryGetMember (GetMemberBinder binder, out object result) {
+		public override bool TryGetMember(GetMemberBinder binder, out object result) {
 		
-			result = Get (binder.Name);
+			result = Get(binder.Name);
 			return true;
 
 		}
 
-		public override bool TryInvokeMember (InvokeMemberBinder binder, object[] args, out object result)
-		{
+		public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result) {
 			
-			result = Invoke (binder.Name, args);
+			result = Invoke(binder.Name, args);
 			return true;
 
 		}
 
 
-		public IDictionary<string,Task> GetTasksToObserve () { return new Dictionary<string, Task>() {{"SCRIPT: " + m_id, m_processTask} }; }
+		public IDictionary<string,Task> GetTasksToObserve() { return new Dictionary<string, Task>() {{"SCRIPT: " + m_id, m_processTask} }; }
 
 	}
 
