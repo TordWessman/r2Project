@@ -54,16 +54,11 @@ namespace R2Core.Network
 		// Contains an Exception from the Received if thrown there.
 		private Exception m_readError;
 
-		// Contains the latest previous broadcast response
-		private TCPMessage m_broadcastResponse;
-
-		// Re-do every failed poll.
-		private bool m_previousPollSuccess = true;
-
 		// Responsible for making sure the connection has not been lost
 		PingService m_ping;
 
-		private System.Timers.Timer m_connectionCheckTimer;
+		// Keeps track of the connectivity of a socket
+		private ConnectionPoller m_connectionPoller;
 
 		public event OnReceiveHandler OnReceive;
 		public event OnDisconnectHandler OnDisconnect;
@@ -79,16 +74,15 @@ namespace R2Core.Network
 			m_packageFactory = factory;
 			m_ping = new PingService(this, m_client.SendTimeout);
 
-			m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
-			m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
+			m_connectionPoller = new ConnectionPoller(m_client, () => {
 
-		}
+				if (m_shouldRun) { Disconnect(); }
 
-		~TCPServerConnection() {
-		
-			Log.d($"Deallocating {this}.");
+			});
 		
 		}
+
+		~TCPServerConnection() { Log.d($"Deallocating {this}."); }
 
 		public string Address { get { return m_client.GetEndPoint()?.GetAddress(); } }
 
@@ -106,13 +100,13 @@ namespace R2Core.Network
 			
 				using(m_client) {
 				
-					while(m_shouldRun && m_client.Connected) { Connection(); }
+					while(Ready) { Connection(); }
 
 				}
 
 			});
 
-			m_connectionCheckTimer.Start();
+			m_connectionPoller.Start();
 			//m_ping.Start();
 
 		}
@@ -149,7 +143,7 @@ namespace R2Core.Network
 
 			Log.d($"{this} disconnected.");
 
-			m_connectionCheckTimer?.Stop();
+			m_connectionPoller?.Stop();
 
 			//m_ping.Stop();
 
@@ -208,10 +202,6 @@ namespace R2Core.Network
 					
 					Reply(clientRequest);
 
-				} else if (clientRequest.IsBroadcastMessage()) {
-				
-					m_broadcastResponse = clientRequest;
-
 				}
 
 				if (!clientRequest.IsPingOrPong()) {
@@ -244,53 +234,13 @@ namespace R2Core.Network
 			
 			lock(m_writeLock) {
 
-				try {
-
-					Socket socket = m_client.GetSocket();
-
-					if (socket == null) {
-
-						Log.w($"{this} was unable to connect to socket.");
-						if (m_shouldRun) { Stop(); }
-
-					} else {
-
-						byte[] response = m_packageFactory.SerializeMessage(new TCPMessage(message));
-						new BlockingNetworkStream(m_client.Client).Write(response, 0, response.Length);
-
-					}
-
-				} catch (Exception ex) {
-
-					Log.x(ex);
-					throw ex;
-
-				}
-			
-			}
-
-			if (m_shouldRun && !Ready) {
-			
-				// I'm disconnected, but not quite aware of it yet.
-				Stop();
+				byte[] response = m_packageFactory.SerializeMessage(new TCPMessage(message));
+				new BlockingNetworkStream(m_client.Client).Write(response, 0, response.Length);
 
 			}
 
-		}
-
-		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
-		
-			if (!m_shouldRun) { return; }
-
-			bool pollSuccessful = m_client.GetSocket()?.Poll(m_client.ReceiveTimeout * 1000, SelectMode.SelectError) ?? false;
-
-			if (Ready || !(pollSuccessful && m_previousPollSuccess)) {
-
-				Disconnect();
-
-			}
-
-			m_previousPollSuccess = pollSuccessful;
+			// I'm disconnected, but not quite aware of it yet.
+			if (m_shouldRun && !Ready) { Stop(); }
 
 		}
 

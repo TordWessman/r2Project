@@ -55,7 +55,8 @@ namespace R2Core.Network
 		// Makes sure the connection is alive
 		private PingService m_ping;
 
-		private System.Timers.Timer m_connectionCheckTimer;
+		// Keeps track of the connectivity of a socket
+		private ConnectionPoller m_connectionPoller;
 
 		/// <summary>
 		/// Timeout in ms before a send operation dies.
@@ -98,9 +99,12 @@ namespace R2Core.Network
 			m_client.Connect(m_host, m_port);
 			m_receiverTask = Receive();
 			m_ping = new PingService(this, Timeout);
+			m_connectionPoller = new ConnectionPoller(m_client, () => {
 
-			m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
-			m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
+				if (m_shouldRun) { Stop(); }
+
+			});
+
 			//m_ping.Start();
 
 		}
@@ -113,7 +117,7 @@ namespace R2Core.Network
 
 			m_shouldRun = false;
 
-			m_connectionCheckTimer?.Stop();
+			m_connectionPoller?.Stop();
 			m_ping?.Stop();
 
 			if (m_client?.Connected == true) {
@@ -272,9 +276,9 @@ namespace R2Core.Network
 
 					try {
 
-						if (Ready && m_shouldRun && m_connectionCheckTimer?.Enabled == false) {
+						if (Ready && m_shouldRun && m_connectionPoller?.Ready == false) {
 						
-							m_connectionCheckTimer?.Start();
+							m_connectionPoller?.Start();
 						
 						}
 							
@@ -347,28 +351,6 @@ namespace R2Core.Network
 		public void AddObserver(IMessageClientObserver receiver) {
 
 			m_observers.Add(new WeakReference<IMessageClientObserver>(receiver));
-
-		}
-
-		private bool m_pollSuccess = true;
-
-		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
-
-			if (!m_shouldRun) { return; }
-
-			bool pollSuccess = m_client.GetSocket()?.Poll(Timeout * 1000, SelectMode.SelectError) ?? false;
-
-			if (!Ready || !pollSuccess) {
-
-				if (!m_pollSuccess || !Ready) {
-
-					Log.t($"NNNNNNNNNNNNNNNNNNNNNNNN: Client polling failed({Identifier}) pollSuccess: {pollSuccess}!");
-					Stop();
-					m_pollSuccess = true;
-
-				} else { m_pollSuccess = pollSuccess; }
-
-			}
 
 		}
 

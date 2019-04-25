@@ -129,6 +129,7 @@
     </Compile>
     <Compile Include="Network\NetworkStatusCode.cs" />
     <Compile Include="Network\TCP\TCPServerConnection.cs" />
+    <Compile Include="Network\ConnectionPoller.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

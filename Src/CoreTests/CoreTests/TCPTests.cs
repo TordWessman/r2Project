@@ -309,7 +309,10 @@ namespace R2Core.Tests
 			client2.Timeout = 1000;
 			client2.Start();
 
-			Thread.Sleep(1000);
+			Thread.Sleep(200);
+
+			// Network polling does only start after the first Send.
+			client2.Send (new OkMessage ());
 
 			foreach (IClientConnection connection in s.Connections) {
 			

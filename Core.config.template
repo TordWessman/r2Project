@@ -60,6 +60,7 @@
 		<UdpBroadcaster comment="Sending broadcast messages">udp_broadcaster</UdpBroadcaster>
 		<IoFactory comment="IO factory factory, responsible for creating IO factories.">io_factory</IoFactory>
 		<PingService comment="The name of all ping services...">ping_service</PingService>
+		<ConnectionPoller comment="The name of all ConnectionPoller instances.">connection_poller</ConnectionPoller>
 	</Identifiers>
 	<Consts>
 		<FileLoggerDefaultFile comment="The default file logger output file">test_output.txt</FileLoggerDefaultFile>
