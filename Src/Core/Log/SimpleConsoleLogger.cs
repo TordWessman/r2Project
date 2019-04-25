@@ -73,15 +73,19 @@ namespace R2Core
 
 		private void _Write(ILogMessage message) {
 		
-			if (Console.OpenStandardOutput().CanWrite) {
+			try {
 
-				SetConsoleColor(message.Type);
+				if (Console.OpenStandardOutput().CanWrite) {
 
-				Console.WriteLine((message.Tag != null ? "[" + message.Tag + "] " : "") + "[" +  message.TimeStamp + "] " + message.Message);
+					SetConsoleColor(message.Type);
 
-				SetConsoleColor(m_defaultColor);
+					Console.WriteLine((message.Tag != null ? "[" + message.Tag + "] " : "") + "[" +  message.TimeStamp + "] " + message.Message);
 
-			}
+					SetConsoleColor(m_defaultColor);
+
+				}
+
+			} catch (NotSupportedException) { /* Indicates that the logger is being closed. */ }
 
 		}
 

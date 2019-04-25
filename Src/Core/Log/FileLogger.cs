@@ -42,8 +42,13 @@ namespace R2Core
 
 		~FileLogger() {
 
-			m_fs.Close();
-
+			lock (m_lock) {
+				
+				m_fs.Close ();
+				m_outputStream = null;
+			
+			}
+		
 		}
 
 		public void Write(ILogMessage message) {
@@ -52,7 +57,7 @@ namespace R2Core
 
 				int id = System.Threading.Tasks.Task.CurrentId ?? 0;
 
-				m_outputStream.WriteLine($"[{id}][{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
+				m_outputStream?.WriteLine($"[{id}][{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
 
 			}
 
