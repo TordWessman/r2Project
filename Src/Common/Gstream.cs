@@ -52,6 +52,9 @@ namespace R2Core.Common
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern int _ext_is_initialized_gstream(System.IntPtr ptr);
 
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern int _ext_get_error_code(System.IntPtr ptr);
+
 		private string m_pipeLine;
 		private Task m_task;
 		private bool m_isRunning;
@@ -89,7 +92,7 @@ namespace R2Core.Common
 
 			if (_ext_init_gstream(m_ptr) != 1) {
 
-				Log.e("Gstream '" + Identifier + "' Unable to parse pipeline: " + m_pipeLine);
+				Log.e($"Gstream '{Identifier}' init failed with error code: {_ext_get_error_code(m_ptr)}. Unable to parse pipeline '{m_pipeLine}'.");
 
 			}
 
@@ -125,7 +128,7 @@ namespace R2Core.Common
 
 			if (_ext_is_initialized_gstream(m_ptr) == 0) {
 			
-				throw new InvalidOperationException("Unable to Start Gstream '" + Identifier + "'. Initialization failed.");
+				throw new InvalidOperationException($"Unable to Start Gstream '{Identifier}'. Not initialized.");
 
 			}
 
@@ -137,7 +140,13 @@ namespace R2Core.Common
 
 					m_isRunning = false;
 
-					Log.e("Gstream '" + Identifier + "' Unable to play pipeline: " + m_pipeLine);
+					Log.e($"Gstream '{Identifier}' start playback failed with error code: {_ext_get_error_code(m_ptr)}. Unable to play pipeline '{m_pipeLine}'.");
+
+				}
+
+				if (_ext_get_error_code(m_ptr) != 0) {
+
+					Log.e($"Gstream '{Identifier}' playback failed with error code: {_ext_get_error_code(m_ptr)}. Unable to play pipeline '{m_pipeLine}'.");
 
 				}
 
@@ -175,10 +184,20 @@ namespace R2Core.Common
 		
 			get {
 
-				return m_ptr != System.IntPtr.Zero && _ext_is_playing_gstream(m_ptr) != 1;
+				return m_ptr != System.IntPtr.Zero && _ext_is_playing_gstream(m_ptr) == 1;
 			
 			}
 		
+		}
+
+		public bool Initialized {
+			
+			get {
+			
+				return _ext_is_initialized_gstream(m_ptr) == 1;
+
+			}
+
 		}
 
 		#region ITaskMonitored implementation

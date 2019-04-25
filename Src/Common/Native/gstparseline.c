@@ -39,9 +39,12 @@ static gboolean bus_callGstPipeLine(GstBus *busObj, GstMessage *msg, void *user_
 	}
 	case GST_MESSAGE_ERROR: {
 		GError *err;
+
+
 		gst_message_parse_error(msg, &err, NULL);
 		//report error
-		printf ("ERROR: %s", err->message);
+		printf ("ERROR: %s. CODE: %d", err->message, err->code);
+		plc->error_code = err->code;
 		g_error_free(err);
 		
 		g_main_loop_quit(plc->loop);
@@ -99,6 +102,7 @@ struct PLC* createPipeLine (const char* pipelineString) {
 	plc->is_playing = false;
 	plc->is_initialized = false;
 	plc->is_stopped = false;
+	plc->error_code = 0;
 
 	return plc;
 
@@ -133,11 +137,10 @@ int initGstPipeLine(struct PLC* plc) {
 
 	}
 
-	printf ("Starting Gstreamer pipeline: %s \n", plc->pipelineString);
-
 	GError *error = NULL;
 
 	plc->is_stopped = false;
+	plc->error_code = 0;
 
 	if (plc->is_playing) {
 
@@ -154,12 +157,14 @@ int initGstPipeLine(struct PLC* plc) {
 	plc->loop = g_main_loop_new(NULL, FALSE);
 
 	plc->pipeline = gst_parse_launch (plc->pipelineString, &error);
+	plc->error_code = error ? error->code : 0;
 
 	if (!plc->pipeline) {
 	
 		
-    		g_critical ("Parse error: %s\n", error->message);
+    	g_critical ("Parse error: %s\n", error->message);
 		g_error_free(error);
+
 		return false;
     		
 	}
@@ -229,8 +234,6 @@ int stopGstPipeLine (struct PLC* plc) {
 
 	}
 
-	printf ("Stopping pipeline: %s \n", plc->pipelineString);
-
 	if (!plc->is_playing) {
 
 		g_critical ("Unable to stop Gtreamer pipeline. Pipeline must be playing");
@@ -259,8 +262,6 @@ int stopGstPipeLine (struct PLC* plc) {
 	}
 	
 	plc->is_stopped = true;
-
-	printf ("Did terminate pipeline: %s \n", plc->pipelineString);
 
 	return true;
 
@@ -295,20 +296,25 @@ int _ext_init_gstream(struct PLC* plc) {
 
 }
 
-int _ext_is_playing_gstream (struct PLC* plc) {
+int _ext_is_playing_gstream(struct PLC* plc) {
 
 	return plc->is_playing;
 
 }
 
-int _ext_is_initialized_gstream (struct PLC* plc) {
+int _ext_is_initialized_gstream(struct PLC* plc) {
 
 	return plc->is_initialized;
 
 }
 
+int _ext_get_error_code(struct PLC* plc) {
 
-int main (int argc, char *argv[])
+	return plc ? plc->error_code : 0;
+
+}
+
+int main(int argc, char *argv[])
 {
 	
 	struct PLC *plc = createPipeLine(argv[1]);

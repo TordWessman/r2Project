@@ -35,6 +35,7 @@ struct PLC {
 
 	int is_stopped;
 	int is_initialized;
+	int error_code;	//non-zero values means that an error has occured.
 
 	const char* pipelineString;
 	
@@ -46,5 +47,5 @@ int _ext_init_gstream(struct PLC* plc);
 int _ext_stop_gstream(struct PLC* plc);
 int _ext_play_gstream(struct PLC* plc);
 int _ext_is_playing_gstream(struct PLC* plc);
-int _ext_is_initialized_gstream (struct PLC* plc);
-
+int _ext_is_initialized_gstream(struct PLC* plc);
+int _ext_get_error_code(struct PLC* plc);
