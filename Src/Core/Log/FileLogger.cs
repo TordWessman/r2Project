@@ -57,7 +57,11 @@ namespace R2Core
 
 				int id = System.Threading.Tasks.Task.CurrentId ?? 0;
 
-				m_outputStream?.WriteLine($"[{id}][{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
+				try {
+
+					m_outputStream?.WriteLine($"[{id}][{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
+
+				} catch (ObjectDisposedException) { /* The stream has bet shut down due to application exit. */ }
 
 			}
 
