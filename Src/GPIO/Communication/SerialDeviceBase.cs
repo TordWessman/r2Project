@@ -32,6 +32,7 @@ namespace R2Core.GPIO
 
 		public byte NodeId { get { return m_node.NodeId; } }
 		public bool IsSleeping { get { return m_node.Sleep; } }
+		public override bool Ready { get { return m_node.Ready; } }
 
 		internal SerialDeviceBase(string id, ISerialNode node, ISerialHost host): base(id) {
 			
@@ -82,6 +83,12 @@ namespace R2Core.GPIO
 		// Calculation is defined by the node application
 		public byte Checksum { get { return (byte)(((int)DeviceType << 4) + m_deviceId + ((CreationParameters.Length == 0 ? DEVICE_PORT_NOT_IN_USE : CreationParameters[0]) ^ 0xFF)); } }
 
+		public override string ToString() {
+			
+			return $"[SerialDevice: Id={DeviceId}, NodeId={NodeId}, Value={InternalValue}, IsSleeping={IsSleeping}, Ready={Ready}]";
+		
+		}
+	
 	}
 
 }

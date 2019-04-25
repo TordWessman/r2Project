@@ -216,7 +216,13 @@ ResponsePackage execute(RequestPackage *request) {
         R2_LOG(type);
         R2_LOG(F("With id:"));
         R2_LOG(response.id);
-        createDevice(response.id, type, parameters);
+        
+        if (!createDevice(response.id, type, parameters)) {
+          
+          // Unable to create!
+          break;
+        
+        }
         
         deviceCount++;
         

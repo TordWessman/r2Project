@@ -247,8 +247,8 @@ ResponsePackage interpret(byte* input);
 // Removes a device from list and free resources
 void deleteDevice(byte id);
 
-// Creates and stores a Device using the specified parameters.
-void createDevice(byte id, DEVICE_TYPE type, byte* input);
+// Creates and stores a Device using the specified parameters. Returns true if successful
+bool createDevice(byte id, DEVICE_TYPE type, byte* input);
 
 // Tries to reserve the IO-Port. if reserved: return false and sets the error flag if port was already reserved.
 bool reservePort(byte IOPort);

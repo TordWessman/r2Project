@@ -88,12 +88,13 @@ TODO: fix this...
   
 }
 
-void createDevice(byte id, DEVICE_TYPE type, byte* input) {
+bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
 
   if (id >= MAX_DEVICES) {
     
     reset(false);
-    return err("MAX_DEVICES", ERROR_CODE_MAX_DEVICES_IN_USE);
+    err("MAX_DEVICES", ERROR_CODE_MAX_DEVICES_IN_USE);
+    return false;
     
   } 
   
@@ -182,12 +183,14 @@ void createDevice(byte id, DEVICE_TYPE type, byte* input) {
    
   default:
   
-    return err("Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND, type);
+    err("Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND, type);
+    return false;
   
   }
   
   devices[id] = device;
-
+  return true;
+  
 }
 
 int* getValue(Device* device) {

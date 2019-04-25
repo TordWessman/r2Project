@@ -128,7 +128,7 @@ namespace R2Core.GPIO
 		PORT_IN_USE = 2,
 		// The device type specified was not declared
 		DEVICE_TYPE_NOT_FOUND = 3,
-		// Too many devices has been allocated
+		// Too many devices has been allocated. Forgot to reset node?
 		MAX_DEVICES_IN_USE = 4,
 		// This device does not suport set operation
 		DEVICE_TYPE_NOT_FOUND_SET_DEVICE = 5,
@@ -198,26 +198,55 @@ namespace R2Core.GPIO
 
 	}
 
+	public interface IDeviceResponsePackage : IDeviceResponsePackageErrorInformation {
+
+		/// <summary>
+		/// Used to determine the integrity of the data
+		/// </summary>
+		/// <value>The checksum.</value>
+		byte Checksum { get; set; }
+
+		/// <summary>
+		/// Id for a message. Used for debugging.
+		/// </summary>
+		/// <value>The message identifier.</value>
+		byte MessageId { get; set; }
+
+		/// <summary>
+		/// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
+		/// </summary>
+		/// <value>The node identifier.</value>
+		byte NodeId { get; set; }
+
+		/// <summary>
+		/// Device request action.
+		/// </summary>
+		/// <value>The action.</value>
+		SerialActionType Action { get; set; }
+
+		/// <summary>
+		/// Id of an affected device on node. A node have a limited range of id:s(i.e. 0-19).
+		/// </summary>
+		/// <value>The identifier.</value>
+		byte Id { get; set; }
+
+	}
+
 	/// <summary>
 	/// Response message from node. Besides response data, it contains helper functionality for evaluating the result of an operation(Value) and error-information.
 	/// The type ´T´ should normally be an array of either int[] (normal values, for sensors) or byte[] (everything else).
 	/// </summary>
-	public struct DeviceResponsePackage<T> : IDeviceResponsePackageErrorInformation {
+	public struct DeviceResponsePackage<T> : IDeviceResponsePackage {
+		
+		public byte Checksum { get; set; }
 
-		// Used to determine the integrity of the data
-		public byte Checksum;
+		public byte MessageId { get; set; }
 
-		// Id for a message. Used for debugging.
-		public byte MessageId;
+		public byte NodeId { get; set; }
 
-		// Currently not used. Expected to be equal to DEVICE_HOST_LOCAL.
-		public byte NodeId;
+		public SerialActionType Action { get; set; }
 
-		// Action required by node.
-		public SerialActionType Action;
-
-		// Id of an affected device on node. A node have a limited range of id:s(i.e. 0-19).
-		public byte Id;
+		public byte Id { get; set; }
 
 		// Contains the response data(value, error message or null).
 		public byte[] Content;
@@ -254,7 +283,7 @@ namespace R2Core.GPIO
 		}
 
 		public string ErrorInfo { get {
-
+				
 				int info = (Content?.Length ?? 0) > 1 ? Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
 
 				if (Error == SerialErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
@@ -331,13 +360,29 @@ namespace R2Core.GPIO
 
 	}
 
-	public static class DeviceRequestPackageExtensions {
+	public static class DevicePackageExtensions {
 	
+		/// <summary>
+		/// Another way to represent a DeviceRequestPackage as a string.
+		/// </summary>
 		public static string Description(this DeviceRequestPackage self) {
 
 			return $"[Request: node: {self.NodeId}, device_id: {self.Id}, action: {self.Action}]";
 
 		}
+
+		/// <summary>
+		/// Returns true if the conditions from a response qualifies a send-retry. 
+		/// </summary>
+		public static bool CanRetry(this IDeviceResponsePackage response) {
+
+			return 	response.Action != SerialActionType.Initialization && //Intialization is not considered an error
+					response.Error != SerialErrorType.NO_DEVICE_FOUND &&	// This error will cause the caller to recreate the device
+					response.Error != SerialErrorType.MAX_DEVICES_IN_USE && // Max devices can't be fixed by retrying
+				(response.IsError || !response.IsChecksumValid);
+			
+		}
+
 	}
 
 }

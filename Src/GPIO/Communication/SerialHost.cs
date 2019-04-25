@@ -214,11 +214,8 @@ namespace R2Core.GPIO
 				byte[] responseData = m_connection.Send(requestData);
 				DeviceResponsePackage<T> response = m_packageFactory.ParseResponse<T>(responseData);
 
-				if ( retry && response.Action != SerialActionType.Initialization //Intialization is not considered an error
-					&& response.Error != SerialErrorType.NO_DEVICE_FOUND &&	// This error will cause the caller to recreate the device
-					(response.IsError || !response.IsChecksumValid) && retryCount < RetryCount) {
-
-
+				if (retry && response.CanRetry() && retryCount < RetryCount) {
+					
 					Log.t($"Retry: {retryCount}. Error: {response.Error}. {request.Description()}");
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
 					return _Send<T>(request, retryCount + 1);
