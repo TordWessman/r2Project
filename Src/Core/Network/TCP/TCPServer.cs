@@ -120,8 +120,8 @@ namespace R2Core.Network
 					client.SendTimeout = Timeout;
 					client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
-					TCPClientConnection connection = 
-						new TCPClientConnection(
+					TCPServerConnection connection = 
+						new TCPServerConnection(
 							client.Client.RemoteEndPoint.ToString(), 
 							m_packageFactory,
 							client, 

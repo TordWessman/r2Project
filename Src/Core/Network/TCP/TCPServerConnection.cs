@@ -27,8 +27,11 @@ using System.Threading;
 
 namespace R2Core.Network
 {
-	
-	public class TCPClientConnection : DeviceBase, IClientConnection {
+
+	/// <summary>
+	/// Represents the TCPServer's connection to a TCPClient 
+	/// </summary>
+	public class TCPServerConnection : DeviceBase, IClientConnection {
 
 		// Delegate called when a message has been received
 		private Func<INetworkMessage,IPEndPoint,INetworkMessage> m_responseDelegate;
@@ -65,7 +68,7 @@ namespace R2Core.Network
 		public event OnReceiveHandler OnReceive;
 		public event OnDisconnectHandler OnDisconnect;
 
-		public TCPClientConnection(
+		public TCPServerConnection(
 			string id, 
 			ITCPPackageFactory<TCPMessage> factory, 
 			TcpClient client,
@@ -81,7 +84,7 @@ namespace R2Core.Network
 
 		}
 
-		~TCPClientConnection() {
+		~TCPServerConnection() {
 		
 			Log.d($"Deallocating {this}.");
 		
@@ -124,7 +127,7 @@ namespace R2Core.Network
 			
 			if (!Ready) {
 
-				throw new InvalidOperationException($"Unable to send ´{message}´. TCPClientConnection ´{this} is´ not running.");
+				throw new InvalidOperationException($"Unable to send ´{message}´. TCPServerConnection ´{this} is´ not running.");
 
 			}
 
@@ -136,7 +139,7 @@ namespace R2Core.Network
 
 		public override string ToString() {
 
-			return $"TCPClientConnection [`{m_client.GetDescription()}`. Ready: {Ready}]."; //string.Format("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
+			return $"TCPServerConnection [`{m_client.GetDescription()}`. Ready: {Ready}]."; //string.Format("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
 
 		}
 
