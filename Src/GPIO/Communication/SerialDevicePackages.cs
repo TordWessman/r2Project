@@ -166,7 +166,9 @@ namespace R2Core.GPIO
 		// Internally created error: If the response data mismatched the expected data.
 		ERROR_DATA_MISMATCH = 0xF0,
 		// Internally created error: If the size of the response was to small.
-		ERROR_INVALID_RESPONSE_SIZE = 0xF1
+		ERROR_INVALID_RESPONSE_SIZE = 0xF1,
+		// Internal error. Error with the underlying (serial or I2C) connection.
+		ERROR_SERIAL_CONNECTION_FAILURE = 0xF2
 
 	}
 

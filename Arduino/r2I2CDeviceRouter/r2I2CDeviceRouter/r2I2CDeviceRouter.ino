@@ -367,7 +367,7 @@ pinMode(R2_RESET_LED1, INPUT);
 */
 
 // Reset all pins. Just in case...
-for (int i = 2; i < 9; i++) {
+for (int i = 0; i < 9; i++) {
   pinMode(i, OUTPUT);
   digitalWrite(i, LOW);
   pinMode(i, INPUT);

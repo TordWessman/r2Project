@@ -70,7 +70,8 @@ namespace R2Core.GPIO
 			if (status < 0) {
 
 				r2I2C_should_run(false);
-				throw new System.IO.IOException($"Unable to open I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
+
+				throw new SerialConnectionException($"Unable to open I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE);
 
 			}
 
@@ -103,7 +104,7 @@ namespace R2Core.GPIO
 				int status = r2I2C_send(data, data.Length);
 				if (status < 0) {
 
-					throw new System.IO.IOException($"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.");
+					throw new SerialConnectionException($"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE);
 
 				} 
 
@@ -119,7 +120,7 @@ namespace R2Core.GPIO
 
 			if (status < 0) {
 
-				throw new System.IO.IOException($"Unable to receive from I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}..");
+				throw new SerialConnectionException($"Unable to receive from I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE);
 
 			}
 

@@ -249,7 +249,7 @@ namespace R2Core.GPIO
 
 			lock(m_lock) {
 
-				if (!Ready) { throw new System.IO.IOException("Communication busy/not started."); }
+				if (!Ready) { throw new SerialConnectionException("Communication busy/not started.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE); }
 
 				//Log.t($"Sending package: {request.Action} to node: {request.NodeId}.");
 
