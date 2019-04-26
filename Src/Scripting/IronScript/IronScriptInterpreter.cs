@@ -35,6 +35,7 @@ namespace R2Core.Scripting
 		public IronScriptInterpreter(IronScript rubyScript, string interpretMethodName = METHOD_INTERPRET) {
 
 			m_rubyScript = rubyScript;
+
 			m_rubyScript.Invoke(IronScript.HANDLE_SETUP);
 			m_interpretMethodName = interpretMethodName;
 		

@@ -120,7 +120,8 @@ class MainClass:
 				attrSplit = command.split("=")
 				if (len(attrSplit) == 2): # Set attribute
 					attrName = attrSplit[0][1:].strip()
-					setattr(device,attrName, attrSplit[1])
+					self.object_invoker.Set(device, attrName,attrSplit[1])
+					#setattr(device,attrName, attrSplit[1])
 				else: # Invoke or get attribute
 					command_output = eval("device" + command)
 

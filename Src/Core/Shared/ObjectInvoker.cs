@@ -23,13 +23,16 @@ using System.Linq;
 using R2Core.Data;
 using System.Dynamic;
 using System.Collections;
+using R2Core.Device;
 
 namespace R2Core
 {
 	/// <summary>
 	/// Capable of invoking methods, properties and members of objects.
 	/// </summary>
-	public class ObjectInvoker {
+	public class ObjectInvoker : DeviceBase {
+
+		public ObjectInvoker() : base (Settings.Identifiers.ObjectInvoker()) {}
 
 		/// <summary>
 		/// Invoke method 'method' on object 'target' using input parameters 'parameters". Return the value(if any).

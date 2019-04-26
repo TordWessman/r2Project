@@ -65,7 +65,7 @@ namespace R2Core.Scripting
 
 		protected override string FileExtension { get { return RUBY_FILE_EXTENSION; } }
 			
-		public override IronScript CreateScript(string id) {
+		public override IronScript CreateScript(string name, string id = null) {
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
@@ -75,8 +75,8 @@ namespace R2Core.Scripting
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
-			IronScript script = new IronScript(id,
-				GetScriptFilePath(id),
+			IronScript script = new IronScript(id ?? name,
+				GetScriptFilePath(name),
 				m_engine, inputParams);
 			
 			return script;
@@ -85,6 +85,7 @@ namespace R2Core.Scripting
 	
 		public override IScriptInterpreter CreateInterpreter(IronScript script) {
 
+			script.Set (Settings.Identifiers.ObjectInvoker(), new ObjectInvoker());
 			return new IronScriptInterpreter(script);
 
 		}

@@ -47,7 +47,7 @@ namespace R2Core.Scripting
 
 		}
 
-		public override IronScript CreateScript(string id) {
+		public override IronScript CreateScript(string name, string id = null) {
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
@@ -57,12 +57,13 @@ namespace R2Core.Scripting
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
-			return new IronScript(id, GetScriptFilePath(id), m_engine, inputParams);
+			return new IronScript(id ?? name, GetScriptFilePath(name), m_engine, inputParams);
 
 		}
 
 		public override IScriptInterpreter CreateInterpreter(IronScript script) {
 
+			script.Set(Settings.Identifiers.ObjectInvoker(), new ObjectInvoker());
 			return new IronScriptInterpreter(script);
 
 		}

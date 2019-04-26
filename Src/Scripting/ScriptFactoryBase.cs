@@ -69,7 +69,8 @@ namespace R2Core.Scripting
 
 		}
 
-		public abstract T CreateScript(string id);
+		public abstract T CreateScript(string name, string id = null);
+
 		public abstract IScriptInterpreter CreateInterpreter(T script);
 
 		/// <summary>

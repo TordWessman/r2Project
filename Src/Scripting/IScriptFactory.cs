@@ -26,12 +26,15 @@ namespace R2Core.Scripting
 	public interface IScriptFactory<T>: IDevice where T: IScript {
 		
 		/// <summary>
-		/// Creates an IScript of type T
+		/// Creates an initialized ´IronScript´ object of type ´T´. 
+		/// ´name´ will be used to determine the file name of the script. The optional
+		/// ´id´ will be the device Identifier of the script. ´name´ will be use as Identifier
+		/// if ´id´ is not set.
 		/// </summary>
 		/// <returns>The script.</returns>
-		/// <param name="id">Identifier.</param>
-		/// <param name="sourceFile">Source file.</param>
-		T CreateScript(string id);
+		/// <param name="name">Name component of the script file.</param>
+		/// <param name="id">Optional Identifier.</param>
+		T CreateScript(string name, string id = null);
 
 		/// <summary>
 		/// Creates a script interpreter capable of evaluating string expressions. The requirements of the implementations of the interpreted script is dependent on the IScriptInterpreter implementation.

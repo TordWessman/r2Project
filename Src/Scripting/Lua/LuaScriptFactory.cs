@@ -33,9 +33,9 @@ namespace R2Core.Scripting
 			
 		}
 
-		public override LuaScript CreateScript(string id) {
+		public override LuaScript CreateScript(string name, string id = null) {
 
-			return new LuaScript(id, GetScriptFilePath(id));
+			return new LuaScript(id ?? name, GetScriptFilePath(name));
 
 		}
 
