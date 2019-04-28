@@ -56,8 +56,8 @@
       <HintPath>..\..\3rdParty\NLua.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b9a188c8922137c6">
-      <Package>monodevelop</Package>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
