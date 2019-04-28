@@ -69,6 +69,8 @@
     <Compile Include="DummyClasses\InvokerDummyDevice.cs" />
     <Compile Include="CoreTests\DeviceTests.cs" />
     <Compile Include="DummyClasses\InvokableDummy.cs" />
+    <Compile Include="CoreTests\HostSynchronizerTests.cs" />
+    <Compile Include="DummyClasses\Networking\ServerInstanceContainer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

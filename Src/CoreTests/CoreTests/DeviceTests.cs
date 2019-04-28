@@ -77,7 +77,7 @@ namespace R2Core.Tests
 
 			s.Stop();
 			client.Stop();
-
+			Thread.Sleep(500);
 		}
 
 		[Test]
