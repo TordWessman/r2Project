@@ -32,7 +32,7 @@ namespace R2Core.GPIO
 		// Max size for content in packages
 		const int MAX_CONTENT_SIZE = 10;
 
-		// ATMEGA 328-specific constraints. 18 & 19 will not be available if running I2C, since they are used as SDA and SCL on the ATMEGA 328 board.
+		// ATMEGA 328-specific constraints (A1-A5 in that order). 18 & 19 will not be available if running I2C, since they are used as SDA and SCL on the ATMEGA 328 board.
 		public readonly byte[] VALID_ANALOGUE_PORTS_ON_ARDUINO = { 14, 15, 16, 17, 18, 19 };
 
 		/// Keeps track of the devcie number for each host. This values does not correspond to the id's of the host.

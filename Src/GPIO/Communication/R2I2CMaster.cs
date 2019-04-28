@@ -6,6 +6,9 @@ using R2Core;
 
 namespace R2Core.GPIO
 {
+	/// <summary>
+	/// I2C connection to a Arduino using the r2I2C libraries.
+	/// </summary>
 	public class R2I2CMaster : DeviceBase, ISerialConnection {
 
 		private const string dllPath = "libr2I2C.so";
@@ -39,7 +42,7 @@ namespace R2Core.GPIO
 		/// <summary>
 		/// Defined in r2I2C.h
 		/// </summary>
-		public enum I2CError: int {
+		public enum I2CError : int {
 		
 			BusError = -1,
 			WriteError = -2,
@@ -102,10 +105,17 @@ namespace R2Core.GPIO
 			lock(m_lock) {
 
 				int status = r2I2C_send(data, data.Length);
+
 				if (status < 0) {
 
-					throw new SerialConnectionException($"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE);
+					I2CError error = (I2CError)status;
 
+					throw new SerialConnectionException(
+						$"Unable to send to I2C bus {m_bus} and port {m_port}. Error type: {error}.", 
+						error == I2CError.ShouldNotRun ? 
+						SerialErrorType.ERROR_SERIAL_CONNECTION_CLOSED :
+						SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE);
+					
 				} 
 
 				return Read();
@@ -116,11 +126,17 @@ namespace R2Core.GPIO
 
 		public byte[] Read() {
 		
-			int status = r2I2C_receive(ReadDelay);
+			int status =  r2I2C_receive(ReadDelay);
 
 			if (status < 0) {
 
-				throw new SerialConnectionException($"Unable to receive from I2C bus {m_bus} and port {m_port}. Error type: {(I2CError)status}.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE);
+				I2CError error = (I2CError)status;
+
+				throw new SerialConnectionException(
+					$"Unable to receive from I2C bus {m_bus} and port {m_port}. Error type: {error}.", 
+					error == I2CError.ShouldNotRun ? 
+						SerialErrorType.ERROR_SERIAL_CONNECTION_CLOSED :
+						SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE);
 
 			}
 

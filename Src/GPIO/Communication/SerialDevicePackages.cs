@@ -168,7 +168,9 @@ namespace R2Core.GPIO
 		// Internally created error: If the size of the response was to small.
 		ERROR_INVALID_RESPONSE_SIZE = 0xF1,
 		// Internal error. Error with the underlying (serial or I2C) connection.
-		ERROR_SERIAL_CONNECTION_FAILURE = 0xF2
+		ERROR_SERIAL_CONNECTION_FAILURE = 0xF2,
+		// Internal error. The connection has been closed.
+		ERROR_SERIAL_CONNECTION_CLOSED = 0xF3
 
 	}
 
@@ -381,7 +383,7 @@ namespace R2Core.GPIO
 			return 	response.Action != SerialActionType.Initialization && //Intialization is not considered an error
 					response.Error != SerialErrorType.NO_DEVICE_FOUND &&	// This error will cause the caller to recreate the device
 					response.Error != SerialErrorType.MAX_DEVICES_IN_USE && // Max devices can't be fixed by retrying
-				(response.IsError || !response.IsChecksumValid);
+					(response.IsError || !response.IsChecksumValid);
 			
 		}
 

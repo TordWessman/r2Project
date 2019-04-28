@@ -7,20 +7,6 @@ using System.IO;
 namespace R2Core.GPIO
 {
 
-	public class SerialConnectionException : IOException {
-	
-		private SerialErrorType m_errorType;
-
-		public SerialErrorType ErrorType { get { return m_errorType; } } 
-
-		public SerialConnectionException(string message, SerialErrorType type) : base(message, (int)type) {
-		
-			m_errorType = type;
-		
-		}
-
-	}
-
 	/// <summary>
 	/// SerialHost handles communication to a r2I2C device(see the r2I2CDeviceRouter Arduino project).
 	/// It's heavily coupled to the r2I2CDeviceRouter implementation. Any changes there should be reflected
@@ -224,10 +210,13 @@ namespace R2Core.GPIO
 
 				return response;
 
-			} catch (IOException ex) {
+			} catch (SerialConnectionException ex) {
 
 				// IO exceptions can occur from time to time. Give it a few more shots, mamma.
-				if (retryCount < RetryCount) {
+				if (retryCount < RetryCount && 
+					
+					// The connection has been closed. Probably manually:
+					ex.ErrorType != SerialErrorType.ERROR_SERIAL_CONNECTION_CLOSED) {
 			
 					Log.t($"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
