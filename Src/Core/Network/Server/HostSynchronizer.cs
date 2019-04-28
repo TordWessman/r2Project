@@ -246,7 +246,9 @@ namespace R2Core.Network
 			foreach (IClientConnection host in m_hosts) {
 			
 				dynamic remoteHostSynchronizer = new RemoteDevice(Settings.Identifiers.HostSynchronizer(), Guid.Empty, host);
-				success &= remoteHostSynchronizer.RequestSynchronization(deviceServer.Addresses, deviceServer.Port);
+				bool s = remoteHostSynchronizer.RequestSynchronization(deviceServer.Addresses, deviceServer.Port) ?? false;
+				Log.d ($"Sync for {host.Address}: {s}"); 
+				success &= s;
 
 			}
 

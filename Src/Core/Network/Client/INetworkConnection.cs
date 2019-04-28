@@ -43,6 +43,8 @@ namespace R2Core.Network
 		/// </summary>
 		/// <value>The port.</value>
 		int Port { get; }
+
 	}
+
 }
 

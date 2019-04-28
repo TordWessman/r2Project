@@ -38,7 +38,6 @@ namespace R2Core.Network
 	public class WebJsonEndpoint : IWebEndpoint {
 
 		private IWebObjectReceiver m_receiver;
-		private string m_responsePath;
 		private IDictionary<string, object> m_extraHeaders;
 		private ISerialization m_serialization;
 
@@ -77,6 +76,7 @@ namespace R2Core.Network
 				outputObject.Headers = new Dictionary<string, object>();
 
 			}
+
 			outputObject.Headers.ToList().ForEach(kvp => m_extraHeaders[kvp.Key] = kvp.Value.ToString());
 
 			return outputObject;

@@ -25,7 +25,7 @@ namespace R2Core.Network
 {
 
 	/// <summary>
-	/// Representation of a connection from a server to a client.
+	/// Wraps a ´IMessageClient´ connection.
 	/// </summary>
 	public class HostConnection : DeviceBase, IClientConnection, IMessageClientObserver {
 		

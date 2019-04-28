@@ -92,13 +92,19 @@ namespace R2Core.Network
 		}
 
 		public INetworkMessage OnReceive(INetworkMessage message, IPEndPoint source) {
+
+			if (!(message.Payload is IDynamicMetaObjectProvider)) {
 			
+				throw new NetworkException($"Unable process request: {message}. Payload is not of type IDynamicMetaObjectProvider (i.e. R2Dynamic or ExpandoObject).");
+
+			}
+
 			IDevice device = null;
 
 			IEnumerable<IDevice> devices = m_deviceContainer == null ? m_devices.Values : m_devices.Values.Concat(m_deviceContainer.LocalDevices);
 
 			if (message.Payload?.Identifier != null) {
-			
+
 				device = devices.Where((d) => d.Identifier == message.Payload.Identifier).Select((d) => d).FirstOrDefault();
 
 			}

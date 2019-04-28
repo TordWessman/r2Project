@@ -23,7 +23,8 @@ using System.Net.Sockets;
 namespace R2Core.Network
 {
 	/// <summary>
-	/// Connection poller.
+	/// Polls a socket of a TcpClient. If the polling fails (the connection is down)
+	/// ´failDelegate´ is called.
 	/// </summary>
 	public class ConnectionPoller : DeviceBase {
 		
@@ -34,11 +35,17 @@ namespace R2Core.Network
 		private TcpClient m_client;
 		private Action m_failDelegate;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="R2Core.Network.ConnectionPoller"/> class.
+		/// ´client´ is the TcpClient containing the Socket to be polled. ´failDelegate´ will be called
+		/// if the Socket is closed. 
+		/// </summary>
+		/// <param name="client">Client.</param>
+		/// <param name="failDelegate">Fail delegate.</param>
 		public ConnectionPoller(TcpClient client, Action failDelegate) : base(Settings.Identifiers.ConnectionPoller()) {
 			
 			m_client = client;
 			m_failDelegate = failDelegate;
-			Log.t (m_client.SendTimeout);
 			m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
 			m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
 
@@ -74,6 +81,7 @@ namespace R2Core.Network
 			if (Ready || !(pollSuccessful && m_previousPollSuccess)) {
 
 				m_failDelegate ();
+				Stop ();
 
 			}
 
