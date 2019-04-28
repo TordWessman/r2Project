@@ -87,7 +87,6 @@
     <Compile Include="Network\UDP\UDPBroadcaster.cs" />
     <Compile Include="Network\UDP\UDPServer.cs" />
     <Compile Include="Network\BlockingNetworkStream.cs" />
-    <Compile Include="Network\NetworkExtensions.cs" />
     <Compile Include="Network\WebFactory.cs" />
     <Compile Include="Network\Server\DeviceRouter.cs" />
     <Compile Include="Network\Server\IServer.cs" />
@@ -130,6 +129,7 @@
     <Compile Include="Network\NetworkStatusCode.cs" />
     <Compile Include="Network\TCP\TCPServerConnection.cs" />
     <Compile Include="Network\ConnectionPoller.cs" />
+    <Compile Include="Extensions\NetworkSocketExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

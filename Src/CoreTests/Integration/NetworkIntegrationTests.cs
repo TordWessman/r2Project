@@ -41,8 +41,8 @@ namespace R2Core.IntegrationTests
 		[Test]
 		public void TestMultipleTCPClients() {
 
-			int randomWorkCount = 100;
-			int clientCount = 3;
+			int randomWorkCount = 500;
+			int clientCount = 5;
 
 			Log.Instance.LogLevel = LogType.Message;
 
@@ -96,6 +96,14 @@ namespace R2Core.IntegrationTests
 			for (int i = 0; i < randomWorkCount; i++) {
 			
 				try {
+
+					double fraction = (double)i / (double)randomWorkCount;
+
+					if (i % (int)(randomWorkCount / 10) == 0) { 
+						
+						Log.d($"Client: {number} : {fraction * 100} %");
+					
+					}
 
 					DoRandomWork(connection, r.Next(3));
 

@@ -221,7 +221,7 @@ namespace R2Core.Network
 
 						if (m_latestResponse.IsEmpty()) {
 						
-							throw new NetworkException("TCPClient: Got empty message.");
+							Log.w("TCPClient: Got empty message.");
 
 						}
 

@@ -17,6 +17,7 @@
 //
 //
 using System;
+using MessageIdType = System.String;
 
 namespace R2Core.Network
 {
@@ -109,6 +110,49 @@ namespace R2Core.Network
 				|| self.Payload is double
 				|| self.Payload is decimal
 				|| self.Payload is string;
+
+		}
+
+		/// <summary>
+		/// Determines if the message is a broadcast message.
+		/// </summary>
+		/// <returns><c>true</c> if is broadcast message the specified self; otherwise, <c>false</c>.</returns>
+		/// <param name="self">Self.</param>
+		public static bool IsBroadcastMessage(this INetworkMessage self) {
+
+			return self.GetBroadcastMessageKey() != null;
+
+		}
+
+		/// <summary>
+		/// Returns the unique message id for this message if it's a broadcast message or null if not.
+		/// </summary>
+		/// <returns>The broadcast message key.</returns>
+		public static MessageIdType GetBroadcastMessageKey(this INetworkMessage self) {
+
+			object responseKey = null;
+
+			return self.Headers?.TryGetValue(BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey, out responseKey) == true ? responseKey?.ToString() : null;
+
+		}
+
+		/// <summary>
+		/// Returns the Address representation as string if ´this´ is a ´BroadcastMessage´, otherwise null. 
+		/// </summary>
+		/// <returns>The broadcast address.</returns>
+		public static string GetBroadcastAddress(this INetworkMessage self) {
+
+			return self.IsBroadcastMessage() ? (self as BroadcastMessage).OriginAddress : null;
+
+		}
+
+		/// <summary>
+		/// Returns the Port if ´this´ is a ´BroadcastMessage´, otherwise null. 
+		/// </summary>
+		/// <returns>The broadcast address.</returns>
+		public static int GetBroadcastPort(this INetworkMessage self) {
+
+			return self.IsBroadcastMessage() ? (self as BroadcastMessage).OriginPort : 0;
 
 		}
 

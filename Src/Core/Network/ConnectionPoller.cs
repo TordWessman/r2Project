@@ -76,12 +76,17 @@ namespace R2Core.Network
 
 		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
 
+			if (!Ready) { return; }
+
 			bool pollSuccessful = m_client.GetSocket()?.Poll(m_client.ReceiveTimeout * 1000, SelectMode.SelectError) ?? false;
+			bool connected = m_client.IsConnected();
+			bool pollStatus = !pollSuccessful && !m_previousPollSuccess;
 
-			if (Ready || !(pollSuccessful && m_previousPollSuccess)) {
+			if (!connected || !pollStatus) {
 
-				m_failDelegate ();
-				Stop ();
+				Log.d($"Polling failed. Will call fail delegate. Poll result: {pollStatus}. Connected: {connected}.");
+				m_failDelegate();
+				Stop();
 
 			}
 
