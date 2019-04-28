@@ -96,90 +96,103 @@ namespace R2Core.Network
 
 		}
 
-		private void Interpret(HttpListenerRequest request, HttpListenerResponse response, IWebEndpoint endpoint) {
-		
-			using(StreamReader reader = new StreamReader(request.InputStream, m_serialization.Encoding))
-			{
+		private dynamic GetPayload(HttpListenerRequest request) {
 
-				byte[] responseBody = new byte[0];
-				byte[] requestBody = default(byte[]);
-				HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = new Dictionary<string, object>() };
+			if (request.HttpMethod.ToLower () == "get") {
 
-				requestObject.Method = request.HttpMethod;
+				R2Dynamic payload = new R2Dynamic ();
 
-				// TODO: If one needs querystring parameters 
-				//NameValueCollection queryStringParameters = HttpUtility.ParseQueryString(request.Url.Query);
-				//foreach (string key in  queryStringParameters.AllKeys) { requestObject.Headers[key] = queryStringParameters[key]; }
-
-				try {
-					
-					// Read body
-					using(var memstream = new MemoryStream())
-					{
-
-						reader.BaseStream.CopyTo(memstream);
-						requestBody = memstream.ToArray();
-
-					}
-
-					if (request.ContentType?.Contains("json") == true) {
-			
-						// Treaded as complex object.
-						requestObject.Payload = m_serialization.Deserialize(requestBody);
-					
-					} else if (request.ContentType?.Contains("text") == true) {
-					
-						// Treated as string.
-						requestObject.Payload = m_serialization.Encoding.GetString(requestBody);
-
-					} else {
-					
-						// Treated as byte array.
-						requestObject.Payload = requestBody;
-
-					}
-
-					// Parse request and create response body.
-					INetworkMessage responseObject = endpoint.Interpret(requestObject, request.RemoteEndPoint);
-					string contentType = responseObject.Headers?.ContainsKey("Content-Type") == true ? responseObject.Headers["Content-Type"] as string : null;
-
-					if (responseObject.Payload is byte[]) {
-
-						//Data was returned in raw format.
-						responseBody = responseObject.Payload;
-						response.ContentType = contentType ?? "application/octet-stream";
-
-					} else if (responseObject.Payload is string) {
-
-						// Data was a string.
-						responseBody = m_serialization.Encoding.GetBytes(responseObject.Payload);
-						response.ContentType = contentType ?? "text/plain";
-
-					} else {
-
-						// Object is considered to be complex and will be transcribed into a json object
-						responseBody = m_serialization.Serialize(responseObject.Payload);
-						response.ContentType = contentType ?? "application/json";
-
-					}
-
-					// Add header fields from metadata
-					responseObject.Headers?.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
-					response.StatusCode = NetworkStatusCode.Ok.Raw();
-
-				} catch (Exception ex) {
-
-					Log.x(ex);
-
-					response.StatusCode = NetworkStatusCode.ServerError.Raw();
-
-					responseBody = m_serialization.Serialize(new HttpMessage(new NetworkErrorMessage(ex)));
+				foreach (var key in request.QueryString.AllKeys) {
+				
+					payload.Add (key, request.QueryString [key]);
 
 				}
 
-				Write(response, responseBody);
+				return payload;
 
 			}
+
+			using(StreamReader reader = new StreamReader(request.InputStream, m_serialization.Encoding)) {
+				
+				byte[] requestBody = default(byte[]);
+
+				using (var memstream = new MemoryStream()) {
+
+					reader.BaseStream.CopyTo(memstream);
+					requestBody = memstream.ToArray();
+
+				}
+
+				if (request.ContentType?.Contains("json") == true) {
+
+					// Treaded as complex object.
+					return m_serialization.Deserialize(requestBody);
+
+				} else if (request.ContentType?.Contains("text") == true) {
+
+					// Treated as string.
+					return m_serialization.Encoding.GetString(requestBody);
+
+				} 
+
+				// Treated as byte array.
+				return (requestBody?.Length ?? 0) > 0 ? requestBody : null;
+
+
+			}
+
+		}
+
+		private void Interpret(HttpListenerRequest request, HttpListenerResponse response, IWebEndpoint endpoint) {
+		
+			HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = new Dictionary<string, object>() };
+			requestObject.Method = request.HttpMethod;
+
+			byte[] responseBody = new byte[0];
+			
+			requestObject.Payload = GetPayload(request);
+
+			try {
+				
+				// Parse request and create response body.
+				INetworkMessage responseObject = endpoint.Interpret(requestObject, request.RemoteEndPoint);
+				string contentType = responseObject.Headers?.ContainsKey("Content-Type") == true ? responseObject.Headers["Content-Type"] as string : null;
+
+				if (responseObject.Payload is byte[]) {
+
+					//Data was returned in raw format.
+					responseBody = responseObject.Payload;
+					response.ContentType = contentType ?? "application/octet-stream";
+
+				} else if (responseObject.Payload is string) {
+
+					// Data was a string.
+					responseBody = m_serialization.Encoding.GetBytes(responseObject.Payload);
+					response.ContentType = contentType ?? "text/plain";
+
+				} else {
+
+					// Object is considered to be complex and will be transcribed into a json object
+					responseBody = m_serialization.Serialize(responseObject.Payload);
+					response.ContentType = contentType ?? "application/json";
+
+				}
+
+				// Add header fields from metadata
+				responseObject.Headers?.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
+				response.StatusCode = NetworkStatusCode.Ok.Raw();
+
+			} catch (Exception ex) {
+
+				Log.x(ex);
+
+				response.StatusCode = NetworkStatusCode.ServerError.Raw();
+
+				responseBody = m_serialization.Serialize(new HttpMessage(new NetworkErrorMessage(ex)));
+
+			}
+
+			Write(response, responseBody);
 
 		}
 
