@@ -59,7 +59,7 @@ namespace R2Core.Scripting
 		public const string HANDLE_SHOULD_RUN = "should_run";
 
 		/// <summary>
-		/// (Optional) Method handle to the scripts 'stop' method(termination).
+		/// (Optional) Method handle to the scripts 'stop' method (termination).
 		/// </summary>
 		public const string HANDLE_STOP = "stop";
 
@@ -91,9 +91,13 @@ namespace R2Core.Scripting
 
 		}
 
+		[Newtonsoft.Json.JsonProperty]
 		public string Identifier { get { return m_id; } }
+		[Newtonsoft.Json.JsonProperty]
 		public Guid Guid { get { return m_guid; } }
+		[Newtonsoft.Json.JsonProperty]
 		public virtual bool Ready { get { return true; } }
+		[Newtonsoft.Json.JsonProperty]
 		public bool IsRunning { get { return m_isRunning; } }
 
 		public abstract void Set(string handle, dynamic value);
