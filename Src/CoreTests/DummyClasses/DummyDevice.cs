@@ -27,8 +27,27 @@ namespace R2Core.Tests
 		
 		private int m_val = 99;
 		private string m_bar = "";
+		private bool m_isRunning = false;
 
 		public DummyDevice(string id): base(id) {
+		}
+
+		public override bool Ready {
+			get {
+				return m_isRunning;
+			}
+		}
+
+		public override void Stop() {
+			
+			m_isRunning = false;
+		
+		}
+
+		public override void Start() {
+
+			m_isRunning = true;
+
 		}
 
 		public int Value {get{return m_val;}set{m_val = value;}}

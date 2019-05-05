@@ -218,6 +218,13 @@ namespace R2Core.Scripting
 
 		public IDictionary<string,Task> GetTasksToObserve() { return new Dictionary<string, Task>() {{"SCRIPT: " + m_id, m_processTask} }; }
 
+
+		public override string ToString() {
+			
+			return string.Format("[ScriptBase: Identifier={0}, Guid={1}, Ready={2}, IsRunning={3}]", Identifier, Guid, Ready, IsRunning);
+		
+		}
+	
 	}
 
 }

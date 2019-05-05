@@ -63,7 +63,6 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="IronScript\IronScript.cs" />
-    <Compile Include="IronScript\IronScriptInterpreter.cs" />
     <Compile Include="IronScript\PythonScriptFactory.cs" />
     <Compile Include="IronScript\RubyScriptFactory.cs" />
     <Compile Include="Lua\LuaScript.cs" />
@@ -80,6 +79,7 @@
     <Compile Include="ScriptFactoryBase.cs" />
     <Compile Include="Network\RubyWebIntermediate.cs" />
     <Compile Include="Network\ScriptObjectReceiver.cs" />
+    <Compile Include="IronScript\ScriptInterpreter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

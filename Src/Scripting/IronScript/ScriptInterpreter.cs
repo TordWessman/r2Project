@@ -20,30 +20,34 @@ using System;
 
 namespace R2Core.Scripting
 {
-	public class IronScriptInterpreter : IScriptInterpreter {
+	/// <summary>
+	/// Default IScriptInterpreter implementation.
+	/// </summary>
+	public class ScriptInterpreter : IScriptInterpreter {
 		
 		// The interpret method of the script. Takes a string argument containing the command to be interpreted.
 		public const string METHOD_INTERPRET = "interpret"; 
 
-		private IronScript m_rubyScript;
+		private IScript m_script;
 		private string m_interpretMethodName;
 
 		/// <summary>
-		/// The IScript must be of type 
+		/// The IScript must implement the ´METHOD_INTERPRET´ (interpret) method. The default implementation
+		/// of this script can be found in Common/run_loop_script.py
 		/// </summary>
-		/// <param name="rubyScript">Ruby script.</param>
-		public IronScriptInterpreter(IronScript rubyScript, string interpretMethodName = METHOD_INTERPRET) {
+		/// <param name="script">IronScript implementing ´METHOD_INTERPRET´.</param>
+		public ScriptInterpreter(IScript script, string interpretMethodName = METHOD_INTERPRET) {
 
-			m_rubyScript = rubyScript;
+			m_script = script;
 
-			m_rubyScript.Invoke(IronScript.HANDLE_SETUP);
+			m_script.Invoke(IronScript.HANDLE_SETUP);
 			m_interpretMethodName = interpretMethodName;
 		
 		}
 
 		public bool Interpret(string expression) {
 
-			return m_rubyScript.Invoke(m_interpretMethodName, expression);
+			return m_script.Invoke(m_interpretMethodName, expression);
 		
 		}
 

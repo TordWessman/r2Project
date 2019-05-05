@@ -17,26 +17,29 @@
 //
 //
 using System;
+using R2Core.Network;
 using R2Core.Device;
-using System.Threading.Tasks;
 
 namespace R2Core.Tests
 {
-	public class DummyTaskMonitor : DeviceBase, ITaskMonitor {
+	public class ClientConnectionWebEndpoint : DeviceBase, INetworkConnection {
 		
-		public DummyTaskMonitor() : base(Settings.Identifiers.TaskMonitor()) 
-		{
+		private IWebObjectReceiver m_endpoint;
+
+		public ClientConnectionWebEndpoint(IWebObjectReceiver endpoint) : base("dummy_client_connection") {
+			
+			m_endpoint = endpoint;
+		
 		}
 
-		public void AddTask(string id, Task task) {}
+		public INetworkMessage Send(INetworkMessage message) {
+		
+			return m_endpoint.OnReceive(message, new System.Net.IPEndPoint(0,1));
 
-		public void AddMonitorable(ITaskMonitored observer) {}
+		}
 
-		public Task MonitorTask { get { return Task.Run(() => {}); }}
-
-		public void RemoveMonitorable(ITaskMonitored observer) {}
-
-		public void PrintTasks() {}
+		public string Address { get { return "localhost"; } }
+		public int Port { get { return 1; } }
 	}
 }
 

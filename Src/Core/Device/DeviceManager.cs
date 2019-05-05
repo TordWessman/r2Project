@@ -90,24 +90,12 @@ namespace R2Core.Device
 
 		private IDevice _Get(string identifier) {
 		
-			return  m_devices.Select(d => d.Value).Where(dv => dv.Identifier == identifier).FirstOrDefault();
+			return m_devices.Select(d => d.Value).Where(dv => dv.Identifier == identifier).FirstOrDefault();
 
 		}
 		
 		public void Add(IDevice newDevice) {
-			/*
-			if (m_hostManager.Ready && newDevice is IRemotlyAccessable) {
 
-				//Broadcast to network:
-
-				if (newDevice is IRemotlyAccessable) {
-
-					m_hostManager.SendToAll(GetDeviceAddedPackage(newDevice));
-
-				}
-
-			}*/
-			
 			_Add(newDevice);
 
 		}

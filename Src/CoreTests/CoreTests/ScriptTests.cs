@@ -24,6 +24,8 @@ using R2Core.Network;
 using R2Core.Scripting;
 using System.Collections.Generic;
 using R2Core.Common;
+using R2Core.Data;
+using System.Threading;
 
 namespace R2Core.Tests
 {
@@ -40,30 +42,29 @@ namespace R2Core.Tests
 
 			base.Setup();
 
-			Log.t("mamma");
-			Log.t("L: " + BaseContainer.RubyPaths.Count);
-
-			foreach (string path in BaseContainer.RubyPaths) {
-			
-				Log.t(path);
-
-			}
-
-			m_rubyScriptFactory = new RubyScriptFactory("rf", BaseContainer.RubyPaths, m_deviceManager);
+			m_rubyScriptFactory = new RubyScriptFactory(Settings.Identifiers.RubyScriptFactory(), BaseContainer.RubyPaths, m_deviceManager);
 			m_rubyScriptFactory.AddSourcePath(Settings.Paths.TestData());
 
-			m_pythonScriptFactory = new PythonScriptFactory("rf", BaseContainer.PythonPaths , m_deviceManager);
-			m_pythonScriptFactory.AddSourcePath(Settings.Paths.TestData());
-			m_pythonScriptFactory.AddSourcePath(Settings.Paths.Common());
+			m_pythonScriptFactory = CreatePythonScriptFactory(m_deviceManager);
 
-			m_luaScriptFactory = new LuaScriptFactory("ls");
+			m_luaScriptFactory = new LuaScriptFactory(Settings.Identifiers.LuaScriptFactory());
 			m_luaScriptFactory.AddSourcePath(Settings.Paths.TestData());
+
+		}
+
+		private IScriptFactory<IronScript> CreatePythonScriptFactory(IDeviceManager dm) {
+
+			IScriptFactory<IronScript> sf = new PythonScriptFactory(Settings.Identifiers.PythonScriptFactory(), BaseContainer.PythonPaths , dm);
+			sf.AddSourcePath(Settings.Paths.TestData());
+			sf.AddSourcePath(Settings.Paths.Common());
+			return sf;
 
 		}
 
 		[Test]
 		public void RubyTest1() {
-	
+			PrintName();
+
 			dynamic ruby = m_rubyScriptFactory.CreateScript("RubyTest1");
 			Assert.NotNull(ruby);
 
@@ -79,7 +80,8 @@ namespace R2Core.Tests
 
 		[Test]
 		public void LuaTest1() {
-		
+			PrintName();
+
 			dynamic lua = m_luaScriptFactory.CreateScript("LuaTest1");
 		
 			Assert.AreEqual("fish", lua.str);
@@ -88,7 +90,8 @@ namespace R2Core.Tests
 
 		[Test]
 		public void PythonTests() {
-		
+			PrintName();
+
 			dynamic python = m_pythonScriptFactory.CreateScript("python_test");
 
 			Assert.AreEqual(142, python.add_42 (100));
@@ -104,6 +107,106 @@ namespace R2Core.Tests
 			Assert.AreEqual("foo", python.dog);
 		
 		}
+
+		[Test]
+		public void PythonRemoteScriptTests() {
+			PrintName();
+
+			dynamic python = m_pythonScriptFactory.CreateScript("python_test");
+			m_deviceManager.Add(python);
+			var factory = new WebFactory("wf", new JsonSerialization("ser"));
+			var router = factory.CreateDeviceRouter(m_deviceManager);
+			var endpont = factory.CreateJsonEndpoint(router);
+			var server = factory.CreateTcpServer(Settings.Identifiers.TcpServer(), 11111);
+
+			server.AddEndpoint(endpont);
+			server.Start();
+			Thread.Sleep(200);
+
+			var client = factory.CreateTcpClient("client", "localhost", 11111);
+			client.Start();
+			Thread.Sleep(200);
+
+			var host = new HostConnection("hc", client);
+			dynamic remoteScript = new RemoteDevice("python_test", Guid.Empty, host);
+			remoteScript.katt = 10;
+
+			Assert.AreEqual(2, remoteScript.wait_and_return_value_plus_value(1));
+			Assert.AreEqual(100, remoteScript.return_katt_times_10());
+
+		}
+
+		[Test]
+		public void PythonInterpreterScriptTests() {
+			PrintName();
+
+			if (m_deviceManager.Has("python_test")) { m_deviceManager.Remove("python_test"); } 
+
+			// Required for script to dynamically invoke devices
+			m_deviceManager.Add(new ObjectInvoker());
+
+			// Imitate the run loop script
+			var dummyRunloop = new DummyDevice(Settings.Identifiers.RunLoop ());
+			dummyRunloop.Start();
+			m_deviceManager.Add(dummyRunloop);
+
+			// Used by interpreter to create scripts
+			m_deviceManager.Add(m_pythonScriptFactory);
+
+			// Load the script that will perform the interpretation
+			dynamic interpreterScript = m_pythonScriptFactory.CreateScript(Settings.Identifiers.RunLoopScript());
+			IScriptInterpreter interpreter = new ScriptInterpreter(interpreterScript);
+
+			// Asesrt some stuff
+			Assert.False(interpreter.Interpret("blah"));
+			Assert.True(dummyRunloop.Ready);
+			Assert.True(interpreter.Interpret("exit"));
+			Assert.False(dummyRunloop.Ready);
+			Assert.True(interpreter.Interpret("devices"));
+
+			// Add the script that will be interpreted
+			Assert.True(interpreter.Interpret("load python_test"));
+			// Make sure it can be invoked
+			Assert.True(interpreter.Interpret("python_test.add_42(42)"));
+
+		}
+
+		[Test]
+		public void PythonInterpreterRemoteScriptTests() {
+			PrintName();
+
+			if (m_deviceManager.Has("python_test")) { m_deviceManager.Remove("python_test"); } 
+
+			// Required for script to dynamically invoke devices
+			m_deviceManager.Add(new ObjectInvoker());
+
+			// Used by interpreter to create scripts
+			m_deviceManager.Add(m_pythonScriptFactory);
+
+			// Load the script that will perform the interpretation
+			dynamic interpreterScript = m_pythonScriptFactory.CreateScript(Settings.Identifiers.RunLoopScript());
+			IScriptInterpreter interpreter = new ScriptInterpreter(interpreterScript);
+
+			// Set up the mocked endpoint for the remote script
+			DeviceRouter deviceRouter = new DeviceRouter(m_deviceManager);
+			ClientConnectionWebEndpoint epDummy = new ClientConnectionWebEndpoint(deviceRouter);
+
+			// python_test will be invoked "remotely". Add only to deviceRouter, since the remote version will have the same Identifier and has to be added to the DeviceManager.
+			var script = m_pythonScriptFactory.CreateScript("python_test");
+			deviceRouter.AddDevice(script);
+
+			RemoteDevice remoteScript = new RemoteDevice("python_test", Guid.NewGuid(), epDummy);
+			m_deviceManager.Add(remoteScript);
+
+			dynamic remoteScriptDynamic = (dynamic)remoteScript;
+//			Assert.AreEqual(84, remoteScriptDynamic.add_42 (42));
+//			Assert.True(interpreter.Interpret("python_test.add_42(42)"));
+			Assert.True(interpreter.Interpret("python_test.katt = 99"));
+			Assert.True(interpreter.Interpret("python_test.katt"));
+			Assert.True(interpreter.Interpret("python_test.return_katt_times_10()"));
+			Assert.True(interpreter.Interpret("python_test.CamelCaseMethod()"));
+		}
+
 	
 	}
 }

@@ -8,7 +8,6 @@ class MainClass:
 		self.l = self.device_manager.Get("log")
 
 	def add_42(self, aNumber):
-		#self.l.message(aNumber)
 		return aNumber + 42
 
 	def wait_and_return_value_plus_value(self,aValue):
@@ -18,6 +17,9 @@ class MainClass:
 	def return_katt_times_10(self):
 		return self.katt * 10
 
+	def CamelCaseMethod(self):
+		return "hej"
+	
 	def dog_becomes_value(self, value):
 		self.dog = value
 

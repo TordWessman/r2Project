@@ -26,10 +26,10 @@ namespace R2Core.Device
 	/// <summary>
 	/// A RemoteDevice represents a device not present in this instance. It's heavily coupled with the message strategies of the `DeviceRouter`
 	/// </summary>
-	public class RemoteDevice : DynamicObject, IRemoteDevice {
+	public class RemoteDevice : DynamicObject, IRemoteDevice, IInvokable {
 		
 		protected string m_identifier;
-		protected IClientConnection m_host;
+		protected INetworkConnection m_host;
 		protected Guid m_guid;
 		private INetworkMessage m_message;
 
@@ -50,7 +50,11 @@ namespace R2Core.Device
 
 				m_message.Payload = request;
 
-				return m_host.Send(m_message).Payload == true;
+				var response = m_host.Send(m_message).Payload;
+
+				if (response is bool) { return m_host.Send (m_message).Payload == true; } 
+
+				throw new DeviceException($"Unable to check ´Ready´ state for RemoteDevice '{Identifier}'. Response Payload was not bool, but {response}.");
 
 			} 
 
@@ -67,7 +71,7 @@ namespace R2Core.Device
 		/// <param name="guid">GUID.</param>
 		/// <param name="host">Host.</param>
 		/// <param name="destination">Destination.</param>
-		public RemoteDevice(string id, Guid guid, IClientConnection host, string destination = null) {
+		public RemoteDevice(string id, Guid guid, INetworkConnection host, string destination = null) {
 
 			m_identifier = id;
 			m_host = host;
@@ -116,10 +120,10 @@ namespace R2Core.Device
 		public void AddObserver(IDeviceObserver observer) { throw new InvalidOperationException("RemoteDevice can't have observers"); }
 		public void RemoveObserver(IDeviceObserver observer) { throw new InvalidOperationException("RemoteDevice can't have observers"); }
 
-		public override bool TrySetMember(SetMemberBinder binder, object value) {
+		public void Set(string handle, dynamic value) {
 
 			DeviceRequest request = new DeviceRequest() {
-				Action = binder.Name,
+				Action = handle,
 				Params = new object[] { value },
 				ActionType = DeviceRequest.ObjectActionType.Set,
 				Identifier = m_identifier
@@ -127,14 +131,13 @@ namespace R2Core.Device
 
 			m_message.Payload = request;
 			m_host.Send(m_message);
-			return true;
 
 		}
 
-		public override bool TryGetMember(GetMemberBinder binder, out object result) {
+		public dynamic Get(string handle) {
 
 			DeviceRequest request = new DeviceRequest() {
-				Action = binder.Name,
+				Action = handle,
 				Params = new object[] {},
 				ActionType = DeviceRequest.ObjectActionType.Get,
 				Identifier = m_identifier
@@ -143,15 +146,14 @@ namespace R2Core.Device
 			m_message.Payload = request;
 			INetworkMessage response = m_host.Send(m_message);
 
-			result = response.Payload.ActionResponse;
-			return true;
+			return response.Payload.ActionResponse;
 
 		}
 
-		public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result) {
-
+		public dynamic Invoke(string handle, params dynamic[] args) {
+		
 			DeviceRequest request = new DeviceRequest() {
-				Action = binder.Name,
+				Action = handle,
 				Params = args,
 				ActionType = DeviceRequest.ObjectActionType.Invoke,
 				Identifier = m_identifier
@@ -160,7 +162,27 @@ namespace R2Core.Device
 			m_message.Payload = request;
 			INetworkMessage response = m_host.Send(m_message);
 
-			result = response.Payload.ActionResponse;
+			return response.Payload.ActionResponse;
+
+		}
+
+		public override bool TrySetMember(SetMemberBinder binder, object value) {
+
+			Set(binder.Name, value);
+			return true;
+
+		}
+
+		public override bool TryGetMember(GetMemberBinder binder, out object result) {
+
+			result = Get(binder.Name);
+			return true;
+
+		}
+
+		public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result) {
+
+			result = Invoke(binder.Name, args);
 			return true;
 
 		}

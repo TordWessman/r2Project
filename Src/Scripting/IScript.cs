@@ -24,7 +24,8 @@ using R2Core;
 namespace R2Core.Scripting
 {
 	/// <summary>
-	/// Base interface for scripting 
+	/// A script is a dynamically invocable instance of some sort of script (i.e. Python). The script should follow some standard rules regarding
+	/// construction / run loop etc.
 	/// </summary>
 	public interface IScript : IDevice, IInvokable, ITaskMonitored {
 		
@@ -44,7 +45,6 @@ namespace R2Core.Scripting
 		/// </summary>
 		/// <value><c>true</c> if this instance is running; otherwise, <c>false</c>.</value>
 		bool IsRunning { get; } 
-
 
 	}
 

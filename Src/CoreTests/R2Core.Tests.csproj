@@ -71,6 +71,8 @@
     <Compile Include="DummyClasses\InvokableDummy.cs" />
     <Compile Include="CoreTests\HostSynchronizerTests.cs" />
     <Compile Include="DummyClasses\Networking\ServerInstanceContainer.cs" />
+    <Compile Include="DummyClasses\Networking\ClientConnectionWebEndpoint.cs" />
+    <Compile Include="DummyClasses\Extensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

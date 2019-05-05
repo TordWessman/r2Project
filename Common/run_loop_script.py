@@ -7,15 +7,18 @@ class MainClass:
 	def r2_init(self):
 		self.settings = self.device_manager.Get("settings")
 		self.l = self.device_manager.Get(self.settings.I.Logger())
-		self.task_monitor = self.device_manager.Get(self.settings.I.TaskMonitor())		
+		self.task_monitor = self.device_manager.Get(self.settings.I.TaskMonitor())
+		self.object_invoker = self.device_manager.Get(self.settings.I.ObjectInvoker())	
 
 	def setup(self):
 		a = 5
 		# Nothing to configure
 
 	def interpret(self,line):
+
 		if (line == "exit"):
-			return False
+			self.device_manager.Get(self.settings.I.RunLoop()).Stop()
+			return True
 		elif (line == "devices"):
 			self.device_manager.PrintDevices()
 			return True
@@ -29,9 +32,7 @@ class MainClass:
 		elif (self.exec_assign(line)):
 			return True
 		
-		self.l.warning("Unable to interpret: " + line)	
-
-		return True
+		return False
 	
 	def load_script(self,script_name, args):
 
@@ -48,7 +49,7 @@ class MainClass:
 			
 	
 	# Execptues a custom, static command:
-	def command (self,line):
+	def command(self,line):
 
 		command_name = line.split(" ")[0]
 
@@ -93,7 +94,10 @@ class MainClass:
 		return False
 
 	# Tries to fetch a device from the robot and execute a method specified
-	def exec_device (self,line):
+	def exec_device(self,line):
+
+		if (self.object_invoker == None):
+			raise Exception("self.object_invoker not set")
 
 		device_name = line.split(".")[0]
 
@@ -120,8 +124,8 @@ class MainClass:
 				attrSplit = command.split("=")
 				if (len(attrSplit) == 2): # Set attribute
 					attrName = attrSplit[0][1:].strip()
+					command = attrName
 					self.object_invoker.Set(device, attrName,attrSplit[1])
-					#setattr(device,attrName, attrSplit[1])
 				else: # Invoke or get attribute
 					command_output = eval("device" + command)
 
@@ -131,8 +135,7 @@ class MainClass:
 				return True
 
 		except MemberAccessException:
-			message = " -- Missing method/member " + command + " on device: " + device_name
-			self.l.warning(message)
+			self.l.error("Missing method/member '" + command + "' on device '" + device_name + "' (" + device.ToString() + ").")
 
 		return False
 	

@@ -131,7 +131,11 @@ namespace R2Core.Common
 
 					try {
 
-						InterpretText(line);
+						if (!m_interpreter.Interpret(line)) {
+						
+							Log.w($"Unable to interpret ´{line}´");
+
+						}
 
 					} catch (Exception ex) {
 
@@ -150,16 +154,6 @@ namespace R2Core.Common
 				}
 
 			} while(m_shouldRun);
-
-		}
-
-		/// <summary>
-		/// Will interpret the text string through it's interpreter script.
-		/// </summary>
-		/// <param name="text">Text.</param>
-		public void InterpretText(string text) {
-			
-			m_interpreter.Interpret(text);
 
 		}
 

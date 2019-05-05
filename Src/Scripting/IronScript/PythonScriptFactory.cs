@@ -64,7 +64,7 @@ namespace R2Core.Scripting
 		public override IScriptInterpreter CreateInterpreter(IronScript script) {
 
 			script.Set(Settings.Identifiers.ObjectInvoker(), new ObjectInvoker());
-			return new IronScriptInterpreter(script);
+			return new ScriptInterpreter(script);
 
 		}
 

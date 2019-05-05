@@ -18,25 +18,16 @@
 //
 using System;
 using R2Core.Device;
-using System.Threading.Tasks;
+using System.Linq;
 
 namespace R2Core.Tests
 {
-	public class DummyTaskMonitor : DeviceBase, ITaskMonitor {
+	public static class Extensions
+	{
+		public static void Clear(this IDeviceManager self) {
 		
-		public DummyTaskMonitor() : base(Settings.Identifiers.TaskMonitor()) 
-		{
+			//foreach(string id in self.Devices
 		}
-
-		public void AddTask(string id, Task task) {}
-
-		public void AddMonitorable(ITaskMonitored observer) {}
-
-		public Task MonitorTask { get { return Task.Run(() => {}); }}
-
-		public void RemoveMonitorable(ITaskMonitored observer) {}
-
-		public void PrintTasks() {}
 	}
 }
 

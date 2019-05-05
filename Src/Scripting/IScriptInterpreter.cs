@@ -23,13 +23,14 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// Capable of evaluating a string expression. 
 	/// </summary>
-	public interface IScriptInterpreter
-	{
+	public interface IScriptInterpreter {
+		
 		/// <summary>
-		/// An expression could be "@a = 42 / 10." Should return true if the interpreter script where able to perform the interpretation.
+		/// An expression could be "@a = 42 / 10." Should return true if the script was able to interpret ´expression´.
 		/// </summary>
-		/// <param name="expression">Expression.</param>
+		/// <param name="expression">Expression to evaluate.</param>
 		bool Interpret(string expression);
-	}
-}
 
+	}
+
+}

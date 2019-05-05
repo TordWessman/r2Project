@@ -71,6 +71,7 @@ namespace R2Core.Tests
 
 				m_deviceManager.Add(Settings.Instance);
 				m_deviceManager.Add(Log.Instance);
+				m_deviceManager.Add(m_dummyTaskMonitor);
 
 				m_deviceFactory = new DeviceFactory("device_factory", m_deviceManager);
 
