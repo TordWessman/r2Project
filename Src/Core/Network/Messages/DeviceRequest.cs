@@ -49,6 +49,12 @@ namespace R2Core.Network {
 
 		}
 
+		public override string ToString() {
+
+			return string.Format("[DeviceResponse: Object={0}, ActionResponse={1}, Action={2}]", Object, ActionResponse, Action);
+
+		}
+
 	}
 
 	/// <summary>

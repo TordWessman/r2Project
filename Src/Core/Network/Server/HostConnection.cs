@@ -91,7 +91,6 @@ namespace R2Core.Network
 
 		}
 
-
 		public string Destination { get { return null; } }
 
 	}

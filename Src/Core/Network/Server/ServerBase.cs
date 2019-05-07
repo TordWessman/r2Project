@@ -65,7 +65,7 @@ namespace R2Core.Network
 			get {
 
 				foreach (IPAddress address in Dns.GetHostEntry(Dns.GetHostName()).AddressList.Where(ip => ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)) {
-				
+
 					yield return address?.ToString();
 
 				}

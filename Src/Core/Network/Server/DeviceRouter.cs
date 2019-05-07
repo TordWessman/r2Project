@@ -93,9 +93,9 @@ namespace R2Core.Network
 
 		public INetworkMessage OnReceive(INetworkMessage message, IPEndPoint source) {
 
-			if (!(message.Payload is IDynamicMetaObjectProvider)) {
+			if (!(message.Payload is IDynamicMetaObjectProvider) && !(message.Payload is DeviceRequest)) {
 			
-				throw new NetworkException($"Unable process request: {message}. Payload is not of type IDynamicMetaObjectProvider (i.e. R2Dynamic or ExpandoObject).");
+				throw new NetworkException($"Unable process request: {message}. Payload is not of type DeviceRequest or IDynamicMetaObjectProvider (i.e. R2Dynamic or ExpandoObject).");
 
 			}
 

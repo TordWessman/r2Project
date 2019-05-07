@@ -143,7 +143,7 @@ namespace R2Core.Network
 
 			Log.d($"{this} disconnected.");
 
-			m_connectionPoller?.Stop();
+			m_connectionPoller.Stop();
 
 			//m_ping.Stop();
 

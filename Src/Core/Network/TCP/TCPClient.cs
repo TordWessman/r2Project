@@ -91,6 +91,8 @@ namespace R2Core.Network
 
         public override void Start() {
 		
+			Log.d($"TCPClient will connect to {Address}:{Port}");
+
 			m_readError = null;
 			m_shouldRun = true;
             m_client = new TcpClient();
@@ -104,6 +106,8 @@ namespace R2Core.Network
 				if (m_shouldRun) { Stop(); }
 
 			});
+
+
 
 			//m_ping.Start();
 

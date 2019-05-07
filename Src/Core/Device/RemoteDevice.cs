@@ -63,6 +63,7 @@ namespace R2Core.Device
 		public Guid Guid { get { return m_guid; } }
 
 		public INetworkConnection Connection { get { return m_host; } }
+
 		/// <summary>
 		/// Instantiate a remote device representation. ´destination´ is the path (i.e. "/destination" which the other end is listening to). 
 		/// Set to null using default settings.

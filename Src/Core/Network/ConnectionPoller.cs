@@ -69,22 +69,20 @@ namespace R2Core.Network
 		}
 
 		public override void Stop() {
-		
+
 			m_connectionCheckTimer?.Stop();
 
 		}
 
 		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
 
-			if (!Ready) { return; }
+			if (!Ready || m_client.GetSocket() == null) { return; }
 
-			bool pollSuccessful = m_client.GetSocket()?.Poll(m_client.ReceiveTimeout * 1000, SelectMode.SelectError) ?? false;
-			bool connected = m_client.IsConnected();
-			bool pollStatus = !pollSuccessful && !m_previousPollSuccess;
+			bool pollSuccessful = m_client.IsConnected();
 
-			if (!connected || !pollStatus) {
-
-				Log.d($"Polling failed. Will call fail delegate. Poll result: {pollStatus}. Connected: {connected}.");
+			if (!m_previousPollSuccess && !pollSuccessful) {
+				
+				Log.d($"Polling failed to: {m_client.GetDescription()}. Will call fail delegate.");
 				m_failDelegate();
 				Stop();
 

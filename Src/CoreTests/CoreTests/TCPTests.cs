@@ -270,7 +270,7 @@ namespace R2Core.Tests
 			DummyEndpoint ep = new DummyEndpoint("apa");
 			s.AddEndpoint(ep);
 
-			Thread.Sleep(100);
+			Thread.Sleep(200);
 
 			DummyClientObserver observer1 = new DummyClientObserver();
 			DummyClientObserver observer2 = new DummyClientObserver();
@@ -325,17 +325,19 @@ namespace R2Core.Tests
 
 			}
 
-
+			Log.d("Closing client1");
 			client1.Stop();
 			Thread.Sleep(2500);
 
 			Assert.True(client1ReactsOnItsOwnClose);
 			Assert.True(serverReactsOnItsClient1Close);
 
+			Log.d("Closing server");
 			s.Stop();
 			Thread.Sleep(2500);
 
 			Assert.True(client2ReactsOnServerClose);
+			Log.d("Closing client2");
 			client2.Stop();
 
 		}
@@ -436,7 +438,7 @@ namespace R2Core.Tests
 		}
 
 		[Test]
-		public void TestTCP_ServerClientConnectionsPings() {
+		public void TestTCP_ServerClientConnectionsDelegatesTest() {
 			PrintName();
 
 			TCPServer s = (TCPServer)factory.CreateTcpServer(Settings.Identifiers.TcpServer(), tcp_port);
@@ -444,14 +446,14 @@ namespace R2Core.Tests
 			s.Start();
 			DummyEndpoint ep = new DummyEndpoint("apa");
 			s.AddEndpoint(ep);
-			Thread.Sleep(100);
+			Thread.Sleep(200);
 
 			Thread t = new Thread(new ThreadStart(TestTCP_ClientFunc));
 			t.Start();
 			bool onServerReceived = false;
 			bool onServerDisconnect = false;
 
-			Thread.Sleep(100);
+			Thread.Sleep(200);
 
 			IClientConnection connection = s.Connections.FirstOrDefault();
 
@@ -470,9 +472,7 @@ namespace R2Core.Tests
 
 			};
 
-			while(waitingForClientStop) {
-				Thread.Sleep(100);
-			}
+			while(waitingForClientStop) { Thread.Sleep(100); }
 
 			Thread.Sleep(200);
 

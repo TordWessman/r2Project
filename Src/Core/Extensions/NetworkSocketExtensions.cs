@@ -60,27 +60,12 @@ namespace R2Core.Network
 		/// <returns><c>true</c> if is connected the specified client; otherwise, <c>false</c>.</returns>
 		public static bool IsConnected(this Socket client) {
 			
-			bool blockingState = client.Blocking;
-
 			try {
 				
-				client.Blocking = false;
-				client.Send(new byte[1], 0, 0);
-
-				return true;
-
-			} catch (SocketException e) {
-				
-				// 10035 == WSAEWOULDBLOCK
-				if (e.NativeErrorCode.Equals(10035)) { return true; }
-				else { return false; }
-
-			} finally {
-				
-				client.Blocking = blockingState;
+				return !(client.Available == 0 && client.Poll(1, SelectMode.SelectRead));
 			
-			}
-		
+			} catch (SocketException) { return false; }
+
 		}
 
 		/// <summary>

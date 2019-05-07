@@ -34,7 +34,7 @@ namespace R2Core.Network
 	public delegate void OnDisconnectHandler(IClientConnection connection, Exception ex);
 
 	/// <summary>
-	/// Represents a connection to a client from a server.
+	/// Represents a connection (INetworkConnection) that is capable of detecting disconnection and new messages (i.e. broadcast messages)
 	/// </summary>
 	public interface IClientConnection : INetworkConnection {
 

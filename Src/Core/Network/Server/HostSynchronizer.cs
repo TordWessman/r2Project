@@ -258,7 +258,7 @@ namespace R2Core.Network
 
 		/// <summary>
 		/// Evaluates a list of addresses and tries to connect to the first one available.
-		/// This method is typically called by remote already connected IClientConnection connected to this HostSynchronizer. 
+		/// This method is typically called by remote, already connected IClientConnection connected to this HostSynchronizer. 
 		/// The other ´host is then allowed to make ´self´ to connect to ´host´ as if it was localy requested by ´self´.
 		/// Return false if none of the provided ´addresses´ replied on a ping.
 		/// </summary>
