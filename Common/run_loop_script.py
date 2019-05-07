@@ -1,6 +1,8 @@
 import scriptbase
 import time
 from System import MemberAccessException
+import System
+from System.Collections.Generic import List
 
 class MainClass:
 
@@ -121,13 +123,31 @@ class MainClass:
 				command = line[len(device_name):]
 				command_output = None
 
-				attrSplit = command.split("=")
-				if (len(attrSplit) == 2): # Set attribute
-					attrName = attrSplit[0][1:].strip()
+				setAttrSplit = command.split("=")
+				attrSplit = command.split(".")
+				if (len(setAttrSplit) == 2): # Set attribute
+					attrName = setAttrSplit[0][1:].strip()
 					command = attrName
-					self.object_invoker.Set(device, attrName,attrSplit[1])
-				else: # Invoke or get attribute
-					command_output = eval("device" + command)
+					self.object_invoker.Set(device, attrName, setAttrSplit[1])
+				elif (len(attrSplit) == 2 and ("(" not in attrSplit[1])): # Get attribute
+					attrName = attrSplit[1].strip()
+					command_output = self.object_invoker.Get(device, attrName)
+				else: # Invoke (currently incomplete)
+					paramsSplit = attrSplit[1].split("(")
+					methodName = paramsSplit[0].strip()
+					param = paramsSplit[1].split(")")[0].strip() # max 1 parameter supported atm...
+					paramsArray = List[object]()
+
+					if (len(param) > 0):
+						stringCheckSplit = param.split("\"")
+						if (len(stringCheckSplit) == 3):
+							paramsArray.Add(stringCheckSplit[1])
+						elif (len(stringCheckSplit) == 1):
+							paramsArray.Add(int(param))
+						else:
+							raise ("Invokation of '" + device_name + "' failed. Unable to determine parameter type : '" + param + "'")
+
+					command_output = self.object_invoker.Invoke(device, methodName, paramsArray)
 
 				if (command_output != None):
 					self.l.message(command_output)

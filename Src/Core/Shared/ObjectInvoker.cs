@@ -42,14 +42,14 @@ namespace R2Core
 		/// <param name="parameters">Parameters.</param>
 		public dynamic Invoke(object target, string method, ICollection<object> parameters = null) {
 
-			if (target is IInvokable) {
+			MethodInfo methodInfo = target.GetType().GetMethod(method);
+
+			if (methodInfo == null && target is IInvokable) {
 
 				dynamic[] para = parameters?.Select(ppp => ppp as dynamic).ToArray();
 				return(target as IInvokable).Invoke(method, para);
 
 			}
-
-			MethodInfo methodInfo = target.GetType().GetMethod(method);
 
 			if (methodInfo == null) {
 
@@ -88,13 +88,13 @@ namespace R2Core
 		/// <param name="property">Property.</param>
 		public dynamic Get(object target, string property) {
 		
-			if (target is IInvokable) {
+			PropertyInfo propertyInfo = target.GetType().GetProperty(property);
+
+			if (propertyInfo == null && target is IInvokable) {
 
 				return(target as IInvokable).Get(property);
 
 			}
-
-			PropertyInfo propertyInfo = target.GetType().GetProperty(property);
 
 			if (propertyInfo == null) {
 
@@ -108,7 +108,7 @@ namespace R2Core
 
 				} else if (!(members [0] is FieldInfo)) {
 
-					throw new ArgumentException($"Unable to access property '{property}' in '{target}'.");
+					throw new ArgumentException($"Get property: Unable to access '{property}' in '{target}'.");
 
 				}
 
@@ -132,14 +132,14 @@ namespace R2Core
 		/// <param name="value">Value.</param>
 		public void Set(object target, string property, object value) {
 		
-			if (target is IInvokable) {
+			PropertyInfo propertyInfo = target.GetType().GetProperty(property);
+
+			if (propertyInfo == null && target is IInvokable) {
 
 				(target as IInvokable).Set(property, value as dynamic);
 				return;
 
 			}
-
-			PropertyInfo propertyInfo = target.GetType().GetProperty(property);
 
 			if (propertyInfo == null) {
 
@@ -153,7 +153,7 @@ namespace R2Core
 
 				} else if (!(members [0] is FieldInfo)) {
 
-					throw new ArgumentException($"Unable to access property '{property}' in '{target}'.");
+					throw new ArgumentException($"Set property: Unable to access '{property}' in '{target}'.");
 
 				}
 

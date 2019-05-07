@@ -31,7 +31,7 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// Default script implementation for IronRuby & IronPython
 	/// </summary>
-	public class IronScript: ScriptBase {
+	public class IronScript : ScriptBase {
 		
 		protected ScriptEngine m_engine;
 		protected ScriptScope m_scope;

@@ -47,7 +47,7 @@ namespace R2Core.Scripting
 	/// <summary>
 	/// IScript implementations should inherit from ScriptBase, since it's usingthe DynamicObject features for method and member access.
 	/// </summary>
-	public abstract class ScriptBase: DynamicObject, IScript {
+	public abstract class ScriptBase : DynamicObject, IScript {
 		/// <summary>
 		/// Will be called upon script initialization. This method must be defined in the MainClass. Defined in scriptbase.rb
 		/// </summary>

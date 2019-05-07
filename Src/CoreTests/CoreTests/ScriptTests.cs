@@ -191,20 +191,36 @@ namespace R2Core.Tests
 			DeviceRouter deviceRouter = new DeviceRouter(m_deviceManager);
 			ClientConnectionWebEndpoint epDummy = new ClientConnectionWebEndpoint(deviceRouter);
 
-			// python_test will be invoked "remotely". Add only to deviceRouter, since the remote version will have the same Identifier and has to be added to the DeviceManager.
+			// script & dummy will be invoked "remotely". Add only to deviceRouter, since the remote version will have the same Identifier and has to be added to the DeviceManager.
 			var script = m_pythonScriptFactory.CreateScript("python_test");
+			var dummy = new DummyDevice("dummy");
 			deviceRouter.AddDevice(script);
+			deviceRouter.AddDevice(dummy);
 
 			RemoteDevice remoteScript = new RemoteDevice("python_test", Guid.NewGuid(), epDummy);
 			m_deviceManager.Add(remoteScript);
+			RemoteDevice remoteDummy = new RemoteDevice("dummy", Guid.NewGuid(), epDummy);
+			m_deviceManager.Add(remoteDummy);
 
+			// Make RemoteDevices dynamically callable
 			dynamic remoteScriptDynamic = (dynamic)remoteScript;
-//			Assert.AreEqual(84, remoteScriptDynamic.add_42 (42));
-//			Assert.True(interpreter.Interpret("python_test.add_42(42)"));
+			dynamic remoteDummyDynamic = (dynamic)remoteDummy;
+
+			// Test the remote script
+			Assert.AreEqual(84, remoteScriptDynamic.add_42(42));
+			Assert.True(interpreter.Interpret("python_test.add_42(42)"));
 			Assert.True(interpreter.Interpret("python_test.katt = 99"));
 			Assert.True(interpreter.Interpret("python_test.katt"));
+			Assert.True(interpreter.Interpret("python_test.Start()"));
 			Assert.True(interpreter.Interpret("python_test.return_katt_times_10()"));
 			Assert.True(interpreter.Interpret("python_test.CamelCaseMethod()"));
+
+			//Test the dummy device
+			Assert.AreEqual(100, remoteDummyDynamic.MultiplyByTen(10));
+			Assert.True(interpreter.Interpret("dummy.Start()"));
+			Assert.True(interpreter.Interpret("dummy.MultiplyByTen (10)"));
+			Assert.True(interpreter.Interpret("dummy.Bar = \"Foo\""));
+			Assert.True(interpreter.Interpret("dummy.Value"));
 		}
 
 	

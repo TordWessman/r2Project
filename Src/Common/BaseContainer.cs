@@ -95,6 +95,7 @@ namespace R2Core.Common
 			m_devices.Add(consoleLogger);
 			m_devices.Add(Log.Instance);
 			m_devices.Add(this);
+			m_devices.Add(new ObjectInvoker());
 
 			var psf = new PythonScriptFactory(Settings.Identifiers.PythonScriptFactory(), PythonPaths, m_devices);
 
