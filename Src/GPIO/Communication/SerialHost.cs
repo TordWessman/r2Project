@@ -16,7 +16,7 @@ namespace R2Core.GPIO
 		
 		private ISerialConnection m_connection;
 		private ISerialPackageFactory m_packageFactory;
-		private int m_retryCount = 9;
+		private int m_retryCount = 7;
 		private Action<byte> m_delegate;
 
 		/// <summary>
