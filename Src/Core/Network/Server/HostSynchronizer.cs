@@ -38,9 +38,9 @@ namespace R2Core.Network
 	public class HostSynchronizer : DeviceBase {
 		
 		// Used for polling(UDP-broadcasting) for connections/devices. 
-		private Timer m_broadcastTimer;
+		private Timer m_synchronizationTimer;
 
-		// Used to create nessecary stuff
+		// Used to create necessary network related instances
 		private WebFactory m_factory;
 
 		// The client used to send broadcast requests
@@ -58,13 +58,16 @@ namespace R2Core.Network
 		// Broadcast port.
 		private int m_port;
 
-		// Interval for calling Broadcast.
-		private int m_broadcastInterval = 10000;
-
 		/// <summary>
 		/// The identifier for the remote TCP Server instance(i.e. "tcp_server")
 		/// </summary>
 		public string TCPServerIdentifier = Settings.Identifiers.TcpServer();
+
+		/// <summary>
+		/// Returns all available connections.
+		/// </summary>
+		/// <value>The connections.</value>
+		public IEnumerable<IClientConnection> Connections { get { return m_hosts; } }
 
 		/// <summary>
 		/// The port on which this broadcaster sends messages(remote UDP servers must be listening on this port).
@@ -85,20 +88,11 @@ namespace R2Core.Network
 		/// <summary>
 		/// Interval between broadcast events.
 		/// </summary>
-		public int BroadcastInterval {
+		public double SynchronizationInterval {
 			
-			set {
-			
-				m_broadcastInterval = value;
-				m_broadcastTimer.Interval = value;
-			
-			}
+			set { m_synchronizationTimer.Interval = value; }
 
-			get {
-			
-				return m_broadcastInterval;
-
-			}
+			get { return m_synchronizationTimer.Interval; }
 
 		}
 
@@ -123,22 +117,19 @@ namespace R2Core.Network
 			m_broadcaster = factory.CreateUdpClient(Settings.Identifiers.UdpBroadcaster(), port);
 			m_deviceManager = deviceManager;
 			m_hosts = new List<IClientConnection>();
-			m_broadcastTimer = new Timer(BroadcastInterval);
-			m_broadcastTimer.Elapsed += new ElapsedEventHandler(OnBroadcastEvent);
+			m_synchronizationTimer = new Timer(Settings.Consts.BroadcastInterval());
+			m_synchronizationTimer.Elapsed += new ElapsedEventHandler(OnConnectionSynchronizerEvent);
 
 		}
 
-		~HostSynchronizer() {
- 	
-			Stop();
-
-		}
+		~HostSynchronizer() { Stop(); }
 
 		/// <summary>
 		/// Broadcast for TCPServers. Will try to establish a connection to any server found and synchronize their devices.
 		/// </summary>
 		public void Broadcast() {
 
+			Log.t ("Broadcast!");
 			DeviceRequest request = new DeviceRequest() {
 				Identifier = TCPServerIdentifier,
 				ActionType = DeviceRequest.ObjectActionType.Get
@@ -148,6 +139,7 @@ namespace R2Core.Network
 
 			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
 
+				Log.t ($"Broadcast got reply: {response?.Code}");
 				if (NetworkStatusCode.Ok.Is(response?.Code)) {
 
 					DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
@@ -199,7 +191,7 @@ namespace R2Core.Network
 		/// </summary>
 		public override void Start() {
 
-			m_broadcastTimer.Start();
+			m_synchronizationTimer.Start();
 
 		}
 
@@ -208,7 +200,7 @@ namespace R2Core.Network
 		/// </summary>
 		public override void Stop() {
 
-			m_broadcastTimer.Stop();
+			m_synchronizationTimer.Stop();
 
 			m_hosts.All( host => {
 				
@@ -339,11 +331,17 @@ namespace R2Core.Network
 		}
 
 		/// <summary>
-		/// Timer callback. Will fire a Broadcast
+		/// Timer callback. Will fire a Broadcast and try to 
 		/// </summary>
 		/// <param name="source">Source.</param>
 		/// <param name="e">E.</param>
-		private void OnBroadcastEvent(object source, ElapsedEventArgs e) {
+		private void OnConnectionSynchronizerEvent(object source, ElapsedEventArgs e) {
+
+			m_hosts.AsParallel().ForAll((host) => {
+
+				if (!host.Ready) { host.Start(); }
+
+			});
 
 			Broadcast();
 

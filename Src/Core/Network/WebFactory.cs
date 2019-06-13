@@ -112,7 +112,7 @@ namespace R2Core.Network
 
 		}
 
-		public IMessageClient CreateTcpClient(string id, string host, int port) {
+		public TCPClient CreateTcpClient(string id, string host, int port) {
 		
 			return new TCPClient(id, CreateTcpPackageFactory(), host, port);
 

@@ -69,7 +69,7 @@ namespace R2Core.Tests
 
 			HostSynchronizer hostManager = factory.CreateHostSynchronizer(Settings.Identifiers.HostSynchronizer(), remoteUdpPort, deviceManager);
 
-			hostManager.BroadcastInterval = 2000;
+			hostManager.SynchronizationInterval = 2000;
 			deviceRouter.AddDevice(hostManager);
 
 			return new ServerInstanceContainer() {

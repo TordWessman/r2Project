@@ -43,6 +43,7 @@ namespace R2Core.Network
 		public HostConnection(string id, IMessageClient connection) : base(id) {
 			
 			m_connection = connection;
+			m_connection.AddClientObserver(this);
 
 		}
 

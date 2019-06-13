@@ -36,6 +36,12 @@ namespace R2Core.Network
 		/// <param name="responseDelegate">Response delegate.</param>
 		System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate);
 
+		/// <summary>
+		/// Adds a ´IMessageClientObserver´. Depending on the implementation of the ´IMessageClient´, some or all methods might never be called.
+		/// </summary>
+		/// <param name="observer">Observer.</param>
+		void AddClientObserver(IMessageClientObserver observer);
+
 	}
 
 }

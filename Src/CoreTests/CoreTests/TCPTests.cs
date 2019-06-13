@@ -300,12 +300,12 @@ namespace R2Core.Tests
 
 			var client1 = (TCPClient) factory.CreateTcpClient("c", "localhost", tcp_port);
 			client1.Timeout = 1000;
-			client1.AddObserver(observer1);
+			client1.AddClientObserver(observer1);
 			client1.Start();
 		
 			Thread.Sleep(200);
 			var client2 = (TCPClient) factory.CreateTcpClient("c2", "localhost", tcp_port);
-			client2.AddObserver(observer2);
+			client2.AddClientObserver(observer2);
 			client2.Timeout = 1000;
 			client2.Start();
 
@@ -361,7 +361,7 @@ namespace R2Core.Tests
 			DummyClientObserver observer = new DummyClientObserver("ehh");
 
 			var client = (TCPClient) factory.CreateTcpClient("c", "localhost", tcp_port);
-			client.AddObserver(observer);
+			client.AddClientObserver(observer);
 			client.Start();
 
 			observer.Asserter = (msg) => { 
@@ -422,7 +422,7 @@ namespace R2Core.Tests
 			};
 
 			var client = (TCPClient) factory.CreateTcpClient("c", "localhost", tcp_port);
-			client.AddObserver(observer);
+			client.AddClientObserver(observer);
 			client.Start();
 
 			Thread.Sleep(200);
@@ -485,6 +485,60 @@ namespace R2Core.Tests
 			Assert.True(onServerReceived);
 			Assert.True(onServerDisconnect);
 			s.Stop();
+
+		}
+
+		bool m_ClientReconnect_ServerCheck;
+
+		[Test]
+		public void TestTCP_ClientReconnect() {
+			PrintName();
+		
+			var port = tcp_port + 912;
+			TCPServer s = (TCPServer)factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
+			s.Timeout = 1000;
+			s.Start();
+
+			Thread.Sleep(200);
+			Assert.True(s.Ready);
+			m_ClientReconnect_ServerCheck = true;
+
+			DummyClientObserver observer = new DummyClientObserver();
+
+			observer.OnCloseAsserter = (c, exception) => { 
+
+				// Wait until the server status has been asserted before continuing
+				while(m_ClientReconnect_ServerCheck) { Thread.Sleep(100); }
+				c.Start();
+			
+			};
+
+			TCPClient client = (TCPClient)factory.CreateTcpClient("c", "localhost", port);
+			client.Timeout = 500;
+			client.AddClientObserver(observer);
+			client.Start();
+
+			Thread.Sleep(200);
+
+			Assert.True(client.Ready);
+
+			s.Stop();
+
+			Thread.Sleep(600);
+
+			Assert.False(s.Ready);
+			Assert.False(client.Ready);
+			s.Start();
+			Thread.Sleep(200);
+			Assert.True(s.Ready);
+			m_ClientReconnect_ServerCheck = false;
+
+			// After this, the DummyClientObservers OnCloseAsserter should have started the client again.
+			Thread.Sleep(500);
+
+			Assert.True(client.Ready);
+			s.Stop();
+			client.Stop();
 
 		}
 

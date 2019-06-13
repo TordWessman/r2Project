@@ -245,6 +245,12 @@ namespace R2Core.Network
 				}
 			}
 		}
+
+		public void AddClientObserver(IMessageClientObserver observer) {
+		
+			throw new NotImplementedException("AddClientObserver not implemented for HttpClient.");
+
+		}
 	}
 }
 

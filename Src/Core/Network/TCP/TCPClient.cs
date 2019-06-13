@@ -131,13 +131,13 @@ namespace R2Core.Network
 
 			}
 
+			m_receiverTask = null;
+
 			m_observers.InParallell((observer) => {
 
 				observer.OnClose(this, m_readError);
 
 			});
-
-			m_receiverTask = null;
 
 		}
 
@@ -352,9 +352,9 @@ namespace R2Core.Network
 
 		}
 
-		public void AddObserver(IMessageClientObserver receiver) {
+		public void AddClientObserver(IMessageClientObserver observer) {
 
-			m_observers.Add(new WeakReference<IMessageClientObserver>(receiver));
+			m_observers.Add(new WeakReference<IMessageClientObserver>(observer));
 
 		}
 

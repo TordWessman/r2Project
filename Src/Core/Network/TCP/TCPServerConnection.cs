@@ -92,6 +92,12 @@ namespace R2Core.Network
 
 		public override void Start() {
 
+			if (!m_client.IsConnected()) {
+			
+				throw new NetworkException("TCPServerConnection can't be manually started, since it requires a disposable and connected TcpClient in it's constructor.");
+			
+			}
+
 			m_shouldRun = true;
 
 			Log.d($"Server accepted connection from {m_client.GetDescription()}.");

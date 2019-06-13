@@ -23,6 +23,7 @@ using R2Core.Network;
 using R2Core.Device;
 using R2Core.Scripting;
 using R2Core.Common;
+using System.Linq;
 
 namespace R2Core.Tests
 {
@@ -36,7 +37,7 @@ namespace R2Core.Tests
 		/// Test the synchronization of devices between two HostSynchronizer instances(and thus two tcp & udp servers)
 		/// </summary>
 		[Test]
-		public void TestHostSynchronizer_NoLocalDuplicates() {
+		public void NoLocalDuplicates() {
 			PrintName();
 
 			var devices1 = factory.SetUpServers(tcp_port, udp_port, udp_port - 43);
@@ -59,7 +60,7 @@ namespace R2Core.Tests
 			Assert.True(dummy2.Guid == devices2.DeviceManager.Get("dummy").Guid);
 
 			// Sleep enough time for both host managers to be synchronized
-			Thread.Sleep(devices1.HostSynchronizer.BroadcastInterval * 3);
+			Thread.Sleep(((int)devices1.HostSynchronizer.SynchronizationInterval) * 3);
 
 			devices2.Stop();
 			devices1.Stop();
@@ -71,7 +72,7 @@ namespace R2Core.Tests
 		/// Test if the HostSynchronizer's ´RequestSynchronization´ & ´Synchronize´ works.
 		/// </summary>
 		[Test]
-		public void TestHostSynchronizer_ManualSynchronization() {
+		public void ManualSynchronization() {
 			PrintName();
 
 			int remoteTCPPort = tcp_port - 40;
@@ -142,7 +143,7 @@ namespace R2Core.Tests
 		/// Test the synchronization of devices between two HostSynchronizer instances(and thus two tcp & udp servers)
 		/// </summary>
 		[Test]
-		public void TestHostSynchronizer_BroadcastSynchronization() {
+		public void BroadcastSynchronization() {
 			PrintName();
 
 			var devices1 = factory.SetUpServers(tcp_port, udp_port, udp_port - 42);
@@ -162,7 +163,7 @@ namespace R2Core.Tests
 			devices2.HostSynchronizer.Start();
 
 			// Sleep enough time for both host managers to be synchronized
-			Thread.Sleep(devices1.HostSynchronizer.BroadcastInterval * 3);
+			Thread.Sleep(((int)devices1.HostSynchronizer.SynchronizationInterval) * 3);
 
 			// The device should be available
 			Assert.NotNull(devices1.DeviceManager.Get("dummy2"));
@@ -176,7 +177,7 @@ namespace R2Core.Tests
 			devices2.DeviceManager.Add(dummy3);
 
 			// They should be synchronized after this...
-			Thread.Sleep(devices1.HostSynchronizer.BroadcastInterval * 3);
+			Thread.Sleep(((int)devices1.HostSynchronizer.SynchronizationInterval) * 3);
 
 			// The new device should be available
 			Assert.NotNull(devices1.DeviceManager.Get("dummy3"));
@@ -190,6 +191,36 @@ namespace R2Core.Tests
 			devices1.Stop();
 			Thread.Sleep(500);
 
+		}
+
+		/// <summary>
+		/// Test that the host synchronizer can reconnect to failed TcpConnections
+		/// </summary>
+		[Test]
+		public void Reconnection() {
+			PrintName ();
+
+			var devices1 = factory.SetUpServers (tcp_port - 141, udp_port, udp_port - 142);
+			var devices2 = factory.SetUpServers (tcp_port - 142, udp_port - 142, udp_port);
+			devices2.Start();
+			devices1.Start();
+			Thread.Sleep(200);
+			devices1.HostSynchronizer.SynchronizationInterval = 1000;
+			devices1.HostSynchronizer.Start();
+			Thread.Sleep(200);
+			devices2.HostSynchronizer.SynchronizationInterval = 1000;
+			devices2.HostSynchronizer.Start();
+			Thread.Sleep(2000);
+			Assert.AreEqual(1, devices1.HostSynchronizer.Connections.Count());
+			Assert.AreEqual(1, devices2.HostSynchronizer.Connections.Count());
+
+//			foreach (IClientConnection connection in devices1.HostSynchronizer.Connections.Join(devices2.HostSynchronizer.Connections)) {
+//			
+//				Assert.True(connection.Ready);
+//			
+//			}
+
+			//devices1.
 		}
 
 	}

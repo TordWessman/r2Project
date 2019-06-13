@@ -47,6 +47,15 @@ namespace R2Core.Tests
 
 		}
 
+		[TestFixtureTearDown]
+		public override void Teardown() {
+			base.Teardown();
+		
+			// Makes it more probable that all the clients/servers has been closed
+			Thread.Sleep(1000);
+
+		}
+
 	}
 
 }

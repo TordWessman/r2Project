@@ -68,6 +68,7 @@
 		<FileLoggerDefaultFile comment="The default file logger output file">test_output.txt</FileLoggerDefaultFile>
 		<MaxConsoleHistory type="int">200</MaxConsoleHistory>
 		<HttpPort type="int" comment="Default port for http server">10000</HttpPort>
+		<BroadcastInterval type="int" comment="Default periodical broadcast interval for devices that broadcasts stuff">10000</BroadcastInterval>
 		<DefaultTcpPort type="int" comment="default TCP port">1234</DefaultTcpPort>
 		<DefaultBroadcastPort type="int" comment="the port used by the host manager to broadcast">9050</DefaultBroadcastPort>
 		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7/Lib;/usr/lib/python2.7</PythonPaths>
