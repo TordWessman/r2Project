@@ -20,6 +20,10 @@
   
 #endif
 
+// The timing scale factor for led output. The higher the denomiator, the faster the LED blink rate.
+#define LED_TIME_DENOMIATOR 2
+
+// Serial communication port
 #define SERIAL_BAUD_RATE 9600
 
 // Maximum number of devices
@@ -35,6 +39,7 @@
 #define R2_STATUS_LED 0x2
 //#define R2_ERROR_LED 0x4
 
+// Not used
 #define R2_RESET_LED1 0x7
 #define R2_RESET_LED2 0x8
 

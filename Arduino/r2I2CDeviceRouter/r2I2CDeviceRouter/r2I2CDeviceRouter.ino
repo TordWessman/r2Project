@@ -35,7 +35,6 @@ void i2cReceive(byte* data, size_t data_size) {
 
   R2_LOG(F("Receiving i2cdata"));
   ResponsePackage out;
-  //RequestPackage *in;
   
   if (data == NULL || data_size < MIN_REQUEST_SIZE) {
     
@@ -43,11 +42,7 @@ void i2cReceive(byte* data, size_t data_size) {
     out = createErrorPackage(0x0);
     
   } else {
-    
-//    in = (RequestPackage *)malloc(sizeof(RequestPackage));
-//    memcpy((void *)in, data, data_size);
-//    out = execute(in);
-//    free(in);
+   
     out = execute((RequestPackage *)data);
     
   }
@@ -351,7 +346,7 @@ ResponsePackage execute(RequestPackage *request) {
 
 void setup() {
 
-//saveNodeId(0);
+//saveNodeId(4);
 /*
 pinMode(R2_RESET_LED1, OUTPUT);
 pinMode(R2_RESET_LED2, INPUT);
@@ -378,9 +373,9 @@ for (int i = 0; i < 9; i++) {
 pinMode(R2_STATUS_LED, OUTPUT);
 for (int i = 0; i < 5; i++) {
   digitalWrite(R2_STATUS_LED, 1);
-  delay(500);
+  delay(500 / LED_TIME_DENOMIATOR);
   digitalWrite(R2_STATUS_LED, 0);
-  delay(500);
+  delay(500 / LED_TIME_DENOMIATOR);
 }
 reservePort(R2_STATUS_LED);
 #endif
@@ -414,7 +409,7 @@ if (isMaster())
 #ifdef R2_STATUS_LED
 unsigned long blinkTimer = 0;
 bool blinkOn = false;
-#define blinkTime 1000
+#define blinkTime (1000/LED_TIME_DENOMIATOR)
 #endif
 
 void loop() {
