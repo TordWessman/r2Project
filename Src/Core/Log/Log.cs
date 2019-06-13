@@ -68,9 +68,10 @@ namespace R2Core
 		}
 
 
-		public static void Instantiate(string id) {
+		public static Log Instantiate(string id) {
 		
 			Log.instance = new Log(id);
+			return Log.instance;
 
 		}
 		
@@ -133,25 +134,25 @@ namespace R2Core
 
 		public void message(object message, string tag = null) {
 			
-			Log.Instance.Write(new LogMessage(message, LogType.Message, tag));
+			Log.Instance?.Write(new LogMessage(message, LogType.Message, tag));
 		
 		}
 
 		public void warning(object message, string tag = null) {
 		
-			Log.Instance.Write(new LogMessage(message, LogType.Warning, tag));
+			Log.Instance?.Write(new LogMessage(message, LogType.Warning, tag));
 		
 		}
 
 		public void error(object message, string tag = null) {
 		
-			Log.Instance.Write(new LogMessage(message, LogType.Error, tag));
+			Log.Instance?.Write(new LogMessage(message, LogType.Error, tag));
 		
 		}
 
 		public void temp(object message, string tag = null) {
 		
-			Log.Instance.Write(new LogMessage(message, LogType.Temp, tag));
+			Log.Instance?.Write(new LogMessage(message, LogType.Temp, tag));
 		
 		}
 
@@ -160,14 +161,9 @@ namespace R2Core
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="tag">Tag.</param>
-		public static void d(object message, string tag = null) 
-		{
-
-			if (Log.Instance != null) {
-
-				Log.Instance.message(message, tag);
+		public static void d(object message, string tag = null) {
 			
-			}
+			Log.Instance?.message(message, tag);
 
 		}
 
@@ -176,13 +172,10 @@ namespace R2Core
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="tag">Tag.</param>
-		public static void w(object message, string tag = null)  
-		{
-			if (Log.Instance != null) {
-
-				Log.Instance.warning(message, tag);	
-			}
-
+		public static void w(object message, string tag = null) {
+			
+			Log.Instance?.warning(message, tag);	
+		
 		}
 
 		/// <summary>
@@ -190,14 +183,9 @@ namespace R2Core
 		/// </summary>
 		/// <param name="message">Message.</param>
 		/// <param name="tag">Tag.</param>
-		public static void e(object message, string tag = null) 
-		{
+		public static void e(object message, string tag = null) {
 
-			if (Log.Instance != null) {
-
-				Log.Instance.error(message, tag);
-
-			}
+			Log.Instance?.error(message, tag);
 
 		}
 
@@ -206,11 +194,8 @@ namespace R2Core
 		/// </summary>
 		/// <param name="message">Message.</param>
 		public static void t(object message) {
-			if (Log.Instance != null) {
-
-				Log.Instance.temp(message);
-
-			}
+			
+			Log.Instance?.temp(message);
 
 		}
 
@@ -225,7 +210,7 @@ namespace R2Core
 				
 				IList<string> stackTrace = ex.StackTrace?.Split('\n').ToList() ?? new List<string>();
 
-				if (stackTrace.Count > Log.instance.MaxStackTrace) {
+				if (stackTrace.Count > (Log.Instance?.MaxStackTrace ?? 0)) {
 
 					stackTrace = stackTrace.Take(Log.instance.MaxStackTrace).ToList();
 					stackTrace.Add("... (Ignoring the rest) ...");

@@ -32,12 +32,14 @@ namespace R2Core
 		private Stack<ILogMessage> m_history;
 		private int m_maxHistory;
 
+		public const int DefaultMaxHistory = 100;
+
 		/// <summary>
 		/// Use the maxHistory to define how many messages that can be contain in the message history.
 		/// </summary>
 		/// <param name="id">Identifier.</param>
 		/// <param name="maxHistory">Max history.</param>
-		public SimpleConsoleLogger(string id, int maxHistory) : base(id) {
+		public SimpleConsoleLogger(string id, int maxHistory = DefaultMaxHistory) : base(id) {
 			m_defaultColor = Console.ForegroundColor;
 			m_history = new Stack<ILogMessage>();
 			m_maxHistory = maxHistory;
