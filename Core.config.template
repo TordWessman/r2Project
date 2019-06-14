@@ -72,7 +72,7 @@
 		<DefaultTcpPort type="int" comment="default TCP port">1234</DefaultTcpPort>
 		<DefaultBroadcastPort type="int" comment="the port used by the host manager to broadcast">9050</DefaultBroadcastPort>
 		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7/Lib;/usr/lib/python2.7</PythonPaths>
-		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation)">"/usr/lib/ruby/2.3.0"</RubyPaths>
+		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation)">/usr/lib/ruby/2.3.0</RubyPaths>
 		<DeviceDestination comment="Used by various components (i.e. HostSynchronizer) for device synchronization.">/devices</DeviceDestination>
 		<PingDestination comment="Used as destination for TCP ping messages">/ping</PingDestination>
 	</Consts>

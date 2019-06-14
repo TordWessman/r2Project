@@ -105,7 +105,7 @@ namespace R2Core
 						Settings.Instance.m_basePath = System.IO.Directory.GetCurrentDirectory();
 						string configFullPath = "";
 
-						// 20 is the Maximum number of directories to travers in order to find "Core.config" file.
+						// 20 is the Maximum number of directories to traverse in order to find "Core.config" file.
 
 						for (int i = 0; i < 20; i++) {
 

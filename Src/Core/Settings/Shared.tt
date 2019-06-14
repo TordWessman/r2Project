@@ -203,7 +203,10 @@
 					"				if (setValue != default(" + typeName + ")) {\n" +
 					"					Settings.Instance.SetValue<" + typeName + ">(\"" + node.Name + "\", setValue);\n" +
 					"				}\n\n" +
-					"				Settings.Instance.CheckAndLoadData(\"" + name +"\", \"" + confFileName + "\");\n" +
+					"				if (Settings.Instance.GetValue<" + typeName + ">(\"" + node.Name + "\") == default(" + typeName + ")) {\n" +
+					"					Settings.Instance.SetValue<" + typeName + ">(\"" + node.Name + "\", " + (typeName == "string" ? $"\"{node.InnerText}\"" : node.InnerText) + ");\n" +
+					"				}\n" +
+					"				//Settings.Instance.CheckAndLoadData(\"" + name +"\", \"" + confFileName + "\");\n" +
 					"				" + typeName + " value = Settings.Instance.GetValue<" + typeName + ">(\"" + node.Name + "\");\n" +
 					"				return value;\n" +
 					"			}\n\n";
