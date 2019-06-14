@@ -73,6 +73,19 @@ namespace R2Core.Device
 
 		}
 
+		/// <summary>
+		/// Gets a remote value with the name ´propertyName´. callback's value will contain the value of ´propertyName´ on success 
+		/// or null upon failure.
+		/// </summary>
+		/// <returns>The value.</returns>
+		/// <param name="propertyName">Property name.</param>
+		public Task GetValue(string propertyName) {
+		
+			AsyncRemoteDeviceRequestTask request = new AsyncRemoteDeviceRequestTask (propertyName, m_callback, m_device);
+			return request.Get();
+
+		}
+
 	}
 
 	public class AsyncRemoteDeviceRequestTask {
@@ -84,6 +97,14 @@ namespace R2Core.Device
 		private object[] m_invokeArgs;
 		private SetMemberBinder m_setBinder;
 		private object m_setArg;
+		private string m_propertyName;
+
+		public AsyncRemoteDeviceRequestTask(string propertyName, Action<dynamic, Exception> callback, RemoteDevice remoteDevice) {
+		
+			m_propertyName = propertyName;
+			m_callback = callback;
+			m_device = remoteDevice;
+		}
 
 		public AsyncRemoteDeviceRequestTask(Action<dynamic, Exception> callback, RemoteDevice remoteDevice, SetMemberBinder binder, object arg) {
 
@@ -119,7 +140,20 @@ namespace R2Core.Device
 
 				try {
 
-					m_device.TryGetMember(m_getBinder, out asyncResult);
+					if (m_getBinder != null) {
+					
+						m_device.TryGetMember(m_getBinder, out asyncResult);
+
+					} else if (m_propertyName != null) {
+					
+						asyncResult = m_device.Get(m_propertyName);
+
+					} else {
+					
+						throw new DeviceException("Unable to fetch remote value: no propertyName or binder set.");
+
+					}
+
 					m_callback(asyncResult, null);
 
 				} catch (Exception ex) {
