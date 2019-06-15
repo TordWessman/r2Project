@@ -27,6 +27,7 @@ using System.Net;
 using R2Core.Scripting;
 using R2Core.Common;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace R2Core.Tests
 {
@@ -256,6 +257,42 @@ namespace R2Core.Tests
 
 			s.Stop();
 			client.Stop();
+
+		}
+
+		[Test]
+		public void TestTCP_AsyncRemoteDevice() {
+			PrintName();
+
+			IServer s = factory.CreateTcpServer(Settings.Identifiers.TcpServer(), tcp_port + 1144);
+			s.Start();
+			DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
+			dummyObject.Bar = "XYZ";
+			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter(m_deviceManager);
+			rec.AddDevice(dummyObject);
+			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
+			s.AddEndpoint(ep);
+			Thread.Sleep(500);
+
+			var client = factory.CreateTcpClient("c", "localhost", tcp_port + 1144);
+			client.Start();
+
+			//Client should be connected
+			Assert.IsTrue(client.Ready);
+			HostConnection connection = new HostConnection("hc", client);
+
+			RemoteDevice remoteDummy = new RemoteDevice("dummy_device", Guid.Empty, connection);
+
+			Task getTask = remoteDummy.Async ((result, exception) => {
+
+				Assert.IsNull(exception);
+				Assert.AreEqual("XYZ",result);
+
+			}).GetValue("Bar");
+
+			Thread.Sleep(200);
+
+			getTask.Wait();
 
 		}
 

@@ -128,8 +128,7 @@ namespace R2Core.Network
 		/// Broadcast for TCPServers. Will try to establish a connection to any server found and synchronize their devices.
 		/// </summary>
 		public void Broadcast() {
-
-			Log.t ("Broadcast!");
+			
 			DeviceRequest request = new DeviceRequest() {
 				Identifier = TCPServerIdentifier,
 				ActionType = DeviceRequest.ObjectActionType.Get
@@ -308,7 +307,7 @@ namespace R2Core.Network
 		/// <param name="port">Port.</param>
 		private IClientConnection EstablishConnection(string address, int port) {
 
-			string id = GetHostConnectionIdentifier(address, port);
+			string id = $"host{address}:{port}";
 
 			IClientConnection connection = m_hosts.FirstOrDefault( (h) => { return h.Identifier == id; });
 
@@ -344,18 +343,6 @@ namespace R2Core.Network
 			});
 
 			Broadcast();
-
-		}
-
-		/// <summary>
-		/// Returns the Identifier for a specified address & port.
-		/// </summary>
-		/// <returns>The host connection identifier.</returns>
-		/// <param name="address">Address.</param>
-		/// <param name="port">Port.</param>
-		private string GetHostConnectionIdentifier(string address, int port) {
-		
-			return $"host{address}:{port}";
 
 		}
 
