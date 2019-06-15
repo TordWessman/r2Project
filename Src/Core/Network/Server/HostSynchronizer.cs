@@ -238,7 +238,7 @@ namespace R2Core.Network
 			
 				dynamic remoteHostSynchronizer = new RemoteDevice(Settings.Identifiers.HostSynchronizer(), Guid.Empty, host);
 				bool s = remoteHostSynchronizer.RequestSynchronization(deviceServer.Addresses, deviceServer.Port) ?? false;
-				Log.d ($"Sync for {host.Address}: {s}"); 
+				Log.d($"Synchronization for {host.Address} succeeded: {s}"); 
 				success &= s;
 
 			}
@@ -338,7 +338,11 @@ namespace R2Core.Network
 
 			m_hosts.AsParallel().ForAll((host) => {
 
-				if (!host.Ready) { host.Start(); }
+				if (!host.Ready && host.Ping()) { 
+
+					host.Start(); 
+				
+				}
 
 			});
 

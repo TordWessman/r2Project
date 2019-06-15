@@ -67,12 +67,12 @@
 	<Consts>
 		<FileLoggerDefaultFile comment="The default file logger output file">test_output.txt</FileLoggerDefaultFile>
 		<MaxConsoleHistory type="int">200</MaxConsoleHistory>
-		<HttpPort type="int" comment="Default port for http server">10000</HttpPort>
-		<BroadcastInterval type="int" comment="Default periodical broadcast interval for devices that broadcasts stuff">10000</BroadcastInterval>
-		<DefaultTcpPort type="int" comment="default TCP port">1234</DefaultTcpPort>
+		<DefaultHttpPort type="int" comment="Default port for http server">10000</DefaultHttpPort>
+		<BroadcastInterval type="int" comment="Default periodical broadcast interval for devices that broadcasts stuff">120000</BroadcastInterval>
+		<DefaultTcpPort type="int" comment="default TCP port">4245</DefaultTcpPort>
 		<DefaultBroadcastPort type="int" comment="the port used by the host manager to broadcast">9050</DefaultBroadcastPort>
 		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7/Lib;/usr/lib/python2.7</PythonPaths>
-		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation)">/usr/lib/ruby/2.3.0</RubyPaths>
+		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation). Escaped quotations has to be used for an unknown reason... ">\"/usr/lib/ruby/2.3.0\"</RubyPaths>
 		<DeviceDestination comment="Used by various components (i.e. HostSynchronizer) for device synchronization.">/devices</DeviceDestination>
 		<PingDestination comment="Used as destination for TCP ping messages">/ping</PingDestination>
 	</Consts>

@@ -74,21 +74,33 @@ namespace R2Core.Network
 
 		public void OnClose(IMessageClient client, Exception ex) {
 		
-			OnDisconnect(this, ex);
+			if (OnDisconnect != null) {
+			
+				OnDisconnect(this, ex);
+
+			}
 
 		} 
 
 		public void OnRequest(INetworkMessage request) { }
 
 		public void OnResponse(INetworkMessage response, Exception ex) {
-		
-			OnReceive(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
+
+			if (OnReceive != null) {
+
+				OnReceive(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
+
+			}
 
 		}
 
 		public void OnBroadcast(INetworkMessage response) {
-			
-			OnReceive(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
+
+			if (OnReceive != null) {
+
+				OnReceive(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
+
+			}
 
 		}
 
