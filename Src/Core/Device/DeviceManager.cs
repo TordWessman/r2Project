@@ -233,7 +233,7 @@ namespace R2Core.Device
 
 				if (Has(device.Identifier)) {
 				
-					Log.d($"{device.Identifier}    - [{device.Guid.ToString()}]" + (!device.IsLocal() ? " (remote)" : "")); 
+					Log.d($"{device.Identifier}\t\t- [{device.ToString()}]" + (!device.IsLocal() ? " (remote)" : "")); 
 				
 				} else {
 				

@@ -137,6 +137,7 @@ class MainClass:
 					methodName = paramsSplit[0].strip()
 					param = paramsSplit[1].split(")")[0].strip() # max 1 parameter supported atm...
 					paramsArray = List[object]()
+					command = methodName # improve debug output...
 
 					if (len(param) > 0):
 						stringCheckSplit = param.split("\"")
@@ -154,8 +155,8 @@ class MainClass:
 				
 				return True
 
-		except MemberAccessException:
-			self.l.error("Missing method/member '" + command + "' on device '" + device_name + "' (" + device.ToString() + ").")
+		except MemberAccessException as ex:
+			self.l.error("Missing method/member in '" + command + "' on device '" + device_name + "'. Error message: \"" + ex.Message + "\".")
 
 		return False
 	

@@ -64,12 +64,12 @@ namespace R2Core.Scripting
 		public const string HANDLE_STOP = "stop";
 
 		/// <summary>
-		/// Method handle to the run loop.
+		/// Method handle to the run loop. This method will start when ´Start()´ has been invoked.
 		/// </summary>
 		public const string HANDLE_LOOP = "loop";
 
 		/// <summary>
-		/// (Optional) Method handle for the setup function(which will be executed before each execution).
+		/// (Optional) Method handle for the setup function (which will be executed when Start() is invoked, but before the run loop ('loop)).
 		/// </summary>
 		public const string HANDLE_SETUP = "setup";	
 

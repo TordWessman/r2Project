@@ -76,7 +76,8 @@ namespace R2Core.Video
 			
 			if (!m_destroyed) {
 			
-				Destroy();
+				//TODO: handle Cv memory... 
+				// Destroy();
 
 			}
 

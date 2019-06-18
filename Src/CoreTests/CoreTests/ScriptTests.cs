@@ -26,6 +26,7 @@ using System.Collections.Generic;
 using R2Core.Common;
 using R2Core.Data;
 using System.Threading;
+using System.Linq;
 
 namespace R2Core.Tests
 {
@@ -134,7 +135,28 @@ namespace R2Core.Tests
 			Assert.AreEqual(2, remoteScript.wait_and_return_value_plus_value(1));
 			Assert.AreEqual(100, remoteScript.return_katt_times_10());
 
+			dynamic device_list = m_pythonScriptFactory.CreateScript("device_list");
+			m_deviceManager.Add(device_list);
+
+			// Test device_list script:
+			DummyDevice dummy = new DummyDevice("dummy");
+			m_deviceManager.Add(dummy);
+			dummy.Bar = "Foo";
+
+			dynamic remoteDeviceList = new RemoteDevice("device_list", Guid.Empty, host);
+			IEnumerable<string> deviceNames = new List<string>(){ "python_test", "dummy", "non-existing" };
+			IEnumerable<dynamic> devices = remoteDeviceList.GetDevices(deviceNames);
+
+			Assert.AreEqual(2, devices.Count());
+			Assert.AreEqual("Foo", devices.Last().Bar);
+
+			Thread.Sleep(200);
+			client.Stop();
+			server.Stop();
+
+
 		}
+
 
 		[Test]
 		public void PythonInterpreterScriptTests() {
