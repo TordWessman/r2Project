@@ -141,12 +141,12 @@ class MainClass:
 
 					if (len(param) > 0):
 						stringCheckSplit = param.split("\"")
-						if (len(stringCheckSplit) == 3):
-							paramsArray.Add(stringCheckSplit[1])
+						if (len(stringCheckSplit) == 2):
+							paramsArray.Add(stringCheckSplit[1])	#string
 						elif (len(stringCheckSplit) == 1):
-							paramsArray.Add(int(param))
+							paramsArray.Add(int(param))	#other
 						else:
-							raise ("Invokation of '" + device_name + "' failed. Unable to determine parameter type : '" + param + "'")
+							raise Exception("Invokation of '" + device_name + "' failed. Unable to determine parameter type : '" + param + "'")
 
 					command_output = self.object_invoker.Invoke(device, methodName, paramsArray)
 
