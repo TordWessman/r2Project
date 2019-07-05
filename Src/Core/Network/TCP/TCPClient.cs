@@ -61,7 +61,7 @@ namespace R2Core.Network
 		/// <summary>
 		/// Timeout in ms before a send operation dies.
 		/// </summary>
-		public int Timeout = 10000;
+		public int Timeout = 30000;
 
         /// <summary>
         /// Default headers for all requests

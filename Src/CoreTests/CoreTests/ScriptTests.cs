@@ -143,8 +143,10 @@ namespace R2Core.Tests
 			m_deviceManager.Add(dummy);
 			dummy.Bar = "Foo";
 
+			Thread.Sleep(200);
 			dynamic remoteDeviceList = new RemoteDevice("device_list", Guid.Empty, host);
 			IEnumerable<string> deviceNames = new List<string>(){ "python_test", "dummy", "non-existing" };
+			Thread.Sleep(200);
 			IEnumerable<dynamic> devices = remoteDeviceList.GetDevices(deviceNames);
 
 			Assert.AreEqual(2, devices.Count());

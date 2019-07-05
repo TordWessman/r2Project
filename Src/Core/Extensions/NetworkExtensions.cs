@@ -34,11 +34,10 @@ namespace R2Core.Network
 		 
 			if (ex is SocketException) {
 
-				if ((ex as SocketException).SocketErrorCode == SocketError.Interrupted) {
-					
-					return true;
+				SocketException socketException = ex as SocketException; 
 
-				}
+				return 	socketException.SocketErrorCode == SocketError.Interrupted ||
+						socketException.SocketErrorCode == SocketError.ConnectionReset;
 
 			} else if (ex is System.Threading.ThreadAbortException) {
 			

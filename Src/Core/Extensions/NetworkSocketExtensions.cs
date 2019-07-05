@@ -106,7 +106,7 @@ namespace R2Core.Network
 		/// </summary>
 		/// <returns>The remote description.</returns>
 		public static string GetDescription(this TcpClient self) {
-
+			
 			return self.GetEndPoint()?.GetDescription() ?? "<not connected>";
 
 		}

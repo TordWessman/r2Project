@@ -60,6 +60,9 @@ namespace R2Core.Network
 		// Keeps track of the connectivity of a socket
 		private ConnectionPoller m_connectionPoller;
 
+		// Used to retain the client Description, even after disconnection.
+		private string m_description;
+
 		public event OnReceiveHandler OnReceive;
 		public event OnDisconnectHandler OnDisconnect;
 
@@ -73,6 +76,7 @@ namespace R2Core.Network
 			m_client = client;
 			m_packageFactory = factory;
 			m_ping = new PingService(this, m_client.SendTimeout);
+			m_description = m_client.GetDescription();
 
 			m_connectionPoller = new ConnectionPoller(m_client, () => {
 
@@ -138,8 +142,8 @@ namespace R2Core.Network
 		}
 
 		public override string ToString() {
-
-			return $"TCPServerConnection [`{m_client.GetDescription()}`. Ready: {Ready}]."; //string.Format("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
+			
+			return $"TCPServerConnection [`{m_description}`. Ready: {Ready}]."; //string.Format("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
 
 		}
 
@@ -225,10 +229,9 @@ namespace R2Core.Network
 					if (!ex.IsClosingNetwork()) {
 					
 						Log.x(ex);
+						Disconnect(ex);
 
-					}
-
-					Disconnect(m_shouldRun ? ex : null);
+					} else { Disconnect(); }
 
 				}
 			

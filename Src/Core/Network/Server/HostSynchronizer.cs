@@ -379,17 +379,18 @@ namespace R2Core.Network
 
 					Guid guid = Guid.Parse((string)device.Guid);
 
-					// Check if a device with the same Guid exists.
-					if (m_deviceManager.GetByGuid<IDevice>(guid) == null) {
-						
-						if (m_deviceManager.Has(device.Identifier)) {
-						
-							m_deviceManager.Remove(device.Identifier);
+					IRemoteDevice remote = new RemoteDevice(device.Identifier, guid, connection);
 
-						}
+					if (m_deviceManager.Has(device.Identifier) && 
+						m_deviceManager.Get(device.Identifier) is RemoteDevice) {
 
-						IRemoteDevice remote = new RemoteDevice(device.Identifier, guid, connection);
+						// Replace any remote device
+						m_deviceManager.Remove(device.Identifier);
 
+						m_deviceManager.Add(remote);
+
+					} else if (!m_deviceManager.Has(device.Identifier)) {
+					
 						m_deviceManager.Add(remote);
 
 					}

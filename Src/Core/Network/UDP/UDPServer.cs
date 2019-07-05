@@ -98,7 +98,11 @@ namespace R2Core.Network
 
 					if (ShouldRun) {
 
-						Log.x(ex);
+						if (!ex.IsClosingNetwork()) {
+						
+							Log.x(ex);
+
+						}
 
 						response = new NetworkErrorMessage(ex);
 
