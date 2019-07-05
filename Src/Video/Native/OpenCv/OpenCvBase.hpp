@@ -35,7 +35,7 @@ extern "C" {
 	int _ext_get_image_width (IplImage *image);
 	int _ext_get_image_height (IplImage *image);
 	IplImage* _ext_create_32_bit_image (IplImage* image);
-
+	IplImage* _ext_rotate (IplImage *image, int degrees);
 }
 
 short GetSharpness(IplImage* in);

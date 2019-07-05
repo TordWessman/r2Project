@@ -44,6 +44,12 @@ namespace R2Core.Video
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern bool _ext_is_running_capture(int deviceId);
 
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern System.IntPtr _ext_rotate(System.IntPtr image, int degrees);
+
+		[DllImport(dllPath, CharSet = CharSet.Auto)]
+		protected static extern void _ext_create_dump(string fileName, System.IntPtr image);
+
 		/// <summary>
 		/// It seems like v4l2 uses a buffer set and thus returning the last image in this buffer. (see cap_v4l.cpp, DEFAULT_V4L_BUFFERS). 
 		/// </summary>
@@ -53,6 +59,14 @@ namespace R2Core.Video
 		private CvSize m_size;
 		private int m_skipFrames;
 		private IplImage m_lastFrame = null;
+		private int m_rotation;
+
+		public int Rotation {
+
+			set { m_rotation = value; }
+			get { return m_rotation; }
+		
+		}
 
 		/// <summary>
 		/// Creates a camera source with lazy resource loading. the skipFrames parameter is used to drop(grab) frames from the v4l buffer in order to get the latest frame. Set to zero if it's not working(or if you like delays).  
@@ -88,12 +102,25 @@ namespace R2Core.Video
 
 				m_lastFrame = new IplImage(_ext_capture_camera(m_cameraId));
 
+				if (m_rotation != 0) {
+					
+					IplImage rotated = new IplImage(_ext_rotate(m_lastFrame.Ptr, m_rotation));
+					_ext_release_image(m_lastFrame.Ptr);
+					m_lastFrame = rotated;
+
+				}
+
 				return m_lastFrame; 
 			
 			} 
 		
 		}
+
+		public void SnapShot(string fileName) {
 		
+			_ext_create_dump(fileName, CurrentFrame.Ptr);
+
+		}
 
 		public override void Stop() {
 		

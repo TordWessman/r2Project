@@ -17,8 +17,26 @@
 // 
 
 #include "OpenCvBase.hpp"
+#include <opencv2/core/core.hpp>
+
+using namespace cv;
 
 void create_dump_file (const char* filename);
+
+IplImage* _ext_rotate (IplImage *image, int degrees) {
+
+	Point2f src_center(image->width/2.0F, image->height/2.0F);
+	Mat src = cvarrToMat(image);
+	Mat rot_mat = getRotationMatrix2D(src_center, degrees , 1.0);
+	Mat dst;
+	warpAffine(src, dst, rot_mat, src.size());
+	IplImage* image2;
+	image2 = cvCreateImage(cvSize(dst.cols,dst.rows),8,3);
+	IplImage ipltemp=dst;
+	cvCopy(&ipltemp,image2);
+	return image2;
+	
+}
 
 void _ext_create_dump(const char*filename, IplImage* image) {
 
@@ -33,7 +51,7 @@ void _ext_create_dump(const char*filename, IplImage* image) {
     		p[2] = 0;
 		
 		
-		printf("Saving image %s pointer: %p\n", filename, image);
+		printf("Saving image '%s' pointer: %p\n", filename, image);
 		cvSaveImage(filename, image, p);
 		printf("- saved image: %p\n", image);
 }
