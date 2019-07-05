@@ -132,16 +132,15 @@ class MainClass:
 				elif (len(attrSplit) == 2 and ("(" not in attrSplit[1])): # Get attribute
 					attrName = attrSplit[1].strip()
 					command_output = self.object_invoker.Get(device, attrName)
-				else: # Invoke (currently incomplete)
-					paramsSplit = attrSplit[1].split("(")
-					methodName = paramsSplit[0].strip()
-					param = paramsSplit[1].split(")")[0].strip() # max 1 parameter supported atm...
+				else: # Invoke (currently incomplete).
+					methodName = attrSplit[1].split("(")[0].strip()
+					param = command.split('(')[-1].replace(')','')
 					paramsArray = List[object]()
 					command = methodName # improve debug output...
 
 					if (len(param) > 0):
 						stringCheckSplit = param.split("\"")
-						if (len(stringCheckSplit) == 2):
+						if (len(stringCheckSplit) == 3):
 							paramsArray.Add(stringCheckSplit[1])	#string
 						elif (len(stringCheckSplit) == 1):
 							paramsArray.Add(int(param))	#other
