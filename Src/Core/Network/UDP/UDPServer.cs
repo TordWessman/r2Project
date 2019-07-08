@@ -63,11 +63,12 @@ namespace R2Core.Network
 				string broadcastMessageUniqueIdentifierHeaderValue = ""; 
 
 				try {
-
-					byte [] requestData = m_listener.Receive(ref client);
-					if (!AllowLocalRequests && IPAddress.IsLoopback(client.Address)) {
 					
-						// Ignore requests sent by the same Ip
+					byte [] requestData = m_listener.Receive(ref client);
+
+					if (!AllowLocalRequests && (IPAddress.IsLoopback(client.Address) || Addresses.Contains(client.Address.ToString()))) {
+					
+						// Ignore requests sent by this computer
 						continue;
 
 					}

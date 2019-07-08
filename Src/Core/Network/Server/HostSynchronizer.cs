@@ -124,6 +124,34 @@ namespace R2Core.Network
 
 		~HostSynchronizer() { Stop(); }
 
+		private void HandleBroadcastResponse(dynamic response) {
+		
+			DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
+			dynamic endpoint = deviceResponse.Object;
+
+			if (endpoint == null) {
+
+				Log.e($"Did not receive an Endpoint in response from ´{response.GetBroadcastAddress()}´. Payload: {response?.Payload}");
+
+			} else {
+				
+				string address = GetAvailableAddress((IEnumerable<dynamic>)endpoint.Addresses);
+				int port = (int)endpoint.Port;
+
+				if (address != null) {
+					
+					Synchronize(address, port);
+
+				} else {
+
+					string addressList = String.Join(",", endpoint.Addresses);
+					Log.e($"HostSynchronizer was unable to connect to host(port {port}). No address in list ´{addressList}´replied on ping.");
+
+				}
+
+			}
+		}
+
 		/// <summary>
 		/// Broadcast for TCPServers. Will try to establish a connection to any server found and synchronize their devices.
 		/// </summary>
@@ -138,33 +166,9 @@ namespace R2Core.Network
 
 			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
 
-				Log.t ($"Broadcast got reply: {response?.Code}");
 				if (NetworkStatusCode.Ok.Is(response?.Code)) {
 
-					DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
-					dynamic endpoint = deviceResponse.Object;
-
-					if (endpoint == null) {
-
-						Log.e($"Did not receive an Endpoint in response from ´{response.GetBroadcastAddress()}´. Payload: {response?.Payload}");
-
-					} else {
-
-						string address = GetAvailableAddress((IEnumerable<dynamic>)endpoint.Addresses);
-						int port = (int)endpoint.Port;
-
-						if (address != null) {
-
-							Synchronize(address, port);
-
-						} else {
-
-							string addressList = String.Join(",", endpoint.Addresses);
-							Log.e($"HostSynchronizer was unable to connect to host(port {port}). No address in list ´{addressList}´replied on ping.");
-
-						}
-
-					}
+					HandleBroadcastResponse(response);
 
 				} else if (exception != null) {
 					
