@@ -58,7 +58,7 @@ namespace R2Core.Network
 		public UDPBroadcaster(string id, int port, ITCPPackageFactory<TCPMessage> serializer, string address = null) : base(id) {
 
 			m_serializer = serializer;
-			m_host = new IPEndPoint(address != null ? IPAddress.Parse(address) : IPAddress.Any, port);
+			m_host = new IPEndPoint(address != null ? IPAddress.Parse(address) : IPAddress.Parse("255.255.255.255"), port);
 			m_socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram,
 				ProtocolType.Udp);
 			
