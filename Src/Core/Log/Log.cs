@@ -24,6 +24,7 @@ using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace R2Core
 {
@@ -132,27 +133,47 @@ namespace R2Core
 
 		}
 
+		private string FormatMessage(object message, int depth = 0) {
+		
+			string output = message?.ToString();
+
+			if (!(message is string) && message is IEnumerable) {
+				
+				output = "";
+
+				foreach (object value in (message as IEnumerable)) {
+
+					output += new String('-', depth + 1) + " " + FormatMessage(value, depth + 1) + Environment.NewLine;
+
+				}
+
+			}
+
+			return output;
+
+		}
+
 		public void message(object message, string tag = null) {
 			
-			Log.Instance?.Write(new LogMessage(message, LogType.Message, tag));
+			Log.Instance?.Write(new LogMessage(FormatMessage(message), LogType.Message, tag));
 		
 		}
 
 		public void warning(object message, string tag = null) {
 		
-			Log.Instance?.Write(new LogMessage(message, LogType.Warning, tag));
+			Log.Instance?.Write(new LogMessage(FormatMessage(message), LogType.Warning, tag));
 		
 		}
 
 		public void error(object message, string tag = null) {
 		
-			Log.Instance?.Write(new LogMessage(message, LogType.Error, tag));
+			Log.Instance?.Write(new LogMessage(FormatMessage(message), LogType.Error, tag));
 		
 		}
 
 		public void temp(object message, string tag = null) {
 		
-			Log.Instance?.Write(new LogMessage(message, LogType.Temp, tag));
+			Log.Instance?.Write(new LogMessage(FormatMessage(message), LogType.Temp, tag));
 		
 		}
 
