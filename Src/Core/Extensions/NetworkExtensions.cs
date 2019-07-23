@@ -19,6 +19,7 @@
 using System;
 using System.Net.Sockets;
 using System.IO;
+using System.Net.NetworkInformation;
 
 namespace R2Core.Network
 {
@@ -89,6 +90,33 @@ namespace R2Core.Network
 
 		}
 
+	}
+
+	public class NetworkExtensions {
+
+		/// <summary>
+		/// Pings all ´addresses´ in the list and returns the first to reply.
+		/// </summary>
+		/// <returns>The available address.</returns>
+		/// <param name="addresses">Addresses.</param>
+		public static string GetAvailableAddress(System.Collections.Generic.IEnumerable<dynamic> addresses) {
+
+			foreach(dynamic address in addresses) {
+
+				System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+				PingReply reply = ping.Send(address);
+
+				if (reply.Status == IPStatus.Success) {
+
+					return address;
+
+				}
+
+			}
+
+			return null;
+
+		}
 	}
 
 }

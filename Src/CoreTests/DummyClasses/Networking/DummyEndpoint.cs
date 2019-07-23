@@ -35,8 +35,6 @@ namespace R2Core.Tests
 		public Func<INetworkMessage,INetworkMessage> MessingUp;
 
 		public INetworkMessage Interpret(INetworkMessage message,  System.Net.IPEndPoint source) {
-		
-			Assert.AreEqual(source.Address.ToString(), "127.0.0.1");
 
 			return MessingUp == null ? message : MessingUp(message);
 
