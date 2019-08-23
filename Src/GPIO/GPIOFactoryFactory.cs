@@ -15,7 +15,7 @@ namespace R2Core.GPIO
 		/// <param name="id">Identifier.</param>
 		/// <param name="portIdentifier">Port identifier.</param>
 		/// <param name="baudRate">Baud rate.</param>
-		public ISerialHost CreateSerialConnection(string id, string portIdentifier = null, int baudRate = 0) {
+		public IArduinoDeviceRouter CreateSerialConnection(string id, string portIdentifier = null, int baudRate = 0) {
 		
 			if (baudRate <= 0) {
 			
@@ -24,7 +24,7 @@ namespace R2Core.GPIO
 			}
 
 			ISerialConnection connection = new ArduinoSerialConnector(id, portIdentifier, baudRate);
-			return new SerialHost(id, connection, new ArduinoSerialPackageFactory());
+			return new ArduinoDeviceRouter(id, connection, new ArduinoSerialPackageFactory());
 
 		}
 
@@ -35,14 +35,14 @@ namespace R2Core.GPIO
 		/// <param name="id">Identifier.</param>
 		/// <param name="bus">Bus.</param>
 		/// <param name="port">Port.</param>
-		public ISerialHost CreateSerialConnection(string id, int? bus = null, int? port = null) {
+		public IArduinoDeviceRouter CreateSerialConnection(string id, int? bus = null, int? port = null) {
 
 			ISerialConnection connection = new R2I2CMaster(id, bus, port);
-			return new SerialHost(id, connection, new ArduinoSerialPackageFactory());
+			return new ArduinoDeviceRouter(id, connection, new ArduinoSerialPackageFactory());
 
 		}
 
-		public SerialGPIOFactory CreateSerialFactory(string id, ISerialHost serialHost) {
+		public SerialGPIOFactory CreateSerialFactory(string id, IArduinoDeviceRouter serialHost) {
 
 			return new SerialGPIOFactory(id, serialHost);
 

@@ -14,7 +14,7 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// A hight level interface for interaction to a serial host exposing the available interactions. 
 	/// </summary>
-	public interface ISerialHost : IDevice {
+	public interface IArduinoDeviceRouter : IDevice {
 
 		/// <summary>
 		/// Number of retries for a transmission before giving up and rethrowing IO & Serial exceptions.
@@ -107,7 +107,6 @@ namespace R2Core.GPIO
 		/// </summary>
 		Action<byte> HostDidReset { get; set; }
 
-		void WaitFor(int nodeId);
 	}
 
 }

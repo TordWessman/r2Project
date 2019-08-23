@@ -29,7 +29,7 @@ namespace R2Core.GPIO
 	internal class SerialDeviceManager {
 		
 		private IList<ISerialNode> m_nodes;
-		private ISerialHost m_host;
+		private IArduinoDeviceRouter m_host;
 		private int m_updateInterval;
 
 		internal IList<ISerialNode> Nodes { get { return m_nodes; } }
@@ -39,7 +39,7 @@ namespace R2Core.GPIO
 		/// </summary>
 		/// <param name="host">Host.</param>
 		/// <param name="updateInterval">Update interval.</param>
-		internal SerialDeviceManager(ISerialHost host, int updateInterval = -1) {
+		internal SerialDeviceManager(IArduinoDeviceRouter host, int updateInterval = -1) {
 
 			m_host = host;
 			m_nodes = new List<ISerialNode>();

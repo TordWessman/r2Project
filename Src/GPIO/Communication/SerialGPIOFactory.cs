@@ -27,12 +27,12 @@ namespace R2Core.GPIO
 	public class SerialGPIOFactory : DeviceBase {
 
 		// Interface to the host(s)
-		private ISerialHost m_connection;
+		private IArduinoDeviceRouter m_connection;
 
 		// Keeps track of all devices per host
 		private SerialDeviceManager m_devices;
 
-		public SerialGPIOFactory(string id, ISerialHost connection) : base(id) {
+		public SerialGPIOFactory(string id, IArduinoDeviceRouter connection) : base(id) {
 
 			m_connection = connection;
 			m_devices = new SerialDeviceManager(connection);

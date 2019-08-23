@@ -25,7 +25,7 @@ namespace R2Core.GPIO
 		
 		protected byte[] m_ports;
 
-		internal SerialAnalogInput(string id, ISerialNode node, ISerialHost host, int[] ports): base(id, node, host) {
+		internal SerialAnalogInput(string id, ISerialNode node, IArduinoDeviceRouter host, int[] ports): base(id, node, host) {
 
 			m_ports = new byte[ports.Length];
 			for (int i = 0; i < ports.Length; i++) { m_ports[i] = (byte)ports[i]; }
@@ -44,7 +44,7 @@ namespace R2Core.GPIO
 
 	internal class SimpleAnalogueHumiditySensor : SerialAnalogInput {
 
-		internal SimpleAnalogueHumiditySensor(string id, ISerialNode node, ISerialHost host, int[] ports): base(id, node, host, ports) {}
+		internal SimpleAnalogueHumiditySensor(string id, ISerialNode node, IArduinoDeviceRouter host, int[] ports): base(id, node, host, ports) {}
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.SimpleMoist; } }
 

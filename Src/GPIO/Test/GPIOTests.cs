@@ -64,7 +64,7 @@ namespace R2Core.GPIO.Tests
 		[Test]
 		public void TestSerial() {
 			
-			var host = new SerialHost("h", mock_connection, m_packageFactory);
+			var host = new ArduinoDeviceRouter("h", mock_connection, m_packageFactory);
 			var factory = new SerialGPIOFactory("f", host);
 			var sensor = factory.CreateAnalogInput("inp", 14);
 			var remoteMock = mock_connection.Devices.First();
@@ -102,7 +102,7 @@ namespace R2Core.GPIO.Tests
 			// For testing purposes, set the update interval to 1 second
 			Settings.Consts.SerialNodeUpdateTime(1);
 
-			var host = new SerialHost("h", mock_connection, m_packageFactory);
+			var host = new ArduinoDeviceRouter("h", mock_connection, m_packageFactory);
 
 			// No device added, so host should not be available
 			Assert.IsFalse(host.IsNodeAvailable(3));
