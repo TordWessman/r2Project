@@ -192,7 +192,12 @@ namespace R2Core.GPIO
 
 				if (retry && response.CanRetry() && retryCount < RetryCount) {
 					
-					Log.t($"Retry: {retryCount}. Error: {response.Error}. {request.Description()}");
+					if (retryCount > 2) {
+						
+						Log.t($"Retry: {retryCount}. Error: {response.Error}. {request.Description()}");
+					
+					}
+
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
 					return _Send<T>(request, retryCount + 1);
 

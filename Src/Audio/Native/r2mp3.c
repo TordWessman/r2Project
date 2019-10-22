@@ -43,10 +43,7 @@ static gboolean mp3_bus_call(GstBus *bus, GstMessage *msg, void *user_data)
 
 	switch (GST_MESSAGE_TYPE(msg)) {
 	case GST_MESSAGE_EOS: {
-		g_message("End-of-stream");
-		//report the end of stream
 		g_main_loop_quit(mp3_loop);
-		
 		break;
 	}
 	case GST_MESSAGE_ERROR: {
