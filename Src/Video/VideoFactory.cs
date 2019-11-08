@@ -49,6 +49,12 @@ namespace R2Core.Video
 
 		}
 
+		public RPiCameraServer CreatePiCamera(string id, int width, int height, int port) {
+		
+			return new RPiCameraServer(id, width, height, port);
+
+		}
+
 	}
 
 }
