@@ -18,11 +18,12 @@
 //
 using System;
 using R2Core.Device;
+using R2Core.Common;
 
 namespace R2Core.Video
 {
 	public class VideoFactory : DeviceBase {
-		
+
 		public VideoFactory(string id) : base(id) {
 		}
 
@@ -44,7 +45,7 @@ namespace R2Core.Video
 		}
 
 		public CvCamera CreateCamera(string id,int width = 0, int height = 0, int cameraId = 0, int skipFrames = CvCamera.SkipFrames) {
-		
+
 			return new CvCamera(id, width, height, cameraId, skipFrames);
 
 		}
@@ -52,6 +53,15 @@ namespace R2Core.Video
 		public RPiCameraServer CreatePiCamera(string id, int width, int height, int port) {
 		
 			return new RPiCameraServer(id, width, height, port);
+
+		}
+
+		public RPiCameraClient CreatePiCameraRecorder(string id, string path, int port, string address = "127.0.0.1") {
+
+			var client = new RPiCameraClient(id, path, new FFMpegMp4Converter());
+
+			client.Setup(port, address);
+			return client;
 
 		}
 
