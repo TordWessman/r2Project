@@ -28,7 +28,6 @@ namespace R2Core.Video
 		protected static extern void _ext_rpir_init(int port, string address);
 
 		private Task m_recordTask;
-		private string m_filename;
 		private string m_path;
 		private IFileConverter m_converter;
 
@@ -47,11 +46,10 @@ namespace R2Core.Video
 
 		protected void RecordingFinished(string filename) {
 
-			string outputFilename = m_filename + ".mp4";
+			string outputFilename = System.IO.Path.Combine(m_path,filename + ".mp4");
 			m_converter.Convert(filename, outputFilename);
 			System.IO.File.Delete(filename);
-		
-			Log.t($"Recording done: {outputFilename}");
+
 		}
 
 		public override void Stop() {
@@ -74,11 +72,9 @@ namespace R2Core.Video
 			
 			}
 
-			m_filename = filename;
-
 			m_recordTask = new Task (() => {
 
-				if (_ext_rpir_record(System.IO.Path.Combine(m_path, filename), new FileRecordedCallback(this.RecordingFinished)) != 0) {
+				if (_ext_rpir_record(filename, new FileRecordedCallback(this.RecordingFinished)) != 0) {
 					
 					Log.e($"Recording failed for file: '{_ext_rpir_get_filename()}'.");
 
