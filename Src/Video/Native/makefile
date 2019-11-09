@@ -1,14 +1,7 @@
-#export GST_DEBUG=1
-#export GST_PLUGINS_PATH=/usr/lib/gstreamer-1.0
-
-# -shared
-#CC=gcc
-#CPREFIX=`pkg-config gstreamer-1.0 --cflags`
-#CFLAGS=`pkg-config gstreamer-1.0 --libs` -shared -Wall -fPIC -I /usr/include -L /usr/lib -lgstapp-1.0 `pkg-config glib-2.0 gobject-2.0 --libs --cflags`
-
 CC=gcc
 ifdef test
 SHARED_FLAG=
+echo "- MAKING TEST BUILDS (non libraries) -"
 else
 SHARED_FLAG=-shared
 endif
@@ -16,10 +9,21 @@ PREFIX=`pkg-config gstreamer-1.0 --cflags`
 CFLAGS=-Wall -fPIC $(SHARED_FLAG) `pkg-config gstreamer-1.0 gio-2.0 --libs --cflags`
 
 R2_LIB_DIR=../../../Lib/
+
 CAMERA=r2picam
 CAMERA_LIB=lib$(CAMERA).so
+RECORDER=r2picamrecorder
+RECORDER_LIB=lib$(RECORDER).so
 
-all:
+all: camera recorder
+
+camera:
 	$(CC) $(PREFIX) RPiCamera.c -o $(CAMERA_LIB) $(CFLAGS)
 	cp $(CAMERA_LIB) $(R2_LIB_DIR)
 
+recorder:
+	$(CC) $(PREFIX) RPiCameraRecorder.c -o $(RECORDER_LIB) $(CFLAGS)
+	cp $(RECORDER_LIB) $(R2_LIB_DIR)
+
+clean:
+	rm *.so
