@@ -24,7 +24,6 @@ namespace R2Core.Video
 			m_isConverting = true;
 
 			m_proc.StartInfo.Arguments = $"-loglevel fatal -i {inputFile} -c copy {outputFile}"; 
-			Log.t(m_proc.StartInfo.Arguments);
 
 			m_proc.Start();
 			System.IO.StreamReader reader = m_proc.StandardOutput;
