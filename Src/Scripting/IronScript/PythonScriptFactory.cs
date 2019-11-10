@@ -34,6 +34,7 @@ namespace R2Core.Scripting
 		private static readonly IronPython.Modules.SysModule.floatinfo INCLUDE_PYTHON_MODULES_LIBRARY;
 		#pragma warning restore 0169
 
+		private ICollection<string> m_paths;
 		private ScriptEngine m_engine;
 		private IDeviceManager m_deviceManager;
 
@@ -44,6 +45,7 @@ namespace R2Core.Scripting
 			m_engine = Python.CreateEngine();
 		
 			m_engine.SetSearchPaths(paths);
+			m_paths = paths;
 
 		}
 
@@ -52,7 +54,7 @@ namespace R2Core.Scripting
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
 			// Add the factorys source paths to the engines search paths.
-			m_engine.SetSearchPaths(m_engine.GetSearchPaths().Concat(ScriptSourcePaths).ToList());
+			m_engine.SetSearchPaths(m_paths.Concat(ScriptSourcePaths).ToList());
 
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);

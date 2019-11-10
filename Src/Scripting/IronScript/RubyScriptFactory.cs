@@ -43,7 +43,7 @@ namespace R2Core.Scripting
 		#pragma warning restore 0169
 
 		private IDeviceManager m_deviceManager;
-		private ScriptEngine m_engine;
+		private ICollection<string> m_paths;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="Core.Scripting.RubyScriptFactory"/> class.
@@ -52,14 +52,12 @@ namespace R2Core.Scripting
 		/// <param name="id">Identifier.</param>
 		/// <param name="paths">Paths.</param>
 		/// <param name="deviceManager">Device manager.</param>
-		/// <param name="taskMonitor">Task monitor.</param>
 		public RubyScriptFactory(string id, 
 		                      	ICollection<string> paths,
 		                      	IDeviceManager deviceManager) : base(id) {
 
 			m_deviceManager = deviceManager;
-			m_engine = Ruby.CreateEngine();
-			m_engine.SetSearchPaths(paths);
+			m_paths = paths;
 		
 		}
 
@@ -69,15 +67,15 @@ namespace R2Core.Scripting
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
-			// Add the factorys source paths to the engines search paths.
-			m_engine.SetSearchPaths(m_engine.GetSearchPaths().Concat(ScriptSourcePaths).ToList());
-
 			// Scripts must know about the device manager. It's how they get access to the rest of the system..
 			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
+			ScriptEngine engine = Ruby.CreateEngine ();
+			engine.SetSearchPaths (m_paths.Concat(ScriptSourcePaths).ToList());
+
 			IronScript script = new IronScript(id ?? name,
 				GetScriptFilePath(name),
-				m_engine, inputParams);
+				engine, inputParams);
 			
 			return script;
 
