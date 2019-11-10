@@ -188,9 +188,9 @@ namespace R2Core.Scripting
 
 		public void Stop() {
 
-			if (null != Get(HANDLE_STOP)) { Invoke(HANDLE_STOP); }
-
 			m_isRunning = false;
+
+			if (null != Get(HANDLE_STOP)) { Invoke(HANDLE_STOP); }
 
 		}
 
