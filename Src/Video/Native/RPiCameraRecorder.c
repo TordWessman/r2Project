@@ -156,7 +156,11 @@ int rpir_setup(const char* filename) {
 
 void _ext_rpir_stop() {
 
-	gst_element_send_event(rpir_pipeline, gst_event_new_eos());
+	if (rpir_recording) {
+
+		gst_element_send_event(rpir_pipeline, gst_event_new_eos());
+	
+	}
 
 }
 
