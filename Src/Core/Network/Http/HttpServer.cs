@@ -145,11 +145,19 @@ namespace R2Core.Network
 
 		private void Interpret(HttpListenerRequest request, HttpListenerResponse response, IWebEndpoint endpoint) {
 		
-			HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = new Dictionary<string, object>() };
+			Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
+
+			foreach (var header in request.Headers.AllKeys.SelectMany(request.Headers.GetValues, (k, v) => new {key = k, value = v})) {
+
+				requestHeaders.Add(header.key, header.value);
+			
+			}
+
+			HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = requestHeaders};
 			requestObject.Method = request.HttpMethod;
 
 			byte[] responseBody = new byte[0];
-			
+
 			requestObject.Payload = GetPayload(request);
 
 			try {
@@ -180,7 +188,8 @@ namespace R2Core.Network
 
 				// Add header fields from metadata
 				responseObject.Headers?.ToList().ForEach( kvp => response.Headers[kvp.Key] = kvp.Value.ToString());
-				response.StatusCode = NetworkStatusCode.Ok.Raw();
+
+				response.StatusCode = responseObject.Code == 0 ? NetworkStatusCode.Ok.Raw() : responseObject.Code;
 
 			} catch (Exception ex) {
 

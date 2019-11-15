@@ -143,7 +143,6 @@ namespace R2Core.Network
 					responseObject.Code = NetworkStatusCode.NetworkError.Raw();
 						
 				}
-				 
 
 				return responseObject;
 				 
@@ -155,36 +154,23 @@ namespace R2Core.Network
 
 			response?.Headers?.AllKeys.ToList().ForEach( key => responseObject.Headers[key] = response.Headers[key]);
 
-			if (response.StatusCode == HttpStatusCode.OK) {
+			responseObject.Code = (int)response.StatusCode;
 
-				responseObject.Code = NetworkStatusCode.Ok.Raw();
+			if (response.ContentType.ToLower().Contains("text")) {
+				
+				responseObject.Payload = m_serializer.Encoding.GetString(responseData);
 
-				if (response.ContentType.ToLower().Contains("text")) {
-					
-					responseObject.Payload = m_serializer.Encoding.GetString(responseData);
+			} else if (response.ContentType.ToLower().Contains("json")) {
+				
+				responseObject.Payload = m_serializer.Deserialize(responseData);
 
-				} else if (response.ContentType.ToLower().Contains("json")) {
-					
-					responseObject.Payload = m_serializer.Deserialize(responseData);
+			} else if (response.ContentType.ToLower().Contains("xml")) {
 
-				} else if (response.ContentType.ToLower().Contains("xml")) {
-
-					responseObject.Payload = System.Text.Encoding.UTF8.GetString(responseData);
-
-				}else {
-					
-					responseObject.Payload = responseData;
-
-				}
+				responseObject.Payload = System.Text.Encoding.UTF8.GetString(responseData);
 
 			} else {
-			
-				string error = $"HttpRequest got bad http status code: {response.StatusCode}.";
-
-				responseObject.Payload = new NetworkErrorDescription() {Message = error};
-				responseObject.Code = (int)response.StatusCode;
-
-				Log.w(error);
+				
+				responseObject.Payload = responseData;
 
 			}
 
