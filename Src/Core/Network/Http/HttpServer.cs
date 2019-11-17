@@ -39,8 +39,10 @@ namespace R2Core.Network
 		
 		private HttpListener m_listener;
 		private ISerialization m_serialization;
+		private IList<Task> m_writeTasks = new List<Task>();
 
 		public HttpServer(string id, int port, ISerialization serialization) :  base(id, port) {
+			
 			m_serialization = serialization;
 
 		}
@@ -138,7 +140,6 @@ namespace R2Core.Network
 				// Treated as byte array.
 				return (requestBody?.Length ?? 0) > 0 ? requestBody : null;
 
-
 			}
 
 		}
@@ -146,22 +147,21 @@ namespace R2Core.Network
 		private void Interpret(HttpListenerRequest request, HttpListenerResponse response, IWebEndpoint endpoint) {
 		
 			Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
-
-			foreach (var header in request.Headers.AllKeys.SelectMany(request.Headers.GetValues, (k, v) => new {key = k, value = v})) {
-
-				requestHeaders.Add(header.key, header.value);
-			
-			}
-
-			HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = requestHeaders};
-			requestObject.Method = request.HttpMethod;
-
 			byte[] responseBody = new byte[0];
 
-			requestObject.Payload = GetPayload(request);
-
 			try {
-				
+
+				foreach (var header in request.Headers.AllKeys.SelectMany(request.Headers.GetValues, (k, v) => new {key = k, value = v})) {
+
+					requestHeaders[header.key] = header.value;
+
+				}
+
+				HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = requestHeaders};
+				requestObject.Method = request.HttpMethod;
+
+				requestObject.Payload = GetPayload(request);
+
 				// Parse request and create response body.
 				INetworkMessage responseObject = endpoint.Interpret(requestObject, request.RemoteEndPoint);
 				string contentType = responseObject.Headers?.ContainsKey("Content-Type") == true ? responseObject.Headers["Content-Type"] as string : null;
@@ -205,18 +205,48 @@ namespace R2Core.Network
 
 		}
 
+		private void ClearInactiveWriteTasks() {
+
+			IList<Task> inactiveTasks = new List<Task>();
+
+			foreach (Task task in m_writeTasks) {
+
+				if (task.IsCompleted || task.IsFaulted) {
+
+					inactiveTasks.Add(task);
+
+				}
+
+			}
+
+			foreach (Task task in inactiveTasks) { m_writeTasks.Remove(task); }
+
+		}
+
 		private void Write(HttpListenerResponse response, byte[] data) {
-		
+
 			response.ContentLength64 = data.Length;
 			System.IO.Stream output = response.OutputStream;
-			output.Write(data, 0, data.Length);
-			output.Close();
+
+			ClearInactiveWriteTasks();
+
+			try {
+				
+				m_writeTasks.Add(output.WriteAsync(data, 0, data.Length));
+
+			} catch (Exception ex) {
+
+				Log.x(ex);
+			
+			} finally {
+			
+				output.Close();
+			
+			}
 
 		}
 
 	}
-
-
 
 }
 

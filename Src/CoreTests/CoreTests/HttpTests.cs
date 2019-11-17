@@ -202,6 +202,39 @@ namespace R2Core.Tests
 		[Test]
 		public void HttpServerTests() {
 
+			var webServer = factory.CreateHttpServer("s", 19999);
+
+			var dummyEndpoint = new DummyEndpoint("test");
+			webServer.AddEndpoint(dummyEndpoint);
+
+			webServer.Start();
+
+			Thread.Sleep(100);
+
+			var client = factory.CreateHttpClient("client");
+
+			HttpMessage message = factory.CreateHttpMessage("http://localhost:19999/test?parameter=foo");
+			message.Method = "GET";
+			message.Headers = new Dictionary<string, object> ();
+			message.Headers["TestHeader"] = "a header value";
+
+			dummyEndpoint.MessingUp = new Func<INetworkMessage, INetworkMessage>(msg => {
+
+				Assert.AreEqual("foo", msg.Payload.parameter);
+				Assert.AreEqual("a header value", msg.Headers["TestHeader"]);
+				return new HttpMessage() {Code = 242, Payload = "din mamma"};
+			});
+
+			INetworkMessage response = client.Send(message);
+
+			Assert.AreEqual("din mamma", response.Payload);
+			Assert.AreEqual(242, response.Code);
+
+		}
+
+		[Test]
+		public void HttpServerClientTests() {
+
 			var webServer = factory.CreateHttpServer("s", 9999);
 
 			var fileEndpoint = factory.CreateFileEndpoint(Settings.Paths.TestData(), @"/test/[A-Za-z0-9\.]+");
