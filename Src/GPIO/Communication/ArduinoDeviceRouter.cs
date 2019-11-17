@@ -192,9 +192,9 @@ namespace R2Core.GPIO
 
 				if (retry && response.CanRetry() && retryCount < RetryCount) {
 					
-					if (retryCount > 2) {
+					if (retryCount == 3) {
 						
-						Log.t($"Retry: {retryCount}. Error: {response.Error}. {request.Description()}");
+						Log.w($"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...");
 					
 					}
 
