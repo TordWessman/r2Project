@@ -53,7 +53,10 @@ namespace R2Core.Network
 		private IDeviceManager m_deviceManager;
 
 		// Contains a list of all hosts ever connected to.
-		private IList<IClientConnection> m_hosts;
+		private IDictionary<string, IClientConnection> m_hosts;
+
+		// Capture the retrie counts for each connection.
+		private IDictionary<string, int> m_retries;
 
 		// Broadcast port.
 		private int m_port;
@@ -67,7 +70,7 @@ namespace R2Core.Network
 		/// Returns all available connections.
 		/// </summary>
 		/// <value>The connections.</value>
-		public IEnumerable<IClientConnection> Connections { get { return m_hosts; } }
+		public IEnumerable<IClientConnection> Connections { get { return m_hosts.Values; } }
 
 		/// <summary>
 		/// The port on which this broadcaster sends messages(remote UDP servers must be listening on this port).
@@ -78,7 +81,12 @@ namespace R2Core.Network
 		/// <summary>
 		/// The timeout for any broadcast responses.
 		/// </summary>
-		public int BroadcastTimeout = 2000;
+		public int BroadcastTimeout = 5000;
+
+		/// <summary>
+		/// Number of retries before a previously established connection is removed.
+		/// </summary>
+		public int MaxRetryCount = 3;
 
 		/// <summary>
 		/// Contains the remote destination(i.e. "/devices")
@@ -90,7 +98,13 @@ namespace R2Core.Network
 		/// </summary>
 		public double SynchronizationInterval {
 			
-			set { m_synchronizationTimer.Interval = value; }
+			set {
+
+				m_synchronizationTimer.Interval = value;
+				ResetSynchronizationTimer();
+				m_synchronizationTimer?.Start();
+
+			}
 
 			get { return m_synchronizationTimer.Interval; }
 
@@ -116,9 +130,9 @@ namespace R2Core.Network
 			m_factory = factory;
 			m_broadcaster = factory.CreateUdpClient(Settings.Identifiers.UdpBroadcaster(), port);
 			m_deviceManager = deviceManager;
-			m_hosts = new List<IClientConnection>();
-			m_synchronizationTimer = new Timer(Settings.Consts.BroadcastInterval());
-			m_synchronizationTimer.Elapsed += new ElapsedEventHandler(OnConnectionSynchronizerEvent);
+			m_hosts = new Dictionary<string, IClientConnection>();
+			m_retries = new Dictionary<string, int>();
+			ResetSynchronizationTimer();
 
 		}
 
@@ -138,33 +152,9 @@ namespace R2Core.Network
 
 			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
 
-				Log.t ($"Broadcast got reply: {response?.Code}");
 				if (NetworkStatusCode.Ok.Is(response?.Code)) {
 
-					DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
-					dynamic endpoint = deviceResponse.Object;
-
-					if (endpoint == null) {
-
-						Log.e($"Did not receive an Endpoint in response from ´{response.GetBroadcastAddress()}´. Payload: {response?.Payload}");
-
-					} else {
-
-						string address = GetAvailableAddress((IEnumerable<dynamic>)endpoint.Addresses);
-						int port = (int)endpoint.Port;
-
-						if (address != null) {
-
-							Synchronize(address, port);
-
-						} else {
-
-							string addressList = String.Join(",", endpoint.Addresses);
-							Log.e($"HostSynchronizer was unable to connect to host(port {port}). No address in list ´{addressList}´replied on ping.");
-
-						}
-
-					}
+					HandleBroadcastResponse(response);
 
 				} else if (exception != null) {
 					
@@ -190,7 +180,7 @@ namespace R2Core.Network
 		/// </summary>
 		public override void Start() {
 
-			m_synchronizationTimer.Start();
+			m_synchronizationTimer?.Start();
 
 		}
 
@@ -199,14 +189,17 @@ namespace R2Core.Network
 		/// </summary>
 		public override void Stop() {
 
-			m_synchronizationTimer.Stop();
+			m_synchronizationTimer?.Stop();
 
-			m_hosts.All( host => {
+			m_hosts.Values.All(host => {
 				
 				host.Stop();
 				return true;
 			
 			});
+
+			m_hosts = new Dictionary<string, IClientConnection>();
+			m_retries = new Dictionary<string, int>();
 
 		}
 
@@ -217,10 +210,16 @@ namespace R2Core.Network
 		/// <param name="port">Port.</param>
 		public IClientConnection Synchronize(string address, int port) {
 
-			IClientConnection connection = EstablishConnection(address, port);
-			SynchronizeDevices(connection);
+			IClientConnection connection = CreateConnection(address, port);
 
-			return connection;
+			if (Connect(connection)) {
+			
+				SynchronizeDevices(connection);
+				return connection;
+			
+			}
+
+			return null;
 
 		}
 
@@ -234,7 +233,7 @@ namespace R2Core.Network
 
 			bool success = true;
 
-			foreach (IClientConnection host in m_hosts) {
+			foreach (IClientConnection host in m_hosts.Values) {
 			
 				dynamic remoteHostSynchronizer = new RemoteDevice(Settings.Identifiers.HostSynchronizer(), Guid.Empty, host);
 				bool s = remoteHostSynchronizer.RequestSynchronization(deviceServer.Addresses, deviceServer.Port) ?? false;
@@ -258,7 +257,7 @@ namespace R2Core.Network
 		/// <param name="port">Port.</param>
 		public bool RequestSynchronization(IEnumerable<string> addresses, int port) {
 
-			string address = GetAvailableAddress(addresses);
+			string address = NetworkExtensions.GetAvailableAddress(addresses);
 
 			if (address == null) {
 			
@@ -275,53 +274,25 @@ namespace R2Core.Network
 
 		}
 
-		/// <summary>
-		/// Pings all ´addresses´ in the list and returns the first to reply.
-		/// </summary>
-		/// <returns>The available address.</returns>
-		/// <param name="addresses">Addresses.</param>
-		private string GetAvailableAddress(IEnumerable<dynamic> addresses) {
-		
-			foreach(dynamic address in addresses) {
 
-				System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
-				PingReply reply = ping.Send(address);
-
-				if (reply.Status == IPStatus.Success) {
-
-					return address;
-
-				}
-
-			}
-
-			return null;
-
-		}
 
 		/// <summary>
-		/// Establishs the connection to the remote host. Will add a connection to m_host if none was found. Otherwise it will try to reconnect if disconnected.
+		/// Creates the connection to the remote host. Will add a connection to m_host if none was found.
 		/// </summary>
 		/// <returns>The connection.</returns>
 		/// <param name="address">Address.</param>
 		/// <param name="port">Port.</param>
-		private IClientConnection EstablishConnection(string address, int port) {
+		private IClientConnection CreateConnection(string address, int port) {
 
 			string id = $"host{address}:{port}";
 
-			IClientConnection connection = m_hosts.FirstOrDefault( (h) => { return h.Identifier == id; });
+			IClientConnection connection = m_hosts.ContainsKey(id) ? m_hosts [id] : null;
 
 			if (connection == null) {
 
 				connection = new HostConnection(id, m_factory.CreateTcpClient($"tcp_client_{address}:{port}", address, port));
 
-				connection.Start();
-
-				m_hosts.Add(connection);
-
-			} else if (!connection.Ready) {
-
-				connection.Start();
+				m_hosts[id] = connection;
 
 			}
 
@@ -336,15 +307,32 @@ namespace R2Core.Network
 		/// <param name="e">E.</param>
 		private void OnConnectionSynchronizerEvent(object source, ElapsedEventArgs e) {
 
-			m_hosts.AsParallel().ForAll((host) => {
+			IList<IClientConnection> failedConnections = new List<IClientConnection>();
+			m_hosts.Values.AsParallel().ForAll((host) => {
 
 				if (!host.Ready && host.Ping()) { 
 
-					host.Start(); 
-				
+					if (!Connect(host)) { 
+
+						if (m_retries[host.Identifier] > MaxRetryCount) {
+
+							Log.w($"Unable to establish connection to '{host}'. Will remove from list.");
+							failedConnections.Add(host); 
+
+						}
+
+					}
+
 				}
 
 			});
+
+			foreach (IClientConnection connection in failedConnections) {
+			
+				if (m_hosts.ContainsKey(connection.Identifier)) { m_hosts.Remove(connection.Identifier); }
+				if (m_retries.ContainsKey(connection.Identifier)) { m_retries.Remove(connection.Identifier); }
+
+			}
 
 			Broadcast();
 
@@ -382,7 +370,8 @@ namespace R2Core.Network
 					IRemoteDevice remote = new RemoteDevice(device.Identifier, guid, connection);
 
 					if (m_deviceManager.Has(device.Identifier) && 
-						m_deviceManager.Get(device.Identifier) is RemoteDevice) {
+						m_deviceManager.Get(device.Identifier) is RemoteDevice &&
+						m_deviceManager.Get(device.Identifier).Guid != guid) {
 
 						// Replace any remote device
 						m_deviceManager.Remove(device.Identifier);
@@ -398,6 +387,70 @@ namespace R2Core.Network
 				}
 
 			}
+
+		}
+
+		private void ResetSynchronizationTimer() {
+
+			m_synchronizationTimer = new Timer(m_synchronizationTimer?.Interval ?? Settings.Consts.BroadcastInterval());
+			m_synchronizationTimer.Elapsed += new ElapsedEventHandler(OnConnectionSynchronizerEvent);
+
+		}
+
+		private void HandleBroadcastResponse(dynamic response) {
+
+			DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
+			dynamic endpoint = deviceResponse.Object;
+
+			if (endpoint == null) {
+
+				Log.e($"Did not receive an Endpoint in response from ´{response.GetBroadcastAddress()}´. Payload: {response?.Payload}");
+
+			} else {
+
+				string address = NetworkExtensions.GetAvailableAddress((IEnumerable<dynamic>)endpoint.Addresses);
+				int port = (int)endpoint.Port;
+
+				if (address != null) {
+
+					Synchronize(address, port);
+
+				} else {
+
+					string addressList = String.Join(",", endpoint.Addresses);
+					Log.e($"HostSynchronizer was unable to connect to host(port {port}). No address in list ´{addressList}´replied on ping.");
+
+				}
+
+			}
+
+		}
+
+		/// <summary>
+		/// Handles the establishment of a connection. If it fails, the retry counter is increased.
+		/// Returns true if the connection was established successfully
+		/// </summary>
+		/// <param name="connection">Connection.</param>
+		private bool Connect(IClientConnection connection) {
+
+			try {
+
+				connection.Start();
+				m_retries[connection.Identifier] = 0;
+				return true;
+
+			} catch (Exception ex) {
+
+				if (m_retries.ContainsKey(connection.Identifier)) {
+
+					Log.t("Connection failed: " + ex.Message);
+					m_retries[connection.Identifier]++;
+
+				}
+
+			}
+
+			return false;
 
 		}
 

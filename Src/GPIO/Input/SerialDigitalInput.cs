@@ -25,7 +25,7 @@ namespace R2Core.GPIO
 		// The I/O port on the device
 		private byte m_port;
 
-		internal SerialDigitalInput  (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
+		internal SerialDigitalInput  (string id, ISerialNode node, IArduinoDeviceRouter host, int port): base(id, node, host) {
 
 			m_port = (byte)port;
 

@@ -101,11 +101,9 @@
     <Compile Include="GPIOFactoryFactory.cs" />
     <Compile Include="PiGPIOFactory.cs" />
     <Compile Include="PiGPIOFactory2.cs" />
-    <Compile Include="Communication\ISerialHost.cs" />
     <Compile Include="Communication\SerialDeviceBase.cs" />
     <Compile Include="Input\SerialHCSR04Sonar.cs" />
     <Compile Include="Communication\SerialGPIOFactory.cs" />
-    <Compile Include="Communication\SerialHost.cs" />
     <Compile Include="Input\SerialDHT11.cs" />
     <Compile Include="Test\GPIOTests.cs" />
     <Compile Include="Test\MockSerialConnection.cs" />
@@ -114,6 +112,9 @@
     <Compile Include="Communication\ISerialDevice.cs" />
     <Compile Include="Communication\SerialNode.cs" />
     <Compile Include="Communication\SerialConnectionException.cs" />
+    <Compile Include="Communication\ArduinoDeviceRouter.cs" />
+    <Compile Include="Communication\IArduinoDeviceRouter.cs" />
+    <Compile Include="Test\GPIOTestExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

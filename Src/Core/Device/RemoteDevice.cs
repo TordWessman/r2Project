@@ -175,11 +175,11 @@ namespace R2Core.Device
 			m_message.Payload = request;
 			INetworkMessage response = m_host.Send(m_message);
 
-            if (response.IsError()) {
+			if (response.IsError()) {
 
-                throw new DeviceException(response.ErrorDescription());
+				throw new DeviceException(response.ErrorDescription());
 
-            }
+			}
 
 			return response.Payload.ActionResponse;
 

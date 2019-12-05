@@ -64,6 +64,12 @@ namespace R2Core.Network
 
 		}
 
+		public static int GetHashCode(this IClientConnection self) {
+		
+			return self.Identifier.GetHashCode();
+		
+		}
+
 	}
 
 }

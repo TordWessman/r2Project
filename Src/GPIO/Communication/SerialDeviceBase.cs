@@ -16,7 +16,7 @@ namespace R2Core.GPIO
 		private byte m_deviceId;
 
 		// Represent the remote connection
-		private ISerialHost m_host;
+		private IArduinoDeviceRouter m_host;
 
 		// The node to which this node is attached
 		private ISerialNode m_node;
@@ -25,7 +25,7 @@ namespace R2Core.GPIO
 		protected T InternalValue;
 
 		// The ISerialHost this device is using to transmit data.
-		protected ISerialHost Host { get { return m_host; } }
+		protected IArduinoDeviceRouter Host { get { return m_host; } }
 
 		// Remote device id
 		protected byte DeviceId { get { return m_deviceId; } }
@@ -34,7 +34,7 @@ namespace R2Core.GPIO
 		public bool IsSleeping { get { return m_node.Sleep; } }
 		public override bool Ready { get { return m_node.Ready; } }
 
-		internal SerialDeviceBase(string id, ISerialNode node, ISerialHost host): base(id) {
+		internal SerialDeviceBase(string id, ISerialNode node, IArduinoDeviceRouter host): base(id) {
 			
 			m_host = host;
 			m_node = node;

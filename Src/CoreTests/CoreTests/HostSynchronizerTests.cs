@@ -162,6 +162,7 @@ namespace R2Core.Tests
 			devices1.HostSynchronizer.Start();
 			devices2.HostSynchronizer.Start();
 
+			devices1.HostSynchronizer.SynchronizationInterval = 2000;
 			// Sleep enough time for both host managers to be synchronized
 			Thread.Sleep(((int)devices1.HostSynchronizer.SynchronizationInterval) * 3);
 
@@ -194,7 +195,32 @@ namespace R2Core.Tests
 		}
 
 		/// <summary>
-		/// Test that the host synchronizer can reconnect to failed TcpConnections
+		/// Test the failing connections
+		/// </summary>
+		[Test]
+		public void FailedConnections() {
+			PrintName ();
+			var devices1 = factory.SetUpServers (tcp_port - 151, udp_port, udp_port - 152);
+			var devices2 = factory.SetUpServers (tcp_port - 152, udp_port - 152, udp_port);
+			devices2.Start();
+			devices1.Start();
+			Thread.Sleep(200);
+			devices1.HostSynchronizer.Synchronize("localhost", tcp_port - 152);
+			devices1.HostSynchronizer.MaxRetryCount = 3;
+			Assert.AreEqual(1, devices1.HostSynchronizer.Connections.Count());
+			devices2.Stop();
+			Thread.Sleep(100);
+			devices1.HostSynchronizer.SynchronizationInterval = 250;
+			Thread.Sleep(500);
+			Assert.False(devices2.TCPServer.Ready);
+			Assert.AreEqual(1, devices1.HostSynchronizer.Connections.Count()); // should still be in the retry-list
+			Thread.Sleep(750);
+			Assert.AreEqual(0, devices1.HostSynchronizer.Connections.Count()); // now it should have been removed
+			
+		}
+
+		/// <summary>
+		/// Test if the host synchronizer can reconnect to failed TcpConnections
 		/// </summary>
 		[Test]
 		public void Reconnection() {
@@ -210,17 +236,21 @@ namespace R2Core.Tests
 			Thread.Sleep(200);
 			devices2.HostSynchronizer.SynchronizationInterval = 1000;
 			devices2.HostSynchronizer.Start();
-			Thread.Sleep(2000);
+			Thread.Sleep(5000);
+
+			// By now, the connections should be established.
 			Assert.AreEqual(1, devices1.HostSynchronizer.Connections.Count());
 			Assert.AreEqual(1, devices2.HostSynchronizer.Connections.Count());
 
-//			foreach (IClientConnection connection in devices1.HostSynchronizer.Connections.Join(devices2.HostSynchronizer.Connections)) {
-//			
-//				Assert.True(connection.Ready);
-//			
-//			}
+			foreach (IClientConnection connection in devices1.HostSynchronizer.Connections) {
 
-			//devices1.
+				Assert.True(connection.Ready);
+
+			}
+
+			devices1.Stop();
+			devices2.Stop();
+
 		}
 
 	}

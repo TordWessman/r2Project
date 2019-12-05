@@ -26,7 +26,7 @@ namespace R2Core.GPIO
 		private const int DHT11_TEMPERATURE_POSITION = 0x0;
 		private const int DHT11_HUMIDITY_POSITION = 0x1;
 
-		internal SerialDHT11  (string id, ISerialNode node, ISerialHost host, int port): base(id, node, host) {
+		internal SerialDHT11  (string id, ISerialNode node, IArduinoDeviceRouter host, int port): base(id, node, host) {
 
 			m_port = port;
 

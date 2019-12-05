@@ -31,19 +31,25 @@ namespace R2Core.GPIO
 
 		// Remote id of this node
 		private byte m_nodeId;
+
 		// Devices connected to this node
 		private List<ISerialDevice> m_devices;
+
 		// If true, the node should normally sleep
 		private bool m_shouldSleep;
+
 		// Used to communicate with the node
-		private ISerialHost m_host;
+		private IArduinoDeviceRouter m_host;
 
 		// Used for synchronization with sleeping nodes
 		private Timer m_timer;
+
 		// Release event for timer
 		private AutoResetEvent m_release;
+
 		// Will be true if an Update event is running for this node.
 		private bool m_isUpdating;
+
 		// If true, the node will try to update it's devices if it's in sleep mode.
 		private bool m_shouldUpdate;
 
@@ -87,7 +93,7 @@ namespace R2Core.GPIO
 		/// <param name="nodeId">Node identifier.</param>
 		/// <param name="host">Host.</param>
 		/// <param name="updateInterval">Update interval.</param>
-		internal SerialNode(byte nodeId, ISerialHost host, int updateInterval) : base($"{Settings.Consts.SerialNodeIdPrefix()}{nodeId}") {
+		internal SerialNode(byte nodeId, IArduinoDeviceRouter host, int updateInterval) : base($"{Settings.Consts.SerialNodeIdPrefix()}{nodeId}") {
 			
 			m_host = host;
 			m_nodeId = nodeId;

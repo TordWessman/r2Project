@@ -12,7 +12,7 @@ namespace R2Core.GPIO
 	/// It's heavily coupled to the r2I2CDeviceRouter implementation. Any changes there should be reflected
 	/// in changes in this class.
 	/// </summary>
-	public class SerialHost : DeviceBase, ISerialHost {
+	public class ArduinoDeviceRouter : DeviceBase, IArduinoDeviceRouter {
 		
 		private ISerialConnection m_connection;
 		private ISerialPackageFactory m_packageFactory;
@@ -39,7 +39,7 @@ namespace R2Core.GPIO
 			set { m_retryCount = value; } 
 		}
 
-		public SerialHost(string id, ISerialConnection connection, ISerialPackageFactory packageFactory) : base(id) {
+		public ArduinoDeviceRouter(string id, ISerialConnection connection, ISerialPackageFactory packageFactory) : base(id) {
 			
 			m_connection = connection;
 			m_packageFactory = packageFactory;
@@ -174,16 +174,6 @@ namespace R2Core.GPIO
 
 		}
 
-		// For debugging...
-		public void WaitFor(int nodeId) {
-		
-			while(!IsNodeAvailable(nodeId)) {
-				Console.Write("x");
-				System.Threading.Thread.Sleep(1000);
-			}
-			System.Threading.Thread.Sleep(1000);
-		}
-
 		/// <summary>
 		/// Internal send method containing retry upon timeout
 		/// </summary>
@@ -202,7 +192,12 @@ namespace R2Core.GPIO
 
 				if (retry && response.CanRetry() && retryCount < RetryCount) {
 					
-					Log.t($"Retry: {retryCount}. Error: {response.Error}. {request.Description()}");
+					if (retryCount == 3) {
+						
+						Log.w($"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...");
+					
+					}
+
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
 					return _Send<T>(request, retryCount + 1);
 
