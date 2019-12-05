@@ -176,9 +176,10 @@ namespace R2Core.Device
 				try {
 
 					m_device.TryInvokeMember(m_invokeBinder, m_invokeArgs, out asyncResult);
+                    
 					m_callback(asyncResult, null);
 
-				} catch (Exception ex) {
+    			} catch (Exception ex) {
 
 					m_callback(asyncResult, ex);
 

@@ -88,7 +88,7 @@ namespace R2Core.Network
 			string description = $"Error: {self.Code}. Description: ";
 			if (self.Payload is string) { return description + (string)self.Payload; }
 
-			return description + Convert.ToString(self.Payload);
+			return description + Convert.ToString((object)self.Payload);
 
 		}
 

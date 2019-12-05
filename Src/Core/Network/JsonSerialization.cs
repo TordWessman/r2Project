@@ -58,9 +58,9 @@ namespace R2Core.Data
 				return obj;
 
 			}
-		
+
 			// Data will be serialized to a JSON object string defore transformed into raw byte data.
-			string outputString = Convert.ToString(JsonConvert.SerializeObject(obj));
+			string outputString = Convert.ToString(JsonConvert.SerializeObject((object)obj));
 			return m_encoding.GetBytes(outputString) ?? new byte[0];
 
 		}

@@ -23,6 +23,7 @@ using R2Core.Device;
 using R2Core.Data;
 using System.Linq;
 using System.IO;
+using System.Runtime;
 
 namespace R2Core.Network
 {
@@ -64,26 +65,14 @@ namespace R2Core.Network
 		/// <returns>The payload type.</returns>
 		/// <param name="message">Message.</param>
 		public static PayloadType GetPayloadType(INetworkMessage message) {
-		
-			if (!Object.ReferenceEquals(message.Payload, null)) {
-			
-				if (message.Payload is byte[]) {
 
-					return PayloadType.Bytes;
+		    if (!(message.Payload is null)) {
 
-				} else if (message.Payload is string) {
+				return IdentifyPayloadType((object)message.Payload);
 
-					return PayloadType.String;
+            }
 
-				} else {
-
-					return PayloadType.Dynamic;
-
-				}
-
-			}
-
-			return PayloadType.None;
+		    return PayloadType.None;
 
 		}
 
@@ -193,6 +182,22 @@ namespace R2Core.Network
 			return data;
 
 		}
+
+		private static PayloadType IdentifyPayloadType(object payload) {
+			if (payload is byte[]) {
+
+				return PayloadType.Bytes;
+
+			} else if (payload is string) {
+
+				return PayloadType.String;
+
+			}
+
+			return PayloadType.Dynamic;
+
+		}
+
 	}
 
 }

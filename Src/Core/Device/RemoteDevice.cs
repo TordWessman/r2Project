@@ -131,9 +131,15 @@ namespace R2Core.Device
 			};
 
 			m_message.Payload = request;
-			m_host.Send(m_message);
+            INetworkMessage response = m_host.Send(m_message);
 
-		}
+            if (response.IsError()) {
+
+                throw new DeviceException(response.ErrorDescription());
+
+            }
+
+        }
 
 		public dynamic Get(string handle) {
 
@@ -147,7 +153,13 @@ namespace R2Core.Device
 			m_message.Payload = request;
 			INetworkMessage response = m_host.Send(m_message);
 
-			return response.Payload.ActionResponse;
+            if (response.IsError()) {
+
+                throw new DeviceException(response.ErrorDescription());
+
+            }
+
+            return response.Payload.ActionResponse;
 
 		}
 
@@ -162,6 +174,12 @@ namespace R2Core.Device
 
 			m_message.Payload = request;
 			INetworkMessage response = m_host.Send(m_message);
+
+            if (response.IsError()) {
+
+                throw new DeviceException(response.ErrorDescription());
+
+            }
 
 			return response.Payload.ActionResponse;
 
