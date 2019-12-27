@@ -346,7 +346,7 @@ ResponsePackage execute(RequestPackage *request) {
 
 void setup() {
 
-//saveNodeId(4);
+//saveNodeId(0);
 /*
 pinMode(R2_RESET_LED1, OUTPUT);
 pinMode(R2_RESET_LED2, INPUT);

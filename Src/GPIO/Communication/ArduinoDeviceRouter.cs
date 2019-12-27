@@ -235,11 +235,7 @@ namespace R2Core.GPIO
 
 				if (!Ready) { throw new SerialConnectionException("Communication busy/not started.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE); }
 
-				//Log.t($"Sending package: {request.Action} to node: {request.NodeId}.");
-
 				DeviceResponsePackage<T> response = _Send<T>(request);
-
-				//Log.t($"Receiving: {response.Action} from: {response.NodeId}. MessageId: {response.MessageId}.");
 
 				if (!response.IsChecksumValid) {
 

@@ -78,9 +78,6 @@ namespace R2Core.Audio.TTS
 			}
 
 			m_currentText = text;
-			Log.t("Speech will start: " + text);
-
-			//lock(m_lock) {
 
 			Task.Factory.StartNew( () => {
 			
@@ -99,11 +96,6 @@ namespace R2Core.Audio.TTS
 				}
 
 			});
-
-					
-			//}
-
-			Log.t("Speech ended: " + text);
 
 		}
 

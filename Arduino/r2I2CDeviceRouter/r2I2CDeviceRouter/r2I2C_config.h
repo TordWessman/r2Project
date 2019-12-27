@@ -8,7 +8,7 @@
 //#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
-#define USE_RH24
+//#define USE_RH24
 
 #ifdef USE_RH24
   
