@@ -17,6 +17,7 @@
 //
 //
 using System;
+using System.Linq;
 
 namespace R2Core.Network
 {
@@ -51,15 +52,24 @@ namespace R2Core.Network
 
 	}
 
-}
+	public static class INetworkMessageExtensions {
 
-namespace R2Core.Network.Extensions {
+		/// <summary>
+		/// Add the nullable ´overridingHeaders´ to ´Headers´. Any KVP in ´overridingHeaders´ will override local header values. Returns
+		/// the new header collection.  
+		/// </summary>
+		/// <param name="self">Self.</param>
+		/// <param name="overridingHeaders">Overriding headers.</param>
+		public static System.Collections.Generic.IDictionary<string, object> OverrideHeaders(this INetworkMessage self, System.Collections.Generic.IDictionary<string, object> overridingHeaders) {
 
-	public static class INetworkMessage {
+			if (self.Headers != null) { overridingHeaders?.ToList().ForEach(kvp => self.Headers[kvp.Key] = kvp.Value); }
 
+			self.Headers = self.Headers ?? overridingHeaders;
 
+			return self.Headers;
+
+		}
 
 	}
 
 }
-

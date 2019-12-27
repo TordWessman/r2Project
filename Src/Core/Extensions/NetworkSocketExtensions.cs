@@ -69,12 +69,22 @@ namespace R2Core.Network
 		}
 
 		/// <summary>
-		/// Returns the remote endpoint(or null, if not connected).
+		/// Returns the remote endpoint (or null, if not connected).
 		/// </summary>
 		/// <returns>The endpoidnt.</returns>
 		public static IPEndPoint GetEndPoint(this TcpClient self) {
 
 			return self.GetSocket()?.GetEndPoint();
+
+		}
+
+		/// <summary>
+		/// Returns the local endpoint (or null, if not connected).
+		/// </summary>
+		/// <returns>The endpoidnt.</returns>
+		public static IPEndPoint GetLocalEndPoint(this TcpClient self) {
+
+			return self.GetSocket()?.GetLocalEndPoint();
 
 		}
 
@@ -86,7 +96,29 @@ namespace R2Core.Network
 
 			try {
 
-				return(IPEndPoint) self.RemoteEndPoint;
+				return (IPEndPoint)self.RemoteEndPoint;
+
+			} catch (SocketException) {
+
+				return null;
+
+			} catch (ObjectDisposedException) {
+
+				return null;
+
+			}
+
+		}
+
+		/// <summary>
+		/// Returns the local endpoint(or null, if not connected).
+		/// </summary>
+		/// <returns>The endpoidnt.</returns>
+		public static IPEndPoint GetLocalEndPoint(this Socket self) {
+
+			try {
+
+				return (IPEndPoint)self.LocalEndPoint;
 
 			} catch (SocketException) {
 

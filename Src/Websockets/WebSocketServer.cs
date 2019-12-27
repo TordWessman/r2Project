@@ -187,6 +187,12 @@ namespace R2Core.Network
 
 		}
 
+		public INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
+			throw new NotImplementedException();
+		}
+
+		public string UriPath { get { throw new NotImplementedException(); } }
+
 	}
 
 }

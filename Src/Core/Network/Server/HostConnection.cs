@@ -57,6 +57,12 @@ namespace R2Core.Network
 
 		public override void Stop() { m_connection.Stop(); }
 
+		public void StopListening() {
+
+			m_connection.StopListening();
+
+		}
+
 		public INetworkMessage Send(INetworkMessage message) {
 			
 			INetworkMessage response = m_connection.Send(message);

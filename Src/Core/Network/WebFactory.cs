@@ -31,16 +31,23 @@ namespace R2Core.Network
 	public class WebFactory : DeviceBase {
 		
 		private ISerialization m_serialization;
+		private ITCPPackageFactory<TCPMessage> m_packageFactory;
+
+		/// <summary>
+		/// Default headers added to all ´IMessageClient´s
+		/// </summary>
+		public IDictionary<string,object> ClientHeaders;
 
 		public WebFactory(string id, ISerialization serialization) : base(id) {
 
 			m_serialization = serialization;
-
+			m_packageFactory = CreateTcpPackageFactory();
+	
 		}
 
 		public ISerialization Serialization { get { return m_serialization; } }
 
-		public IServer CreateHttpServer(string id, int port) {
+		public HttpServer CreateHttpServer(string id, int port) {
 
 			return new HttpServer(id, port, m_serialization);
 
@@ -48,13 +55,15 @@ namespace R2Core.Network
 
 		public IMessageClient CreateHttpClient(string id) {
 
-			return new HttpClient(id, m_serialization);
+			IMessageClient client = new HttpClient(id, m_serialization);
+			client.Headers = ClientHeaders;
+			return client;
 
 		}
 
 		public R2Core.Network.HttpMessage CreateHttpMessage(string url) {
 		
-			return new R2Core.Network.HttpMessage() { Destination = url };
+			return new R2Core.Network.HttpMessage() { Destination = url, Headers = ClientHeaders };
 
 		}
 
@@ -114,24 +123,41 @@ namespace R2Core.Network
 
 		public TCPClient CreateTcpClient(string id, string host, int port) {
 		
-			return new TCPClient(id, CreateTcpPackageFactory(), host, port);
+			TCPClient client = new TCPClient(id, m_packageFactory, host, port);
+			client.Headers = ClientHeaders;
+			return client;
 
 		}
 
-		public IServer CreateTcpServer(string id, int port) {
+		public TCPServer CreateTcpServer(string id, int port) {
 		
-			return new TCPServer(id, port, new TCPPackageFactory(m_serialization));
+			return new TCPServer(id, port, m_packageFactory);
 
 		}
 
-		public IServer CreateUdpServer(string id, int port) {
+		public TCPClientServer CreateTcpClientServer(string id) {
+
+			return new TCPClientServer(id, m_packageFactory);
+
+		}
+
+		public TCPRouterEndpoint CreateTcpRouterEndpoint(TCPServer server) {
+
+			return new TCPRouterEndpoint(server);
+
+		}
+
+		public UDPServer CreateUdpServer(string id, int port) {
 		
-			return new UDPServer(id, port, new TCPPackageFactory(m_serialization));
+			return new UDPServer(id, port, m_packageFactory);
+	
 		}
 
 		public UDPBroadcaster CreateUdpClient(string id, int port) {
 		
-			return new UDPBroadcaster(id, port, new TCPPackageFactory(m_serialization));
+			UDPBroadcaster client = new UDPBroadcaster(id, port, m_packageFactory);
+			client.Headers = ClientHeaders;
+			return client;
 
 		}
 

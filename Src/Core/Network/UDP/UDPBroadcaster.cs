@@ -40,6 +40,7 @@ namespace R2Core.Network
 		private Socket m_socket;
 		private Task m_task;
 		private CancellationTokenSource m_cancelationToken;
+		private IDictionary<string, object> m_headers;
 
 		// Used to uniquely identify broadcast messages sent by this client. This value will be appended to the headers any message sent.
 		private MessageIdType m_currentMessageId;
@@ -49,11 +50,12 @@ namespace R2Core.Network
 		/// </summary>
 		public const int MaximumPackageSize = 1024 * 10;
 
-		/// <summary>
-		/// Gets the latest used broadcast task.
-		/// </summary>
-		/// <value>The broadcast task.</value>
 		public Task BroadcastTask { get { return m_task; } }
+
+		/// <summary>
+		/// Default headers included in each request. These will override headers set in the message (´INetworkMessage.Headers)´.
+		/// </summary>
+		public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
 
 		public UDPBroadcaster(string id, int port, ITCPPackageFactory<TCPMessage> serializer, string address = null) : base(id) {
 
@@ -92,6 +94,8 @@ namespace R2Core.Network
 			}
 
 			BroadcastMessage message = new BroadcastMessage(requestMessage, m_host.GetAddress(), m_host.GetPort());
+
+			message.Headers = message.OverrideHeaders(Headers);
 
 			m_currentMessageId = message.Identifier;
 			m_cancelationToken = new CancellationTokenSource();

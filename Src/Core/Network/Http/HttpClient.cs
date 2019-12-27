@@ -35,9 +35,11 @@ namespace R2Core.Network
 		private ISerialization m_serializer;
 		private int m_lastPort;
 		private string m_lastHost;
+		private IDictionary<string, object> m_headers;
 
 		public string Address { get { return m_lastHost; } }
 		public int Port { get { return m_lastPort; } }
+		public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
 
 		public HttpClient(string id, ISerialization serializer) : base(id) {
 
@@ -76,35 +78,37 @@ namespace R2Core.Network
 
 		}
 
-		private HttpMessage _Send(INetworkMessage requestMessage) {
+		private HttpMessage _Send(INetworkMessage request) {
 		
-			HttpMessage message = new HttpMessage(requestMessage);
+			HttpMessage message = new HttpMessage(request);
 
 			HttpMessage responseObject = new HttpMessage() { Headers = new Dictionary<string, object>()};
 
-			HttpWebRequest request = (HttpWebRequest)WebRequest.Create(message.Destination ?? "");
-			m_lastPort = request.RequestUri.Port;
-			m_lastHost = request.RequestUri.Host;
+			HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(message.Destination ?? "");
+			m_lastPort = httpRequest.RequestUri.Port;
+			m_lastHost = httpRequest.RequestUri.Host;
 
-			request.Method = message.Method ?? DefaultHttpMethod;
+			httpRequest.Method = message.Method ?? DefaultHttpMethod;
+
+			message.Headers = message.OverrideHeaders(Headers);
 
 			byte[] requestData = message.Payload?.GetType().IsValueType == true || message.Payload != null ? m_serializer.Serialize(message.Payload): new byte[0];
 
-			request.ContentLength = requestData.Length;
-			((WebRequest)request).ContentType = message.ContentType;
+			httpRequest.ContentLength = requestData.Length;
+			((WebRequest)httpRequest).ContentType = message.ContentType;
 
-			request.ReadWriteTimeout = Timeout;
-			request.Timeout = Timeout;
+			httpRequest.ReadWriteTimeout = Timeout;
+			httpRequest.Timeout = Timeout;
 
 			if (message.Headers != null) {
 				
-				message.Headers.ToList().ForEach(kvp => request.Headers [kvp.Key] = kvp.Value?.ToString() ?? "");
+				message.Headers.ToList().ForEach(kvp => httpRequest.Headers [kvp.Key] = kvp.Value?.ToString() ?? "");
 
 			}
 
 			if (requestData.Length > 0) {
 			
-				using(Stream dataStream = request.GetRequestStream()) {
+				using(Stream dataStream = httpRequest.GetRequestStream()) {
 
 					dataStream.Write(requestData, 0, requestData.Length);
 					dataStream.Close();
@@ -118,7 +122,7 @@ namespace R2Core.Network
 
 			try {
 				
-				response = (HttpWebResponse) request.GetResponse();
+				response = (HttpWebResponse) httpRequest.GetResponse();
 			
 				using(Stream responseStream = response.GetResponseStream()) {
 					
@@ -130,7 +134,7 @@ namespace R2Core.Network
 
 			} catch (System.Net.WebException ex) {
 				
-				Log.w( $"Connection failed: {request.RequestUri.ToString()} exception: '{ex.Message}'");
+				Log.w( $"Connection failed: {httpRequest.RequestUri.ToString()} exception: '{ex.Message}'");
 					
 				responseObject.Payload = new NetworkErrorDescription() { Message = ex.Message };
 
@@ -237,6 +241,13 @@ namespace R2Core.Network
 			throw new NotImplementedException("AddClientObserver not implemented for HttpClient.");
 
 		}
-	}
-}
 
+		public void StopListening() {
+		
+			throw new NotImplementedException("StopListening not implemented for HttpClient.");
+
+		}
+
+	}
+
+}

@@ -8,6 +8,7 @@
 		<Common relative="./r2Project/Common" comment="Shared project resources path."/>
 		<TestData relative="./r2Project/TestData" comment="Contains resource files for tests."/>
 		<Resources comment="Resource base path." relative="../r2/Resources">
+			<Video><Spy></Spy></Video>
 			<Scripts comment="contains various types of runtime scripts">
 				<Ruby comment="Here be all Ruby script files.">
 					<Setup comment="Here be ruby setup filex."/>
@@ -39,7 +40,7 @@
 		<Core>core</Core>
 		<DeviceManager comment="Keeps track of all IDevice implementations.">device_manager</DeviceManager>
 		<HostSynchronizer comment="Connects and synchronizes devices through broadcasts and manual connections.">host_synchronizer</HostSynchronizer>
-		<Server>server</Server>
+		<HttpServer comment="Default HTTP server">http_server</HttpServer>
 		<RubyScriptFactory comment="Responsible for creating new ruby scripts">ruby_script_factory</RubyScriptFactory>
 		<PythonScriptFactory comment="Responsible for creating new python scripts">python_script_factory</PythonScriptFactory>
 		<LuaScriptFactory comment="Responsible for creating new lua scripts">lua_script_factory</LuaScriptFactory>
@@ -60,7 +61,7 @@
 		<UdpServer comment="Handling broadcast messages">udp_server</UdpServer>
 		<UdpBroadcaster comment="Sending broadcast messages">udp_broadcaster</UdpBroadcaster>
 		<IoFactory comment="IO factory factory, responsible for creating IO factories.">io_factory</IoFactory>
-		<PingService comment="The name of all ping services...">ping_service</PingService>
+		<PingService comment="The name of all PingService instances.">ping_service</PingService>
 		<ConnectionPoller comment="The name of all ConnectionPoller instances.">connection_poller</ConnectionPoller>
 		<ObjectInvoker comment="The name of all ObjectInvoker instances.">object_invoker</ObjectInvoker>
 	</Identifiers>
@@ -72,8 +73,17 @@
 		<DefaultTcpPort type="int" comment="default TCP port">4245</DefaultTcpPort>
 		<DefaultBroadcastPort type="int" comment="the port used by the host manager to broadcast">9050</DefaultBroadcastPort>
 		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7/Lib;/usr/lib/python2.7</PythonPaths>
-		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation). Escaped quotations has to be used for an unknown reason... ">\"/usr/lib/ruby/2.3.0\"</RubyPaths>
+		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation). It has to be with escaped quotations... ">\"/usr/lib/ruby/2.3.0\"</RubyPaths>
 		<DeviceDestination comment="Used by various components (i.e. HostSynchronizer) for device synchronization.">/devices</DeviceDestination>
 		<PingDestination comment="Used as destination for TCP ping messages">/ping</PingDestination>
+		<HttpServerHeaderMethodKey comment="Perserve the HTTP method data in the INetworkMessage Header">HttpServerHeader-Method</HttpServerHeaderMethodKey>
+		<ConnectionRouterAddHostDestination comment="Destination for attaching a TCPClientServer">/routing</ConnectionRouterAddHostDestination>
+		<ConnectionRouterHeaderHostNameKey comment="Network message header key for identifying hosts">ConnectionRouterHeader-HostName</ConnectionRouterHeaderHostNameKey>
+		<ConnectionRouterHeaderServerTypeKey comment="Network message header key to identify remote server type (TCP, HTTP etc)">ConnectionRouterHeader-ServerType</ConnectionRouterHeaderServerTypeKey>
+		<ConnectionRouterHeaderClientAddressKey comment="Network message header key representing the original address of a request">ConnectionRouterHeader-Address</ConnectionRouterHeaderClientAddressKey>
+		<ConnectionRouterHeaderClientPortKey comment="Network message header key representing the original port of a request">ConnectionRouterHeader-Port</ConnectionRouterHeaderClientPortKey>
+		<ConnectionRouterHeaderServerTypeHTTP comment="Network message header value representing a target HTTP server">HTTP</ConnectionRouterHeaderServerTypeHTTP>
+		<ConnectionRouterHeaderServerTypeTCP comment="Network message header value representing a target TCP server">TCP</ConnectionRouterHeaderServerTypeTCP>
+		<ConnectionRouterHeaderServerTypeUDP comment="Network message header value representing a target UDP server">UDP</ConnectionRouterHeaderServerTypeUDP>
 	</Consts>
 </Configuration>

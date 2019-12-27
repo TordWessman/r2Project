@@ -33,12 +33,13 @@ namespace R2Core.Network
 	/// </summary>
 	public class TCPClient : DeviceBase, IMessageClient {
 		
-		string m_host;
-		int m_port;
+		private string m_host;
+		private int m_port;
 		private TcpClient m_client;
-		ITCPPackageFactory<TCPMessage> m_serializer;
+		private ITCPPackageFactory<TCPMessage> m_serializer;
 		private System.Threading.Tasks.Task m_receiverTask;
 		private bool m_shouldRun = false;
+		private IDictionary<string, object> m_headers;
 
 		private readonly object m_sendLock = new object();
 		private AutoResetEvent m_writeLock;
@@ -58,15 +59,15 @@ namespace R2Core.Network
 		// Keeps track of the connectivity of a socket
 		private ConnectionPoller m_connectionPoller;
 
+		// if false, nothing will be read from remote host.
+		private bool m_shouldListen = true;
+
 		/// <summary>
 		/// Timeout in ms before a send operation dies.
 		/// </summary>
 		public int Timeout = 30000;
 
-        /// <summary>
-        /// Default headers for all requests
-        /// </summary>
-		public IDictionary<string, object> Headers;
+		public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
 
 		public TCPClient(string id, ITCPPackageFactory<TCPMessage> serializer, string host, int port) : base(id) {
 
@@ -141,7 +142,13 @@ namespace R2Core.Network
 
 		}
 
-		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
+		public void StopListening() {
+
+			m_shouldListen = false;
+
+		}
+
+		public System.Threading.Tasks.Task SendAsync(INetworkMessage request, Action<INetworkMessage> responseDelegate) {
 
 			return System.Threading.Tasks.Task.Factory.StartNew(() => {
 
@@ -150,11 +157,11 @@ namespace R2Core.Network
 
 				try {
 
-					response = Send(message);
+					response = Send(request);
 
 				} catch (Exception ex) {
 
-					response = new NetworkErrorMessage(ex, message);
+					response = new NetworkErrorMessage(ex, request);
 					exception = ex;
 
 				}
@@ -167,11 +174,11 @@ namespace R2Core.Network
 
 		}
 
-		public INetworkMessage Send(INetworkMessage requestMessage) {
+		public INetworkMessage Send(INetworkMessage request) {
 
-			if (requestMessage.IsBroadcastMessage()) {
+			if (request.IsBroadcastMessage()) {
 			
-				throw new ArgumentException($"TCPClient can't send broadcast messages({requestMessage}).");
+				throw new ArgumentException($"TCPClient can't send broadcast messages ({request}).");
 
 			}
 
@@ -179,25 +186,23 @@ namespace R2Core.Network
 
 			lock(m_sendLock) {
 
-				if (!requestMessage.IsPingOrPong()) {
+				if (!request.IsPingOrPong()) {
 				
-					m_observers.InParallell((observer) => observer.OnRequest(requestMessage));
+					m_observers.InParallell((observer) => observer.OnRequest(request));
 
 				}
                 
-                TCPMessage message = requestMessage is TCPMessage ? ((TCPMessage)requestMessage) : new TCPMessage(requestMessage);
+                TCPMessage message = request is TCPMessage ? ((TCPMessage)request) : new TCPMessage(request);
 
-				if (message.Headers != null) { Headers?.ToList().ForEach( kvp => message.Headers.Add(kvp)); }
+				message.Headers = message.OverrideHeaders(Headers);
 
-				message.Headers = message.Headers ?? Headers;
-
-				byte[] request = m_serializer.SerializeMessage(message);
+				byte[] requestData = m_serializer.SerializeMessage(message);
 
 				try {
 
-					new BlockingNetworkStream(m_client.GetSocket()).Write(request, 0, request.Length);
+					new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
 
-					if (message.IsBroadcastMessage() || message.IsPingOrPong()) {
+					if (message.IsBroadcastMessage() || message.IsPingOrPong() || !m_shouldListen) {
 
 						// Sender does not expect a reply.
 						return new OkMessage();
@@ -274,9 +279,9 @@ namespace R2Core.Network
 	
 				m_readLock = new AutoResetEvent(false);
 
-				while(Ready) {
+				while(Ready && m_shouldListen) {
 
-					TCPMessage response =  default(TCPMessage);
+					TCPMessage response = default(TCPMessage);
 
 					try {
 
@@ -326,8 +331,6 @@ namespace R2Core.Network
 						} else {
 						
 							m_readError = ex;
-
-							Log.t(ex);
 
 							Log.w($"{this} disconnected. Error: {ex.GetType()}. Message: `{ex.Message}`.");
 

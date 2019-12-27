@@ -443,7 +443,7 @@ namespace R2Core.Network
 
 				if (m_retries.ContainsKey(connection.Identifier)) {
 
-					Log.t("Connection failed: " + ex.Message);
+					Log.w($"HostSynchronizer connection failed ({ex.Message}).");
 					m_retries[connection.Identifier]++;
 
 				}

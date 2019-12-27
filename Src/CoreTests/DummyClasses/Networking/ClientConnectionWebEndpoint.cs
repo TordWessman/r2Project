@@ -40,6 +40,12 @@ namespace R2Core.Tests
 
 		public string Address { get { return "localhost"; } }
 		public int Port { get { return 1; } }
+
+		public void StopListening() {
+
+			throw new NotImplementedException();
+
+		}
 	}
 }
 

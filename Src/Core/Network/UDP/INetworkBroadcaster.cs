@@ -38,11 +38,6 @@ namespace R2Core.Network
 		/// <param name="responseDelegate">Response delegate.</param>
 		MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = 2000);
 
-		/// <summary>
-		/// Contains the task used for broadcast requests
-		/// </summary>
-		/// <value>The broadcast task.</value>
-		//Task BroadcastTask { get; }
 	}
 
 }

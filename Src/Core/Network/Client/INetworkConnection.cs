@@ -29,8 +29,8 @@ namespace R2Core.Network
 		/// <summary>
 		/// Send a ´INetworkMessage´ to the remote host.
 		/// </summary>
-		/// <param name="message">Message.</param>
-		INetworkMessage Send(INetworkMessage message);
+		/// <param name="request">Request message.</param>
+		INetworkMessage Send(INetworkMessage request);
 
 		/// <summary>
 		/// The address of the remote host
@@ -43,6 +43,11 @@ namespace R2Core.Network
 		/// </summary>
 		/// <value>The port.</value>
 		int Port { get; }
+
+		/// <summary>
+		/// By invoking this method, the client will cease to listen to incomming requests.
+		/// </summary>
+		void StopListening();
 
 	}
 

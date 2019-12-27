@@ -43,8 +43,6 @@ namespace R2Core.Tests
 
 		public void OnBroadcast(INetworkMessage message) {
 
-			Log.t($"DummyClientObserver: Broadcast: {message}");
-
 			if (Asserter != null) {
 
 				Asserter(message);
@@ -57,8 +55,6 @@ namespace R2Core.Tests
 
 		public void OnRequest(INetworkMessage request) { 
 
-			Log.t($"DummyClientObserver: OnRequest: {request}");
-
 			OnRequestCalled = true;
 			LastRequest = request;
 			if (Asserter != null) {
@@ -70,8 +66,6 @@ namespace R2Core.Tests
 		}
 
 		public void OnResponse(INetworkMessage response, Exception ex) { 
-
-			Log.t($"DummyClientObserver: OnResponse: {response}");
 
 			OnResponseCalled = true;
 			LastResponse = response;
