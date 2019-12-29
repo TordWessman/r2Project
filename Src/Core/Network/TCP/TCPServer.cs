@@ -198,6 +198,8 @@ namespace R2Core.Network
 
 				});
 
+				m_connections = new List<IClientConnection>();
+
 			}
 
 		}

@@ -33,10 +33,8 @@ namespace R2Core.Network
 		private ISerialization m_serialization;
 		private ITCPPackageFactory<TCPMessage> m_packageFactory;
 
-		/// <summary>
-		/// Default headers added to all ´IMessageClient´s
-		/// </summary>
-		public IDictionary<string,object> ClientHeaders;
+		// IMessageClient header header field for host name
+		private static string HeaderHostName = Settings.Consts.ConnectionRouterHeaderHostNameKey();
 
 		public WebFactory(string id, ISerialization serialization) : base(id) {
 
@@ -53,17 +51,21 @@ namespace R2Core.Network
 
 		}
 
-		public IMessageClient CreateHttpClient(string id) {
+		public IMessageClient CreateHttpClient(string id, string hostName = null) {
 
 			IMessageClient client = new HttpClient(id, m_serialization);
-			client.Headers = ClientHeaders;
+
+			client.SetHeader(HeaderHostName, hostName);
+
 			return client;
 
 		}
 
-		public R2Core.Network.HttpMessage CreateHttpMessage(string url) {
+		public HttpMessage CreateHttpMessage(string url, string hostName = null) {
 		
-			return new R2Core.Network.HttpMessage() { Destination = url, Headers = ClientHeaders };
+			HttpMessage message = new HttpMessage() { Destination = url };
+			message.SetHostName(hostName);
+			return message;
 
 		}
 
@@ -121,10 +123,10 @@ namespace R2Core.Network
 
 		}
 
-		public TCPClient CreateTcpClient(string id, string host, int port) {
+		public TCPClient CreateTcpClient(string id, string host, int port, string hostName = null) {
 		
 			TCPClient client = new TCPClient(id, m_packageFactory, host, port);
-			client.Headers = ClientHeaders;
+			client.SetHeader(HeaderHostName, hostName);
 			return client;
 
 		}
@@ -156,7 +158,6 @@ namespace R2Core.Network
 		public UDPBroadcaster CreateUdpClient(string id, int port) {
 		
 			UDPBroadcaster client = new UDPBroadcaster(id, port, m_packageFactory);
-			client.Headers = ClientHeaders;
 			return client;
 
 		}

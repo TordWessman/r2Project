@@ -615,6 +615,7 @@ namespace R2Core.Tests
 			Thread.Sleep(100);
 
 			TCPClientServer clientServer = (TCPClientServer)factory.CreateTcpClientServer("client_server");
+			clientServer.Timeout = 250;
 			clientServer.Configure(testHostName, "127.0.0.1", port);
 			clientServer.Start();
 
@@ -622,7 +623,19 @@ namespace R2Core.Tests
 
 			Assert.IsTrue(clientServer.Ready);
 
+			// Try reconnection if remote router is down
+			s.Stop();
+			Thread.Sleep(50);
+			Assert.IsFalse(clientServer.Ready);
+			s.Start();
+			Thread.Sleep(600);
+			Assert.IsTrue(clientServer.Ready);
+
+			s.Stop();
+			clientServer.Stop();
+
 		}
+
 
 	}
 

@@ -386,13 +386,8 @@ namespace R2Core.Tests
 
 			httpServer.AddEndpoint(ep);
 
-			// The factory will make sure all client have their routing headers set (to ´myHostName´)
-			factory.ClientHeaders = new Dictionary<string, object> () { 
-				{ Settings.Consts.ConnectionRouterHeaderHostNameKey (), myHostName }
-			};
-
 			// Create the remote TCP client (imitate being a HTTP client)
-			IMessageClient client = factory.CreateTcpClient("client", "127.0.0.1", tcpPort);
+			IMessageClient client = factory.CreateTcpClient("client", "127.0.0.1", tcpPort, myHostName);
 			client.Start();
 
 			// Set the destination server type. This means that all requests from this client should be directed to the HTTP server (if present)

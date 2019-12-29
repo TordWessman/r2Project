@@ -50,4 +50,26 @@ namespace R2Core.Network
 
 	}
 
+	public static class IMessageClientExtensions {
+
+		/// <summary>
+		/// Set the header value using ´key´ if ´value´ is not null. 
+		/// </summary>
+		/// <param name="client">Client.</param>
+		/// <param name="key">Key.</param>
+		/// <param name="value">Value.</param>
+		public static void SetHeader(this IMessageClient client, string key, string value) {
+
+			if (value != null) {
+
+				if (client.Headers == null) { client.Headers = new System.Collections.Generic.Dictionary<string, object>(); }
+
+				client.Headers[key] = value;
+
+			}
+
+		}
+
+	}
+
 }

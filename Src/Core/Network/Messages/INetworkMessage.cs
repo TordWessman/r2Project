@@ -70,6 +70,35 @@ namespace R2Core.Network
 
 		}
 
+		/// <summary>
+		/// Set the header value using ´key´ if ´value´ is not null. 
+		/// </summary>
+		/// <param name="client">Client.</param>
+		/// <param name="key">Key.</param>
+		/// <param name="value">Value.</param>
+		public static void SetHeader(this INetworkMessage message, string key, string value) {
+
+			if (value != null) {
+
+				if (message.Headers == null) { message.Headers = new System.Collections.Generic.Dictionary<string, object>(); }
+
+				message.Headers[key] = value;
+
+			}
+
+		}
+
+		/// <summary>
+		/// Sets the host name header value for a routed network message.
+		/// </summary>
+		/// <param name="message">Message.</param>
+		/// <param name="hostName">Host name.</param>
+		public static void SetHostName(this INetworkMessage message, string hostName) {
+
+			message.SetHeader(Settings.Consts.ConnectionRouterHeaderHostNameKey(), hostName);
+
+		}
+
 	}
 
 }

@@ -89,48 +89,9 @@ namespace R2Core.Network
 		
 		}
 
-		private INetworkMessage SendAttachMessage() {
-
-			TCPMessage attachMessage = new TCPMessage () {
-				Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
-				Payload = new RegistrationRequest() { 
-					HostName = m_hostName,
-					Address = m_client.GetLocalEndPoint()?.GetAddress(),
-					Port = m_client.GetLocalEndPoint()?.GetPort() ?? 0
-				}
-			};
-
-			byte[] requestData = m_serializer.SerializeMessage(attachMessage);
-			new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
-			return m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
-
-		}
-
 		public override void Start() {
 
-			m_client = new TcpClient();
-			m_client.SendTimeout = Timeout;
-			m_client.Client.Blocking = true;
-			m_client.Connect(Address, Port);
-
-			INetworkMessage response = SendAttachMessage();
-
-			if (response.Code == NetworkStatusCode.Ok.Raw()) {
-				
-				base.Start();
-
-				m_connectionPoller = new ConnectionPoller(m_client, () => {
-
-					if (ShouldRun) { Stop(); }
-
-				});
-		
-			} else {
-				
-				Log.e($"TCPClientServer got bad reply [{response.Code}]: {response.Payload}");
-				m_client.Close();
-
-			}
+			Connect();
 
 		}
 
@@ -230,6 +191,54 @@ namespace R2Core.Network
 
 				byte[] requestData = m_serializer.SerializeMessage(new TCPMessage(response));
 				new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
+
+			}
+
+		}
+
+		private INetworkMessage SendAttachMessage() {
+
+			TCPMessage attachMessage = new TCPMessage () {
+				Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
+				Payload = new RegistrationRequest() { 
+					HostName = m_hostName,
+					Address = m_client.GetLocalEndPoint()?.GetAddress(),
+					Port = m_client.GetLocalEndPoint()?.GetPort() ?? 0
+				}
+			};
+
+			byte[] requestData = m_serializer.SerializeMessage(attachMessage);
+			new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
+			return m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
+
+		}
+
+		private void Connect() {
+
+			m_client = new TcpClient();
+			m_client.SendTimeout = Timeout;
+			m_client.Client.Blocking = true;
+
+			m_connectionPoller = new ConnectionPoller(m_client, () => {
+
+				if (ShouldRun) { Connect(); }
+
+			});
+
+			m_connectionPoller.Start();
+
+			m_client.Connect(Address, Port);
+
+			INetworkMessage response = SendAttachMessage();
+
+			if (response.Code == NetworkStatusCode.Ok.Raw()) {
+
+				base.Start();
+
+			} else {
+
+				Log.e($"TCPClientServer got bad reply [{response.Code}]: {response.Payload}");
+				m_client.Close();
 
 			}
 
