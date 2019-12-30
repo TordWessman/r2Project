@@ -33,8 +33,9 @@ namespace R2Core.Network
 		private IPEndPoint m_groupEndpoint;
 		private ITCPPackageFactory<TCPMessage> m_packageFactory;
 
-		public UDPServer(string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id, port) {
-			
+		public UDPServer(string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id) {
+
+			SetPort(port);
 			m_groupEndpoint = new IPEndPoint(IPAddress.Any, Port);
 			m_packageFactory = packageFactory;
 
@@ -79,20 +80,8 @@ namespace R2Core.Network
 
 						broadcastMessageUniqueIdentifierHeaderValue = request.GetBroadcastMessageKey();
 
-						IWebEndpoint ep = GetEndpoint(request.Destination);
+						response = Interpret(request, client);
 
-						if (ep != null) {
-
-							response = new TCPMessage(ep.Interpret(request, client));
-
-						} else {
-							
-							response = new TCPMessage() {
-								Code = NetworkStatusCode.NotFound.Raw(),
-								Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}")
-							};
-
-						}
 					}
 
 				} catch (Exception ex) {
@@ -124,6 +113,26 @@ namespace R2Core.Network
 
 			}
 		
+		}
+
+		public override INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
+
+			IWebEndpoint ep = GetEndpoint(request.Destination);
+
+			if (ep != null) {
+				
+				return new TCPMessage(ep.Interpret(request, source));
+
+			} else {
+
+				return new TCPMessage() {
+					Code = NetworkStatusCode.NotFound.Raw(),
+					Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}"),
+					Destination = request.Destination
+				};
+
+			}
+
 		}
 
 		protected override void Cleanup() {

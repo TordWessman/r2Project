@@ -28,6 +28,7 @@ using System.Collections.Specialized;
 using System.Web;
 using R2Core.Data;
 using System.Text.RegularExpressions;
+using System.Timers;
 
 namespace R2Core.Network
 {
@@ -41,9 +42,10 @@ namespace R2Core.Network
 		private ISerialization m_serialization;
 		private IList<Task> m_writeTasks = new List<Task>();
 
-		public HttpServer(string id, int port, ISerialization serialization) :  base(id, port) {
+		public HttpServer(string id, int port, ISerialization serialization) :  base(id) {
 			
 			m_serialization = serialization;
+			SetPort(port);
 
 		}
 
@@ -60,23 +62,7 @@ namespace R2Core.Network
 
 				if (m_listener.IsListening) {
 
-					HttpListenerRequest request = context.Request;
-					HttpListenerResponse response = context.Response;
-
-					IWebEndpoint endpoint = GetEndpoint(request.Url.AbsolutePath);
-
-					if (endpoint != null) {
-					
-						Interpret(request, response, endpoint);
-					
-					} else {
-
-						Log.w("No IWebEndpoint accepts: " + request.Url.AbsolutePath);
-						response.StatusCode = NetworkStatusCode.NotFound.Raw();
-
-						Write(response,  m_serialization.Serialize(new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Url.AbsolutePath}") ));
-
-					}
+					HandleRequest(context.Request, context.Response);
 
 				}
 
@@ -144,8 +130,31 @@ namespace R2Core.Network
 
 		}
 
-		private void Interpret(HttpListenerRequest request, HttpListenerResponse response, IWebEndpoint endpoint) {
+		public override INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
 		
+			IWebEndpoint endpoint = GetEndpoint (request.Destination);
+
+			if (endpoint == null) {
+			
+				Log.w($"No HTTP IWebEndpoint accepts {request.Destination}");
+
+				HttpMessage response = new HttpMessage() {
+					Code = NetworkStatusCode.NotFound.Raw(),
+					Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}"),
+					Destination = request.Destination
+				};
+
+				response.ContentType = HttpMessage.DefaultContentType;
+				return response;
+
+			}
+
+			return endpoint.Interpret(request, source);
+
+		}
+
+		private void HandleRequest(HttpListenerRequest request, HttpListenerResponse response) {
+
 			Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
 			byte[] responseBody = new byte[0];
 
@@ -157,14 +166,24 @@ namespace R2Core.Network
 
 				}
 
+				// Perserve the HTTP Method by 
+				requestHeaders[Settings.Consts.HttpServerHeaderMethodKey()] = request.HttpMethod;
+
 				HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = requestHeaders};
 				requestObject.Method = request.HttpMethod;
 
 				requestObject.Payload = GetPayload(request);
 
 				// Parse request and create response body.
-				INetworkMessage responseObject = endpoint.Interpret(requestObject, request.RemoteEndPoint);
+				INetworkMessage responseObject = Interpret(requestObject, request.RemoteEndPoint);
+
 				string contentType = responseObject.Headers?.ContainsKey("Content-Type") == true ? responseObject.Headers["Content-Type"] as string : null;
+
+				if (contentType == null && responseObject is HttpMessage) {
+					
+					contentType = ((HttpMessage) responseObject).ContentType;
+				
+				}
 
 				if (responseObject.Payload is byte[]) {
 
@@ -227,11 +246,12 @@ namespace R2Core.Network
 
 			response.ContentLength64 = data.Length;
 			System.IO.Stream output = response.OutputStream;
+			WeakReference<HttpListenerResponse> reference = new WeakReference<HttpListenerResponse>(response);
 
 			ClearInactiveWriteTasks();
 
 			try {
-				
+
 				m_writeTasks.Add(output.WriteAsync(data, 0, data.Length));
 
 			} catch (Exception ex) {

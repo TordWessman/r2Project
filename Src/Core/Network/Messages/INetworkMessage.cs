@@ -17,6 +17,7 @@
 //
 //
 using System;
+using System.Linq;
 
 namespace R2Core.Network
 {
@@ -51,15 +52,53 @@ namespace R2Core.Network
 
 	}
 
-}
+	public static class INetworkMessageExtensions {
 
-namespace R2Core.Network.Extensions {
+		/// <summary>
+		/// Add the nullable ´overridingHeaders´ to ´Headers´. Any KVP in ´overridingHeaders´ will override local header values. Returns
+		/// the new header collection.  
+		/// </summary>
+		/// <param name="self">Self.</param>
+		/// <param name="overridingHeaders">Overriding headers.</param>
+		public static System.Collections.Generic.IDictionary<string, object> OverrideHeaders(this INetworkMessage self, System.Collections.Generic.IDictionary<string, object> overridingHeaders) {
 
-	public static class INetworkMessage {
+			if (self.Headers != null) { overridingHeaders?.ToList().ForEach(kvp => self.Headers[kvp.Key] = kvp.Value); }
 
+			self.Headers = self.Headers ?? overridingHeaders;
 
+			return self.Headers;
+
+		}
+
+		/// <summary>
+		/// Set the header value using ´key´ if ´value´ is not null. 
+		/// </summary>
+		/// <param name="client">Client.</param>
+		/// <param name="key">Key.</param>
+		/// <param name="value">Value.</param>
+		public static void SetHeader(this INetworkMessage message, string key, string value) {
+
+			if (value != null) {
+
+				if (message.Headers == null) { message.Headers = new System.Collections.Generic.Dictionary<string, object>(); }
+
+				message.Headers[key] = value;
+
+			}
+
+		}
+
+		/// <summary>
+		/// Sets the host name header value for a routed network message.
+		/// </summary>
+		/// <param name="message">Message.</param>
+		/// <param name="hostName">Host name.</param>
+		public static void SetHostName(this INetworkMessage message, string hostName) {
+
+			message.SetHeader(Settings.Consts.ConnectionRouterHeaderHostNameKey(), hostName);
+
+		}
 
 	}
 
 }
-

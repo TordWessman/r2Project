@@ -136,6 +136,17 @@ namespace R2Core.Tests
 			TCPMessage message = new TCPMessage() { Destination = "blah", Payload = "bleh"};
 			INetworkMessage response = client.Send(message);
 			Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), response.Code);
+
+			DummyEndpoint ep = new DummyEndpoint("test");
+			s.AddEndpoint(ep);
+			ep.MessingUp = new Func<INetworkMessage, INetworkMessage>(msg => {
+				return new HttpMessage() {Code = 242, Payload = "din mamma"};
+			});
+
+			response = s.Interpret(new TCPMessage() { Destination = "/test" }, new System.Net.IPEndPoint(0,0));
+			Assert.AreEqual("din mamma", response.Payload);
+			Assert.AreEqual(242, response.Code);
+
 			client.Stop();
 			s.Stop();
 
@@ -423,7 +434,6 @@ namespace R2Core.Tests
 
 			s.Broadcast(new TCPMessage() { Destination = "ehh", Payload = tmp }, (response, error) => {
 
-				Log.t($"Server Broadcast delegate got response: {response}, error: {error}");
 				Assert.Null(error);
 
 			});
@@ -574,10 +584,58 @@ namespace R2Core.Tests
 			Thread.Sleep(500);
 
 			Assert.True(client.Ready);
+
+			//test the stop-listen-method
+			Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), client.Send(new TCPMessage()).Code);
+			client.StopListening();
+			Assert.AreEqual(NetworkStatusCode.Ok.Raw(), client.Send(new TCPMessage()).Code);
+
 			s.Stop();
 			client.Stop();
 
 		}
+
+		[Test]
+		public void TestTCP_ClientServer() {
+			PrintName();
+			var port = tcp_port + 913;
+			TCPServer s = (TCPServer)factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
+			DummyEndpoint ep = new DummyEndpoint(Settings.Consts.ConnectionRouterAddHostDestination());
+
+			string testHostName = "test_hostName";
+			ep.MessingUp = new Func<INetworkMessage,INetworkMessage>(msg => {
+			
+				Assert.AreEqual(testHostName, msg.Payload.HostName);
+				return new TCPMessage() { Code = NetworkStatusCode.Ok.Raw() };
+
+			});
+
+			s.AddEndpoint(ep);
+			s.Start();
+			Thread.Sleep(100);
+
+			TCPClientServer clientServer = (TCPClientServer)factory.CreateTcpClientServer("client_server");
+			clientServer.Timeout = 250;
+			clientServer.Configure(testHostName, "127.0.0.1", port);
+			clientServer.Start();
+
+			Thread.Sleep(100);
+
+			Assert.IsTrue(clientServer.Ready);
+
+			// Try reconnection if remote router is down
+			s.Stop();
+			Thread.Sleep(50);
+			Assert.IsFalse(clientServer.Ready);
+			s.Start();
+			Thread.Sleep(600);
+			Assert.IsTrue(clientServer.Ready);
+
+			s.Stop();
+			clientServer.Stop();
+
+		}
+
 
 	}
 

@@ -37,7 +37,6 @@ namespace R2Core.GPIO
 		
 		public PCA9685ServoController(string id, int bus = 1, int address = 0x40, int frequency = 63) : base(id) {
 
-			Log.t("GOTOTOTOTOT");
 			_ext_init_pca9685(bus, address, frequency);
 		
 		}

@@ -25,7 +25,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Basic interface for a web server
 	/// </summary>
-	public interface IServer : IDevice {
+	public interface IServer : IDevice, IWebEndpoint {
 
 		/// <summary>
 		/// Returns the addresses on which the server is configured to listen to.

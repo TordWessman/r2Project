@@ -63,6 +63,9 @@ namespace R2Core.Network
 		// Used to retain the client Description, even after disconnection.
 		private string m_description;
 
+		// if false, the blocking read operation will cease.
+		private bool m_shouldListen = true;
+
 		public event OnReceiveHandler OnReceive;
 		public event OnDisconnectHandler OnDisconnect;
 
@@ -107,12 +110,8 @@ namespace R2Core.Network
 			Log.d($"Server accepted connection from {m_client.GetDescription()}.");
 
 			m_listener = Task.Factory.StartNew(() => {
-			
-				using(m_client) {
-				
-					while(Ready) { Connection(); }
 
-				}
+				while(Ready && m_shouldListen) { Connection(); }
 
 			});
 
@@ -123,21 +122,32 @@ namespace R2Core.Network
 
 		public override void Stop() { Disconnect(); }
 
+		public void StopListening() {
+		
+			m_shouldListen = false;
+
+		}
+
 		/// <summary>
 		/// Sends a BroadcastMessage
 		/// </summary>
 		/// <param name="message">Message.</param>
-		public INetworkMessage Send(INetworkMessage message) {
+		public INetworkMessage Send(INetworkMessage request) {
 			
 			if (!Ready) {
 
-				throw new InvalidOperationException($"Unable to send ´{message}´. TCPServerConnection ´{this} is´ not running.");
+				throw new InvalidOperationException($"Unable to send ´{request}´. TCPServerConnection ´{this} is´ not running.");
 
 			}
 
-			Write(new BroadcastMessage(message, Address, Port));
+			if (request.IsBroadcastMessage()) {
 
-			return new OkMessage();
+				Write(request);
+				return new OkMessage();
+
+			}
+
+			return Write(request, true);
 
 		}
 
@@ -176,7 +186,7 @@ namespace R2Core.Network
 		
 			try {
 
-				INetworkMessage responseToClient = m_responseDelegate(clientRequest, (IPEndPoint) m_client.GetEndPoint());
+				INetworkMessage responseToClient = m_responseDelegate(clientRequest, (IPEndPoint)m_client.GetEndPoint());
 
 				// Only write directly back to stream if not a broadcast message. 
 				Write(new TCPMessage(responseToClient));
@@ -239,7 +249,7 @@ namespace R2Core.Network
 
 		}
 
-		private void Write(INetworkMessage message) {
+		private INetworkMessage Write(INetworkMessage message, bool readReply = false) {
 			
 			lock(m_writeLock) {
 
@@ -250,6 +260,20 @@ namespace R2Core.Network
 
 			// I'm disconnected, but not quite aware of it yet.
 			if (m_shouldRun && !Ready) { Stop(); }
+
+			if (readReply && m_shouldListen) {
+			
+				throw new NetworkException($"Unable to write message {message}. Can't read synchronously from stream until StopListen() has been called.");
+			
+			}
+
+			if (readReply) {
+
+				return m_packageFactory.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
+
+			}
+
+			return null;
 
 		}
 

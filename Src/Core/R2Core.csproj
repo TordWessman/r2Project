@@ -130,6 +130,8 @@
     <Compile Include="Network\TCP\TCPServerConnection.cs" />
     <Compile Include="Network\ConnectionPoller.cs" />
     <Compile Include="Extensions\NetworkSocketExtensions.cs" />
+    <Compile Include="Network\TCP\TCPClientServer.cs" />
+    <Compile Include="Network\TCP\TCPRouterEndpoint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

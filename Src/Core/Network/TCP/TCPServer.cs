@@ -32,7 +32,7 @@ namespace R2Core.Network
 	/// <summary>
 	/// Default implementation for all TCP related traffic.
 	/// </summary>
-	public class TCPServer : ServerBase, IServer, INetworkBroadcaster {
+	public class TCPServer : ServerBase, INetworkBroadcaster {
 
 		// Ensure therad safety for connection access
 		private readonly object m_connectionsLock = new object();
@@ -55,10 +55,11 @@ namespace R2Core.Network
 		/// <value>The connections.</value>
 		public IEnumerable<IClientConnection> Connections { get { return m_connections; } }
 
-		public TCPServer(string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id, port) {
+		public TCPServer(string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id) {
 
 			m_packageFactory = packageFactory;
 			m_connections = new List<IClientConnection>();
+			SetPort(port);
 
 		}
 
@@ -70,7 +71,7 @@ namespace R2Core.Network
 
 				try {
 				
-					INetworkMessage response = connection.Send(message);
+					INetworkMessage response = connection.Send(new BroadcastMessage(message, connection.Address, connection.Port));
 
 					if (responseDelegate != null) { 
 
@@ -125,7 +126,7 @@ namespace R2Core.Network
 							client.Client.RemoteEndPoint.ToString(), 
 							m_packageFactory,
 							client, 
-							OnReceive);
+							Interpret);
 					
 					connection.OnDisconnect += OnDisconnect;
 
@@ -166,20 +167,20 @@ namespace R2Core.Network
 
 		}
 
-		private INetworkMessage OnReceive(INetworkMessage request, IPEndPoint address) {
+		public override INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
 
 			IWebEndpoint endpoint = GetEndpoint(request.Destination);
 
 			if (endpoint != null) { 
 				
-				var response = endpoint.Interpret(request, address);
-				return response;
+				return endpoint.Interpret(request, source);
 
 			} 
 
 			return new TCPMessage() {
 				Code = NetworkStatusCode.NotFound.Raw(),
-				Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}")
+				Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}"),
+				Destination = request.Destination
 			};
 
 		}
@@ -196,6 +197,8 @@ namespace R2Core.Network
 					client.Stop();
 
 				});
+
+				m_connections = new List<IClientConnection>();
 
 			}
 

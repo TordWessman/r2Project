@@ -56,7 +56,6 @@ namespace R2Core.GPIO
 				}
 				
 				m_value = (int)(value * Denomiator + LevelModifier);
-				//Log.t("Setting value: " + m_value);
 				m_servoController.Set(m_channel, m_value);
 			}
 		}

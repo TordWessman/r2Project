@@ -63,7 +63,7 @@ namespace R2Core.DataManagement.Memory
 		
 			foreach (IMemory memory in All()) {
 			
-				Log.t(memory.Id + ": " + memory.Type + " = " + memory.Value + " " + (memory.IsLocal ? "" : "[remote]"));
+				Log.d(memory.Id + ": " + memory.Type + " = " + memory.Value + " " + (memory.IsLocal ? "" : "[remote]"));
 
 			}
 

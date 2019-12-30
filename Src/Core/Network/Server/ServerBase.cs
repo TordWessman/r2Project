@@ -31,7 +31,7 @@ namespace R2Core.Network
 	/// </summary>
 	public abstract class ServerBase : DeviceBase,  IServer, ITaskMonitored {
 
-		int m_port;
+		private int m_port;
 		private bool m_shouldRun;
 		private Task m_serviceTask;
 		private IList<IWebEndpoint> m_endpoints;
@@ -43,9 +43,8 @@ namespace R2Core.Network
 		/// </summary>
 		protected Task ServiceTask { get {return m_serviceTask; } }
 
-		public ServerBase(string id, int port) : base(id) {
+		public ServerBase(string id) : base(id) {
 			
-			m_port = port;
 			m_endpoints = new List<IWebEndpoint>();
 
 		}
@@ -57,6 +56,10 @@ namespace R2Core.Network
 			m_serviceTask?.Dispose();
 
 		}
+
+		public string UriPath { get { return ".*"; } }
+
+		public override bool Ready { get { return ShouldRun; } }
 
 		public int Port { get { return m_port; } }
 
@@ -74,9 +77,15 @@ namespace R2Core.Network
 
 		}
 
+		protected void SetPort(int port) {
+
+			m_port = port;
+
+		}
+
 		protected IWebEndpoint GetEndpoint(string path) {
 		
-			return m_endpoints.Where(endpoint => System.Text.RegularExpressions.Regex.IsMatch (path, endpoint.UriPath)).FirstOrDefault();
+			return m_endpoints.Where(endpoint => System.Text.RegularExpressions.Regex.IsMatch(path, endpoint.UriPath)).FirstOrDefault();
 
 		}
 
@@ -103,6 +112,8 @@ namespace R2Core.Network
 		/// The service running the host connection. Will be called upon start
 		/// </summary>
 		protected abstract void Service();
+
+		public abstract INetworkMessage Interpret(INetworkMessage message, System.Net.IPEndPoint source);
 
 		public override void Stop() {
 

@@ -97,13 +97,16 @@ namespace R2Core.GPIO
 			Log.d($"Connectiing to {m_serialPort.PortName}");
 
 			try {
+				
 				m_serialPort.Open();
+
 			} catch (TimeoutException) {
+				
 				//ehh this seems to be needed
 				m_serialPort.Open();
-				Log.t("The fulhack did work...");
 			
 			}
+
 			m_serialPort.DiscardOutBuffer();
 			m_serialPort.DiscardInBuffer();
 			System.Threading.Thread.Sleep(m_timeout);

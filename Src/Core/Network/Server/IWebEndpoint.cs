@@ -30,13 +30,13 @@ namespace R2Core.Network
 		/// <summary>
 		/// Interprets inputData and returns an intermediate object. This object should not have a serialized payload, since serialization is performed by the server.
 		/// </summary>
-		INetworkMessage Interpret(INetworkMessage message,  System.Net.IPEndPoint source);
+		INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source);
 
 		/// <summary>
 		/// The uri path on which this interprener is listening.
 		/// </summary>
 		/// <value>The response path.</value>
-		string UriPath {get;}
+		string UriPath { get; }
 
 	}
 }

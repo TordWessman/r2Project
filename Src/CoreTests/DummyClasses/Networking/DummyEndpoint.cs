@@ -34,7 +34,7 @@ namespace R2Core.Tests
 
 		public Func<INetworkMessage,INetworkMessage> MessingUp;
 
-		public INetworkMessage Interpret(INetworkMessage message,  System.Net.IPEndPoint source) {
+		public INetworkMessage Interpret(INetworkMessage message, System.Net.IPEndPoint source) {
 
 			return MessingUp == null ? message : MessingUp(message);
 

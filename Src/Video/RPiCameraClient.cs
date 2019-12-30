@@ -46,7 +46,7 @@ namespace R2Core.Video
 
 		protected void RecordingFinished(string filename) {
 
-			string outputFilename = System.IO.Path.Combine(m_path,filename + ".mp4");
+			string outputFilename = System.IO.Path.Combine(m_path, filename + ".mp4");
 			m_converter.Convert(filename, outputFilename);
 			System.IO.File.Delete(filename);
 
@@ -60,7 +60,9 @@ namespace R2Core.Video
 
 		public override void Start () {
 
-			Record(DateTime.Now.ToString("yyyyMMddHHmmss") + ".h264");
+			string filename = DateTime.Now.ToString("yyyyMMddHHmmss") + ".h264";
+			Log.d($"Recording video stream to: '{filename}'.");
+			Record(filename);
 
 		}
 

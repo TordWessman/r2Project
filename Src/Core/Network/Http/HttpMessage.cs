@@ -39,6 +39,7 @@ namespace R2Core.Network
 		public string Method;
 		public string ContentType;
 
+	
 		public HttpMessage(INetworkMessage message) {
 
 			Code = message.Code;

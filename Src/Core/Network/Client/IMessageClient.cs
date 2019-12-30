@@ -18,6 +18,7 @@
 //
 using System;
 using R2Core.Device;
+using System.Linq;
 
 namespace R2Core.Network
 {
@@ -32,15 +33,42 @@ namespace R2Core.Network
 		/// requests fails or completes. Returns the request ´Task´.
 		/// </summary>
 		/// <returns>The async.</returns>
-		/// <param name="message">Message.</param>
+		/// <param name="request">Request message.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate);
+		System.Threading.Tasks.Task SendAsync(INetworkMessage request, Action<INetworkMessage> responseDelegate);
 
 		/// <summary>
 		/// Adds a ´IMessageClientObserver´. Depending on the implementation of the ´IMessageClient´, some or all methods might never be called.
 		/// </summary>
 		/// <param name="observer">Observer.</param>
 		void AddClientObserver(IMessageClientObserver observer);
+
+		/// <summary>
+		/// Default headers included in each request. These will override headers set in the message (´INetworkMessage.Headers)´.
+		/// </summary>
+		System.Collections.Generic.IDictionary<string, object> Headers { get; set; }
+
+	}
+
+	public static class IMessageClientExtensions {
+
+		/// <summary>
+		/// Set the header value using ´key´ if ´value´ is not null. 
+		/// </summary>
+		/// <param name="client">Client.</param>
+		/// <param name="key">Key.</param>
+		/// <param name="value">Value.</param>
+		public static void SetHeader(this IMessageClient client, string key, string value) {
+
+			if (value != null) {
+
+				if (client.Headers == null) { client.Headers = new System.Collections.Generic.Dictionary<string, object>(); }
+
+				client.Headers[key] = value;
+
+			}
+
+		}
 
 	}
 

@@ -32,6 +32,11 @@ namespace R2Core.Network
 
 		}
 
+		public override string ToString ()
+		{
+			return $"[WebErrorMessage. Code: {Code}. Message: {Message}]";
+		}
+
 	}
 
 }

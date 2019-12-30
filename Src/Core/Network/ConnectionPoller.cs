@@ -38,7 +38,7 @@ namespace R2Core.Network
 		/// <summary>
 		/// Initializes a new instance of the <see cref="R2Core.Network.ConnectionPoller"/> class.
 		/// ´client´ is the TcpClient containing the Socket to be polled. ´failDelegate´ will be called
-		/// if the Socket is closed. 
+		/// if the Socket is closed. The polling interval is equal to 2 x TcpClient.SendTimeout.
 		/// </summary>
 		/// <param name="client">Client.</param>
 		/// <param name="failDelegate">Fail delegate.</param>
@@ -82,9 +82,18 @@ namespace R2Core.Network
 
 			if (!m_previousPollSuccess && !pollSuccessful) {
 				
-				Log.d($"Polling failed to: {m_client.GetDescription()}. Will call fail delegate.");
-				m_failDelegate();
+				Log.d($"Polling failed to: {m_client.GetDescription()}. Will call fail delegate and stop polling.");
 				Stop();
+
+				try {
+
+					m_failDelegate();
+
+				} catch (Exception ex) {
+
+					Log.w($"ConnectionPoller failed to call delegate: {ex.Message}.");
+
+				}
 
 			}
 

@@ -105,8 +105,6 @@ namespace R2Core.Tests
 
 			client.Stop();
 			s.Stop();
-			//TCPMessage request = new TCPMessage() {
-
 
 		}
 
@@ -173,8 +171,6 @@ namespace R2Core.Tests
 
 			// Wait in order for the broadcast task to finish 
 			Thread.Sleep(2000);
-
-			Log.t(((UDPBroadcaster) h.Broadcaster).BroadcastTask.Exception?.StackTrace);
 
 			Thread.Sleep(2000);
 

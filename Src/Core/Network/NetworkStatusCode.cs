@@ -42,6 +42,21 @@ namespace R2Core.Network
 		Ok = 200,
 
 		/// <summary>
+		/// Generic client side error.
+		/// </summary>
+		BadRequest = 400,
+
+		/// <summary>
+		/// Client did not provide correct credentials.
+		/// </summary>
+		Unauthenticated = 401,
+
+		/// <summary>
+		/// Client does not have access to the resource.
+		/// </summary>
+		Forbidden = 403,
+
+		/// <summary>
 		/// Resource not found.
 		/// </summary>
 		NotFound = 404,
@@ -52,9 +67,14 @@ namespace R2Core.Network
 		ServerError = 500,
 
 		/// <summary>
-		/// Communication error.
+		/// Server did not contain the requested resource.
 		/// </summary>
-		NetworkError = 503,
+		ResourceUnavailable = 503,
+
+		/// <summary>
+		/// Communication error on the client side.
+		/// </summary>
+		NetworkError = 600,
 
 		/// <summary>
 		/// Ping message

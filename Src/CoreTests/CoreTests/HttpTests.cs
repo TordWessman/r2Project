@@ -42,7 +42,8 @@ namespace R2Core.Tests
 
 
 		[Test]
-		public void TestEndpointUsingDummyReceiver() {
+		public void TestHTTP_EndpointUsingDummyReceiver() {
+			PrintName();
 
 			IWebIntermediate response = new RubyWebIntermediate();
 
@@ -68,7 +69,8 @@ namespace R2Core.Tests
 		}
 
 		[Test]
-		public void TestDeviceRouterInvoke() {
+		public void TestHTTP_DeviceRouterInvoke() {
+			PrintName();
 
 			DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
 			dummyObject.Bar = "XYZ";
@@ -120,7 +122,8 @@ namespace R2Core.Tests
 		}
 
 		[Test]
-		public void TestDeviceRouterSet() {
+		public void TestHTTP_DeviceRouterSet() {
+			PrintName();
 
 			DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
 			dummyObject.HAHA = 0;
@@ -153,7 +156,8 @@ namespace R2Core.Tests
 
 
 		[Test]
-		public void HttpBinaryMessageAndScriptServerTests() {
+		public void TestHTTP_BinaryMessageAndScriptServerTests() {
+			PrintName();
 
 			var webServer = factory.CreateHttpServer("test_server", 9999);
 
@@ -200,7 +204,8 @@ namespace R2Core.Tests
 		}
 
 		[Test]
-		public void HttpServerTests() {
+		public void TestHTTP_ServerTests() {
+			PrintName();
 
 			var webServer = factory.CreateHttpServer("s", 19999);
 
@@ -230,10 +235,29 @@ namespace R2Core.Tests
 			Assert.AreEqual("din mamma", response.Payload);
 			Assert.AreEqual(242, response.Code);
 
+			message = factory.CreateHttpMessage("/test");
+			R2Dynamic payload = new R2Dynamic();
+			payload["parameter"] = "foo";
+			message.Payload = payload;
+
+			message.Headers = new Dictionary<string, object> ();
+			message.Headers["TestHeader"] = "a header value";
+
+			response = webServer.Interpret(message, new System.Net.IPEndPoint(0,0));
+			Assert.AreEqual("din mamma", response.Payload);
+			Assert.AreEqual(242, response.Code);
+
+			HttpMessage message2 = factory.CreateHttpMessage("/not.found");
+
+			response = webServer.Interpret(message2, new System.Net.IPEndPoint(0,0));
+
+			Assert.AreEqual(NetworkStatusCode.NotFound, (NetworkStatusCode)response.Code);
+
 		}
 
 		[Test]
-		public void HttpServerClientTests() {
+		public void TestHTTP_ServerClientTests() {
+			PrintName();
 
 			var webServer = factory.CreateHttpServer("s", 9999);
 
@@ -263,7 +287,8 @@ namespace R2Core.Tests
 		}
 
 		[Test]
-		public void HttpDeviceRouterTest() {
+		public void TestHTTP_DeviceRouterTest() {
+			PrintName();
 
 			var webServer = factory.CreateHttpServer("s", 9999);
 
@@ -310,8 +335,76 @@ namespace R2Core.Tests
 
 		}
 
+		[Test]
+		public void TestHTTP_TCPClientServerRouter() {
+			PrintName();
+
+			// Router side port
+			var tcpPort = 1119;
+
+			// Server name
+			var myHostName = "test_host";
+
+			// Create the routing server that will route incomming requests
+			TCPServer routingServer = factory.CreateTcpServer("tcp_router", tcpPort);
+
+			// Create the catch-all endpoint that will route traffic to the routingServer's connections 
+			TCPRouterEndpoint routingEndpoint = factory.CreateTcpRouterEndpoint(routingServer);
+			routingServer.Start();
+			routingServer.AddEndpoint(routingEndpoint);
+
+			// Server side server. The final destination of the request
+			HttpServer httpServer = factory.CreateHttpServer("http_server", tcpPort + 1);
+			httpServer.Start();
+
+			Thread.Sleep(100);
+
+			// Server side router that will route traffic to a local servers
+			TCPClientServer clientServer = factory.CreateTcpClientServer("client_server");
+			clientServer.Configure(myHostName, "127.0.0.1", tcpPort);
+			clientServer.Start();
+
+			Thread.Sleep(100);
+
+			Assert.IsTrue(clientServer.Ready);
 
 
+			// Allow the router to access the destination http server
+			clientServer.AddServer(Settings.Consts.ConnectionRouterHeaderServerTypeHTTP(), httpServer);
+
+			// Create a dummy endpoint to test requests
+			DummyEndpoint ep = new DummyEndpoint("test");
+
+			// Add dummy endpoint functionality
+			ep.MessingUp = new Func<INetworkMessage, INetworkMessage> (msg => {
+
+				return new HttpMessage() {
+					Code = 42,
+					Payload = "din mamma: " + msg.Payload
+				};
+			});
+
+			httpServer.AddEndpoint(ep);
+
+			// Create the remote TCP client (imitate being a HTTP client)
+			IMessageClient client = factory.CreateTcpClient("client", "127.0.0.1", tcpPort, myHostName);
+			client.Start();
+
+			// Set the destination server type. This means that all requests from this client should be directed to the HTTP server (if present)
+			client.Headers[Settings.Consts.ConnectionRouterHeaderServerTypeKey()] = Settings.Consts.ConnectionRouterHeaderServerTypeHTTP();
+
+			TCPMessage message = new TCPMessage() { Destination = "test", Payload = "argh" };
+
+			INetworkMessage response = client.Send(message);
+
+			Assert.AreEqual("din mamma: argh", response.Payload);
+			Assert.AreEqual(42, response.Code);
+
+			routingServer.Stop();
+			clientServer.Stop();
+			client.Stop();
+			httpServer.Stop();
+		}
 
 	}
 

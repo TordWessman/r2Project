@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace R2Core.Video
 {
-	public class RPiCameraServer : DeviceBase
-	{
+	public class RPiCameraServer : DeviceBase {
+		
 		private const string dllPath = "libr2picam.so";
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
