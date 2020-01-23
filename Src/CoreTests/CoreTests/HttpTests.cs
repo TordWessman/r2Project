@@ -341,17 +341,23 @@ namespace R2Core.Tests
 
 			// Router side port
 			var tcpPort = 1119;
+			var httpPort = 1118;
 
 			// Server name
 			var myHostName = "test_host";
 
-			// Create the routing server that will route incomming requests
+			// Create the routing server that will route incomming tcp requests
 			TCPServer routingServer = factory.CreateTcpServer("tcp_router", tcpPort);
+
+			// Create the routing server that will route incomming http requests
+			HttpServer routingHttpServer = factory.CreateHttpServer("http_router", httpPort);
 
 			// Create the catch-all endpoint that will route traffic to the routingServer's connections 
 			TCPRouterEndpoint routingEndpoint = factory.CreateTcpRouterEndpoint(routingServer);
 			routingServer.Start();
 			routingServer.AddEndpoint(routingEndpoint);
+			routingHttpServer.Start();
+			routingHttpServer.AddEndpoint(routingEndpoint);
 
 			// Server side server. The final destination of the request
 			HttpServer httpServer = factory.CreateHttpServer("http_server", tcpPort + 1);
@@ -379,7 +385,7 @@ namespace R2Core.Tests
 			ep.MessingUp = new Func<INetworkMessage, INetworkMessage> (msg => {
 
 				return new HttpMessage() {
-					Code = 42,
+					Code = 210,
 					Payload = "din mamma: " + msg.Payload
 				};
 			});
@@ -390,7 +396,7 @@ namespace R2Core.Tests
 			IMessageClient client = factory.CreateTcpClient("client", "127.0.0.1", tcpPort, myHostName);
 			client.Start();
 
-			// Set the destination server type. This means that all requests from this client should be directed to the HTTP server (if present)
+			// Override default behaviour: Set the destination server type. This means that all requests from this client should be directed to the HTTP server (if present)
 			client.Headers[Settings.Consts.ConnectionRouterHeaderServerTypeKey()] = Settings.Consts.ConnectionRouterHeaderServerTypeHTTP();
 
 			TCPMessage message = new TCPMessage() { Destination = "test", Payload = "argh" };
@@ -398,7 +404,23 @@ namespace R2Core.Tests
 			INetworkMessage response = client.Send(message);
 
 			Assert.AreEqual("din mamma: argh", response.Payload);
-			Assert.AreEqual(42, response.Code);
+			Assert.AreEqual(210, response.Code);
+
+			IMessageClient httpClient = factory.CreateHttpClient("http_client", myHostName);
+
+			HttpMessage httpMessage = new HttpMessage () { Destination = $"http://127.0.0.1:{httpPort}/not_found", Payload = "argh" };
+			httpMessage.ContentType = "text/string";
+
+			INetworkMessage httpResponse = httpClient.Send(httpMessage);
+
+			Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), httpResponse.Code);
+
+			httpMessage = new HttpMessage () { Destination = $"http://127.0.0.1:{httpPort}/test", Payload = "ugh" };
+			httpMessage.ContentType = "text/string";
+			httpResponse = httpClient.Send(httpMessage);
+
+			Assert.AreEqual(210, httpResponse.Code);
+			Assert.AreEqual("din mamma: ugh", httpResponse.Payload);
 
 			routingServer.Stop();
 			clientServer.Stop();

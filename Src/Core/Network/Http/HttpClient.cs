@@ -140,10 +140,20 @@ namespace R2Core.Network
 
 				if (ex.Status == System.Net.WebExceptionStatus.ProtocolError) {
 				
-					responseObject.Code = NetworkStatusCode.ServerError.Raw();
+					HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
+
+					if (status.HasValue) {
+
+						responseObject.Code = (int)status;
+
+					} else {
+
+						responseObject.Code = NetworkStatusCode.ServerError.Raw();
+
+					}
 				 
 				} else {
-				
+
 					responseObject.Code = NetworkStatusCode.NetworkError.Raw();
 						
 				}

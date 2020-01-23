@@ -56,6 +56,7 @@ namespace R2Core.Network
 			IMessageClient client = new HttpClient(id, m_serialization);
 
 			client.SetHeader(HeaderHostName, hostName);
+			client.SetHeader(Settings.Consts.ConnectionRouterHeaderServerTypeKey(), Settings.Consts.ConnectionRouterHeaderServerTypeHTTP());
 
 			return client;
 
@@ -127,6 +128,8 @@ namespace R2Core.Network
 		
 			TCPClient client = new TCPClient(id, m_packageFactory, host, port);
 			client.SetHeader(HeaderHostName, hostName);
+			client.SetHeader(Settings.Consts.ConnectionRouterHeaderServerTypeKey(), Settings.Consts.ConnectionRouterHeaderServerTypeTCP());
+
 			return client;
 
 		}
