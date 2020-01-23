@@ -132,6 +132,9 @@
     <Compile Include="Extensions\NetworkSocketExtensions.cs" />
     <Compile Include="Network\TCP\TCPClientServer.cs" />
     <Compile Include="Network\TCP\TCPRouterEndpoint.cs" />
+    <Compile Include="Network\TCP\TCPProxy.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
+    <Compile Include="Network\TCP\TCPProxyConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

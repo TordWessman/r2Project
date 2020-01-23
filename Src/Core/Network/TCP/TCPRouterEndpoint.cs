@@ -59,7 +59,7 @@ namespace R2Core.Network {
 
 					connection.StopListening();
 
-					ClearOfflineConnections();
+					m_connections.Remove(c => !c.Value.Ready);
 
 				}
 
@@ -109,22 +109,11 @@ namespace R2Core.Network {
 				Payload = $"Missing '{HeaderHostName}' parameter.",
 				PayloadType = TCPPackageFactory.PayloadType.String
 			};
+
 		}
 
 		public string UriPath { get { return ".*"; } }
 
-		private void ClearOfflineConnections() {
-		
-			IEnumerable<string> offlineHosts = m_connections.Where(c => !c.Value.Ready).Select(c => c.Key);
-
-			foreach (string host in offlineHosts) {
-			
-				m_connections.Remove(host);
-			
-			}
-		
-		}
-	
 	}
 
 }

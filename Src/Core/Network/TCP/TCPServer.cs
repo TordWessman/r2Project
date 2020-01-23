@@ -117,9 +117,7 @@ namespace R2Core.Network
 
 				try {
 						
-					TcpClient client = m_listener.AcceptTcpClient();
-					client.SendTimeout = Timeout;
-					client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+					TcpClient client = m_listener.WaitForConnection(Timeout);
 
 					TCPServerConnection connection = 
 						new TCPServerConnection(

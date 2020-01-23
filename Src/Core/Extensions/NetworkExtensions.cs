@@ -117,6 +117,26 @@ namespace R2Core.Network
 			return null;
 
 		}
+
+	}
+
+	public static class TcpListenerExtensions {
+	
+		/// <summary>
+		/// Blocks until a client has connected. Set the send timeout to ´timeout´.
+		/// </summary>
+		/// <returns>The connected TcpClient.</returns>
+		/// <param name="timeout">Timeout.</param>
+		public static TcpClient WaitForConnection(this TcpListener self, int timeout) {
+
+			TcpClient client = self.AcceptTcpClient();
+			client.SendTimeout = timeout;
+			client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+
+			return client;
+
+		}
+
 	}
 
 }

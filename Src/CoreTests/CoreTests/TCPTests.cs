@@ -636,6 +636,16 @@ namespace R2Core.Tests
 
 		}
 
+		[Test]
+		public void TestTCP_TcpProxy() {
+			PrintName();
+
+			var proxy_inPort = tcp_port + 914;
+			var proxy_outPort = tcp_port + 915;
+
+			TCPProxy proxy = new TCPProxy("proxy", proxy_inPort, proxy_outPort);
+			proxy.Start();
+		}
 
 	}
 

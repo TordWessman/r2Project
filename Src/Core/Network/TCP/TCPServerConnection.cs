@@ -153,7 +153,7 @@ namespace R2Core.Network
 
 		public override string ToString() {
 			
-			return $"TCPServerConnection [`{m_description}`. Ready: {Ready}]."; //string.Format("[TCPClient: Connected={0}, Host={1}, Ip={2}]", Ready, m_host, m_port);
+			return $"TCPServerConnection [`{m_description}`. Ready: {Ready}].";
 
 		}
 
