@@ -138,11 +138,7 @@ namespace R2Core.Network
 			
 				Log.w($"No HTTP IWebEndpoint accepts {request.Destination}");
 
-				HttpMessage response = new HttpMessage() {
-					Code = NetworkStatusCode.NotFound.Raw(),
-					Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}"),
-					Destination = request.Destination
-				};
+				HttpMessage response = new HttpMessage(new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request));
 
 				response.ContentType = HttpMessage.DefaultContentType;
 				return response;

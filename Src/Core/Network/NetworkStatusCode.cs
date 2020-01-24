@@ -62,6 +62,11 @@ namespace R2Core.Network
 		NotFound = 404,
 
 		/// <summary>
+		/// The server was unable to process the request.
+		/// </summary>
+		UnableToProcess = 422,
+
+		/// <summary>
 		/// Generic error during server side execution.
 		/// </summary>
 		ServerError = 500,

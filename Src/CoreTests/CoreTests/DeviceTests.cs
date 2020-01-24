@@ -134,6 +134,7 @@ namespace R2Core.Tests
 
 			// Test set property
 			remoteDummy.Async((response, ex) => {
+				Assert.Equals(1111, response);
 				Assert.IsNull(ex);
 
 			}).HAHA = 1111;

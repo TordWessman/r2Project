@@ -96,16 +96,6 @@ namespace R2Core.Network
 		}
 
 		/// <summary>
-		/// Represents a single client connection.
-		/// </summary>
-		/// <param name="client">Client.</param>
-		private void Connection(TcpClient client) {
-		
-			TCPMessage responseMessage =  new TCPMessage() {Code = NetworkStatusCode.NotDefined.Raw(), Headers = new Dictionary<string, object>()};
-
-		}
-
-		/// <summary>
 		/// Represents the server side listener.
 		/// </summary>
 		protected override void Service() {
@@ -175,11 +165,7 @@ namespace R2Core.Network
 
 			} 
 
-			return new TCPMessage() {
-				Code = NetworkStatusCode.NotFound.Raw(),
-				Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}"),
-				Destination = request.Destination
-			};
+			return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request);
 
 		}
 

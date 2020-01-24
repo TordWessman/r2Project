@@ -88,6 +88,14 @@ namespace R2Core.GPIO
 			}
 
 		}
+
+		public override string ToString() {
+
+			return $"[InputPort: {Identifier} : {Value}]";
+
+		}
+
 	}
+
 }
 

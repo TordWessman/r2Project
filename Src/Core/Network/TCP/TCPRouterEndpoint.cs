@@ -70,7 +70,7 @@ namespace R2Core.Network {
 			} else if (request.Headers.ContainsKey(HeaderHostName)) {
 
 				string hostName = request.Headers[HeaderHostName] as string;
-			
+
 				IClientConnection connection;
 
 				lock(m_lock) {
@@ -84,31 +84,19 @@ namespace R2Core.Network {
 					request.Headers[Settings.Consts.ConnectionRouterHeaderClientAddressKey()] = connection.Address;
 					request.Headers[Settings.Consts.ConnectionRouterHeaderClientPortKey()] = connection.Port;
 
-					return connection.Send(request);
+					return  connection.Send(request);
 
 				} else if (connection?.Ready == false) {
 
-					return new TCPMessage() {
-						Code = NetworkStatusCode.ResourceUnavailable.Raw(),
-						Payload = $"Host with name '{hostName}' has been disconnected.",
-						PayloadType = TCPPackageFactory.PayloadType.String
-					};
+					return new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Host with name '{hostName}' has been disconnected.");
 
 				}
 
-				return new TCPMessage() {
-					Code = NetworkStatusCode.ResourceUnavailable.Raw(),
-					Payload = $"Host with name '{hostName}' was not found.",
-					PayloadType = TCPPackageFactory.PayloadType.String
-				};
+				return new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Host with name '{hostName}' was not found.");
 
 			}
 
-			return new TCPMessage() {
-				Code = NetworkStatusCode.BadRequest.Raw(),
-				Payload = $"Missing '{HeaderHostName}' parameter.",
-				PayloadType = TCPPackageFactory.PayloadType.String
-			};
+			return new NetworkErrorMessage(NetworkStatusCode.BadRequest, $"Missing '{HeaderHostName}' parameter.");
 
 		}
 

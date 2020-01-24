@@ -57,7 +57,7 @@ namespace R2Core.Network
 		
 			return Task.Factory.StartNew( () => {
 			
-				HttpMessage response;
+				INetworkMessage response;
 				Exception exception = null;
 
 				try {
@@ -66,8 +66,9 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					response = new HttpMessage() { Payload = new NetworkErrorDescription() { Message = ex.Message }, Code = NetworkStatusCode.NetworkError.Raw() };
-					exception =  ex;
+					response = new NetworkErrorMessage(ex, message);
+					exception = ex;
+
 				}
 
 				responseDelegate(response);

@@ -23,8 +23,12 @@ using R2Core.Device;
 namespace R2Core.GPIO
 {
 	public interface IInputPort : IDevice {
-		
-		bool Value { get;}
+
+		/// <summary>
+		/// The binary value of the digital port.
+		/// </summary>
+		/// <value><c>true</c> if value; otherwise, <c>false</c>.</value>
+		bool Value { get; }
 
 		/// <summary>
 		/// Triggers the func on every interval read when set. Use StepTrigger to quit
@@ -39,5 +43,6 @@ namespace R2Core.GPIO
 		void StopTrigger();
 
 	}
+
 }
 

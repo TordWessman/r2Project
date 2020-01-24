@@ -52,6 +52,12 @@ namespace R2Core.GPIO
 
 		#endregion
 
+		public override string ToString() {
+
+			return $"[OutputPort: {Identifier} : {Value}]";
+
+		}
+
 	}
 
 }

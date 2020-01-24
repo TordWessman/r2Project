@@ -125,11 +125,7 @@ namespace R2Core.Network
 
 			} else {
 
-				return new TCPMessage() {
-					Code = NetworkStatusCode.NotFound.Raw(),
-					Payload =  new WebErrorMessage(NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}"),
-					Destination = request.Destination
-				};
+				return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request);
 
 			}
 
