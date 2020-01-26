@@ -34,7 +34,6 @@ namespace R2Core.Tests
 	[TestFixture]
 	public class ScriptTests: TestBase {
 		
-		private IScriptFactory<IronScript> m_rubyScriptFactory;
 		private IScriptFactory<IronScript> m_pythonScriptFactory;
 		private IScriptFactory<LuaScript> m_luaScriptFactory;
 
@@ -42,9 +41,6 @@ namespace R2Core.Tests
 		public override void Setup() {
 
 			base.Setup();
-
-			m_rubyScriptFactory = new RubyScriptFactory(Settings.Identifiers.RubyScriptFactory(), BaseContainer.RubyPaths, m_deviceManager);
-			m_rubyScriptFactory.AddSourcePath(Settings.Paths.TestData());
 
 			m_pythonScriptFactory = CreatePythonScriptFactory(m_deviceManager);
 
@@ -59,23 +55,6 @@ namespace R2Core.Tests
 			sf.AddSourcePath(Settings.Paths.TestData());
 			sf.AddSourcePath(Settings.Paths.Common());
 			return sf;
-
-		}
-
-		[Test]
-		public void RubyTest1() {
-			PrintName();
-
-			dynamic ruby = m_rubyScriptFactory.CreateScript("RubyTest1");
-			Assert.NotNull(ruby);
-
-			Assert.AreEqual(ruby.set_up_foo(), "baz");
-
-			Assert.AreEqual("bar", (string)ruby.foo);
-
-			ruby.bar = 42;
-
-			Assert.AreEqual(42, ruby.Get("bar"));
 
 		}
 
@@ -150,7 +129,8 @@ namespace R2Core.Tests
 			IEnumerable<dynamic> devices = remoteDeviceList.GetDevices(deviceNames);
 
 			Assert.AreEqual(2, devices.Count());
-			Assert.AreEqual("Foo", devices.Last().Bar);
+			dynamic lastDevice = devices.Last();
+			Assert.AreEqual("Foo", lastDevice.Bar);
 
 			Thread.Sleep(200);
 			client.Stop();

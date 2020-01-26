@@ -45,20 +45,9 @@ namespace R2Core.Common
 		private DeviceFactory m_deviceFactory;
 		
 		private IDatabase m_db;
-		private IScriptFactory<IronScript> m_scriptFactory;
 		private IRunLoop m_runLoop;
 
 		public ITaskMonitor TaskMonitor { get { return m_taskMonitor; } }
-
-		public static IList<string> RubyPaths {
-		
-			get {
-				var rubyPaths = Settings.Consts.RubyPaths().Split(new char[] { ';' }).ToList();
-				rubyPaths.Add(Settings.Paths.Common());
-				rubyPaths.Add(Settings.Paths.Python());
-				return rubyPaths;
-			}
-		}
 
 		public static IList<string> PythonPaths {
 
@@ -106,21 +95,11 @@ namespace R2Core.Common
 
 			m_devices.Add(psf);
 
-			m_scriptFactory = new RubyScriptFactory(
-				Settings.Identifiers.RubyScriptFactory(),
-				RubyPaths,
-			    m_devices);
-
-			// Point to the defauult ruby script files resides.
-			m_scriptFactory.AddSourcePath(Settings.Paths.Ruby());
-
-			// Point to the common folder.
-			m_scriptFactory.AddSourcePath(Settings.Paths.Common());
-
 			// The run loop script must meet the method requirements of the InterpreterRunLoop.
 			IronScript runLoopScript = psf.CreateScript(Settings.Identifiers.RunLoopScript());
 
-			IScriptInterpreter runLoopInterpreter = m_scriptFactory.CreateInterpreter(runLoopScript);
+			// Create the interpreter used to evaluate exrpessions in the run loop script
+			IScriptInterpreter runLoopInterpreter = psf.CreateInterpreter(runLoopScript);
 
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
 			m_runLoop = new InterpreterRunLoop(Settings.Identifiers.RunLoop(), runLoopInterpreter, consoleLogger);
@@ -142,7 +121,6 @@ namespace R2Core.Common
 			m_devices.Add(dataFactory);
 			m_devices.Add(m_memory);
 			m_devices.Add(m_db);
-			m_devices.Add(m_scriptFactory);
 			m_devices.Add(m_deviceFactory);
 			m_taskMonitor.AddMonitorable(runLoopScript);
 

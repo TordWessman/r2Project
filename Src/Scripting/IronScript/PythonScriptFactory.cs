@@ -47,6 +47,8 @@ namespace R2Core.Scripting
 			m_engine.SetSearchPaths(paths);
 			m_paths = paths;
 
+			foreach (string path in paths) { AddSourcePath(path); }
+
 		}
 
 		public override IronScript CreateScript(string name, string id = null) {

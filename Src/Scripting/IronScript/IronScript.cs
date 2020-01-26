@@ -29,7 +29,7 @@ using System.Linq;
 namespace R2Core.Scripting
 {
 	/// <summary>
-	/// Default script implementation for IronRuby & IronPython
+	/// Default script implementation for IronPython
 	/// </summary>
 	public class IronScript : ScriptBase {
 		

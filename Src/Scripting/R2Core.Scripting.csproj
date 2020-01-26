@@ -80,6 +80,8 @@
     <Compile Include="Network\RubyWebIntermediate.cs" />
     <Compile Include="Network\ScriptObjectReceiver.cs" />
     <Compile Include="IronScript\ScriptInterpreter.cs" />
+    <Compile Include="Network\ScriptEndpoint.cs" />
+    <Compile Include="Network\ScriptNetworkMessage.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

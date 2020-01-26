@@ -26,6 +26,7 @@ class MainClass < ScriptBase
 
 	def on_receive (msg, outputObject, source)
 
+		OP::msg "GINININININ"
 		if msg.payload.has "FlName"
 
 			name = msg.payload.FlName
