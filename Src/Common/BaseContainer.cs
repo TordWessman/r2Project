@@ -88,7 +88,7 @@ namespace R2Core.Common
 
 			var psf = new PythonScriptFactory(Settings.Identifiers.PythonScriptFactory(), PythonPaths, m_devices);
 
-			// Point to the defauult ruby script files resides.
+			// Point to the defauult python script files resides.
 			psf.AddSourcePath(Settings.Paths.Python());
 			// Point to the common folder.
 			psf.AddSourcePath(Settings.Paths.Common());

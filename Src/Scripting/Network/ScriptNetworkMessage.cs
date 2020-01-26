@@ -13,12 +13,6 @@ namespace R2Core.Scripting
 		public System.Collections.Generic.IDictionary<string, object> Headers { get; set; }
 		public dynamic Payload { get; set; }
 
-		public void AddMetadata(string key, object value) {
-
-			Headers[key] = value;
-
-		}
-
 		public ScriptNetworkMessage(string destination = null) {
 
 			Code = 0;
@@ -32,8 +26,20 @@ namespace R2Core.Scripting
 
 			Code = message.Code != 0 ? message.Code : NetworkStatusCode.Ok.Raw();
 			Destination = message.Destination;
-			Headers = message.Headers;
+			Headers = message.Headers ?? new System.Collections.Generic.Dictionary<string, object>();
 			Payload = message.Payload;
+
+		}
+
+		public void AddMetadata(string key, object value) {
+
+			if (Headers == null) {
+
+				Headers = new System.Collections.Generic.Dictionary<string, object>();
+
+			}
+
+			Headers[key] = value;
 
 		}
 

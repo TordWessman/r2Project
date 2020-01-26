@@ -91,7 +91,6 @@
     <Compile Include="Network\Server\DeviceRouter.cs" />
     <Compile Include="Network\Server\IServer.cs" />
     <Compile Include="Network\Server\IWebEndpoint.cs" />
-    <Compile Include="Network\Server\IWebIntermediate.cs" />
     <Compile Include="Network\Server\IWebObjectReceiver.cs" />
     <Compile Include="Network\Server\ServerBase.cs" />
     <Compile Include="Network\Server\WebFileEndpoint.cs" />

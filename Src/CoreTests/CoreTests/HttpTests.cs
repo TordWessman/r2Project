@@ -25,7 +25,6 @@ using System.Threading;
 using R2Core.Data;
 using R2Core.Scripting;
 using System.Collections.Generic;
-using R2Core.Scripting.Network;
 using R2Core.Common;
 
 namespace R2Core.Tests
@@ -45,8 +44,10 @@ namespace R2Core.Tests
 		public void TestHTTP_EndpointUsingDummyReceiver() {
 			PrintName();
 
-			IWebIntermediate response = new RubyWebIntermediate();
-
+			ScriptNetworkMessage response = new ScriptNetworkMessage() { 
+				Headers = new System.Collections.Generic.Dictionary<string, object>(),
+				Payload = new R2Dynamic()
+			};
 			response.Payload.Foo = "Bar";
 
 			DummyReceiver receiver = new DummyReceiver();
@@ -61,7 +62,6 @@ namespace R2Core.Tests
 			};
 
 			INetworkMessage output = ep.Interpret(inputObject, null);
-
 
 			Assert.AreEqual(response.Payload.Foo, output.Payload.Foo);
 			Assert.AreEqual(response.Headers ["Baz"], "FooBar");
@@ -150,7 +150,6 @@ namespace R2Core.Tests
 
 			// The dummy object should now have been changed.
 			Assert.AreEqual(42.1d, dummyObject.HAHA);
-
 
 		}
 

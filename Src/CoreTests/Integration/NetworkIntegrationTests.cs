@@ -88,7 +88,15 @@ namespace R2Core.IntegrationTests
 		
 			Random r = new Random();
 
-			connection.Start();
+			try {
+				
+				connection.Start();
+
+			} catch (Exception ex) {
+			
+				Assert.Fail(ex.Message);
+			}
+
 			Thread.Sleep(100);
 
 			for (int i = 0; i < randomWorkCount; i++) {

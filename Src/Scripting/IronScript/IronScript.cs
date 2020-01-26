@@ -38,7 +38,7 @@ namespace R2Core.Scripting
 		protected ScriptSource m_source;
 
 		/// <summary>
-		/// The required name of the main class in each ruby script
+		/// The required name of the main class in each python script
 		/// </summary>
 		public const string HANDLE_MAIN_CLASS = "main_class";
 
@@ -144,7 +144,7 @@ namespace R2Core.Scripting
 
 			dynamic member = m_engine.Operations.GetMember(m_mainClass, handle);
 
-			if (member is IronPython.Runtime.Method || member is IronRuby.Runtime.Calls.RubyMethodInfo || member is IronRuby.Builtins.RubyMethod) {
+			if (member is IronPython.Runtime.Method) {
 			
 				// Invoke as method
 				return m_engine.Operations.InvokeMember(m_mainClass, handle, args);

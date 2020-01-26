@@ -20,12 +20,13 @@ using System;
 using R2Core.Network;
 using NUnit.Framework;
 using System.Net;
+using R2Core.Scripting;
 
 namespace R2Core.Tests
 {
 	public class DummyReceiver : IWebObjectReceiver
 	{
-		public IWebIntermediate Response;
+		public ScriptNetworkMessage Response;
 
 		public INetworkMessage OnReceive(INetworkMessage input, IPEndPoint endpoint = null) {
 

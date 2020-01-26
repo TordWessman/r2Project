@@ -15,7 +15,6 @@ namespace R2Core.Scripting
 		private string m_path;
 
 		/// <summary>
-		/// Initializes a new instance of the <see cref="R2Core.Scripting.Network.ScriptObjectReceiver`1"/> class.
 		/// ´script´ must conform to the requirements(i.e. have a ´ON_RECEIVE_METHOD_NAME´ method). ´path´ will be translated to an
 		/// URI-path when determening if the containing IWebEndpoint should respond using this IWebObjectReceiver. 
 		/// </summary>
