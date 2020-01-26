@@ -10,10 +10,11 @@
 		<Resources comment="Resource base path." relative="../r2/Resources">
 			<Video><Spy></Spy></Video>
 			<Scripts comment="contains various types of runtime scripts">
-				<Ruby comment="Here be all Ruby script files.">
-					<Setup comment="Here be ruby setup filex."/>
+				<Ruby comment="Here be all Ruby script files.">	
 				</Ruby>
-				<Python comment="Here be all Python script files." />
+				<Python comment="Here be all Python script files.">
+					<PythonSetup comment="Here be python setup files."/>
+				</Python>
 				<Shell/>
 				<Sphinx ignore="true">
 					<lib/>
