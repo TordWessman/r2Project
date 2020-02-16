@@ -16,9 +16,7 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using IronPython.Hosting;
-using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using R2Core.Device;
@@ -27,12 +25,6 @@ using System.Linq;
 namespace R2Core.Scripting
 {
 	public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
-		
-		//Make sure the IronPython.Library.dll are included during compilation.
-		#pragma warning disable 0169
-		private static readonly IronPython.DictionaryTypeInfoAttribute INCLUDE_PYTHON_LIBRARY;
-		private static readonly IronPython.Modules.SysModule.floatinfo INCLUDE_PYTHON_MODULES_LIBRARY;
-		#pragma warning restore 0169
 
 		private ICollection<string> m_paths;
 		private ScriptEngine m_engine;
@@ -42,8 +34,10 @@ namespace R2Core.Scripting
 			ICollection<string> paths,
 			IDeviceManager deviceManager) : base(id) {
 			m_deviceManager = deviceManager;
-			m_engine = Python.CreateEngine();
-		
+
+            m_engine = Python.CreateEngine();
+            ClearHooks();
+            //paths.Add("/home/olga/workspace/r2/r2Project/Src/Scripting/Lib");
 			m_engine.SetSearchPaths(paths);
 			m_paths = paths;
 
@@ -51,7 +45,18 @@ namespace R2Core.Scripting
 
 		}
 
-		public override IronScript CreateScript(string name, string id = null) {
+        /// <summary>
+        /// Needed in order to bypass the "Not a ZIP file" exception
+        /// </summary>
+        private void ClearHooks() {
+
+            var pc = Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(m_engine) as IronPython.Runtime.PythonContext;
+            var hooks = pc.SystemState.Get__dict__()["path_hooks"] as IronPython.Runtime.List;
+            hooks.Clear();
+
+        }
+
+        public override IronScript CreateScript(string name, string id = null) {
 		
 			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 

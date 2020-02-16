@@ -10,8 +10,6 @@
 		<Resources comment="Resource base path." relative="../r2/Resources">
 			<Video><Spy></Spy></Video>
 			<Scripts comment="contains various types of runtime scripts">
-				<Ruby comment="Here be all Ruby script files.">	
-				</Ruby>
 				<Python comment="Here be all Python script files.">
 					<PythonSetup comment="Here be python setup files."/>
 				</Python>
@@ -42,7 +40,6 @@
 		<DeviceManager comment="Keeps track of all IDevice implementations.">device_manager</DeviceManager>
 		<HostSynchronizer comment="Connects and synchronizes devices through broadcasts and manual connections.">host_synchronizer</HostSynchronizer>
 		<HttpServer comment="Default HTTP server">http_server</HttpServer>
-		<RubyScriptFactory comment="Responsible for creating new ruby scripts">ruby_script_factory</RubyScriptFactory>
 		<PythonScriptFactory comment="Responsible for creating new python scripts">python_script_factory</PythonScriptFactory>
 		<LuaScriptFactory comment="Responsible for creating new lua scripts">lua_script_factory</LuaScriptFactory>
 		<Memory comment="Interface for retrieving memories">memory</Memory>
@@ -74,11 +71,10 @@
 		<DefaultTcpPort type="int" comment="default TCP port">4245</DefaultTcpPort>
 		<DefaultBroadcastPort type="int" comment="the port used by the host manager to broadcast">9050</DefaultBroadcastPort>
 		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7/Lib;/usr/lib/python2.7</PythonPaths>
-		<RubyPaths comment="Paths to Ruby binaries (using ´;´ separation). It has to be with escaped quotations... ">\"/usr/lib/ruby/2.3.0\"</RubyPaths>
 		<DeviceDestination comment="Used by various components (i.e. HostSynchronizer) for device synchronization.">/devices</DeviceDestination>
 		<PingDestination comment="Used as destination for TCP ping messages">/ping</PingDestination>
 		<HttpServerHeaderMethodKey comment="Perserve the HTTP method data in the INetworkMessage Header">HttpServerHeader-Method</HttpServerHeaderMethodKey>
-		<ConnectionRouterAddHostDestination comment="Destination for attaching a TCPClientServer">/routing</ConnectionRouterAddHostDestination>
+		<ConnectionRouterAddHostDestination comment="INetworkMessage.Destination for attaching a TCPClientServer">/routing</ConnectionRouterAddHostDestination>
 		<ConnectionRouterHeaderHostNameKey comment="Network message header key for identifying hosts">ConnectionRouterHeader-HostName</ConnectionRouterHeaderHostNameKey>
 		<ConnectionRouterHeaderServerTypeKey comment="Network message header key to identify remote server type (TCP, HTTP etc)">ConnectionRouterHeader-ServerType</ConnectionRouterHeaderServerTypeKey>
 		<ConnectionRouterHeaderClientAddressKey comment="Network message header key representing the original address of a request">ConnectionRouterHeader-Address</ConnectionRouterHeaderClientAddressKey>

@@ -49,7 +49,7 @@ Add the latest mono packages, ruby, python and more build tool support.
 	$ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
 	$ echo "deb http://download.mono-project.com/repo/debian wheezy main" | sudo tee /etc/apt/sources.list.d/mono-xamarin.list
 	$ sudo apt-get update
-	$ sudo apt-get install mono-xbuild gstreamer-1.0 bison mono-complete monodevelop alsa-tools alsa-utils mono-devel mono-dmcs ruby python nunit dirmngr build-essential bc wget cmake
+	$ sudo apt-get install mono-xbuild gstreamer-1.0 bison mono-complete alsa-tools alsa-utils mono-devel mono-dmcs ruby python nunit dirmngr build-essential bc wget cmake
 ```
 
 ### GStreamer
