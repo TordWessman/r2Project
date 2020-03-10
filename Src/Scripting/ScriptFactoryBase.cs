@@ -20,6 +20,7 @@ using System;
 using R2Core.Device;
 using System.IO;
 using System.Collections.Generic;
+using R2Core.Network;
 
 namespace R2Core.Scripting
 {
@@ -72,6 +73,12 @@ namespace R2Core.Scripting
 		public abstract T CreateScript(string name, string id = null);
 
 		public abstract IScriptInterpreter CreateInterpreter(T script);
+
+		public IWebEndpoint CreateEndpoint(T script, string path) {
+
+			return new ScriptEndpoint(script, path);
+		
+		}
 
 		/// <summary>
 		/// Must be overridden. Should return the common extension used by the scripts(i.e: ".lua").

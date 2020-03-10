@@ -57,7 +57,7 @@ namespace R2Core
 		}
 
 		/// <summary>
-		/// IronRuby doesn't seem to be able to handle null return values. (Equivalent to this.ContainsKey)
+		/// IronPython doesn't seem to be able to handle null return values. (Equivalent to this.ContainsKey)
 		/// </summary>
 		/// <returns><c>true</c> if this instance has memberName; otherwise, <c>false</c>.</returns>
 		/// <param name="memberName">Member name.</param>

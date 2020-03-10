@@ -81,7 +81,7 @@ namespace R2Core.Tests
 			var remote = factory.SetUpServers(remoteTCPPort, udp_port, udp_port - 44);
 			var remoteDummy = new DummyDevice("remoteDummy");
 
-			var pythonScriptFactory = new PythonScriptFactory("rf", BaseContainer.PythonPaths , m_deviceManager);
+			var pythonScriptFactory = new PythonScriptFactory("rf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 			pythonScriptFactory.AddSourcePath(Settings.Paths.TestData());
 			pythonScriptFactory.AddSourcePath(Settings.Paths.Common());
 

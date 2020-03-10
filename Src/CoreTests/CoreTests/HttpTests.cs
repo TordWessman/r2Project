@@ -25,7 +25,6 @@ using System.Threading;
 using R2Core.Data;
 using R2Core.Scripting;
 using System.Collections.Generic;
-using R2Core.Scripting.Network;
 using R2Core.Common;
 
 namespace R2Core.Tests
@@ -45,8 +44,10 @@ namespace R2Core.Tests
 		public void TestHTTP_EndpointUsingDummyReceiver() {
 			PrintName();
 
-			IWebIntermediate response = new RubyWebIntermediate();
-
+			ScriptNetworkMessage response = new ScriptNetworkMessage() { 
+				Headers = new System.Collections.Generic.Dictionary<string, object>(),
+				Payload = new R2Dynamic()
+			};
 			response.Payload.Foo = "Bar";
 
 			DummyReceiver receiver = new DummyReceiver();
@@ -61,7 +62,6 @@ namespace R2Core.Tests
 			};
 
 			INetworkMessage output = ep.Interpret(inputObject, null);
-
 
 			Assert.AreEqual(response.Payload.Foo, output.Payload.Foo);
 			Assert.AreEqual(response.Headers ["Baz"], "FooBar");
@@ -151,7 +151,6 @@ namespace R2Core.Tests
 			// The dummy object should now have been changed.
 			Assert.AreEqual(42.1d, dummyObject.HAHA);
 
-
 		}
 
 
@@ -161,13 +160,12 @@ namespace R2Core.Tests
 
 			var webServer = factory.CreateHttpServer("test_server", 9999);
 
-			var scriptFactory = new RubyScriptFactory("sf", BaseContainer.RubyPaths, m_deviceManager);
+			var scriptFactory = new PythonScriptFactory("sf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 
 			scriptFactory.AddSourcePath(Settings.Paths.TestData());
-
-			var file_server_script = scriptFactory.CreateScript("file_server");
-			var file_server_receiver = scriptFactory.CreateRubyScriptObjectReceiver(file_server_script, @"/test2");
-			var file_server_endpoint = factory.CreateJsonEndpoint(file_server_receiver);
+            scriptFactory.AddSourcePath(Settings.Paths.Common());
+            var file_server_script = scriptFactory.CreateScript("file_server");
+			var file_server_endpoint = scriptFactory.CreateEndpoint(file_server_script, @"/test2");
 
 			webServer.AddEndpoint(file_server_endpoint);
 			webServer.Start();
@@ -182,7 +180,7 @@ namespace R2Core.Tests
 			// Test binary message:
 
 			message.Payload = new R2Dynamic();
-			message.Payload.FlName = Settings.Paths.TestData("test.bin");
+			message.Payload.name = Settings.Paths.TestData("test.bin");
 
 			var response = client.Send(message);
 			Assert.AreEqual(200, response.Code);
@@ -195,10 +193,6 @@ namespace R2Core.Tests
 
 			/*TODO: create endpoint that takes binary input
 			 * 
-			 * //message.ContentType = "application/octet-stream";
-			* 			var file_server_script = scriptFactory.CreateScript("file_server");
-			var file_server_receiver = factory.CreateRubyScriptObjectReceiver(file_server_script);
-			var file_server_endpoint = factory.CreateJsonEndpoint(@"/test2", file_server_receiver);
 			*/
 
 		}
