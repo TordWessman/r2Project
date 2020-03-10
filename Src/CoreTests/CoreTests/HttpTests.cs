@@ -160,11 +160,11 @@ namespace R2Core.Tests
 
 			var webServer = factory.CreateHttpServer("test_server", 9999);
 
-			var scriptFactory = new PythonScriptFactory("sf", BaseContainer.PythonPaths, m_deviceManager);
+			var scriptFactory = new PythonScriptFactory("sf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 
 			scriptFactory.AddSourcePath(Settings.Paths.TestData());
-
-			var file_server_script = scriptFactory.CreateScript("file_server");
+            scriptFactory.AddSourcePath(Settings.Paths.Common());
+            var file_server_script = scriptFactory.CreateScript("file_server");
 			var file_server_endpoint = scriptFactory.CreateEndpoint(file_server_script, @"/test2");
 
 			webServer.AddEndpoint(file_server_endpoint);

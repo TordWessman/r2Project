@@ -16,19 +16,13 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
 using R2Core.Device;
 using R2Core.Network;
-using System.Net;
 using R2Core.Data;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 using R2Core.Scripting;
-using System.IO;
-using System.Linq;
 using R2Core.DataManagement.Memory;
 using R2Core.DataManagement;
-
 
 namespace R2Core.Common
 {
@@ -48,16 +42,6 @@ namespace R2Core.Common
 		private IRunLoop m_runLoop;
 
 		public ITaskMonitor TaskMonitor { get { return m_taskMonitor; } }
-
-		public static IList<string> PythonPaths {
-
-			get {
-				var pythonPaths = Settings.Consts.PythonPaths().Split(new char[] { ';' }).ToList();
-				pythonPaths.Add(Settings.Paths.Common());
-				pythonPaths.Add(Settings.Paths.Python());
-				return pythonPaths;
-			}
-		}
 
 		public IDeviceManager GetDeviceManager() { return m_devices; }
 
@@ -86,7 +70,7 @@ namespace R2Core.Common
 			m_devices.Add(this);
 			m_devices.Add(new ObjectInvoker());
 
-			var psf = new PythonScriptFactory(Settings.Identifiers.PythonScriptFactory(), PythonPaths, m_devices);
+            var psf = new PythonScriptFactory(Settings.Identifiers.PythonScriptFactory(), Settings.Instance.GetPythonPaths(), m_devices);
 
 			// Point to the defauult python script files resides.
 			psf.AddSourcePath(Settings.Paths.Python());

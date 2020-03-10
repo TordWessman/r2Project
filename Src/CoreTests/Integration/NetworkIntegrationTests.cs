@@ -54,7 +54,7 @@ namespace R2Core.IntegrationTests
 			var endpoind = factory.CreateJsonEndpoint(deviceRouter);
 			server1.AddEndpoint(endpoind);
 
-			var scriptFactory = new PythonScriptFactory("sf", BaseContainer.PythonPaths, m_deviceManager);
+			var scriptFactory = new PythonScriptFactory("sf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 			scriptFactory.AddSourcePath(Settings.Paths.TestData());
 			var pythonScript = scriptFactory.CreateScript("python_test");
 			m_deviceManager.Add(pythonScript);

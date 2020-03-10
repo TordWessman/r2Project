@@ -70,7 +70,7 @@
 		<BroadcastInterval type="int" comment="Default periodical broadcast interval for devices that broadcasts stuff">120000</BroadcastInterval>
 		<DefaultTcpPort type="int" comment="default TCP port">4245</DefaultTcpPort>
 		<DefaultBroadcastPort type="int" comment="the port used by the host manager to broadcast">9050</DefaultBroadcastPort>
-		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7/Lib;/usr/lib/python2.7</PythonPaths>
+		<PythonPaths comment="Paths to Python binaries (using ´;´ separation)">/usr/lib/python2.7/dist-packages;/usr/lib/python2.7</PythonPaths>
 		<DeviceDestination comment="Used by various components (i.e. HostSynchronizer) for device synchronization.">/devices</DeviceDestination>
 		<PingDestination comment="Used as destination for TCP ping messages">/ping</PingDestination>
 		<HttpServerHeaderMethodKey comment="Perserve the HTTP method data in the INetworkMessage Header">HttpServerHeader-Method</HttpServerHeaderMethodKey>

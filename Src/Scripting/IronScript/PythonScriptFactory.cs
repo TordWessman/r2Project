@@ -24,26 +24,25 @@ using System.Linq;
 
 namespace R2Core.Scripting
 {
-	public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
+    public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
 
-		private ICollection<string> m_paths;
-		private ScriptEngine m_engine;
-		private IDeviceManager m_deviceManager;
+        private ICollection<string> m_paths;
+        private ScriptEngine m_engine;
+        private IDeviceManager m_deviceManager;
 
-		public PythonScriptFactory(string id,	
-			ICollection<string> paths,
-			IDeviceManager deviceManager) : base(id) {
-			m_deviceManager = deviceManager;
+        public PythonScriptFactory(string id,    
+            ICollection<string> paths,
+            IDeviceManager deviceManager) : base(id) {
 
+            m_deviceManager = deviceManager;
             m_engine = Python.CreateEngine();
             ClearHooks();
-            //paths.Add("/home/olga/workspace/r2/r2Project/Src/Scripting/Lib");
-			m_engine.SetSearchPaths(paths);
-			m_paths = paths;
+            m_engine.SetSearchPaths(paths);
+            m_paths = paths;
 
-			foreach (string path in paths) { AddSourcePath(path); }
+            foreach (string path in paths) { AddSourcePath(path); }
 
-		}
+        }
 
         /// <summary>
         /// Needed in order to bypass the "Not a ZIP file" exception
@@ -57,31 +56,31 @@ namespace R2Core.Scripting
         }
 
         public override IronScript CreateScript(string name, string id = null) {
-		
-			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
+        
+            IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
-			// Add the factorys source paths to the engines search paths.
-			m_engine.SetSearchPaths(m_paths.Concat(ScriptSourcePaths).ToList());
+            // Add the factorys source paths to the engines search paths.
+            m_engine.SetSearchPaths(m_paths.Concat(ScriptSourcePaths).ToList());
 
-			// Scripts must know about the device manager. It's how they get access to the rest of the system..
-			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
+            // Scripts must know about the device manager. It's how they get access to the rest of the system..
+            inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
-			return new IronScript(id ?? name, GetScriptFilePath(name), m_engine, inputParams);
+            return new IronScript(id ?? name, GetScriptFilePath(name), m_engine, inputParams);
 
-		}
+        }
 
-		public override IScriptInterpreter CreateInterpreter(IronScript script) {
+        public override IScriptInterpreter CreateInterpreter(IronScript script) {
 
-			script.Set(Settings.Identifiers.ObjectInvoker(), new ObjectInvoker());
-			return new ScriptInterpreter(script);
+            script.Set(Settings.Identifiers.ObjectInvoker(), new ObjectInvoker());
+            return new ScriptInterpreter(script);
 
-		}
+        }
 
-		/// <summary>
-		/// Must be overridden. Should return the common extension used by the scripts(i.e: ".lua").
-		/// </summary>
-		/// <value>The file extension.</value>
-		protected override string FileExtension { get {return ".py"; } }
-	}
+        /// <summary>
+        /// Must be overridden. Should return the common extension used by the scripts(i.e: ".lua").
+        /// </summary>
+        /// <value>The file extension.</value>
+        protected override string FileExtension { get {return ".py"; } }
+    }
 }
 

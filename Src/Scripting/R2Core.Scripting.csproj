@@ -31,9 +31,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="NLua">
-      <HintPath>..\..\3rdParty\NLua.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
@@ -59,6 +56,12 @@
     <Reference Include="IronPython.Wpf">
       <HintPath>..\..\..\Implementations\MainFramePi\packages\IronPython.2.7.9\lib\net45\IronPython.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="KeraLua">
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\lib\net45\KeraLua.dll</HintPath>
+    </Reference>
+    <Reference Include="NLua">
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\NLua.1.4.30\lib\net45\NLua.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -79,6 +82,7 @@
     <Compile Include="IronScript\ScriptInterpreter.cs" />
     <Compile Include="Network\ScriptEndpoint.cs" />
     <Compile Include="Network\ScriptNetworkMessage.cs" />
+    <Compile Include="IronScript\SettingsScriptExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -621,4 +625,5 @@
     <None Include="Lib\aifc.py" />
     <None Include="Lib\abc.py" />
   </ItemGroup>
+  <Import Project="..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\build\net45\KeraLua.targets" Condition="Exists('..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\build\net45\KeraLua.targets')" />
 </Project>

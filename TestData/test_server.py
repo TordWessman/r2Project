@@ -1,4 +1,3 @@
-import scriptbase
 
 class MainClass:
 

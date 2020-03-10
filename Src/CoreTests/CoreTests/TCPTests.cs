@@ -164,7 +164,7 @@ namespace R2Core.Tests
 			Thread.Sleep(100);
 
 			// Set up scripts and add endpoint
-			var scriptFactory = new PythonScriptFactory("sf", BaseContainer.PythonPaths, m_deviceManager);
+			var scriptFactory = new PythonScriptFactory("sf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 			scriptFactory.AddSourcePath(Settings.Paths.TestData());
 
 			// see test_server.rb

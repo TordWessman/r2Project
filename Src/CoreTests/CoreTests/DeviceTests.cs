@@ -45,7 +45,7 @@ namespace R2Core.Tests
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 			s.AddEndpoint(ep);
 
-			IScriptFactory<IronScript> m_pythonScriptFactory = new PythonScriptFactory("rf", BaseContainer.PythonPaths , m_deviceManager);
+			IScriptFactory<IronScript> m_pythonScriptFactory = new PythonScriptFactory("rf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 			m_pythonScriptFactory.AddSourcePath(Settings.Paths.TestData());
 			m_pythonScriptFactory.AddSourcePath(Settings.Paths.Common());
 
