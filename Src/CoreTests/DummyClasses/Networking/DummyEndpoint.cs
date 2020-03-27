@@ -18,7 +18,6 @@
 //
 using System;
 using R2Core.Network;
-using NUnit.Framework;
 
 namespace R2Core.Tests
 {

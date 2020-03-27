@@ -88,6 +88,7 @@
     <Compile Include="DummyClasses\Networking\ServerInstanceContainer.cs" />
     <Compile Include="DummyClasses\Networking\ClientConnectionWebEndpoint.cs" />
     <Compile Include="DummyClasses\Extensions.cs" />
+    <Compile Include="DummyClasses\Networking\DummyNetworkConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

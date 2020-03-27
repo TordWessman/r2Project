@@ -53,7 +53,7 @@ namespace R2Core.Network
 
 			Log.d($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
 			Stop();
-			m_serviceTask?.Dispose();
+            m_serviceTask?.Dispose();
 
 		}
 
@@ -113,7 +113,7 @@ namespace R2Core.Network
 		/// </summary>
 		protected abstract void Service();
 
-		public abstract INetworkMessage Interpret(INetworkMessage message, System.Net.IPEndPoint source);
+		public abstract INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source);
 
 		public override void Stop() {
 

@@ -32,9 +32,13 @@ namespace R2Core.Device
 		protected INetworkConnection m_host;
 		protected Guid m_guid;
 		private INetworkMessage m_message;
+        private AsyncRemoteDeviceTask m_lastAsyncTask;
+        private bool m_lossy;
 
-		public string Identifier { get { return m_identifier; } }
+        public string Identifier { get { return m_identifier; } }
         public bool Busy => m_host.Busy;
+        public Guid Guid { get { return m_guid; } }
+        public INetworkConnection Connection { get { return m_host; } }
 
         public bool Ready { 
 
@@ -61,19 +65,22 @@ namespace R2Core.Device
 
 		}
 
-		public Guid Guid { get { return m_guid; } }
+        /// <summary>
+        /// If <c>true</c>, only the last AsyncRemoteDeviceRequest will
+        /// be executed if there are ongoing requests.
+        /// </summary>
+        /// <value><c>true</c> if lossy; otherwise, <c>false</c>.</value>
+        public bool LossyRequests { get { return m_lossy; } set { m_lossy = value; } }
 
-		public INetworkConnection Connection { get { return m_host; } }
-
-		/// <summary>
-		/// Instantiate a remote device representation. ´destination´ is the path (i.e. "/destination" which the other end is listening to). 
-		/// Set to null using default settings.
-		/// </summary>
-		/// <param name="id">Identifier.</param>
-		/// <param name="guid">GUID.</param>
-		/// <param name="host">Host.</param>
-		/// <param name="destination">Destination.</param>
-		public RemoteDevice(string id, Guid guid, INetworkConnection host, string destination = null) {
+        /// <summary>
+        /// Instantiate a remote device representation. ´destination´ is the path (i.e. "/destination" which the other end is listening to). 
+        /// Set to null using default settings.
+        /// </summary>
+        /// <param name="id">Identifier.</param>
+        /// <param name="guid">GUID.</param>
+        /// <param name="host">Host.</param>
+        /// <param name="destination">Destination.</param>
+        public RemoteDevice(string id, Guid guid, INetworkConnection host, string destination = null) {
 
 			m_identifier = id;
 			m_host = host;
@@ -86,7 +93,7 @@ namespace R2Core.Device
 
 		public dynamic Async(Action<dynamic, Exception> callback) {
 
-			return new AsyncRemoteDeviceRequest(callback, this);
+			return new AsyncRemoteDevice(callback, this);
 
 		}
 
@@ -134,7 +141,10 @@ namespace R2Core.Device
 			m_message.Payload = request;
 			m_host.Send(m_message);
 
-		}
+            m_lastAsyncTask?.Start();
+            m_lastAsyncTask = null;
+
+        }
 
 		public dynamic Get(string handle) {
 
@@ -148,7 +158,10 @@ namespace R2Core.Device
 			m_message.Payload = request;
 			INetworkMessage response = m_host.Send(m_message);
 
-			return response.Payload.ActionResponse;
+            m_lastAsyncTask?.Start();
+            m_lastAsyncTask = null;
+
+            return response.Payload.ActionResponse;
 
 		}
 
@@ -170,11 +183,34 @@ namespace R2Core.Device
 
 			}
 
-			return response.Payload.ActionResponse;
+            m_lastAsyncTask?.Start();
+            m_lastAsyncTask = null;
+
+            return response.Payload.ActionResponse;
 
 		}
 
-		public override bool TrySetMember(SetMemberBinder binder, object value) {
+        /// <summary>
+        /// Will add a request to the execution queue for this device
+        /// and execute it when eligible.
+        /// </summary>
+        /// <param name="task">Task to be executed.</param>
+        public void AddTask(AsyncRemoteDeviceTask task) {
+
+            if (!LossyRequests) {
+                m_lastAsyncTask = null;
+                task.Start();
+            } else {
+                m_lastAsyncTask = task;
+                if (!Busy) {
+                    task.Start();
+                }
+            }
+        }
+
+        #region DynamicObject
+
+        public override bool TrySetMember(SetMemberBinder binder, object value) {
 
 			Set(binder.Name, value);
 			return true;
@@ -195,6 +231,7 @@ namespace R2Core.Device
 
 		}
 
-	}
+        #endregion
+    }
 
 }
