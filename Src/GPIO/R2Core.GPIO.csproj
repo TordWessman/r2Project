@@ -115,6 +115,7 @@
     <Compile Include="Communication\ArduinoDeviceRouter.cs" />
     <Compile Include="Communication\IArduinoDeviceRouter.cs" />
     <Compile Include="Test\GPIOTestExtensions.cs" />
+    <Compile Include="Output\SerialAnalogOutput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

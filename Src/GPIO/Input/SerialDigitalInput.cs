@@ -31,7 +31,7 @@ namespace R2Core.GPIO
 
 		}
 
-		protected override byte[] CreationParameters { get { return new byte[]{ (byte)m_port }; } }
+		protected override byte[] CreationParameters { get { return new byte[]{ m_port }; } }
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.DigitalInput; } }
 

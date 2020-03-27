@@ -24,7 +24,7 @@ using System.Threading;
 
 namespace R2Core.GPIO
 {
-	public class OutputPort2 : DeviceBase, IOutputPort
+	public class OutputPort2 : DeviceBase, IOutputPort<bool>
 	{
 		// GPIO values:
 		private ProcessorPin m_pin;

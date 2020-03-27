@@ -56,7 +56,7 @@ namespace R2Core.GPIO
 
 		}
 
-		public IOutputPort CreateOutputPort(string id, int gpioPort) {
+		public IOutputPort<bool> CreateOutputPort(string id, int gpioPort) {
 
 			return new OutputPort2(id, AvailablePorts[gpioPort]);
 
