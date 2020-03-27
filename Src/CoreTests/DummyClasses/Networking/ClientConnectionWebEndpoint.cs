@@ -25,16 +25,29 @@ namespace R2Core.Tests
 	public class ClientConnectionWebEndpoint : DeviceBase, INetworkConnection {
 		
 		private IWebObjectReceiver m_endpoint;
+        // True if sending or receiving data.
+        private bool m_sending = false;
 
-		public ClientConnectionWebEndpoint(IWebObjectReceiver endpoint) : base("dummy_client_connection") {
+        public bool Busy => m_sending;
+
+        public ClientConnectionWebEndpoint(IWebObjectReceiver endpoint) : base("dummy_client_connection") {
 			
 			m_endpoint = endpoint;
 		
 		}
 
 		public INetworkMessage Send(INetworkMessage message) {
-		
-			return m_endpoint.OnReceive(message, new System.Net.IPEndPoint(0,1));
+
+            try {
+
+                m_sending = true;
+                return m_endpoint.OnReceive(message, new System.Net.IPEndPoint(0, 1));
+
+            } finally {
+
+                m_sending = false;
+
+            }
 
 		}
 

@@ -126,17 +126,19 @@ namespace R2Core.Tests
             LuaScript lua = new LuaScript("lua", Settings.Paths.TestData("LuaTest1.lua"));
             m_deviceManager.Add(lua);
 
+            HttpClient testClient = new HttpClient("client", new JsonSerialization("serial"));
+            m_deviceManager.Add(testClient);
             Thread.Sleep(200);
 
             // Manually create a remote device pointing to our "local" device_list
 			dynamic remoteDeviceList = new RemoteDevice("device_list", Guid.Empty, host);
 
             // Create a list of devices. `device_list.py` should only return devices that exists.
-			IEnumerable<string> deviceNames = new List<string>(){ "python_test", "dummy", "lua", "non-existing" };
+			IEnumerable<string> deviceNames = new List<string>(){ "python_test", "dummy", "lua", "non-existing", "client" };
 			Thread.Sleep(200);
 			IEnumerable<dynamic> devices = remoteDeviceList.GetDevices(deviceNames);
 
-			Assert.AreEqual(3, devices.Count());
+			Assert.AreEqual(4, devices.Count());
 			dynamic lastDevice = devices.Last();
 			// Hmmm.. this used to work... Apparently the properties of DummyDevice is no longer serialized 
             // Assert.AreEqual("Foo", lastDevice.Bar);
