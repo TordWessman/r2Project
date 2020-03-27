@@ -38,9 +38,6 @@ namespace R2Core.Device
 		private static readonly object m_lock = new object();
 		private static readonly object m_removelock = new object();
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Core.Device.DeviceManager"/.
-		/// </summary>
 		public DeviceManager(string id) : base(id) {
 			
 			m_devices = new Dictionary<Guid, IDevice>();
@@ -55,7 +52,7 @@ namespace R2Core.Device
 		/// <summary>
 		/// Add the device internally
 		/// </summary>
-		/// <param name="newDevice">New device.</param>
+		/// <param name="device">New device.</param>
 		private void _Add(IDevice device) {
 			
 			lock(m_lock) {

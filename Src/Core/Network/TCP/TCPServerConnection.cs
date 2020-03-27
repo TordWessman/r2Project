@@ -66,7 +66,11 @@ namespace R2Core.Network
 		// if false, the blocking read operation will cease.
 		private bool m_shouldListen = true;
 
-		public event OnReceiveHandler OnReceive;
+        // True if sending or receiving data.
+        private bool m_sending = false;
+
+        public bool Busy => m_sending;
+        public event OnReceiveHandler OnReceive;
 		public event OnDisconnectHandler OnDisconnect;
 
 		public TCPServerConnection(
@@ -131,7 +135,7 @@ namespace R2Core.Network
 		/// <summary>
 		/// Sends a BroadcastMessage
 		/// </summary>
-		/// <param name="message">Message.</param>
+		/// <param name="request">Message.</param>
 		public INetworkMessage Send(INetworkMessage request) {
 			
 			if (!Ready) {
@@ -250,30 +254,40 @@ namespace R2Core.Network
 		}
 
 		private INetworkMessage Write(INetworkMessage message, bool readReply = false) {
-			
-			lock(m_writeLock) {
 
-				byte[] response = m_packageFactory.SerializeMessage(new TCPMessage(message));
-				new BlockingNetworkStream(m_client.Client).Write(response, 0, response.Length);
+            try {
 
-			}
+                m_sending = true;
 
-			// I'm disconnected, but not quite aware of it yet.
-			if (m_shouldRun && !Ready) { Stop(); }
+                lock (m_writeLock) {
 
-			if (readReply && m_shouldListen) {
-			
-				throw new NetworkException($"Unable to write message {message}. Can't read synchronously from stream until StopListen() has been called.");
-			
-			}
+                    byte[] response = m_packageFactory.SerializeMessage(new TCPMessage(message));
+                    new BlockingNetworkStream(m_client.Client).Write(response, 0, response.Length);
 
-			if (readReply) {
+                }
 
-				return m_packageFactory.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
+                // I'm disconnected, but not quite aware of it yet.
+                if (m_shouldRun && !Ready) { Stop(); }
 
-			}
+                if (readReply && m_shouldListen) {
 
-			return null;
+                    throw new NetworkException($"Unable to write message {message}. Can't read synchronously from stream until StopListen() has been called.");
+
+                }
+
+                if (readReply) {
+
+                    return m_packageFactory.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
+
+                }
+
+                return null;
+
+            } finally {
+
+                m_sending = false;
+            
+            }
 
 		}
 

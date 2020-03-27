@@ -104,6 +104,7 @@ namespace R2Core.Device
 			m_propertyName = propertyName;
 			m_callback = callback;
 			m_device = remoteDevice;
+
 		}
 
 		public AsyncRemoteDeviceRequestTask(Action<dynamic, Exception> callback, RemoteDevice remoteDevice, SetMemberBinder binder, object arg) {
@@ -161,7 +162,6 @@ namespace R2Core.Device
 					m_callback(asyncResult, ex);
 
 				}
-
 
 			});
 

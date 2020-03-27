@@ -34,8 +34,9 @@ namespace R2Core.Device
 		private INetworkMessage m_message;
 
 		public string Identifier { get { return m_identifier; } }
+        public bool Busy => m_host.Busy;
 
-		public bool Ready { 
+        public bool Ready { 
 
 			get { 
 
