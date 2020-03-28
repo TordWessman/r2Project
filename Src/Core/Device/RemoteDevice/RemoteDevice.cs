@@ -138,15 +138,29 @@ namespace R2Core.Device
 				Identifier = m_identifier
 			};
 
-			m_message.Payload = request;
-			m_host.Send(m_message);
+            INetworkMessage response = Send(request);
+
+        }
+
+        private INetworkMessage Send(DeviceRequest request) {
+
+            m_message.Payload = request;
+            INetworkMessage response = m_host.Send(m_message);
 
             m_lastAsyncTask?.Start();
             m_lastAsyncTask = null;
 
+            if (response.IsError()) {
+
+                throw new DeviceException(response.ErrorDescription());
+
+            }
+
+            return response;
+
         }
 
-		public dynamic Get(string handle) {
+        public dynamic Get(string handle) {
 
 			DeviceRequest request = new DeviceRequest() {
 				Action = handle,
@@ -155,11 +169,7 @@ namespace R2Core.Device
 				Identifier = m_identifier
 			};
 
-			m_message.Payload = request;
-			INetworkMessage response = m_host.Send(m_message);
-
-            m_lastAsyncTask?.Start();
-            m_lastAsyncTask = null;
+			INetworkMessage response = Send(request);
 
             return response.Payload.ActionResponse;
 
@@ -174,17 +184,7 @@ namespace R2Core.Device
 				Identifier = m_identifier
 			};
 
-			m_message.Payload = request;
-			INetworkMessage response = m_host.Send(m_message);
-
-			if (response.IsError()) {
-
-				throw new DeviceException(response.ErrorDescription());
-
-			}
-
-            m_lastAsyncTask?.Start();
-            m_lastAsyncTask = null;
+            INetworkMessage response = Send(request);
 
             return response.Payload.ActionResponse;
 
@@ -198,14 +198,17 @@ namespace R2Core.Device
         public void AddTask(AsyncRemoteDeviceTask task) {
 
             if (!LossyRequests) {
+
                 m_lastAsyncTask = null;
                 task.Start();
+
             } else {
-                m_lastAsyncTask = task;
-                if (!Busy) {
-                    task.Start();
-                }
+            
+                if (Busy) { m_lastAsyncTask = task; }
+                else { task.Start(); }
+
             }
+
         }
 
         #region DynamicObject

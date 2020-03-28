@@ -189,6 +189,7 @@ namespace R2Core.Tests
 
             // Next response will return a string
             host.NextResponse = new NetworkMessage() {
+
                 Payload = new DeviceResponse() {
                     ActionResponse = "hund"
                 },
@@ -201,55 +202,82 @@ namespace R2Core.Tests
             // -- Test synchronous request
             Assert.AreEqual("hund", remoteDeviceDynamic.hund);
 
-
             string hundValue = null;
 
             // -- Test asynchronous
             remoteDevice.Async((response, exception) => {
+
                 Assert.IsNull(exception);
                 hundValue = response;
+
             }).din_mamma();
 
             Thread.Sleep(50);
             Assert.AreEqual("hund", hundValue);
 
-            // -- Test 3 asynchronous request
+            // Call a fake method 10 times
             int receiveCount = 0;
-            remoteDevice.Async((response, exception) => {
-                Assert.IsNull(exception);
-                receiveCount++;
-            }).din_mamma();
-            remoteDevice.Async((response, exception) => {
-                Assert.IsNull(exception);
-                receiveCount++;
-            }).din_mamma();
-            remoteDevice.Async((response, exception) => {
-                Assert.IsNull(exception);
-                receiveCount++;
-            }).din_mamma();
 
-            Thread.Sleep(100); // They should be done by now...
-            Assert.AreEqual(3, receiveCount); // .. and all 3 should have been executed.
+            for (int i = 0; i < 10; i++) {
+
+                remoteDevice.Async((response, exception) => {
+
+                    Assert.IsNull(exception);
+                    Assert.AreEqual("hund", response);
+                    receiveCount++;
+
+                }).din_mamma();
+
+            }
+
+            Thread.Sleep(100); // They should be done by now... (but maybe not)
+
+            Assert.AreEqual(10, receiveCount); // .. and all 3 should have been executed.
             host.Delay = 50;
             // Shoul lose requests before the last one.
             remoteDevice.LossyRequests = true;
             receiveCount = 0;
-            remoteDevice.Async((response, exception) => {
-                Assert.IsNull(exception);
-                receiveCount++;
-            }).din_mamma();
-            remoteDevice.Async((response, exception) => {
-                Assert.IsNull(exception);
-                receiveCount++;
-            }).din_mamma();
-            remoteDevice.Async((response, exception) => {
-                Assert.IsNull(exception);
-                receiveCount++;
-            }).din_mamma();
 
-            Thread.Sleep(200); // They should be done by now...
-            Assert.AreEqual(2, receiveCount); // .. but only 2 should be executed (the second one should not have been able to start, so the third one should replace it)
-        
+            // Call a fake method 10 times
+            for (int i = 0; i < 10; i++) {
+               
+                remoteDevice.Async((response, exception) => {
+
+                    Assert.IsNull(exception);
+                    receiveCount++;
+
+                }).din_mamma();
+            }
+
+            Thread.Sleep(200); // They should be done by now... (but maybe not)
+            Assert.AreEqual(2, receiveCount); // .. only 2 should have been executed
+
+
+            // Test GetValue
+
+            remoteDevice.Async((response, exception) => {
+
+                Assert.IsNull(exception);
+                Assert.AreEqual("hund", response);
+
+            }).GetValue("pappa");
+
+            // Test error:
+
+            host.NextResponse = new NetworkMessage() {
+
+                Payload = "Argh!",
+                Code = NetworkStatusCode.BadRequest.Raw()
+
+            };
+
+            remoteDevice.Async((response, exception) => {
+
+                Assert.NotNull(exception);
+                Assert.True(exception.Message.Contains("Argh!"));
+
+            });
+
         }
 
 
