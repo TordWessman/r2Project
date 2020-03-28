@@ -59,7 +59,7 @@ namespace R2Core.Network {
 
 					connection.StopListening();
 
-					m_connections = m_connections.Where(c => c.Value.Ready).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    m_connections = m_connections.Where(c => c.Value.Ready).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
 				}
 
