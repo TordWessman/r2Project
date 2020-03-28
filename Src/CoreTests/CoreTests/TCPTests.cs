@@ -156,7 +156,7 @@ namespace R2Core.Tests
 
 
 		[Test]
-		public void TestTCPServer_Ruby_Endpoint() {
+		public void TestTCPServer_Python_Endpoint() {
 			PrintName();
 
 			IServer s = factory.CreateTcpServer("s", tcp_port + 45);
@@ -164,13 +164,13 @@ namespace R2Core.Tests
 			Thread.Sleep(100);
 
 			// Set up scripts and add endpoint
-			var scriptFactory = new RubyScriptFactory("sf", BaseContainer.RubyPaths, m_deviceManager);
+			var scriptFactory = new PythonScriptFactory("sf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 			scriptFactory.AddSourcePath(Settings.Paths.TestData());
 
 			// see test_server.rb
 			dynamic script = scriptFactory.CreateScript("test_server");
-			var receiver = scriptFactory.CreateRubyScriptObjectReceiver(script, @"/test");
-			var jsonEndpoint = factory.CreateJsonEndpoint(receiver);
+
+			var jsonEndpoint = scriptFactory.CreateEndpoint(script, @"/test");
 			s.AddEndpoint(jsonEndpoint);
 
 			// Do the message passing
@@ -196,7 +196,7 @@ namespace R2Core.Tests
 			TCPMessage message = new TCPMessage() { Destination = "/test", Payload = msg};
 			INetworkMessage response = client.Send(message);
 
-			Assert.AreEqual(response.Code, NetworkStatusCode.Ok.Raw());
+			Assert.AreEqual(NetworkStatusCode.Ok.Raw(), response.Code);
 			Assert.AreEqual("foo", response.Payload);
 
 			// Now also test the scripts additional_string public property

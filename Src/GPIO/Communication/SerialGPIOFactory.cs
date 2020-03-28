@@ -17,8 +17,6 @@
 // 
 using System;
 using R2Core.Device;
-using R2Core;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace R2Core.GPIO
@@ -86,7 +84,7 @@ namespace R2Core.GPIO
 		}
 
 
-		public IOutputPort CreateOutputPort(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+		public IOutputPort<bool> CreateOutputPort(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
 			return InstantiateDevice(new SerialDigitalOutput(id, m_devices.GetNode(nodeId), m_connection, port)); 
 
@@ -94,7 +92,8 @@ namespace R2Core.GPIO
 
 		public IServo CreateServo(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
-			return InstantiateDevice(new SerialServo(id, m_devices.GetNode(nodeId), m_connection, port)); 
+			return InstantiateDevice(new SerialServo(id, m_devices.GetNode(nodeId), m_connection, port));
+
 		}
 
 		public IInputMeter<int> CreateSonar(string id, int triggerPort, int echoPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
@@ -109,13 +108,19 @@ namespace R2Core.GPIO
 
 		}
 
-		/// <summary>
-		/// Synchronizes(remotely creates) the device.
-		/// </summary>
-		/// <returns>The device.</returns>
-		/// <param name="device">Device.</param>
-		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		private T InstantiateDevice<T>(T device) where T: ISerialDevice {
+        public IOutputPort<byte> CreateAnalogOutput(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+            return InstantiateDevice(new SerialAnalogOutput(id, m_devices.GetNode(nodeId), m_connection, port));
+
+        }
+
+        /// <summary>
+        /// Synchronizes(remotely creates) the device.
+        /// </summary>
+        /// <returns>The device.</returns>
+        /// <param name="device">Device.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        private T InstantiateDevice<T>(T device) where T: ISerialDevice {
 
 			device.Synchronize();
 			return device;

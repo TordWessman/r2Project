@@ -16,10 +16,9 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
-using R2Core.Device;
-using NLua;
+
 using System.Linq;
+using NLua;
 
 namespace R2Core.Scripting
 {
@@ -36,7 +35,6 @@ namespace R2Core.Scripting
 
 			if (!System.IO.File.Exists(m_fileName)) {
 			
-				throw new System.IO.FileNotFoundException($"The Lua file {m_fileName} was not found.");
 			
 			}
 
@@ -46,13 +44,13 @@ namespace R2Core.Scripting
 
 		public override void Set(string handle, dynamic value) {
 		
-			m_state [handle] = value;
+			m_state[handle] = value;
 
 		}
 
 		public override dynamic Get(string handle) {
 		
-			return m_state [handle];
+			return m_state[handle];
 
 		}
 

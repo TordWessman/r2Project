@@ -99,6 +99,7 @@ typedef struct RequestPackage RequestPackage;
 #define DEVICE_TYPE_HCSR04_SONAR 5
 #define DEVICE_TYPE_DHT11 6
 #define DEVICE_TYPE_SIMPLE_MOIST 7
+#define DEVICE_TYPE_ANALOGE_OUTPUT 8
 
 // -- Error codes --
 

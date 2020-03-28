@@ -29,11 +29,12 @@ namespace R2Core.GPIO
 		
 		DigitalInput = 0x1,		// Simple digital input
 		DigitalOutput = 0x2,	// Simple digital output
-		AnalogueInput = 0x3,	// Uses node's AD converter to read a value
+		AnalogInput = 0x3,	// Uses node's AD converter to read a value
 		Servo = 0x4,			// PWM Servo
 		Sonar_HCSR04 = 0x5,		// HC-SR04 Sonar implementation
 		DHT11 = 0x6,			// DHT11 Temperature/Humidity sensor
-		SimpleMoist = 0x7		// Moisture sensor using output port + ad port 
+		SimpleMoist = 0x7,		// Moisture sensor using output port + ad port
+        AnalogOutput = 0x8      // PWM output with 8 bit resolution
 	}
 
 	/// <summary>

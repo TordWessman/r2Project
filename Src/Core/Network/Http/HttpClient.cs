@@ -27,21 +27,23 @@ using System.Threading.Tasks;
 
 namespace R2Core.Network
 {
-	public class HttpClient : DeviceBase, IMessageClient {
-		
-		public static string DefaultHttpMethod = "POST";
-		public int Timeout = 30000;
+    public class HttpClient : DeviceBase, IMessageClient {
 
-		private ISerialization m_serializer;
-		private int m_lastPort;
-		private string m_lastHost;
-		private IDictionary<string, object> m_headers;
+        public static string DefaultHttpMethod = "POST";
+        public int Timeout = 30000;
 
-		public string Address { get { return m_lastHost; } }
-		public int Port { get { return m_lastPort; } }
-		public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
+        private ISerialization m_serializer;
+        private int m_lastPort;
+        private string m_lastHost;
+        private IDictionary<string, object> m_headers;
+        private bool m_sending = false;
 
-		public HttpClient(string id, ISerialization serializer) : base(id) {
+        public bool Busy => m_sending;
+        public string Address { get { return m_lastHost; } }
+        public int Port { get { return m_lastPort; } }
+        public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
+
+        public HttpClient(string id, ISerialization serializer) : base(id) {
 
 			m_serializer = serializer;
 
@@ -57,7 +59,7 @@ namespace R2Core.Network
 		
 			return Task.Factory.StartNew( () => {
 			
-				HttpMessage response;
+				INetworkMessage response;
 				Exception exception = null;
 
 				try {
@@ -66,8 +68,9 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					response = new HttpMessage() { Payload = new NetworkErrorDescription() { Message = ex.Message }, Code = NetworkStatusCode.NetworkError.Raw() };
-					exception =  ex;
+					response = new NetworkErrorMessage(ex, message);
+					exception = ex;
+
 				}
 
 				responseDelegate(response);
@@ -79,118 +82,129 @@ namespace R2Core.Network
 		}
 
 		private HttpMessage _Send(INetworkMessage request) {
-		
-			HttpMessage message = new HttpMessage(request);
 
-			HttpMessage responseObject = new HttpMessage() { Headers = new Dictionary<string, object>()};
+            try {
 
-			HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(message.Destination ?? "");
-			m_lastPort = httpRequest.RequestUri.Port;
-			m_lastHost = httpRequest.RequestUri.Host;
+                m_sending = true;
+                HttpMessage message = new HttpMessage(request);
 
-			httpRequest.Method = message.Method ?? DefaultHttpMethod;
+                HttpMessage responseObject = new HttpMessage() { Headers = new Dictionary<string, object>() };
 
-			message.Headers = message.OverrideHeaders(Headers);
+                HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(message.Destination ?? "");
+                m_lastPort = httpRequest.RequestUri.Port;
+                m_lastHost = httpRequest.RequestUri.Host;
 
-			byte[] requestData = message.Payload?.GetType().IsValueType == true || message.Payload != null ? m_serializer.Serialize(message.Payload): new byte[0];
+                httpRequest.Method = message.Method ?? DefaultHttpMethod;
 
-			httpRequest.ContentLength = requestData.Length;
-			((WebRequest)httpRequest).ContentType = message.ContentType;
+                message.Headers = message.OverrideHeaders(Headers);
 
-			httpRequest.ReadWriteTimeout = Timeout;
-			httpRequest.Timeout = Timeout;
+                byte[] requestData = message.Payload?.GetType().IsValueType == true || message.Payload != null ? m_serializer.Serialize(message.Payload) : new byte[0];
 
-			if (message.Headers != null) {
-				
-				message.Headers.ToList().ForEach(kvp => httpRequest.Headers [kvp.Key] = kvp.Value?.ToString() ?? "");
+                httpRequest.ContentLength = requestData.Length;
+                ((WebRequest)httpRequest).ContentType = message.ContentType;
 
-			}
+                httpRequest.ReadWriteTimeout = Timeout;
+                httpRequest.Timeout = Timeout;
 
-			if (requestData.Length > 0) {
-			
-				using(Stream dataStream = httpRequest.GetRequestStream()) {
+                if (message.Headers != null) {
 
-					dataStream.Write(requestData, 0, requestData.Length);
-					dataStream.Close();
+                    message.Headers.ToList().ForEach(kvp => httpRequest.Headers[kvp.Key] = kvp.Value?.ToString() ?? "");
 
-				}
+                }
 
-			}
+                if (requestData.Length > 0) {
 
-			HttpWebResponse response = null;
-			byte[] responseData = null;
+                    using (Stream dataStream = httpRequest.GetRequestStream()) {
 
-			try {
-				
-				response = (HttpWebResponse) httpRequest.GetResponse();
-			
-				using(Stream responseStream = response.GetResponseStream()) {
-					
-					MemoryStream ms = new MemoryStream();
-					responseStream.CopyTo(ms);
-					responseData = ms.ToArray();
+                        dataStream.Write(requestData, 0, requestData.Length);
+                        dataStream.Close();
 
-				}
+                    }
 
-			} catch (System.Net.WebException ex) {
-				
-				Log.w( $"Connection failed: {httpRequest.RequestUri.ToString()} exception: '{ex.Message}'");
-					
-				responseObject.Payload = new NetworkErrorDescription() { Message = ex.Message };
+                }
 
-				if (ex.Status == System.Net.WebExceptionStatus.ProtocolError) {
-				
-					HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
+                HttpWebResponse response = null;
+                byte[] responseData = null;
 
-					if (status.HasValue) {
+                try {
 
-						responseObject.Code = (int)status;
+                    response = (HttpWebResponse)httpRequest.GetResponse();
 
-					} else {
+                    using (Stream responseStream = response.GetResponseStream()) {
 
-						responseObject.Code = NetworkStatusCode.ServerError.Raw();
+                        MemoryStream ms = new MemoryStream();
+                        responseStream.CopyTo(ms);
+                        responseData = ms.ToArray();
 
-					}
-				 
-				} else {
+                    }
 
-					responseObject.Code = NetworkStatusCode.NetworkError.Raw();
-						
-				}
+                } catch (System.Net.WebException ex) {
 
-				return responseObject;
-				 
-			} finally {
-			
-				response?.Close();
+                    Log.w($"Connection failed: {httpRequest.RequestUri.ToString()} exception: '{ex.Message}'");
 
-			}
+                    responseObject.Payload = new NetworkErrorDescription() { Message = ex.Message };
 
-			response?.Headers?.AllKeys.ToList().ForEach( key => responseObject.Headers[key] = response.Headers[key]);
+                    if (ex.Status == System.Net.WebExceptionStatus.ProtocolError) {
 
-			responseObject.Code = (int)response.StatusCode;
+                        HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
 
-			if (response.ContentType.ToLower().Contains("text")) {
-				
-				responseObject.Payload = m_serializer.Encoding.GetString(responseData);
+                        if (status.HasValue) {
 
-			} else if (response.ContentType.ToLower().Contains("json")) {
-				
-				responseObject.Payload = m_serializer.Deserialize(responseData);
+                            responseObject.Code = (int)status;
 
-			} else if (response.ContentType.ToLower().Contains("xml")) {
+                        } else {
 
-				responseObject.Payload = System.Text.Encoding.UTF8.GetString(responseData);
+                            responseObject.Code = NetworkStatusCode.ServerError.Raw();
 
-			} else {
-				
-				responseObject.Payload = responseData;
+                        }
 
-			}
+                    }else {
 
-			response.Close();
+                        responseObject.Code = NetworkStatusCode.NetworkError.Raw();
 
-			return responseObject;
+                    }
+
+                    return responseObject;
+
+                }
+                finally
+                {
+
+                    response?.Close();
+
+                }
+
+                response?.Headers?.AllKeys.ToList().ForEach(key => responseObject.Headers[key] = response.Headers[key]);
+
+                responseObject.Code = (int)response.StatusCode;
+
+                if (response.ContentType.ToLower().Contains("text"))  {
+
+                    responseObject.Payload = m_serializer.Encoding.GetString(responseData);
+
+                } else if (response.ContentType.ToLower().Contains("json")) {
+
+                    responseObject.Payload = m_serializer.Deserialize(responseData);
+
+                } else if (response.ContentType.ToLower().Contains("xml")) {
+
+                    responseObject.Payload = System.Text.Encoding.UTF8.GetString(responseData);
+
+                } else {
+
+                    responseObject.Payload = responseData;
+
+                }
+
+                response.Close();
+
+                return responseObject;
+
+            } finally {
+            
+                m_sending = false;
+            
+            }
 
 		}
 

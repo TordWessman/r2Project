@@ -69,8 +69,6 @@
     <Compile Include="Log\LogMessage.cs" />
     <Compile Include="Log\FileLogger.cs" />
     <Compile Include="Shared\ObjectInvoker.cs" />
-    <Compile Include="Device\IRemoteDevice.cs" />
-    <Compile Include="Device\RemoteDevice.cs" />
     <Compile Include="Network\Http\HttpClient.cs" />
     <Compile Include="Network\Http\HttpMessage.cs" />
     <Compile Include="Network\Http\HttpServer.cs" />
@@ -91,7 +89,6 @@
     <Compile Include="Network\Server\DeviceRouter.cs" />
     <Compile Include="Network\Server\IServer.cs" />
     <Compile Include="Network\Server\IWebEndpoint.cs" />
-    <Compile Include="Network\Server\IWebIntermediate.cs" />
     <Compile Include="Network\Server\IWebObjectReceiver.cs" />
     <Compile Include="Network\Server\ServerBase.cs" />
     <Compile Include="Network\Server\WebFileEndpoint.cs" />
@@ -108,7 +105,6 @@
     <Compile Include="Shared\Int32Converter.cs" />
     <Compile Include="Shared\LinearDataSet.cs" />
     <Compile Include="Shared\R2Dynamic.cs" />
-    <Compile Include="Device\AsyncRemoteDeviceRequest.cs" />
     <Compile Include="Extensions\WeakReferenceExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="Extensions\DeviceExtensions.cs" />
@@ -135,6 +131,10 @@
     <Compile Include="Network\TCP\TCPProxy.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Network\TCP\TCPProxyConnection.cs" />
+    <Compile Include="Device\RemoteDevice\AsyncRemoteDevice.cs" />
+    <Compile Include="Device\RemoteDevice\IRemoteDevice.cs" />
+    <Compile Include="Device\RemoteDevice\RemoteDevice.cs" />
+    <Compile Include="Device\RemoteDevice\AsyncRemoteDeviceRequest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -150,6 +150,7 @@
     <Folder Include="Network\UDP\" />
     <Folder Include="Network\Server\" />
     <Folder Include="Network\Client\" />
+    <Folder Include="Device\RemoteDevice\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\Shared.tt">

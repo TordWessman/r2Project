@@ -140,7 +140,7 @@ namespace R2Core.GPIO
 
 		}
 		
-		public IOutputPort CreateOutputPort(string id, int gpioPort) {
+		public IOutputPort<bool> CreateOutputPort(string id, int gpioPort) {
 			
 
 			RaspberryPiDotNet.GPIO output = new RaspberryPiDotNet.GPIOMem(GetPort(gpioPort),

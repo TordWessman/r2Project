@@ -1,8 +1,12 @@
+import sys
+print sys.path
+import io
 import scriptbase
 import time
 from System import MemberAccessException
 import System
 from System.Collections.Generic import List
+import os
 
 class MainClass:
 
@@ -40,11 +44,7 @@ class MainClass:
 
 			#args not yet implemented
 
-			# only load ruby if explicit ".rb" ending is specified
-			if(script_name.endswith(".rb")):
-				script = self.device_manager.Get(self.settings.I.RubyScriptFactory()).CreateScript(script_name[:-3])
-			else:
-				script = self.device_manager.Get(self.settings.I.PythonScriptFactory()).CreateScript(script_name)
+			script = self.device_manager.Get(self.settings.I.PythonScriptFactory()).CreateScript(script_name)
 			
 			self.task_monitor.AddMonitorable(script)
 			self.device_manager.Add(script)

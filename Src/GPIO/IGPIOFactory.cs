@@ -49,7 +49,7 @@ namespace R2Core.GPIO
 		/// <returns>The output port.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="gpioPort">Gpio port.</param>
-		IOutputPort CreateOutputPort(string id, int gpioPort);
+		IOutputPort<bool> CreateOutputPort(string id, int gpioPort);
 
 	}
 }

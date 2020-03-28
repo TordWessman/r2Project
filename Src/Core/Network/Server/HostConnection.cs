@@ -35,12 +35,14 @@ namespace R2Core.Network
 
 		public event OnDisconnectHandler OnDisconnect;
 
-		/// <summary>
-		/// .`connection` is the connection used for transfers.
-		/// </summary>
-		/// <param name="id">Identifier.</param>
-		/// <param name="host">Host.</param>
-		public HostConnection(string id, IMessageClient connection) : base(id) {
+        public bool Busy => m_connection.Busy;
+
+        /// <summary>
+        /// .`connection` is the connection used for transfers.
+        /// </summary>
+        /// <param name="id">Identifier.</param>
+        /// <param name="host">Host.</param>
+        public HostConnection(string id, IMessageClient connection) : base(id) {
 			
 			m_connection = connection;
 			m_connection.AddClientObserver(this);

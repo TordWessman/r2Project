@@ -16,9 +16,7 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using IronPython.Hosting;
-using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using R2Core.Device;
@@ -26,55 +24,63 @@ using System.Linq;
 
 namespace R2Core.Scripting
 {
-	public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
-		
-		//Make sure the IronPython.Library.dll are included during compilation.
-		#pragma warning disable 0169
-		private static readonly IronPython.DictionaryTypeInfoAttribute INCLUDE_PYTHON_LIBRARY;
-		private static readonly IronPython.Modules.SysModule.floatinfo INCLUDE_PYTHON_MODULES_LIBRARY;
-		#pragma warning restore 0169
+    public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
 
-		private ICollection<string> m_paths;
-		private ScriptEngine m_engine;
-		private IDeviceManager m_deviceManager;
+        private ICollection<string> m_paths;
+        private ScriptEngine m_engine;
+        private IDeviceManager m_deviceManager;
 
-		public PythonScriptFactory(string id,	
-			ICollection<string> paths,
-			IDeviceManager deviceManager) : base(id) {
-			m_deviceManager = deviceManager;
-			m_engine = Python.CreateEngine();
-		
-			m_engine.SetSearchPaths(paths);
-			m_paths = paths;
+        public PythonScriptFactory(string id,    
+            ICollection<string> paths,
+            IDeviceManager deviceManager) : base(id) {
 
-		}
+            m_deviceManager = deviceManager;
+            m_engine = Python.CreateEngine();
+            ClearHooks();
+            m_engine.SetSearchPaths(paths);
+            m_paths = paths;
 
-		public override IronScript CreateScript(string name, string id = null) {
-		
-			IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
+            foreach (string path in paths) { AddSourcePath(path); }
 
-			// Add the factorys source paths to the engines search paths.
-			m_engine.SetSearchPaths(m_paths.Concat(ScriptSourcePaths).ToList());
+        }
 
-			// Scripts must know about the device manager. It's how they get access to the rest of the system..
-			inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
+        /// <summary>
+        /// Needed in order to bypass the "Not a ZIP file" exception
+        /// </summary>
+        private void ClearHooks() {
 
-			return new IronScript(id ?? name, GetScriptFilePath(name), m_engine, inputParams);
+            var pc = Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(m_engine) as IronPython.Runtime.PythonContext;
+            var hooks = pc.SystemState.Get__dict__()["path_hooks"] as IronPython.Runtime.List;
+            hooks.Clear();
 
-		}
+        }
 
-		public override IScriptInterpreter CreateInterpreter(IronScript script) {
+        public override IronScript CreateScript(string name, string id = null) {
+        
+            IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
-			script.Set(Settings.Identifiers.ObjectInvoker(), new ObjectInvoker());
-			return new ScriptInterpreter(script);
+            // Add the factorys source paths to the engines search paths.
+            m_engine.SetSearchPaths(m_paths.Concat(ScriptSourcePaths).ToList());
 
-		}
+            // Scripts must know about the device manager. It's how they get access to the rest of the system..
+            inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
 
-		/// <summary>
-		/// Must be overridden. Should return the common extension used by the scripts(i.e: ".lua").
-		/// </summary>
-		/// <value>The file extension.</value>
-		protected override string FileExtension { get {return ".py"; } }
-	}
+            return new IronScript(id ?? name, GetScriptFilePath(name), m_engine, inputParams);
+
+        }
+
+        public override IScriptInterpreter CreateInterpreter(IronScript script) {
+
+            script.Set(Settings.Identifiers.ObjectInvoker(), new ObjectInvoker());
+            return new ScriptInterpreter(script);
+
+        }
+
+        /// <summary>
+        /// Must be overridden. Should return the common extension used by the scripts(i.e: ".lua").
+        /// </summary>
+        /// <value>The file extension.</value>
+        protected override string FileExtension { get {return ".py"; } }
+    }
 }
 

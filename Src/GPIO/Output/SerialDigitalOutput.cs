@@ -20,7 +20,7 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-	internal class SerialDigitalOutput : SerialDeviceBase<byte[]>, IOutputPort {
+	internal class SerialDigitalOutput : SerialDeviceBase<byte[]>, IOutputPort<bool> {
 		
 		private byte m_port;
 		private bool m_value;
@@ -51,6 +51,12 @@ namespace R2Core.GPIO
 		}
 
 		#endregion
+
+		public override string ToString() {
+
+			return $"[OutputPort: {Identifier} : {Value}]";
+
+		}
 
 	}
 

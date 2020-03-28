@@ -47,6 +47,23 @@ namespace R2Core.Network
 
 		}
 
+		/// <summary>
+		/// Instantiate using an error code (´code´) and a payload of type ´NetworkErrorDescription´ with the
+		/// Message ´ḿessage´.
+		/// </summary>
+		/// <param name="code">Code.</param>
+		/// <param name="message">Message.</param>
+		public NetworkErrorMessage(NetworkStatusCode code, string message, INetworkMessage originalRequest = null) {
+		
+			Code = code.Raw();
+			Payload = new NetworkErrorDescription(message);
+			Destination = originalRequest?.Destination;
+			Headers = originalRequest?.Headers;
+		
+		}
+
+		public override string ToString() { return base.ToString(); }
+
 	}
 
 	/// <summary>

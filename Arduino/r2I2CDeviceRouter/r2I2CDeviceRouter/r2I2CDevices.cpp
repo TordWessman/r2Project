@@ -180,6 +180,15 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         pinMode(device.IOPorts[SIMPLE_MOIST_DIGITAL_OUT], OUTPUT);
       
     } break;
+    case DEVICE_TYPE_ANALOGE_OUTPUT:
+  
+      if (reservePort(input[0])) {
+        
+        device.IOPorts[0] = input[0];
+    
+        pinMode(device.IOPorts[0], OUTPUT);
+      
+    } break;
    
   default:
   
@@ -284,6 +293,11 @@ void setValue(Device* device, int value) {
         ((Servo *) device->object)->write(value);
         break;
         
+    case DEVICE_TYPE_ANALOGE_OUTPUT:
+
+        analogWrite(device->IOPorts[0], value > 255 ? 255 : value);
+        break;
+        
     default:
     
       err("Unable to set setDevice.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_SET_DEVICE);
@@ -291,4 +305,3 @@ void setValue(Device* device, int value) {
   }
 
 }
-

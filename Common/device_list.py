@@ -11,10 +11,13 @@ class MainClass:
 		self.l = self.device_manager.Get("log")
 
 	def GetDevices(self,deviceIds):
-		devices = List[object]()
+		devices = List[IDevice]()
 		for deviceId in deviceIds:
 			if (self.device_manager.Has(deviceId)):
 				device = self.device_manager.Get(deviceId)
+				self.l.message("Will add device with id: " + device.Identifier)
+				if (device.Identifier == "dummy"):
+					self.l.message("Dummy has Bar: " + device.Bar)
 				devices.Add(device)
 			else:
 				self.l.error("Device: '" + deviceId + "' not found.")

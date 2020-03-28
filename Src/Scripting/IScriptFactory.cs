@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using R2Core.Device;
+using R2Core.Network;
 
 
 namespace R2Core.Scripting
@@ -42,6 +43,14 @@ namespace R2Core.Scripting
 		/// <returns>The interpreter.</returns>
 		/// <param name="script">Script.</param>
 		IScriptInterpreter CreateInterpreter(T script);
+
+		/// <summary>
+		/// Creates an ´IWebEndpoint´ wrapping a script and calling the scripts on_receive method.
+		/// </summary>
+		/// <returns>The endpoint.</returns>
+		/// <param name="script">Script.</param>
+		/// <param name="path">Path.</param>
+		IWebEndpoint CreateEndpoint(T script, string path);
 
 		/// <summary>
 		/// Adds a search path for script source files.

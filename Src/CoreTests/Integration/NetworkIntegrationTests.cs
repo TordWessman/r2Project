@@ -54,7 +54,7 @@ namespace R2Core.IntegrationTests
 			var endpoind = factory.CreateJsonEndpoint(deviceRouter);
 			server1.AddEndpoint(endpoind);
 
-			var scriptFactory = new PythonScriptFactory("sf", BaseContainer.PythonPaths, m_deviceManager);
+			var scriptFactory = new PythonScriptFactory("sf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 			scriptFactory.AddSourcePath(Settings.Paths.TestData());
 			var pythonScript = scriptFactory.CreateScript("python_test");
 			m_deviceManager.Add(pythonScript);
@@ -88,7 +88,15 @@ namespace R2Core.IntegrationTests
 		
 			Random r = new Random();
 
-			connection.Start();
+			try {
+				
+				connection.Start();
+
+			} catch (Exception ex) {
+			
+				Assert.Fail(ex.Message);
+			}
+
 			Thread.Sleep(100);
 
 			for (int i = 0; i < randomWorkCount; i++) {

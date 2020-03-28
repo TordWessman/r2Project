@@ -20,11 +20,8 @@ using System;
 using R2Core.Device;
 using System.Net.Sockets;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
-using System.IO;
 using System.Text.RegularExpressions;
-using System.Timers;
 
 namespace R2Core.Network
 {
@@ -61,6 +58,11 @@ namespace R2Core.Network
 
 		// if false, nothing will be read from remote host.
 		private bool m_shouldListen = true;
+
+		// True if sending or receiving data.
+		private bool m_sending = false;
+
+		public bool Busy => m_sending;
 
 		/// <summary>
 		/// Timeout in ms before a send operation dies.
@@ -184,84 +186,94 @@ namespace R2Core.Network
 
 			if (!Ready) { throw new InvalidOperationException($"{this} is unable to send. Not connected."); }
 
-			lock(m_sendLock) {
+			try {
 
-				if (!request.IsPingOrPong()) {
-				
-					m_observers.InParallell((observer) => observer.OnRequest(request));
+				m_sending = true;
 
-				}
-                
-                TCPMessage message = request is TCPMessage ? ((TCPMessage)request) : new TCPMessage(request);
+    			lock(m_sendLock) {
 
-				message.Headers = message.OverrideHeaders(Headers);
+    				if (!request.IsPingOrPong()) {
+    				
+    					m_observers.InParallell((observer) => observer.OnRequest(request));
 
-				byte[] requestData = m_serializer.SerializeMessage(message);
+    				}
 
-				try {
+                    TCPMessage message = request is TCPMessage ? ((TCPMessage)request) : new TCPMessage(request);
 
-					new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
+    				message.Headers = message.OverrideHeaders(Headers);
 
-					if (message.IsBroadcastMessage() || message.IsPingOrPong() || !m_shouldListen) {
+    				byte[] requestData = m_serializer.SerializeMessage(message);
 
-						// Sender does not expect a reply.
-						return new OkMessage();
+    				try {
 
-					}
+    					new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
 
-					m_writeLock = new AutoResetEvent(false);
+    					if (message.IsBroadcastMessage() || message.IsPingOrPong() || !m_shouldListen) {
 
-					// Reset the read error. Still an awful lot of race conditions, but wtf.
-					m_readError = null;
+    						// Sender does not expect a reply.
+    						return new OkMessage();
 
-					// Wait for receiver thread to fetch data.
-					if (m_writeLock.WaitOne(Timeout)) { 
+    					}
 
-						m_writeLock = null;
+    					m_writeLock = new AutoResetEvent(false);
 
-						// If there was an error during the read process, throw it here.
-						if (m_readError != null) {
+    					// Reset the read error. Still an awful lot of race conditions, but wtf.
+    					m_readError = null;
 
-							throw m_readError; 
+    					// Wait for receiver thread to fetch data.
+    					if (m_writeLock.WaitOne(Timeout)) { 
 
-						}
+    						m_writeLock = null;
 
-						NetworkException exception = m_latestResponse.IsError() ? new NetworkException(m_latestResponse) : null;
+    						// If there was an error during the read process, throw it here.
+    						if (m_readError != null) {
 
-						if (m_latestResponse.IsEmpty()) {
-						
-							Log.w("TCPClient: Got empty message.");
+    							throw m_readError; 
 
-						}
+    						}
 
-						if (m_latestResponse.IsPingOrPong() ||
-							m_latestResponse.IsBroadcastMessage()) {
-						
-							throw new NetworkException($"TCPClient: Invalid messag type: {m_latestResponse}");
+    						NetworkException exception = m_latestResponse.IsError() ? new NetworkException(m_latestResponse) : null;
+
+    						if (m_latestResponse.IsEmpty()) {
+    						
+    							Log.w("TCPClient: Got empty message.");
+
+    						}
+
+    						if (m_latestResponse.IsPingOrPong() ||
+    							m_latestResponse.IsBroadcastMessage()) {
+    						
+    							throw new NetworkException($"TCPClient: Invalid messag type: {m_latestResponse}");
 
 
-						}
+    						}
 
-						m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, exception));
+    						m_observers.InParallell((observer) => observer.OnResponse(m_latestResponse, exception));
 
-						return m_latestResponse;
-					
-					} else {
-						
-						// Request timed out. Closing connection
-						m_readError = new SocketException((int)SocketError.TimedOut);
-						throw m_readError;
+    						return m_latestResponse;
+    					
+    					} else {
+    						
+    						// Request timed out. Closing connection
+    						m_readError = new SocketException((int)SocketError.TimedOut);
+    						throw m_readError;
 
-					}
+    					}
 
-				} catch (Exception ex) {
+    				} catch (Exception ex) {
 
-					Log.x(ex);
-					m_observers.InParallell((observer) => observer.OnResponse(null, ex));
-					if (m_shouldRun && !Ready) { Stop(); }
-					throw ex;
+    					Log.x(ex);
+    					m_observers.InParallell((observer) => observer.OnResponse(null, ex));
+    					if (m_shouldRun && !Ready) { Stop(); }
+    					throw ex;
 
-				}
+    				}
+
+    			}
+
+			} finally {
+
+				m_sending = false;
 
 			}
 

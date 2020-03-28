@@ -36,7 +36,7 @@ namespace R2Core.GPIO
 				return m_ports;
 			} }
 
-		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogueInput; } }
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogInput; } }
 
 		public double Value { get { return(double)GetValue() [0]; } }
 	

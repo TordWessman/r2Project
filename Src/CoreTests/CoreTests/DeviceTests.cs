@@ -45,7 +45,7 @@ namespace R2Core.Tests
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 			s.AddEndpoint(ep);
 
-			IScriptFactory<IronScript> m_pythonScriptFactory = new PythonScriptFactory("rf", BaseContainer.PythonPaths , m_deviceManager);
+			IScriptFactory<IronScript> m_pythonScriptFactory = new PythonScriptFactory("rf", Settings.Instance.GetPythonPaths(), m_deviceManager);
 			m_pythonScriptFactory.AddSourcePath(Settings.Paths.TestData());
 			m_pythonScriptFactory.AddSourcePath(Settings.Paths.Common());
 
@@ -81,7 +81,7 @@ namespace R2Core.Tests
 		}
 
 		[Test]
-		public void TestRemoteDevice() {
+		public void TestRemoteDevice_UsingServers() {
 
 			IServer s = factory.CreateTcpServer("s", tcp_port + 9990);
 			s.Start();
@@ -134,6 +134,7 @@ namespace R2Core.Tests
 
 			// Test set property
 			remoteDummy.Async((response, ex) => {
+				Assert.AreEqual(true, response);
 				Assert.IsNull(ex);
 
 			}).HAHA = 1111;
@@ -180,7 +181,79 @@ namespace R2Core.Tests
 
 		}
 
-		public void OnValueChanged(IDeviceNotification<object> notification) {
+        [Test]
+        public void TestRemoteDevice() {
+
+            var host = new DummyNetworkConnection();
+            RemoteDevice remoteDevice = new RemoteDevice("test", Guid.Empty, host);
+
+            // Next response will return a string
+            host.NextResponse = new NetworkMessage() {
+                Payload = new DeviceResponse() {
+                    ActionResponse = "hund"
+                },
+                Code = NetworkStatusCode.Ok.Raw()
+            };
+
+            // Cast to dynamic
+            dynamic remoteDeviceDynamic = remoteDevice;
+
+            // -- Test synchronous request
+            Assert.AreEqual("hund", remoteDeviceDynamic.hund);
+
+
+            string hundValue = null;
+
+            // -- Test asynchronous
+            remoteDevice.Async((response, exception) => {
+                Assert.IsNull(exception);
+                hundValue = response;
+            }).din_mamma();
+
+            Thread.Sleep(50);
+            Assert.AreEqual("hund", hundValue);
+
+            // -- Test 3 asynchronous request
+            int receiveCount = 0;
+            remoteDevice.Async((response, exception) => {
+                Assert.IsNull(exception);
+                receiveCount++;
+            }).din_mamma();
+            remoteDevice.Async((response, exception) => {
+                Assert.IsNull(exception);
+                receiveCount++;
+            }).din_mamma();
+            remoteDevice.Async((response, exception) => {
+                Assert.IsNull(exception);
+                receiveCount++;
+            }).din_mamma();
+
+            Thread.Sleep(100); // They should be done by now...
+            Assert.AreEqual(3, receiveCount); // .. and all 3 should have been executed.
+            host.Delay = 50;
+            // Shoul lose requests before the last one.
+            remoteDevice.LossyRequests = true;
+            receiveCount = 0;
+            remoteDevice.Async((response, exception) => {
+                Assert.IsNull(exception);
+                receiveCount++;
+            }).din_mamma();
+            remoteDevice.Async((response, exception) => {
+                Assert.IsNull(exception);
+                receiveCount++;
+            }).din_mamma();
+            remoteDevice.Async((response, exception) => {
+                Assert.IsNull(exception);
+                receiveCount++;
+            }).din_mamma();
+
+            Thread.Sleep(200); // They should be done by now...
+            Assert.AreEqual(2, receiveCount); // .. but only 2 should be executed (the second one should not have been able to start, so the third one should replace it)
+        
+        }
+
+
+        public void OnValueChanged(IDeviceNotification<object> notification) {
 
 			InvokerDummyDevice device = m_deviceManager.Get(notification.Identifier);
 
@@ -193,6 +266,8 @@ namespace R2Core.Tests
 			wasInvoked = true;
 
 		}
+
+
 
 
 	}

@@ -49,7 +49,13 @@ namespace R2Core.Network
 		/// </summary>
 		void StopListening();
 
-	}
+        /// <summary>
+        /// Returns true if the connection is busy communicating.
+        /// </summary>
+        /// <value><c>true</c> if busy; otherwise, <c>false</c>.</value>
+        bool Busy { get; }
+
+    }
 
 }
 

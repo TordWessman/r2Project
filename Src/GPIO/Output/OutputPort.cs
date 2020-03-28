@@ -23,7 +23,7 @@ using R2Core;
 
 namespace R2Core.GPIO
 {
-	public class OutputPort : DeviceBase, IOutputPort {
+	public class OutputPort : DeviceBase, IOutputPort<bool> {
 		
 		private RaspberryPiDotNet.GPIO m_gpi;
 		private bool m_value;
@@ -57,6 +57,12 @@ namespace R2Core.GPIO
 		}
 
 		#endregion
+
+		public override string ToString() {
+
+			return $"[OutputPort: {Identifier} : {Value}]";
+
+		}
 
 	}
 

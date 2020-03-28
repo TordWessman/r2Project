@@ -18,18 +18,15 @@
 //
 using System;
 using System.IO;
-using IronPython.Hosting;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
-using System.Dynamic;
 using System.Collections.Generic;
-using IronPython.Runtime;
 using System.Linq;
 
 namespace R2Core.Scripting
 {
 	/// <summary>
-	/// Default script implementation for IronRuby & IronPython
+	/// Default script implementation for IronPython
 	/// </summary>
 	public class IronScript : ScriptBase {
 		
@@ -38,7 +35,7 @@ namespace R2Core.Scripting
 		protected ScriptSource m_source;
 
 		/// <summary>
-		/// The required name of the main class in each ruby script
+		/// The required name of the main class in each python script
 		/// </summary>
 		public const string HANDLE_MAIN_CLASS = "main_class";
 
@@ -53,7 +50,7 @@ namespace R2Core.Scripting
 		public IronScript(string id, string fileName, ScriptEngine engine, IDictionary<string, dynamic> parameters) : base(id) {
 
 			m_engine = engine;
-			m_scope =  m_engine.CreateScope();
+            m_scope =  m_engine.CreateScope();
 			m_fileName = fileName;
 			m_params = parameters ?? new Dictionary<string,dynamic>();
 		
@@ -61,7 +58,7 @@ namespace R2Core.Scripting
 		}
 
 		public void AddSearchPath(string searchPath) {
-		
+
 			m_engine.SetSearchPaths(m_engine.GetSearchPaths().Concat(new List<string>() { searchPath }).ToList());
 		
 		}
@@ -80,9 +77,9 @@ namespace R2Core.Scripting
 
 			}
 
-			m_source = m_engine.CreateScriptSourceFromFile(m_fileName);
+            m_source = m_engine.CreateScriptSourceFromFile(m_fileName);
 
-			try {
+            try {
 
 				m_source.Execute(m_scope);
 
@@ -144,7 +141,7 @@ namespace R2Core.Scripting
 
 			dynamic member = m_engine.Operations.GetMember(m_mainClass, handle);
 
-			if (member is IronPython.Runtime.Method || member is IronRuby.Runtime.Calls.RubyMethodInfo || member is IronRuby.Builtins.RubyMethod) {
+			if (member is IronPython.Runtime.Method) {
 			
 				// Invoke as method
 				return m_engine.Operations.InvokeMember(m_mainClass, handle, args);

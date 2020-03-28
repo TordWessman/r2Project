@@ -103,12 +103,7 @@ namespace R2Core.Network
 				
 				Log.w($"No TCPClientServer IWebEndpoint accepts: {request}");
 
-				return new TCPMessage() {
-					Code = NetworkStatusCode.NotFound.Raw(),
-					Payload = new WebErrorMessage (NetworkStatusCode.NotFound.Raw(), $"Path not found: {request.Destination}"),
-					Destination = request.Destination,
-					Headers = request.Headers
-				};
+				return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request); 
 	
 			}
 
@@ -120,11 +115,8 @@ namespace R2Core.Network
 
 				Log.x(ex);
 
-				return new TCPMessage() {
-					Code = NetworkStatusCode.ServerError.Raw(),
-					Payload =  new WebErrorMessage(NetworkStatusCode.ServerError.Raw(), $"EXCEPTION: {ex.Message}"),
-					Destination = request.Destination
-				};
+				return new NetworkErrorMessage(NetworkStatusCode.ServerError, $"EXCEPTION: {ex.Message}", request); 
+
 			}
 
 		}
@@ -169,18 +161,31 @@ namespace R2Core.Network
 
 							response = m_servers[serverType].Interpret(request, clientEndpoint);
 
+						} else {
+
+							response = new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Missing server type: '{serverType}'.", request); 
+
 						}
 
 					} else {
-						
-						response = new TCPMessage(Interpret(request, m_client.GetEndPoint()));
+
+						IWebEndpoint endpoint = GetEndpoint(request.Destination);
+
+						if (endpoint != null) {
+
+							response = new TCPMessage(Interpret(request, m_client.GetEndPoint()));
+
+						} else {
+							
+							response = new NetworkErrorMessage(NetworkStatusCode.UnableToProcess, $"Missing header: '{ServerTypeKey}' and no local endpoint for '{request.Destination}'."); 
+
+						}
 
 					}
 
 				} catch (Exception ex) {
 
 					Log.x (ex);
-
 					response = new NetworkErrorMessage(ex);
 
 				}
@@ -189,7 +194,9 @@ namespace R2Core.Network
 					{ Settings.Consts.ConnectionRouterHeaderHostNameKey(), m_hostName }
 				});
 
+				response.Destination = request.Destination;
 				byte[] requestData = m_serializer.SerializeMessage(new TCPMessage(response));
+
 				new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
 
 			}
