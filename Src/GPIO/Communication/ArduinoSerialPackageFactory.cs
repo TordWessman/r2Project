@@ -16,7 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 using System;
-using System.Runtime.InteropServices;
 using System.Linq;
 
 namespace R2Core.GPIO
@@ -152,7 +151,7 @@ namespace R2Core.GPIO
 			content [POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
 			Array.Copy(ports, 0, content, 1, ports.Length);
 
-			if ((type == SerialDeviceType.AnalogInput || type == SerialDeviceType.SimpleMoist) && !(VALID_ANALOG_PORTS_ON_ARDUINO.Contains(ports[0]))) {
+			if ((type == SerialDeviceType.AnalogInput || type == SerialDeviceType.SimpleMoist) && !VALID_ANALOG_PORTS_ON_ARDUINO.Contains(ports[0])) {
 
 				throw new System.IO.IOException($"Not a valid analogue port: '{ports[0]}'. Use: {string.Concat(VALID_ANALOG_PORTS_ON_ARDUINO.Select(b => b.ToString() + ' '))}");
 
