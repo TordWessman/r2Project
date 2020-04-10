@@ -16,14 +16,8 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
 using R2Core.Device;
 using R2Core.Network;
-using MemoryType = System.String;
-using System.Linq;
-using System.Dynamic;
-using System.Text.RegularExpressions;
-using System.IO;
 using R2Core.Data;
 using System.Collections.Generic;
 
@@ -64,7 +58,13 @@ namespace R2Core.Common
 
 		}
 
-	}
+        public Identity CreateIdentity(string name) {
+
+            return new Identity(name);
+
+        }
+
+    }
 
 }
 

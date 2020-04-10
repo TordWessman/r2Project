@@ -135,6 +135,8 @@
     <Compile Include="Device\RemoteDevice\IRemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice\RemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice\AsyncRemoteDeviceRequest.cs" />
+    <Compile Include="Shared\Identity.cs" />
+    <Compile Include="Shared\IIdentity.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
