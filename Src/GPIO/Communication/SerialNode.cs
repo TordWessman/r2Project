@@ -57,7 +57,7 @@ namespace R2Core.GPIO
 		private int m_failCount;
 
 		/// <summary>
-		/// Interval used for update frequencies. If value < 0, the timer will not execute. 
+		/// Interval used for update frequencies. If value less than 0, the timer will not execute. 
 		/// </summary>
 		private int m_updateInterval;
 

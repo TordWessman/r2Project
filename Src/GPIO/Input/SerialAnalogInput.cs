@@ -44,7 +44,12 @@ namespace R2Core.GPIO
 
 	internal class SimpleAnalogueHumiditySensor : SerialAnalogInput {
 
-		internal SimpleAnalogueHumiditySensor(string id, ISerialNode node, IArduinoDeviceRouter host, int[] ports): base(id, node, host, ports) {}
+		internal SimpleAnalogueHumiditySensor(string id, ISerialNode node, IArduinoDeviceRouter host, int[] ports): base(id, node, host, ports) {
+
+            // Only update when requested in order to minimize the electrolysis effect.
+            AutomaticUpdate = false;
+
+        }
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.SimpleMoist; } }
 

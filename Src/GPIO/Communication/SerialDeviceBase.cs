@@ -21,14 +21,27 @@ namespace R2Core.GPIO
 		// The node to which this node is attached
 		private ISerialNode m_node;
 
-		// The cached internal value of this node
-		protected T InternalValue;
+        /// <summary>
+        /// If true, the `Value` property of this device will be
+        /// automatically updated when ´Update()´ is called (i.e.
+        /// during the timed automatic synchronization event).
+        /// </summary>
+        protected bool AutomaticUpdate = true;
 
-		// The ISerialHost this device is using to transmit data.
-		protected IArduinoDeviceRouter Host { get { return m_host; } }
+        /// <summary>
+        /// The cached internal value of this node.
+        /// </summary>
+        protected T InternalValue;
 
-		// Remote device id
-		protected byte DeviceId { get { return m_deviceId; } }
+        /// <summary>
+        /// The ´ISerialHost´ this device is using to transmit data.
+        /// </summary>
+        protected IArduinoDeviceRouter Host { get { return m_host; } }
+
+        /// <summary>
+        /// The identifier at the serial host.
+        /// </summary>
+        protected byte DeviceId { get { return m_deviceId; } }
 
 		public byte NodeId { get { return m_node.NodeId; } }
 		public bool IsSleeping { get { return m_node.Sleep; } }
@@ -68,12 +81,16 @@ namespace R2Core.GPIO
 
 		public void Update() {
 
-			InternalValue = Host.GetValue<T>(m_deviceId, NodeId).Value;
+            if (AutomaticUpdate) {
+
+                InternalValue = Host.GetValue<T>(m_deviceId, NodeId).Value;
+
+            }
 
 		}
 
 		public void Synchronize() {
-					
+
 			DeviceData<T>info = Host.Create<T>((byte)NodeId, DeviceType, CreationParameters);
 			m_deviceId = info.Id;
 			InternalValue = info.Value;

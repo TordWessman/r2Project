@@ -189,7 +189,7 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         pinMode(device.IOPorts[0], OUTPUT);
       
     } break;
-   
+    
   default:
   
     err("Device type not found.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND, type);
@@ -267,7 +267,9 @@ int* getValue(Device* device) {
   case DEVICE_TYPE_SIMPLE_MOIST: {
     
     digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], HIGH); // Start measurement cycle
-    delayMicroseconds(20); 
+    delayMicroseconds(2);
+    analogRead(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]); // First reading tends to be invalid
+    delayMicroseconds(2);
     values[0] = analogRead(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]);
     digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], LOW); // End measurement
     
