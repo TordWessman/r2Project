@@ -56,7 +56,7 @@ namespace R2Core.Network
 
 				if (m_listener.IsListening) {
 
-					HandleRequest(context.Request, context.Response);
+                    HandleRequest(context);
 
 				}
 
@@ -143,7 +143,10 @@ namespace R2Core.Network
 
 		}
 
-		private void HandleRequest(HttpListenerRequest request, HttpListenerResponse response) {
+		private void HandleRequest(HttpListenerContext context) {
+
+            HttpListenerRequest request = context.Request;
+            HttpListenerResponse response = context.Response;
 
 			Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
 			byte[] responseBody = new byte[0];
@@ -240,19 +243,8 @@ namespace R2Core.Network
 
 			ClearInactiveWriteTasks();
 
-			try {
+            m_writeTasks.Add(output.WriteAsync(data, 0, data.Length));
 
-				m_writeTasks.Add(output.WriteAsync(data, 0, data.Length));
-
-			} catch (Exception ex) {
-
-				Log.x(ex);
-			
-			} finally {
-			
-				output.Close();
-			
-			}
 
 		}
 
