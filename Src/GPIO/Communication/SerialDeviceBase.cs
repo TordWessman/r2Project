@@ -26,7 +26,7 @@ namespace R2Core.GPIO
         /// automatically updated when ´Update()´ is called (i.e.
         /// during the timed automatic synchronization event).
         /// </summary>
-        protected bool AutomaticUpdate = true;
+        public bool AutomaticUpdate = true;
 
         /// <summary>
         /// The cached internal value of this node.

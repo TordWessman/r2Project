@@ -20,15 +20,9 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.IO;
-using System.Text;
-using R2Core.Device;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Specialized;
-using System.Web;
 using R2Core.Data;
-using System.Text.RegularExpressions;
-using System.Timers;
 
 namespace R2Core.Network
 {

@@ -19,13 +19,10 @@
 using System;
 using NUnit.Framework;
 using R2Core.Network;
-using R2Core.Data;
 using System.Collections.Generic;
 using R2Core.Device;
 using System.Threading;
-using System.Net;
 using R2Core.Scripting;
-using R2Core.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -602,10 +599,10 @@ namespace R2Core.Tests
 			TCPServer s = (TCPServer)factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
 			DummyEndpoint ep = new DummyEndpoint(Settings.Consts.ConnectionRouterAddHostDestination());
 
-			string testHostName = "test_hostName";
+			IIdentity identity = new DummyIdentity();
 			ep.MessingUp = new Func<INetworkMessage,INetworkMessage>(msg => {
 			
-				Assert.AreEqual(testHostName, msg.Payload.HostName);
+				Assert.AreEqual(identity.Name, msg.Payload.HostName);
 				return new TCPMessage() { Code = NetworkStatusCode.Ok.Raw() };
 
 			});
@@ -614,9 +611,9 @@ namespace R2Core.Tests
 			s.Start();
 			Thread.Sleep(100);
 
-			TCPClientServer clientServer = (TCPClientServer)factory.CreateTcpClientServer("client_server");
+			TCPClientServer clientServer = factory.CreateTcpClientServer("client_server");
 			clientServer.Timeout = 250;
-			clientServer.Configure(testHostName, "127.0.0.1", port);
+			clientServer.Configure(identity, "127.0.0.1", port);
 			clientServer.Start();
 
 			Thread.Sleep(100);

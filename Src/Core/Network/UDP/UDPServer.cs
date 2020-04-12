@@ -23,10 +23,13 @@ using System.IO;
 using System.Linq;
 
 //TODO: add support for UDP signatures(create a new UDP package factory capable of distinguishing package identifiers)
-using System.Collections.Generic;
 
 namespace R2Core.Network
 {
+
+    /// <summary>
+    /// IServer implementation listening to broadcast UDP packages.
+    /// </summary>
 	public class UDPServer: ServerBase {
 
 		private UdpClient m_listener;
@@ -50,9 +53,10 @@ namespace R2Core.Network
 
 		protected override void Service() {
 
-			m_listener = new UdpClient();
-			m_listener.EnableBroadcast = true;
-			m_listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            m_listener = new UdpClient {
+                EnableBroadcast = true
+            };
+            m_listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 			m_listener.Client.Bind(m_groupEndpoint);
 
 			while(ShouldRun) {

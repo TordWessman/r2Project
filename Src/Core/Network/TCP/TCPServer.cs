@@ -39,7 +39,7 @@ namespace R2Core.Network
 
 		private TcpListener m_listener;
 
-		private ITCPPackageFactory<TCPMessage> m_packageFactory;
+		private readonly ITCPPackageFactory<TCPMessage> m_packageFactory;
 		private IList<IClientConnection> m_connections;
 
 		/// <summary>

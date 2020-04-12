@@ -35,13 +35,11 @@ namespace R2Core.Network
         private ISerialization m_serializer;
         private int m_lastPort;
         private string m_lastHost;
-        private IDictionary<string, object> m_headers;
-        private bool m_sending = false;
 
-        public bool Busy => m_sending;
-        public string Address { get { return m_lastHost; } }
-        public int Port { get { return m_lastPort; } }
-        public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
+        public bool Busy { get; private set; }
+        public string Address => m_lastHost;
+        public int Port => m_lastPort;
+        public IDictionary<string, object> Headers { get; set; }
 
         public HttpClient(string id, ISerialization serializer) : base(id) {
 
@@ -85,7 +83,7 @@ namespace R2Core.Network
 
             try {
 
-                m_sending = true;
+                Busy = true;
                 HttpMessage message = new HttpMessage(request);
 
                 HttpMessage responseObject = new HttpMessage() { Headers = new Dictionary<string, object>() };
@@ -202,7 +200,7 @@ namespace R2Core.Network
 
             } finally {
             
-                m_sending = false;
+                Busy = false;
             
             }
 

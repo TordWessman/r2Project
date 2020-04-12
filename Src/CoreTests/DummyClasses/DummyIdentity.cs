@@ -17,27 +17,22 @@
 //
 //
 using R2Core.Device;
+using R2Core;
 
-namespace R2Core {
+namespace R2Core.Tests {
 
-    /// <summary>
-    /// Represents the identity of the instance. This 'identity object'
-    /// can be used to identifie this instance accross networks.
-    /// </summary>
-    public interface IIdentity : IDevice {
+    public class DummyIdentity : DeviceBase, IIdentity {
 
-        /// <summary>
-        /// Human readable name of this instance.
-        /// </summary>
-        /// <value>The name.</value>
-        string Name { get; }
+        public DummyIdentity() : base ("dummy_id") {
 
-        /// <summary>
-        /// Automatically generated Guid unique (kind of) for
-        /// this machine.
-        /// </summary>
-        /// <value>The machine identifier.</value>
-        string MachineId { get; }
+            Name = "dummy_id";
+            MachineId = "dummy_machine_id";
+
+        }
+
+        public string Name { get; }
+
+        public string MachineId { get; }
 
     }
 
