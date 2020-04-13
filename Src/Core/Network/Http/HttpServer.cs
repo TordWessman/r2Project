@@ -238,13 +238,23 @@ namespace R2Core.Network
 		private void Write(HttpListenerResponse response, byte[] data) {
 
 			response.ContentLength64 = data.Length;
-			System.IO.Stream output = response.OutputStream;
+			Stream output = response.OutputStream;
 			WeakReference<HttpListenerResponse> reference = new WeakReference<HttpListenerResponse>(response);
 
 			ClearInactiveWriteTasks();
 
-            m_writeTasks.Add(output.WriteAsync(data, 0, data.Length));
+            Task writeTask = new Task(() => {
 
+                try {
+
+                    output.Write(data, 0, data.Length);
+
+                } catch (Exception ex) { Log.x(ex); } 
+                finally { output.Close(); }
+
+            });
+            m_writeTasks.Add(writeTask);
+            writeTask.Start();
 
 		}
 

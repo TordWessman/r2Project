@@ -28,7 +28,12 @@ namespace R2Core.Network
 		public string HostName { get; set; }
 		public string Address { get; set; }
 		public int Port { get; set; }
-	}
+
+        public override string ToString() {
+            return $"RegistrationRequest: [HostName: {HostName}, Address: {Address}, Port: {Port}]";
+        }
+
+    }
 
     public class TCPClientServer : ServerBase {
 
@@ -36,7 +41,6 @@ namespace R2Core.Network
         private static string PortKey;
         private static string ServerTypeKey;
 
-        private string m_address;
         private TcpClient m_client;
         private ITCPPackageFactory<TCPMessage> m_serializer;
 
@@ -170,7 +174,7 @@ namespace R2Core.Network
 							
 								IPAddress address = IPAddress.Parse((string)request.Headers[AddressKey]);
 
-								Int64 port = (Int64)request.Headers[PortKey];
+								long port = (long)request.Headers[PortKey];
 								clientEndpoint = new IPEndPoint(address, (int)port);
 
 							} 
