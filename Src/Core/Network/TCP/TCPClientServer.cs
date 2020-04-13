@@ -23,17 +23,6 @@ using System.Net;
 
 namespace R2Core.Network
 {
-	public struct RegistrationRequest {
-	
-		public string HostName { get; set; }
-		public string Address { get; set; }
-		public int Port { get; set; }
-
-        public override string ToString() {
-            return $"RegistrationRequest: [HostName: {HostName}, Address: {Address}, Port: {Port}]";
-        }
-
-    }
 
     public class TCPClientServer : ServerBase {
 
@@ -227,7 +216,7 @@ namespace R2Core.Network
 
 			TCPMessage attachMessage = new TCPMessage () {
 				Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
-				Payload = new RegistrationRequest() { 
+				Payload = new RoutingRegistrationRequest() { 
 					HostName = Identity.Name,
 					Address = m_client.GetLocalEndPoint()?.GetAddress(),
 					Port = m_client.GetLocalEndPoint()?.GetPort() ?? 0

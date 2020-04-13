@@ -127,7 +127,6 @@
     <Compile Include="Network\ConnectionPoller.cs" />
     <Compile Include="Extensions\NetworkSocketExtensions.cs" />
     <Compile Include="Network\TCP\TCPClientServer.cs" />
-    <Compile Include="Network\TCP\TCPRouterEndpoint.cs" />
     <Compile Include="Network\TCP\TCPProxy.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Network\TCP\TCPProxyConnection.cs" />
@@ -137,6 +136,8 @@
     <Compile Include="Device\RemoteDevice\AsyncRemoteDeviceRequest.cs" />
     <Compile Include="Shared\Identity.cs" />
     <Compile Include="Shared\IIdentity.cs" />
+    <Compile Include="Network\Messages\RoutingRegistrationRequest.cs" />
+    <Compile Include="Network\TCP\TCPRouterEndpoint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

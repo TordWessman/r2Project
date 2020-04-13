@@ -29,7 +29,7 @@ namespace R2Core.Network {
 	/// </summary>
 	public class TCPRouterEndpoint : IWebEndpoint {
 
-		private TCPServer m_tcpServer;
+		private readonly TCPServer m_tcpServer;
 		private IDictionary<string, IClientConnection> m_connections;
 		private static string HeaderHostName = Settings.Consts.ConnectionRouterHeaderHostNameKey();
 
@@ -63,8 +63,13 @@ namespace R2Core.Network {
                 }
 
 				return new TCPMessage () {
-					Code = NetworkStatusCode.Ok.Raw ()
-				};
+					Code = NetworkStatusCode.Ok.Raw (),
+                    Payload = new RoutingRegistrationResponse() {
+                        Address = source.Address.ToString(),
+                        Port = source.Port
+                    }
+
+                };
 
 			} else if (request.Headers.ContainsKey(HeaderHostName)) {
 
