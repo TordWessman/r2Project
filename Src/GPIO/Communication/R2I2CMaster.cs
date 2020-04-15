@@ -1,8 +1,6 @@
-﻿using System;
-using R2Core.Device;
+﻿using R2Core.Device;
 using System.Runtime.InteropServices;
 using System.Linq;
-using R2Core;
 
 namespace R2Core.GPIO
 {

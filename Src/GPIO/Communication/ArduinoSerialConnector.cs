@@ -20,7 +20,6 @@ using System.IO.Ports;
 using System.Text.RegularExpressions;
 using System.Linq;
 using R2Core.Device;
-using R2Core;
 
 namespace R2Core.GPIO
 {

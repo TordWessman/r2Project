@@ -20,7 +20,6 @@ using System;
 using R2Core.Device;
 using System.Threading;
 using System.Collections.Generic;
-using R2Core;
 
 namespace R2Core.GPIO
 {
@@ -28,9 +27,6 @@ namespace R2Core.GPIO
 	/// Default ISerialNode implementation. Capable of synchronizing devices on associated node.
 	/// </summary>
 	internal class SerialNode : DeviceBase, ISerialNode {
-
-		// Remote id of this node
-		private byte m_nodeId;
 
 		// Devices connected to this node
 		private List<ISerialDevice> m_devices;
@@ -47,45 +43,31 @@ namespace R2Core.GPIO
 		// Release event for timer
 		private AutoResetEvent m_release;
 
-		// Will be true if an Update event is running for this node.
-		private bool m_isUpdating;
-
-		// If true, the node will try to update it's devices if it's in sleep mode.
-		private bool m_shouldUpdate;
-
-		// Increased every exception
-		private int m_failCount;
-
 		/// <summary>
 		/// Interval used for update frequencies. If value less than 0, the timer will not execute. 
 		/// </summary>
-		private int m_updateInterval;
+		private readonly int m_updateInterval;
 
-		// Set upon successful Update
-		private DateTime m_lastUpdate;
+		public byte NodeId { get; private set; }
+        public bool ContinousSynchronization { get; set; }
 
-		public byte NodeId { get { return m_nodeId; } }
-
-		// Will be true if this node is being updated.
-		public bool IsUpdating { get { return m_isUpdating; } }
+        /// <summary>
+        /// Will be true if this node is being updated.
+        /// </summary>
+        /// <value><c>true</c> if is updating; otherwise, <c>false</c>.</value>
+        public bool IsUpdating { get; private set; }
 
 		/// <summary>
 		/// Returns the timestamp of the time when this node did complete a successful synchronization.
 		/// </summary>
 		/// <value>The last update.</value>
-		public DateTime LastUpdate { get { return m_lastUpdate; } }
+		public DateTime LastUpdate { get; private set; }
 
 		/// <summary>
 		/// Returns the number of failures this node has encountered during Update.
 		/// </summary>
 		/// <value>The fail count.</value>
-		public int FailCount { get { return m_failCount; } }
-
-		/// <summary>
-		/// If the node should perpetually be trying to fetch the values(Update) it's associated devices if in sleep mode. Defaults to true.
-		/// </summary>
-		/// <value><c>true</c> if should update; otherwise, <c>false</c>.</value>
-		public bool ShouldUpdate { get { return m_shouldUpdate; } set { m_shouldUpdate = value; } }
+		public int FailCount { get; private set; }
 
 		/// <summary>
 		/// `nodeID` is the remote id of the node. ISerialHost is used for communication to remote. ISerialHost used for serial communication. `updateInterval`: how often should the nodes update if in sleep mode(if zero, do not update. if below zero, use default value).
@@ -96,20 +78,20 @@ namespace R2Core.GPIO
 		internal SerialNode(byte nodeId, IArduinoDeviceRouter host, int updateInterval) : base($"{Settings.Consts.SerialNodeIdPrefix()}{nodeId}") {
 			
 			m_host = host;
-			m_nodeId = nodeId;
+			NodeId = nodeId;
 			m_devices = new List<ISerialDevice>();
 			m_updateInterval = updateInterval;
-			m_shouldUpdate = true;
+			ContinousSynchronization = true;
 			m_shouldSleep = host.IsNodeSleeping(nodeId);
 
 			if (m_shouldSleep) {
 
-				m_lastUpdate = DateTime.MinValue;
+				LastUpdate = DateTime.MinValue;
 				StartScheduledSynchronization();
 
 			} else {
 			
-				m_lastUpdate = DateTime.Now;
+				LastUpdate = DateTime.Now;
 
 			}
 
@@ -129,7 +111,7 @@ namespace R2Core.GPIO
 
 		}
 
-		public override bool Ready { get { return m_host.IsNodeAvailable(m_nodeId); } }
+		public override bool Ready { get { return m_host.IsNodeAvailable(NodeId); } }
 		public override void Start() { StartScheduledSynchronization(); }
 		public override void Stop() { StopScheduledSynchronization(); }
 		public void Synchronize() { m_devices.ForEach(device => device.Synchronize()); }
@@ -162,35 +144,35 @@ namespace R2Core.GPIO
 		private void Update(object obj) {
 
 			// abort if the m_shouldUpdate flag is set to false.
-			if (!m_shouldUpdate) { return; }
+			if (!ContinousSynchronization) { return; }
 
 			// yield if an update is in progress or if scheduling has been stopped.
 			if (IsUpdating || m_timer == null) { return; }
 
-			m_isUpdating = true;
+			IsUpdating = true;
 
 			try {
 
 				// Wake up node, just in case
-				m_host.PauseSleep(m_nodeId, Settings.Consts.SerialNodePauseSleepInterval());
+				m_host.PauseSleep(NodeId, Settings.Consts.SerialNodePauseSleepInterval());
 
 				// Update the values of tracked devices
 				m_devices.ForEach(device => device.Update());
 
-				m_lastUpdate = DateTime.Now;
+				LastUpdate = DateTime.Now;
 
 			} catch (Exception ex) {
 				
-				Log.w($"Node({m_nodeId}) update error: {ex.Message}.");
-				m_failCount++;
+				Log.w($"Node({NodeId}) update error: {ex.Message}.");
+				FailCount++;
 
-			} finally { m_isUpdating = false; } 
+			} finally { IsUpdating = false; } 
 
 		}
 
 		public bool Validate() {
 
-			byte[] checksum = m_host.GetChecksum(m_nodeId);
+			byte[] checksum = m_host.GetChecksum(NodeId);
 
 			if ((checksum [0] & 63) != m_devices.Count) {
 			

@@ -48,7 +48,7 @@ namespace R2Core.GPIO
 		/// <summary>
 		/// Initializes(resets) the specified host.
 		/// </summary>
-		/// <param name="host">Host.</param>
+		/// <param name="nodeId">Host.</param>
 		void Initialize(int nodeId);
 
 		/// <summary>
@@ -61,7 +61,7 @@ namespace R2Core.GPIO
 		/// Returns true if the specified node is currently registered at the master (not to be confused with sleep mode).
 		/// </summary>
 		/// <returns><c>true</c> if this instance is node available the specified host; otherwise, <c>false</c>.</returns>
-		/// <param name="host">Host.</param>
+		/// <param name="nodeId">Host.</param>
 		bool IsNodeAvailable(int nodeId);
 
 		/// <summary>

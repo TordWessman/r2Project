@@ -1,6 +1,21 @@
-﻿using System;
+﻿// This file is part of r2Poject.
+//
+// Copyright 2016 Tord Wessman
+// 
+// r2Project is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// r2Project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with r2Project. If not, see <http://www.gnu.org/licenses/>.
+// 
 using R2Core.Device;
-using System.Linq;
 
 namespace R2Core.GPIO
 {
@@ -12,21 +27,8 @@ namespace R2Core.GPIO
 		// Defined by the host application. A port with this value is not in use.
 		private const byte DEVICE_PORT_NOT_IN_USE = 0xFF;
 
-		// The id of the device at the node device
-		private byte m_deviceId;
-
-		// Represent the remote connection
-		private IArduinoDeviceRouter m_host;
-
 		// The node to which this node is attached
 		private ISerialNode m_node;
-
-        /// <summary>
-        /// If true, the `Value` property of this device will be
-        /// automatically updated when ´Update()´ is called (i.e.
-        /// during the timed automatic synchronization event).
-        /// </summary>
-        public bool AutomaticUpdate = true;
 
         /// <summary>
         /// The cached internal value of this node.
@@ -36,12 +38,12 @@ namespace R2Core.GPIO
         /// <summary>
         /// The ´ISerialHost´ this device is using to transmit data.
         /// </summary>
-        protected IArduinoDeviceRouter Host { get { return m_host; } }
+        protected IArduinoDeviceRouter Host { get; private set; }
 
         /// <summary>
         /// The identifier at the serial host.
         /// </summary>
-        protected byte DeviceId { get { return m_deviceId; } }
+        protected byte DeviceId { get; private set; }
 
 		public byte NodeId { get { return m_node.NodeId; } }
 		public bool IsSleeping { get { return m_node.Sleep; } }
@@ -49,7 +51,7 @@ namespace R2Core.GPIO
 
 		internal SerialDeviceBase(string id, ISerialNode node, IArduinoDeviceRouter host): base(id) {
 			
-			m_host = host;
+			Host = host;
 			m_node = node;
 			m_node.Track(this);
 
@@ -81,24 +83,20 @@ namespace R2Core.GPIO
 
 		public void Update() {
 
-            if (AutomaticUpdate) {
-
-                InternalValue = Host.GetValue<T>(m_deviceId, NodeId).Value;
-
-            }
+            InternalValue = Host.GetValue<T>(DeviceId, NodeId).Value;
 
 		}
 
 		public void Synchronize() {
 
 			DeviceData<T>info = Host.Create<T>((byte)NodeId, DeviceType, CreationParameters);
-			m_deviceId = info.Id;
+            DeviceId = info.Id;
 			InternalValue = info.Value;
 
 		}
 
 		// Calculation is defined by the node application
-		public byte Checksum { get { return (byte)(((int)DeviceType << 4) + m_deviceId + ((CreationParameters.Length == 0 ? DEVICE_PORT_NOT_IN_USE : CreationParameters[0]) ^ 0xFF)); } }
+		public byte Checksum { get { return (byte)(((int)DeviceType << 4) + DeviceId + ((CreationParameters.Length == 0 ? DEVICE_PORT_NOT_IN_USE : CreationParameters[0]) ^ 0xFF)); } }
 
 		public override string ToString() {
 			

@@ -139,7 +139,7 @@ namespace R2Core.GPIO.Tests
 			Assert.AreEqual(543, sensor.Value);
 
 			// The update should now be disabled
-			((SerialNode) factory [3]).ShouldUpdate = false;
+			((SerialNode) factory [3]).ContinousSynchronization = false;
 
 			// This value should therefore never be read
 			remoteMock.IntValues [0] = 43;

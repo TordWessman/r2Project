@@ -72,7 +72,6 @@
     <Compile Include="CoreTests\ScriptTests.cs" />
     <Compile Include="CoreTests\TestBase.cs" />
     <Compile Include="CoreTests\TestMemory.cs" />
-    <Compile Include="GPIOTests\GPIOTests.cs" />
     <Compile Include="CoreTests\TCPTests.cs" />
     <Compile Include="CoreTests\HttpTests.cs" />
     <Compile Include="CoreTests\UDPTests.cs" />
@@ -95,7 +94,6 @@
   <ItemGroup>
     <Folder Include="DummyClasses\" />
     <Folder Include="CoreTests\" />
-    <Folder Include="GPIOTests\" />
     <Folder Include="Integration\" />
   </ItemGroup>
   <ItemGroup>

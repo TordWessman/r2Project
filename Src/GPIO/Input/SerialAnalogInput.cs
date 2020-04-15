@@ -15,9 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-using System;
-using R2Core.Device;
-using System.Linq;
 
 namespace R2Core.GPIO
 {
@@ -32,13 +29,11 @@ namespace R2Core.GPIO
 
 		}
 
-		protected override byte[] CreationParameters { get { 
-				return m_ports;
-			} }
+		protected override byte[] CreationParameters { get { return m_ports; } }
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogInput; } }
 
-		public double Value { get { return(double)GetValue() [0]; } }
+		public double Value { get { return GetValue()[0]; } }
 	
 	}
 
@@ -46,12 +41,17 @@ namespace R2Core.GPIO
 
 		internal SimpleAnalogueHumiditySensor(string id, ISerialNode node, IArduinoDeviceRouter host, int[] ports): base(id, node, host, ports) {
 
-            // Only update when requested in order to minimize the electrolysis effect.
-            AutomaticUpdate = false;
+            if (node.ContinousSynchronization) {
 
+                Log.e(  $"SimpleAnalogueHumiditySensor creation error: " +
+                	    "Node with id {node.NodeId} has ´ContinousSynchronization´ set to ´true´. This may cause probe electrolysis.");
+            
+            }
+        
         }
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.SimpleMoist; } }
 
 	}
+
 }
