@@ -20,9 +20,6 @@ using System;
 using NUnit.Framework;
 using R2Core.Tests;
 using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using R2Core;
 using System.Threading;
 
 namespace R2Core.GPIO.Tests

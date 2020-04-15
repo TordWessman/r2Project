@@ -197,15 +197,14 @@ namespace R2Core.Device
         /// <param name="task">Task to be executed.</param>
         public void AddTask(AsyncRemoteDeviceTask task) {
 
-            if (!LossyRequests) {
+            if (LossyRequests) {
+
+                if (Busy) { m_lastAsyncTask = task; } else { task.Start(); }
+           
+            } else {
 
                 m_lastAsyncTask = null;
                 task.Start();
-
-            } else {
-            
-                if (Busy) { m_lastAsyncTask = task; }
-                else { task.Start(); }
 
             }
 

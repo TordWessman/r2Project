@@ -16,7 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-
 using System;
 using NUnit.Framework;
 using R2Core.Network;
@@ -24,8 +23,6 @@ using System.Threading;
 using R2Core.Device;
 using System.Threading.Tasks;
 using R2Core.Scripting;
-using R2Core.Common;
-
 namespace R2Core.Tests
 {
 	
@@ -215,9 +212,9 @@ namespace R2Core.Tests
             Thread.Sleep(50);
             Assert.AreEqual("hund", hundValue);
 
-            // Call a fake method 10 times
+            // Call a fake method 10 times.
             int receiveCount = 0;
-
+            host.Delay = 10;
             for (int i = 0; i < 10; i++) {
 
                 remoteDevice.Async((response, exception) => {
@@ -233,25 +230,28 @@ namespace R2Core.Tests
             Thread.Sleep(100); // They should be done by now... (but maybe not)
 
             Assert.AreEqual(10, receiveCount); // .. and all 3 should have been executed.
-            host.Delay = 50;
+
+
             // Shoul lose requests before the last one.
             remoteDevice.LossyRequests = true;
             receiveCount = 0;
+            host.Delay = 50; // Add a small delay
 
-            // Call a fake method 10 times
-            for (int i = 0; i < 10; i++) {
-               
+            // Call a fake method 50 times. If running this test continously, it will start failing.
+            for (int i = 0; i < 50; i++) {
+              
                 remoteDevice.Async((response, exception) => {
 
+                    Log.t($" -- {i}");
                     Assert.IsNull(exception);
                     receiveCount++;
 
                 }).din_mamma();
+
             }
 
             Thread.Sleep(200); // They should be done by now... (but maybe not)
             Assert.AreEqual(2, receiveCount); // .. only 2 should have been executed
-
 
             // Test GetValue
 
@@ -294,9 +294,6 @@ namespace R2Core.Tests
 			wasInvoked = true;
 
 		}
-
-
-
 
 	}
 
