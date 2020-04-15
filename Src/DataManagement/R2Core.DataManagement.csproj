@@ -54,10 +54,18 @@
     <Compile Include="Memory\SharedMemorySource.cs" />
     <Compile Include="Memory\TemporaryMemorySource.cs" />
     <Compile Include="DataFactoryExtensions.cs" />
+    <Compile Include="Statistics\StatLogger.cs" />
+    <Compile Include="Statistics\DataFactoryStatisticsExtensions.cs" />
+    <Compile Include="Statistics\IStatLoggerDBAdapter.cs" />
+    <Compile Include="Statistics\StatLoggerDBAdapter.cs" />
+    <Compile Include="Statistics\IStatLoggable.cs" />
+    <Compile Include="Statistics\StatLogEntry.cs" />
+    <Compile Include="SQLiteExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Memory\" />
+    <Folder Include="Statistics\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\R2Core.csproj">

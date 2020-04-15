@@ -21,15 +21,16 @@ using R2Core.Data;
 using System.Collections.Generic;
 using System.Data;
 using MemoryType = System.String;
-using System.Linq;
 
 namespace R2Core.DataManagement.Memory
 {
-	public class MemoryDBAdapter : IMemoryDBAdapter {
-		
-		private IDatabase m_db;
-		
-		private const string MEMORY_TABLE_NAME = "memory";
+	public class MemoryDBAdapter : DBAdapter, IMemoryDBAdapter {
+
+        protected override string GetTableName() => throw new NotImplementedException();
+        protected override IDictionary<string, string> GetColumns() => throw new NotImplementedException();
+        protected override IEnumerable<string> GetPrimaryKeys() => throw new NotImplementedException();
+
+        private const string MEMORY_TABLE_NAME = "memory";
 		private const string ID_COL = "id";
 		private const string NAME_COL = "value";
 		private const string TYPE_COL = "type";
@@ -42,12 +43,9 @@ namespace R2Core.DataManagement.Memory
 		private const string SELECT_ALL_SQL = "SELECT * FROM  \"{0}\"";
 		
 		private const string DELETE_SQL = "DELETE FROM  \"{0}\" WHERE {1}={2}";
-
-		public bool Ready { get {return m_db.Ready; }}
 		
-		public MemoryDBAdapter(IDatabase db) {
+		public MemoryDBAdapter(IDatabase db) : base (db) {
 
-			m_db = db;
 		
 		}
 
@@ -56,13 +54,13 @@ namespace R2Core.DataManagement.Memory
 			ICollection<IMemoryReference> memories = new List<IMemoryReference>();
 			string sql = string.Format(SELECT, MEMORY_TABLE_NAME, TYPE_COL, type);
 
-			if (!m_db.Ready) {
+			if (!Database.Ready) {
 
 				throw new InvalidOperationException("Database not ready!");
 
 			}
 
-			DataSet ds = m_db.Select(sql);
+			DataSet ds = Database.Select(sql);
 			DataTable dt = ds.Tables [0];
 
 			foreach (DataRow row in dt.Rows) {
@@ -80,13 +78,13 @@ namespace R2Core.DataManagement.Memory
 			ICollection<IMemoryReference> memories = new List<IMemoryReference>();
 			string sql = string.Format(SELECT_MANY, MEMORY_TABLE_NAME, ID_COL, String.Join(",", ids));
 
-			if (!m_db.Ready) {
+			if (!Database.Ready) {
 
 				throw new InvalidOperationException("Database not ready!");
 
 			}
 
-			DataSet ds = m_db.Select(sql);
+			DataSet ds = Database.Select(sql);
 			DataTable dt = ds.Tables [0];
 
 			foreach (DataRow row in dt.Rows) {
@@ -110,17 +108,17 @@ namespace R2Core.DataManagement.Memory
 				ID_COL,
 				reference.Id);
 
-			if (!m_db.Ready) {
+			if (!Database.Ready) {
 
 				throw new InvalidOperationException("Database not ready!");
 
 			}
 
-			return m_db.Update(sql) > 0;
+			return Database.Update(sql) > 0;
 
 		}
 		
-		public void SetUp() {
+		public override void SetUp() {
 
 			string sql = string.Format(CREATE_TABLE_SQL,
 			                           	MEMORY_TABLE_NAME,
@@ -128,13 +126,13 @@ namespace R2Core.DataManagement.Memory
 			                           	NAME_COL,
 			                            TYPE_COL);
 
-			if (!m_db.Ready) {
+			if (!Database.Ready) {
 			
 				throw new InvalidOperationException("Database not ready!");
 		
 			}
 			
-			m_db.Update(sql);
+			Database.Update(sql);
 		
 		}
 		
@@ -150,13 +148,13 @@ namespace R2Core.DataManagement.Memory
 				reference.Value.Replace("\"", ""),
 				reference.Type.Replace("\"", ""));
 				
-			if (!m_db.Ready) {
+			if (!Database.Ready) {
 
 				throw new InvalidOperationException("Database not ready!");
 			
 			}
 			
-			m_db.Insert(sql);
+			Database.Insert(sql);
 		
 		}
 		
@@ -165,13 +163,13 @@ namespace R2Core.DataManagement.Memory
 			ICollection<IMemoryReference> memories = new List<IMemoryReference>();
 			string sql = string.Format(SELECT_ALL_SQL, MEMORY_TABLE_NAME);
 			
-			if (!m_db.Ready) {
+			if (!Database.Ready) {
 
 				throw new InvalidOperationException("Database not ready!");
 			
 			}
 			
-			DataSet ds = m_db.Select(sql);
+			DataSet ds = Database.Select(sql);
 			DataTable dt = ds.Tables [0];
 			
 			foreach (DataRow row in dt.Rows) {
@@ -192,13 +190,13 @@ namespace R2Core.DataManagement.Memory
 			    ID_COL,
 				memoryId);
 			
-			if (!m_db.Ready) {
+			if (!Database.Ready) {
 			
 				throw new InvalidOperationException("Database not ready!");
 			
 			}
 			
-			int result = m_db.Update(sql);
+			int result = Database.Update(sql);
 			
 			if (result > 0) {
 			

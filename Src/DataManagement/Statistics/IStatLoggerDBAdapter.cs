@@ -16,26 +16,13 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
-using R2Core.Data;
 
-namespace R2Core.DataManagement
-{
-	public static class DataFactoryExtensions {
+namespace R2Core.DataManagement {
 
-		public static IDatabase CreateSqlDatabase(this DataFactory self, string id, string fileName) {
+    public interface IStatLoggerDBAdapter : IDBAdapter {
 
-			return new SqliteDatabase(id, self.GetFilePath(fileName));
-
-		}
-
-		public static T CreateDatabaseAdapter<T>(this DataFactory self, IDatabase database) where T: DBAdapter {
-
-            return (T)Activator.CreateInstance(typeof(T), database);
-
-		}
+        void LogEntry(StatLogEntry<double> entry);
 
     }
 
 }
-

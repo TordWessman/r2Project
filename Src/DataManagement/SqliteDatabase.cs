@@ -18,27 +18,20 @@
 
 using System;
 using Mono.Data.Sqlite;
-using Mono.Data;
 using System.IO;
-using System.Collections.Generic;
 using System.Data;
 using R2Core.Device;
 
 namespace R2Core.DataManagement
 {
-	public class SqliteDatabase : DeviceBase, IDatabase
-	{
-		private string m_fileName;
+	public class SqliteDatabase : DeviceBase, IDatabase {
+
+		private readonly string m_fileName;
 		private SqliteConnection m_con;
 
 		private readonly object m_queryLock = new object();
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Core.DB.SqliteDatabase"/> class. If fileName is not found, the database file will be created.
-		/// </summary>
-		/// <param name="fileName">File name.</param>
-		public SqliteDatabase(string id, string fileName) : base(id) 
-		{
+		public SqliteDatabase(string id, string fileName) : base(id) {
 
 			m_fileName = fileName;
 
@@ -70,22 +63,18 @@ namespace R2Core.DataManagement
 					throw new InvalidOperationException("Unable to sqlite instance - one instance for this file name already started.");
 				
 				}
-			
-				try {
+	
+				string cs = "URI=file:" + m_fileName;
 
-					string cs = "URI=file:" + m_fileName;
-
-					m_con = new SqliteConnection(cs);
-					m_con.Open();
-					
-				} finally {
-				}
-
+				m_con = new SqliteConnection(cs);
+				m_con.Open();
+				
 			}
 			
 		}
 		
 		public override void Stop() {
+
 			lock(m_queryLock) {
 
 				if (m_con != null) {
@@ -148,7 +137,8 @@ namespace R2Core.DataManagement
 
 		}
 		
-		public Int64 Insert(string queryString) {
+		public long Insert(string queryString) {
+
 			lock(m_queryLock) {
 
 				if (m_con == null) {
@@ -165,7 +155,7 @@ namespace R2Core.DataManagement
 			
 				using(SqliteCommand cmd = new SqliteCommand(@"select last_insert_rowid()", m_con)) {
 				
-					return(Int64)cmd.ExecuteScalar();                                                         
+					return (long)cmd.ExecuteScalar();                                                         
 				
 				}
 

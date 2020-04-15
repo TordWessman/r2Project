@@ -17,13 +17,129 @@
 // 
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace R2Core.DataManagement
 {
-	public interface IDBAdapter
-	{
-		bool Ready {get;}
+	public interface IDBAdapter {
+
+		bool Ready { get; }
+
 		void SetUp();
-	}
+	
+    }
+
+    public abstract class DBAdapter : IDBAdapter {
+
+        protected IDatabase Database { get; private set; }
+
+        protected abstract string GetTableName();
+
+        protected abstract IDictionary<string, string> GetColumns();
+
+        protected abstract IEnumerable<string> GetPrimaryKeys();
+
+        public DBAdapter(IDatabase database) {
+
+            Database = database;
+        
+        }
+
+        public bool Ready => Database.Ready;
+
+        public virtual void SetUp() {
+
+            if (!Database.Ready) { throw new InvalidOperationException("Database not ready!"); }
+
+            Database.Update(CreateSQL);
+
+        }
+
+        protected string CreateSQL { get {
+
+            string sql = $"CREATE TABLE IF NOT EXIST \"{GetTableName()}\" (";
+
+            foreach (var column in GetColumns()) { sql += $"\"{column.Key}\" {column.Value}, "; }
+            sql = sql.Substring(0, sql.Length - 3);
+
+            if (GetPrimaryKeys().Count() > 0) {
+
+                sql += ", PRIMARY KEY (";
+                foreach(string key in GetPrimaryKeys()) {  sql += $"{key}, "; }
+                sql = sql.Substring(0, sql.Length - 3);
+                sql += ")";
+
+            }
+
+            sql += ")";
+
+            return sql;
+
+       } }
+
+        public string UpdateSQL(IDictionary<string, string> values, string conditionsSQL) {
+
+            string sql = $"UPDATE \"{GetTableName()}\" SET ";
+
+            foreach (var value in values) {
+
+                if (!GetColumns().ContainsKey(value.Key)) {
+
+                    throw new ArgumentException($"Invalid key '{value.Key}' not found in Columns.");
+
+                }
+
+                sql += $"\"{value.Key}\" = \"{value.Value}\", ";
+
+            }
+            sql = sql.Substring(0, sql.Length - 3);
+
+            sql += $" WHERE {conditionsSQL}";
+            return sql;
+        }
+
+        protected string DeleteSQL(string conditionsSQL) {
+
+            return $"DELETE FROM {GetTableName()} WHERE {conditionsSQL}";
+
+        }
+
+        protected string SelectSQL(string conditionsSQL) {
+
+            string sql = $"SELECT ";
+            foreach (string column in GetColumns().Keys) { sql += $"{column}, "; }
+            sql = sql.Substring(0, sql.Length - 3);
+
+            sql += $" FROM {GetTableName()} WHERE {conditionsSQL}";
+            return sql;
+
+        }
+
+        protected string InsertSQL(IEnumerable<string> values) {
+
+            string sql = $"INSERT INTO \"{GetTableName()}\" (";
+
+            if (values.Count() != GetColumns().Count) {
+
+                throw new ArgumentException($"Invalid parameter count. Required {GetColumns().Count}. Got {values.Count()}");
+
+            }
+
+            foreach (string column in GetColumns().Keys) { sql += $"\"{column}\", "; }
+            sql = sql.Substring(0, sql.Length - 3);
+
+            sql += ") VALUES (";
+            foreach (string value in values) { sql += $" \"{value}\", "; }
+
+            sql = sql.Substring(0, sql.Length - 3);
+
+            sql += ")";
+
+            return sql;
+        }
+
+
+    }
 }
 

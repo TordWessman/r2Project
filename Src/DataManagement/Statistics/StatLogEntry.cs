@@ -16,26 +16,36 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
+
 using System;
-using R2Core.Data;
 
-namespace R2Core.DataManagement
-{
-	public static class DataFactoryExtensions {
+namespace R2Core.DataManagement {
 
-		public static IDatabase CreateSqlDatabase(this DataFactory self, string id, string fileName) {
+    /// <summary>
+    /// Represents a data point in the ´StatLogger´ context.
+    /// </summary>
+    public struct StatLogEntry<T> {
 
-			return new SqliteDatabase(id, self.GetFilePath(fileName));
+        /// <summary>
+        /// The identifier of the object being logged.
+        /// </summary>
+        public string Identifier;
 
-		}
+        /// <summary>
+        /// Time of log entry creation.
+        /// </summary>
+        public DateTime Timestamp;
 
-		public static T CreateDatabaseAdapter<T>(this DataFactory self, IDatabase database) where T: DBAdapter {
+        /// <summary>
+        /// The value being logged
+        /// </summary>
+        public T Value;
 
-            return (T)Activator.CreateInstance(typeof(T), database);
-
-		}
+        /// <summary>
+        /// An (optional) description of the logged value.
+        /// </summary>
+        public string Description;
 
     }
 
 }
-
