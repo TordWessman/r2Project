@@ -1,4 +1,3 @@
-import scriptbase
 import time
 
 class MainClass:

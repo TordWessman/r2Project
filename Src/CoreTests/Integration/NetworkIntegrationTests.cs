@@ -33,9 +33,6 @@ namespace R2Core.IntegrationTests
 	[TestFixture]
 	public class NetworkIntegrationTests : NetworkTests {
 		
-		public NetworkIntegrationTests() {
-		}
-
 		int clientStop = 0;
 
 		[Test]
