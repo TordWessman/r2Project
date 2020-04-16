@@ -27,9 +27,6 @@ namespace R2Core.GPIO
 		// Defined by the host application. A port with this value is not in use.
 		private const byte DEVICE_PORT_NOT_IN_USE = 0xFF;
 
-		// The node to which this node is attached
-		private ISerialNode m_node;
-
         /// <summary>
         /// The cached internal value of this node.
         /// </summary>
@@ -45,15 +42,15 @@ namespace R2Core.GPIO
         /// </summary>
         protected byte DeviceId { get; private set; }
 
-		public byte NodeId { get { return m_node.NodeId; } }
-		public bool IsSleeping { get { return m_node.Sleep; } }
-		public override bool Ready { get { return m_node.Ready; } }
+		public ISerialNode Node { get; private set; }
+		public bool IsSleeping { get { return Node.Sleep; } }
+		public override bool Ready { get { return Node.Ready; } }
 
 		internal SerialDeviceBase(string id, ISerialNode node, IArduinoDeviceRouter host): base(id) {
 			
 			Host = host;
-			m_node = node;
-			m_node.Track(this);
+			Node = node;
+			Node.Track(this);
 
 		}
 
@@ -83,13 +80,13 @@ namespace R2Core.GPIO
 
 		public void Update() {
 
-            InternalValue = Host.GetValue<T>(DeviceId, NodeId).Value;
+            InternalValue = Host.GetValue<T>(DeviceId, Node.NodeId).Value;
 
 		}
 
 		public void Synchronize() {
 
-			DeviceData<T>info = Host.Create<T>((byte)NodeId, DeviceType, CreationParameters);
+			DeviceData<T>info = Host.Create<T>((byte)Node.NodeId, DeviceType, CreationParameters);
             DeviceId = info.Id;
 			InternalValue = info.Value;
 
@@ -100,7 +97,7 @@ namespace R2Core.GPIO
 
 		public override string ToString() {
 			
-			return $"[SerialDevice: Id={DeviceId}, NodeId={NodeId}, Value={InternalValue}, IsSleeping={IsSleeping}, Ready={Ready}]";
+			return $"[SerialDevice: Id={DeviceId}, NodeId={Node.NodeId}, Value={InternalValue}, IsSleeping={IsSleeping}, Ready={Ready}]";
 		
 		}
 	

@@ -76,7 +76,7 @@ namespace R2Core.GPIO
 		/// <param name="host">Host.</param>
 		/// <param name="updateInterval">Update interval.</param>
 		internal SerialNode(byte nodeId, IArduinoDeviceRouter host, int updateInterval) : base($"{Settings.Consts.SerialNodeIdPrefix()}{nodeId}") {
-			
+
 			m_host = host;
 			NodeId = nodeId;
 			m_devices = new List<ISerialDevice>();
@@ -195,6 +195,12 @@ namespace R2Core.GPIO
 
 		}
 
-	}
+        public override string ToString() {
+
+            return $"[SerialNode: NodeId: {NodeId}, ContinousSynchronization: {ContinousSynchronization}, FailCount: {FailCount}, LastUpdate: {LastUpdate}]";
+        
+        }
+
+    }
 
 }

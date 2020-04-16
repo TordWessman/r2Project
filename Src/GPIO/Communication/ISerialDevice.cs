@@ -39,8 +39,8 @@ namespace R2Core.GPIO
 		/// <summary>
 		/// The node to which this device belongs
 		/// </summary>
-		/// <value>The node identifier.</value>
-		byte NodeId { get; }
+		/// <value>The node.</value>
+		ISerialNode Node { get; }
 
 		/// <summary>
 		/// If the node to which this device is attached is in sleep mode.

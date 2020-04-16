@@ -44,7 +44,7 @@ namespace R2Core.GPIO
             if (node.ContinousSynchronization) {
 
                 Log.e(  $"SimpleAnalogueHumiditySensor creation error: " +
-                	    "Node with id {node.NodeId} has ´ContinousSynchronization´ set to ´true´. This may cause probe electrolysis.");
+                	    $"Node with id {node.NodeId} has ´ContinousSynchronization´ set to ´true´. This may cause probe electrolysis.");
             
             }
         

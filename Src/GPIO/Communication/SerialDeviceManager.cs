@@ -48,13 +48,13 @@ namespace R2Core.GPIO
 			// Wake up node, just in case
 			m_host.PauseSleep(nodeId, Settings.Consts.SerialNodePauseSleepInterval());
 
-			Nodes.Where(n => n.NodeId == nodeId).FirstOrDefault()?.Synchronize();
+			Nodes.FirstOrDefault(n => n.NodeId == nodeId)?.Synchronize();
 
 		}
 
 		internal ISerialNode GetNode(int nodeId) {
 		
-			ISerialNode node = Nodes.Where(n => n.NodeId == (byte)nodeId).FirstOrDefault();
+			ISerialNode node = Nodes.FirstOrDefault(n => n.NodeId == (byte)nodeId);
 
 			if (node == null) {
 
@@ -74,5 +74,6 @@ namespace R2Core.GPIO
 		}
 
 	}
+
 }
 
