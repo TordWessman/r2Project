@@ -16,13 +16,11 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 
-namespace R2Core.DataManagement {
+namespace R2Core.Common {
 
     public class StatLoggerDBAdapter : DBAdapter, IStatLoggerDBAdapter {
 
@@ -38,7 +36,7 @@ namespace R2Core.DataManagement {
 
         protected override IEnumerable<string> GetPrimaryKeys() => new List<string>();
 
-        public StatLoggerDBAdapter(IDatabase database) : base(database) {}
+        public StatLoggerDBAdapter(ISQLDatabase database) : base(database) {}
 
         public void LogEntry(StatLogEntry<double> entry) {
 

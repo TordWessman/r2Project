@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -18,7 +18,7 @@
 
 using System;
 using IplImage = System.IntPtr;
-using R2Core.DataManagement.Memory;
+using R2Core.Common;
 using System.Collections.Generic;
 
 namespace R2Core.Video

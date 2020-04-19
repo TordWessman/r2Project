@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -14,20 +14,18 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
-// 
-
-using System;
+//
 using System.Data;
-
-/// <summary>
-/// Irrational implementation.
-/// </summary>
 using R2Core.Device;
 
 
-namespace R2Core.DataManagement
+namespace R2Core.Common
 {
-	public interface IDatabase : IDevice {
+
+    /// <summary>
+    /// Implementations of SQL databases.
+    /// </summary>
+	public interface ISQLDatabase : IDevice {
 		
 		/// <summary>
 		/// Returns a data set containing query result.
@@ -45,7 +43,7 @@ namespace R2Core.DataManagement
 		/// Execute an insert statement and returns the id of the inserted row. Can also be used for create statements.
 		/// </summary>
 		/// <param name="queryString">Query string.</param>
-		Int64 Insert(string queryString);
+		long Insert(string queryString);
 
 	}
 

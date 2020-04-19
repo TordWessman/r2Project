@@ -16,26 +16,23 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
+
 using System;
-using R2Core.Data;
 
-namespace R2Core.DataManagement
-{
-	public static class DataFactoryExtensions {
+namespace R2Core.Common {
 
-		public static IDatabase CreateSqlDatabase(this DataFactory self, string id, string fileName) {
+    public static class SQLiteExtensions {
+       
+        /// <summary>
+        /// Return a timestamp formatted string.
+        /// </summary>
+        /// <returns>The SQL ite timestamp.</returns>
+        /// <param name="self">Self.</param>
+        public static string AsSQLiteTimestamp(this DateTime self) {
 
-			return new SqliteDatabase(id, self.GetFilePath(fileName));
+            return self.ToString("yyyy-MM-dd HH:mm:ss");
 
-		}
-
-		public static T CreateDatabaseAdapter<T>(this DataFactory self, IDatabase database) where T: DBAdapter {
-
-            return (T)Activator.CreateInstance(typeof(T), database);
-
-		}
+        }
 
     }
-
 }
-

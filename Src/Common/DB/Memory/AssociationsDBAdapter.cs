@@ -17,11 +17,10 @@
 // 
 
 using System;
-using R2Core.Data;
 using System.Data;
 using System.Collections.Generic;
 
-namespace R2Core.DataManagement.Memory
+namespace R2Core.Common
 {
 	public class AssociationsDBAdapter : DBAdapter, IAssociationsDBAdapter {
 
@@ -40,7 +39,7 @@ namespace R2Core.DataManagement.Memory
 		
 		private const string DELETE_SQL = "DELETE FROM {0} WHERE {1}={3} OR {2}={3}";
 		
-		public AssociationsDBAdapter(IDatabase db) : base (db) {
+		public AssociationsDBAdapter(ISQLDatabase db) : base (db) {
 		}
 
 		#region IDBAdapter implementation

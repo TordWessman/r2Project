@@ -23,7 +23,7 @@ using NUnit.Framework;
 using R2Core.Data;
 using System.Diagnostics;
 using R2Core.Common;
-using R2Core.DataManagement.Memory;
+using R2Core.Common;
 using System.Threading;
 
 namespace R2Core.Tests

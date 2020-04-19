@@ -31,6 +31,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -42,13 +44,34 @@
     <Compile Include="DeviceFactory.cs" />
     <Compile Include="IConsole.cs" />
     <Compile Include="IFileConverter.cs" />
+    <Compile Include="DB\Memory\AssociationsDBAdapter.cs" />
+    <Compile Include="DB\Memory\IAssociationsDBAdapter.cs" />
+    <Compile Include="DB\Memory\IMemory.cs" />
+    <Compile Include="DB\Memory\IMemoryBus.cs" />
+    <Compile Include="DB\Memory\IMemoryDBAdapter.cs" />
+    <Compile Include="DB\Memory\IMemoryReference.cs" />
+    <Compile Include="DB\Memory\IMemorySource.cs" />
+    <Compile Include="DB\Memory\Memory.cs" />
+    <Compile Include="DB\Memory\MemoryDBAdapter.cs" />
+    <Compile Include="DB\Memory\MemoryFactory.cs" />
+    <Compile Include="DB\Memory\MemoryReference.cs" />
+    <Compile Include="DB\Memory\MemorySource.cs" />
+    <Compile Include="DB\Memory\SharedMemorySource.cs" />
+    <Compile Include="DB\Memory\TemporaryMemorySource.cs" />
+    <Compile Include="DB\Statistics\IStatLoggable.cs" />
+    <Compile Include="DB\Statistics\IStatLoggerDBAdapter.cs" />
+    <Compile Include="DB\Statistics\StatLogEntry.cs" />
+    <Compile Include="DB\Statistics\StatLogger.cs" />
+    <Compile Include="DB\Statistics\StatLoggerDBAdapter.cs" />
+    <Compile Include="DB\IDBAdapter.cs" />
+    <Compile Include="DB\ISQLDatabase.cs" />
+    <Compile Include="DB\SqliteDatabase.cs" />
+    <Compile Include="DB\SQLiteExtensions.cs" />
+    <Compile Include="DataFactory.cs" />
+    <Compile Include="LinearDataSet.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\DataManagement\R2Core.DataManagement.csproj">
-      <Project>{F56DA65F-26BB-47FB-8CA2-4A7699F98DF2}</Project>
-      <Name>R2Core.DataManagement</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Scripting\R2Core.Scripting.csproj">
       <Project>{2E07EACB-D0FB-415F-A497-8D57DE3D2D5C}</Project>
       <Name>R2Core.Scripting</Name>
@@ -57,5 +80,10 @@
       <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
       <Name>R2Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DB\" />
+    <Folder Include="DB\Memory\" />
+    <Folder Include="DB\Statistics\" />
   </ItemGroup>
 </Project>

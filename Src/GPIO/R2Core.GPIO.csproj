@@ -140,9 +140,9 @@
       <Project>{B6397024-E95C-43D8-8CDF-0EB826804949}</Project>
       <Name>R2Core.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DataManagement\R2Core.DataManagement.csproj">
-      <Project>{F56DA65F-26BB-47FB-8CA2-4A7699F98DF2}</Project>
-      <Name>R2Core.DataManagement</Name>
+    <ProjectReference Include="..\Common\R2Core.Common.csproj">
+      <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
+      <Name>R2Core.Common</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

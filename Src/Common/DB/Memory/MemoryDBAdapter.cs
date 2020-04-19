@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Data;
 using MemoryType = System.String;
 
-namespace R2Core.DataManagement.Memory
+namespace R2Core.Common
 {
 	public class MemoryDBAdapter : DBAdapter, IMemoryDBAdapter {
 
@@ -44,7 +44,7 @@ namespace R2Core.DataManagement.Memory
 		
 		private const string DELETE_SQL = "DELETE FROM  \"{0}\" WHERE {1}={2}";
 		
-		public MemoryDBAdapter(IDatabase db) : base (db) {
+		public MemoryDBAdapter(ISQLDatabase db) : base (db) {
 
 		
 		}

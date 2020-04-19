@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using R2Core;
 using System.Linq;
 using System.Threading.Tasks;
-using R2Core.DataManagement.Memory;
+using R2Core.Common;
 
 namespace R2Core.PushNotifications
 {

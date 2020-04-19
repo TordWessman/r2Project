@@ -19,7 +19,7 @@
 
 using System;
 
-namespace R2Core.DataManagement {
+namespace R2Core.Common {
 
     /// <summary>
     /// Represents a data point in the ´StatLogger´ context.
@@ -46,6 +46,10 @@ namespace R2Core.DataManagement {
         /// </summary>
         public string Description;
 
+        public override string ToString() {
+            return $"StatLogEntry<{typeof(T)}: [Identifier: {Identifier}, Value: {Value}, Timestamp: {Timestamp}" + 
+            (Description != null ? $", Description: {Description}]>" : "]>");
+        }
     }
 
 }

@@ -18,7 +18,7 @@
 //
 using R2Core.Device;
 
-namespace R2Core.DataManagement {
+namespace R2Core.Common {
 
     /// <summary>
     /// Implementations can have their values logged in a ´StatLogger´.

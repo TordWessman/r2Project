@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -26,7 +26,7 @@ using R2Core.Data;
 using MemoryType = System.String;
 using System.Linq;
 
-namespace R2Core.DataManagement.Memory
+namespace R2Core.Common
 {
 	public class MemorySource : DeviceBase, IMemorySource, IDeviceManagerObserver {
 		
@@ -44,7 +44,7 @@ namespace R2Core.DataManagement.Memory
 		
 		public MemorySource(string id,
 		                     IDeviceManager deviceManager,
-		                     IDatabase db,
+		                     ISQLDatabase db,
 		                     string memoryBusId) : base(id) {
 	
 			m_dbAdapter = new MemoryDBAdapter(db);

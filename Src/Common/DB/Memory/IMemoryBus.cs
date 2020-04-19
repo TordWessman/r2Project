@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -22,7 +22,7 @@ using System.Net;
 using System.Collections.Generic;
 using MemoryType = System.String;
 
-namespace R2Core.DataManagement.Memory
+namespace R2Core.Common
 {
 	/// <summary>
 	/// The IMemoryBus deals with low-level memories(IMemoryReferences).

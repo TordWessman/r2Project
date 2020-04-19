@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -22,9 +22,10 @@ using System.IO;
 using System.Data;
 using R2Core.Device;
 
-namespace R2Core.DataManagement
+namespace R2Core.Common
 {
-	public class SqliteDatabase : DeviceBase, IDatabase {
+
+	public class SqliteDatabase : DeviceBase, ISQLDatabase {
 
 		private readonly string m_fileName;
 		private SqliteConnection m_con;

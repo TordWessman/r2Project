@@ -20,7 +20,6 @@
 using R2Core.Device;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Threading;
 
 namespace R2Core.Common
 {
@@ -32,38 +31,39 @@ namespace R2Core.Common
 		private const string dllPath = "libr2gstparseline.so";
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern System.IntPtr _ext_create_gstream(string pipeline);
+		protected static extern IntPtr _ext_create_gstream(string pipeline);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_init_gstream(System.IntPtr ptr);
+		protected static extern int _ext_init_gstream(IntPtr ptr);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_destroy_gstream(System.IntPtr pipeline);
+		protected static extern int _ext_destroy_gstream(IntPtr pipeline);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_play_gstream(System.IntPtr ptr);
+		protected static extern int _ext_play_gstream(IntPtr ptr);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_stop_gstream(System.IntPtr ptr);
+		protected static extern int _ext_stop_gstream(IntPtr ptr);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_is_playing_gstream(System.IntPtr ptr);
+		protected static extern int _ext_is_playing_gstream(IntPtr ptr);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_is_initialized_gstream(System.IntPtr ptr);
+		protected static extern int _ext_is_initialized_gstream(IntPtr ptr);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
 		protected static extern int _ext_get_error_code(System.IntPtr ptr);
 
 		private string m_pipeLine;
 		private Task m_task;
-		private bool m_isRunning;
 
-		private System.IntPtr m_ptr;
+        private IntPtr m_ptr;
 
-		readonly object m_startLock = new object();  
+		readonly object m_startLock = new object();
 
-		public Gstream(string id, string pipeline) : base(id) {
+        public bool IsRunning { get; private set; }
+
+        public Gstream(string id, string pipeline) : base(id) {
 
 			m_pipeLine = pipeline;
 
@@ -71,7 +71,7 @@ namespace R2Core.Common
 
 		~Gstream() {
 		
-			if (m_ptr != System.IntPtr.Zero) {
+			if (m_ptr != IntPtr.Zero) {
 			
 				_ext_destroy_gstream(m_ptr);
 
@@ -83,7 +83,7 @@ namespace R2Core.Common
 		
 			m_ptr = _ext_create_gstream(m_pipeLine);
 
-			if (m_ptr == System.IntPtr.Zero) {
+			if (m_ptr == IntPtr.Zero) {
 
 				throw new ApplicationException("Unable to create pipeline: " + m_pipeLine);
 
@@ -106,21 +106,21 @@ namespace R2Core.Common
 
 			}
 
-			if (m_ptr != System.IntPtr.Zero) {
+			if (m_ptr != IntPtr.Zero) {
 
 				_ext_destroy_gstream(m_ptr);
 
 			}
 
 			m_pipeLine = pipeline;
-			m_ptr = System.IntPtr.Zero;
+			m_ptr = IntPtr.Zero;
 
 		}
 
 
 		public override void Start() {
 
-			if (m_ptr == System.IntPtr.Zero) {
+			if (m_ptr == IntPtr.Zero) {
 			
 				CreatePipeline();
 
@@ -134,11 +134,11 @@ namespace R2Core.Common
 
 			m_task = Task.Factory.StartNew(() => {
 
-				m_isRunning = true;
+				IsRunning = true;
 
 				if (_ext_play_gstream(m_ptr) != 1) {
 
-					m_isRunning = false;
+					IsRunning = false;
 
 					Log.e($"Gstream '{Identifier}' start playback failed with error code: {_ext_get_error_code(m_ptr)}. Unable to play pipeline '{m_pipeLine}'.");
 
@@ -156,7 +156,7 @@ namespace R2Core.Common
 
 		public override void Stop() {
 
-			m_isRunning = false;
+			IsRunning = false;
 
 			if (Ready && _ext_stop_gstream(m_ptr) != 1) {
 
@@ -166,25 +166,15 @@ namespace R2Core.Common
 
 		}
 
-		public bool IsRunning {
-
-			get {
-
-				return m_isRunning;
-
-			}
-
-		}
-
-		/// <summary>
-		/// Returns true if the the player has been initialied without errors and if it hasn't been started.
-		/// </summary>
-		/// <value><c>true</c> if ready; otherwise, <c>false</c>.</value>
-		public override bool Ready {
+        /// <summary>
+        /// Returns true if the the player has been initialied without errors and if it hasn't been started.
+        /// </summary>
+        /// <value><c>true</c> if ready; otherwise, <c>false</c>.</value>
+        public override bool Ready {
 		
 			get {
 
-				return m_ptr != System.IntPtr.Zero && _ext_is_playing_gstream(m_ptr) == 1;
+				return m_ptr != IntPtr.Zero && _ext_is_playing_gstream(m_ptr) == 1;
 			
 			}
 		

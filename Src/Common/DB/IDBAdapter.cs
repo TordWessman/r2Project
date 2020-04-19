@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace R2Core.DataManagement
+namespace R2Core.Common
 {
 	public interface IDBAdapter {
 
@@ -32,7 +32,7 @@ namespace R2Core.DataManagement
 
     public abstract class DBAdapter : IDBAdapter {
 
-        protected IDatabase Database { get; private set; }
+        protected ISQLDatabase Database { get; private set; }
 
         protected abstract string GetTableName();
 
@@ -40,7 +40,7 @@ namespace R2Core.DataManagement
 
         protected abstract IEnumerable<string> GetPrimaryKeys();
 
-        public DBAdapter(IDatabase database) {
+        public DBAdapter(ISQLDatabase database) {
 
             Database = database;
         

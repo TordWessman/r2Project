@@ -4,7 +4,7 @@ using MemoryType = System.String;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace R2Core.DataManagement.Memory
+namespace R2Core.Common
 {
 
 	public class TemporaryMemoryReference : IMemoryReference {

@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -20,7 +20,7 @@ using System;
 using R2Core.Device;
 
 
-namespace R2Core.DataManagement.Memory
+namespace R2Core.Common
 {
 	public class MemoryFactory {
 		

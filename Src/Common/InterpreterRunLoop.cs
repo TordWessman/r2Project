@@ -39,14 +39,14 @@ namespace R2Core.Common
 		private bool m_isRunning;
 		private IMessageLogger m_logger;
 
-		/// <summary>
-		/// The IScript's MainClass is required to implement a 'bool interpret(string)' method. The return value of this method determines weither the loop should continue or not.
-		/// The logger will be used to print output.
-		/// </summary>
-		/// <param name="id">Identifier.</param>
-		/// <param name="script">Script.</param>
-		/// <param name="logger">LOgger.</param>
-		public InterpreterRunLoop(string id, IScriptInterpreter interpreter, IMessageLogger logger) : base(id) {
+        /// <summary>
+        /// The IScript's MainClass is required to implement a 'bool interpret(string)' method. The return value of this method determines weither the loop should continue or not.
+        /// The logger will be used to print output.
+        /// </summary>
+        /// <param name="id">Identifier.</param>
+        /// <param name="interpreter">Script.</param>
+        /// <param name="logger">LOgger.</param>
+        public InterpreterRunLoop(string id, IScriptInterpreter interpreter, IMessageLogger logger) : base(id) {
 		
 			m_interpreter = interpreter;
 			m_history = new List<string>();

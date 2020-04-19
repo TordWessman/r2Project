@@ -109,10 +109,6 @@
       <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
       <Name>R2Core.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DataManagement\R2Core.DataManagement.csproj">
-      <Project>{F56DA65F-26BB-47FB-8CA2-4A7699F98DF2}</Project>
-      <Name>R2Core.DataManagement</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

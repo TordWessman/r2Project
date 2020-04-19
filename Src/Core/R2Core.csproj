@@ -100,10 +100,8 @@
     <Compile Include="Network\Server\JsonExportObject.cs" />
     <Compile Include="Network\ISerialization.cs" />
     <Compile Include="Network\JsonSerialization.cs" />
-    <Compile Include="Shared\DataFactory.cs" />
     <Compile Include="Shared\ILinearDataSet.cs" />
     <Compile Include="Shared\Int32Converter.cs" />
-    <Compile Include="Shared\LinearDataSet.cs" />
     <Compile Include="Shared\R2Dynamic.cs" />
     <Compile Include="Extensions\WeakReferenceExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />

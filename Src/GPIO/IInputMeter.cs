@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -16,9 +16,8 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using R2Core.DataManagement;
+using R2Core.Common;
 using R2Core.Device;
-
 
 namespace R2Core.GPIO
 {

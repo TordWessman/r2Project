@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -23,7 +23,7 @@ using R2Core.Data;
 using MemoryType = System.String;
 using System.Linq;
 
-namespace R2Core.DataManagement.Memory
+namespace R2Core.Common
 {
 	/// <summary>
 	/// Shared memory source is a possibly inter connected memory source(can be chained and combined with other sources). Deletions, updates etc will affect linked sources.
@@ -47,7 +47,7 @@ namespace R2Core.DataManagement.Memory
 		private IAssociationsDBAdapter m_assDb;
 		private IList<IMemorySource> m_otherSources;
 
-		public SharedMemorySource(string id, IDeviceManager deviceManager, IDatabase db) : base(id) {
+		public SharedMemorySource(string id, IDeviceManager deviceManager, ISQLDatabase db) : base(id) {
 
 			m_memDb = new MemoryDBAdapter(db);
 			m_assDb = new AssociationsDBAdapter(db);
