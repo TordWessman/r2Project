@@ -84,7 +84,7 @@ namespace R2Core.GPIO
 			ContinousSynchronization = true;
 			m_shouldSleep = host.IsNodeSleeping(nodeId);
 
-			if (m_shouldSleep) {
+            if (m_shouldSleep) {
 
 				LastUpdate = DateTime.MinValue;
 				StartScheduledSynchronization();
@@ -107,6 +107,7 @@ namespace R2Core.GPIO
 
 				if (value && m_updateInterval > 0) { StartScheduledSynchronization(); }
 				else if (m_updateInterval > 0) { StopScheduledSynchronization(); }
+
 			}
 
 		}
@@ -197,7 +198,7 @@ namespace R2Core.GPIO
 
         public override string ToString() {
 
-            return $"[SerialNode: NodeId: {NodeId}, ContinousSynchronization: {ContinousSynchronization}, FailCount: {FailCount}, LastUpdate: {LastUpdate}]";
+            return $"[SerialNode: NodeId: {NodeId}, ContinousSynchronization: {ContinousSynchronization}, Sleeping: {Sleep}, FailCount: {FailCount}, LastUpdate: {LastUpdate}]";
         
         }
 

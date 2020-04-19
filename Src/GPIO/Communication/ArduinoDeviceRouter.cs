@@ -108,7 +108,6 @@ namespace R2Core.GPIO
 
 			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.CheckSleepState, NodeId = (byte)nodeId };
 			DeviceResponsePackage<bool> response = Send<bool> (request);
-
 			return response.Value;
 
 		}
@@ -257,7 +256,7 @@ namespace R2Core.GPIO
 
 				}
 
-				return response;
+                return response;
 
 			}
 

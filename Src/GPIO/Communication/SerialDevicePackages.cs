@@ -19,6 +19,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Linq;
 using R2Core.Data;
+using System.Collections;
 
 namespace R2Core.GPIO
 {
@@ -335,7 +336,21 @@ namespace R2Core.GPIO
 		
 		}
 
-	}
+        public override string ToString() {
+
+            string value = "";
+
+            if (Value is IEnumerable) {
+
+                foreach (var val in (Value as IEnumerable)) { value += $"[{val}]"; }
+
+            } else value = $"{Value}";
+
+
+            return $"DeviceResponsePackage<{typeof(T)}>: [Id/NodeId: {Id}/{NodeId}, Value: {value}, Action: {Action}" + (IsError ? $" Error: {ErrorInfo}]" : "]");
+        }
+
+    }
 
 	/// <summary>
 	/// Represents a request sent to a node(for creating a device, getting a value etc).
