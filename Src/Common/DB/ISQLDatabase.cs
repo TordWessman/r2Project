@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
+using System.Collections.Generic;
 using System.Data;
 using R2Core.Device;
 
@@ -34,10 +35,10 @@ namespace R2Core.Common
 		DataSet Select(string queryString);
 
 		/// <summary>
-		/// Returns the number of rows affected
+		/// Execute query and returns the number of rows affected.
 		/// </summary>
 		/// <param name="queryString">Query string.</param>
-		int Update(string queryString);
+		int Query(string queryString);
 
 		/// <summary>
 		/// Execute an insert statement and returns the id of the inserted row. Can also be used for create statements.
@@ -45,7 +46,26 @@ namespace R2Core.Common
 		/// <param name="queryString">Query string.</param>
 		long Insert(string queryString);
 
-	}
+        /// <summary>
+        /// Executes a COUNT statement and return the number of rows.
+        /// </summary>
+        /// <returns>The count.</returns>
+        /// <param name="queryString">Query string.</param>
+        int Count(string queryString);
+
+        /// <summary>
+        /// Returns an array of the column names.
+        /// </summary>
+        /// <returns>The columns.</returns>
+        /// <param name="tableName">Table name.</param>
+        IEnumerable<string> GetColumns(string tableName);
+
+        /// <summary>
+        /// Removes a table with name ´tableName´
+        /// </summary>
+        /// <param name="tableName">Name of table to be removed.</param>
+        void Delete(string tableName);
+    }
 
 }
 

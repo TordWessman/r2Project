@@ -27,6 +27,11 @@ namespace R2Core.Common {
     public struct StatLogEntry<T> {
 
         /// <summary>
+        /// Id of the log entry.
+        /// </summary>
+        public int Id;
+
+        /// <summary>
         /// The identifier of the object being logged.
         /// </summary>
         public string Identifier;
@@ -47,8 +52,8 @@ namespace R2Core.Common {
         public string Description;
 
         public override string ToString() {
-            return $"StatLogEntry<{typeof(T)}: [Identifier: {Identifier}, Value: {Value}, Timestamp: {Timestamp}" + 
-            (Description != null ? $", Description: {Description}]>" : "]>");
+            return $"StatLogEntry<{typeof(T)}>: [Identifier: {Identifier}, Value: {Value}, Timestamp: {Timestamp}" + 
+            (Description != null ? $", Description: {Description}]>" : "]");
         }
     }
 

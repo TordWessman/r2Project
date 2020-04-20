@@ -66,9 +66,9 @@
     <Compile Include="DB\IDBAdapter.cs" />
     <Compile Include="DB\ISQLDatabase.cs" />
     <Compile Include="DB\SqliteDatabase.cs" />
-    <Compile Include="DB\SQLiteExtensions.cs" />
     <Compile Include="DataFactory.cs" />
     <Compile Include="LinearDataSet.cs" />
+    <Compile Include="DB\SqlExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

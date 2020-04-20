@@ -24,7 +24,7 @@ using MemoryType = System.String;
 
 namespace R2Core.Common
 {
-	public class MemoryDBAdapter : DBAdapter, IMemoryDBAdapter {
+	public class MemoryDBAdapter : SQLDBAdapter, IMemoryDBAdapter {
 
         protected override string GetTableName() => throw new NotImplementedException();
         protected override IDictionary<string, string> GetColumns() => throw new NotImplementedException();
@@ -114,7 +114,7 @@ namespace R2Core.Common
 
 			}
 
-			return Database.Update(sql) > 0;
+			return Database.Query(sql) > 0;
 
 		}
 		
@@ -132,7 +132,7 @@ namespace R2Core.Common
 		
 			}
 			
-			Database.Update(sql);
+			Database.Query(sql);
 		
 		}
 		
@@ -196,7 +196,7 @@ namespace R2Core.Common
 			
 			}
 			
-			int result = Database.Update(sql);
+			int result = Database.Query(sql);
 			
 			if (result > 0) {
 			

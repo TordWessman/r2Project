@@ -22,9 +22,9 @@ using System.Data;
 
 namespace R2Core.Common {
 
-    public class StatLoggerDBAdapter : DBAdapter, IStatLoggerDBAdapter {
+    public class StatLoggerDBAdapter : SQLDBAdapter, IStatLoggerDBAdapter {
 
-        protected override string GetTableName() => $"stats_{Database.Identifier}";
+        protected override string GetTableName() => $"{Database.Identifier}";
 
         protected override IDictionary<string, string> GetColumns() => new Dictionary<string, string> {
                 { "value", "REAL NOT NULL" },
@@ -40,8 +40,8 @@ namespace R2Core.Common {
 
         public void LogEntry(StatLogEntry<double> entry) {
 
-            IList<string> values = new List<string>() {
-                $"{entry.Value}",
+            IList<dynamic> values = new List<dynamic>() {
+                entry.Value,
                 $"{entry.GetType().GetGenericArguments()[0]}",
                 $"{entry.Timestamp.AsSQLiteTimestamp()}",
                 $"{entry.Identifier}",
@@ -58,25 +58,43 @@ namespace R2Core.Common {
 
         public void ClearEntries(string identifier) {
 
-            string sql = DeleteSQL($"identifier = \"{identifier}\"");
+            string sql = DeleteSQL($@"identifier = ""{identifier}""");
 
             if (!Database.Ready) { throw new InvalidOperationException("Database not ready!"); }
 
-            Database.Update(sql);
+            Database.Query(sql);
 
         }
 
         public void SetDescription(string identifier, string description) {
 
-            string sql = UpdateSQL(new Dictionary<string, string>() { }, $"identifier = \"{identifier}\"");
+            string sql = UpdateSQL(new Dictionary<string, dynamic> { { "description", description} }, $@"identifier = ""{identifier}""");
+            Database.Query(sql);
+
+        }
+
+        /// <summary>
+        /// Returns as numerical values ordered by their identifiers
+        /// </summary>
+        /// <returns>The data points.</returns>
+        /// <param name="identifiers">Identifier.</param>
+        public IDictionary<string, IEnumerable<StatLogEntry<double>>> GetDataPoints(IEnumerable<string> identifiers) {
+
+            IDictionary<string, IEnumerable<StatLogEntry<double>>> points = new Dictionary<string, IEnumerable<StatLogEntry<double>>>();
+
+            foreach(string identifier in identifiers) {
+
+                points[identifier] = GetEntries<double>(identifier);
+            
+            }
+
+            return points;
 
         }
 
         public IEnumerable<StatLogEntry<T>>GetEntries<T>(string identifier) {
 
-            IList<StatLogEntry<T>> entries = new List<StatLogEntry<T>>();
-
-            string sql = SelectSQL($"identifier = \"{identifier}\"");
+            string sql = SelectSQL($@"identifier = ""{identifier}""");
 
             if (!Database.Ready) { throw new InvalidOperationException("Database not ready!"); }
 
@@ -84,27 +102,29 @@ namespace R2Core.Common {
 
             foreach (DataRow row in result.Tables[0].Rows) {
 
-                entries.Add(row.CreateEntry<T>());
-            
-            }
+                yield return row.CreateEntry<T>();
 
-            return entries;
+
+            }
 
         }
 
     }
 
-    public static class DataRowCollectionExtension {
+    internal static class DataRowCollectionExtension {
 
-        public static StatLogEntry<T> CreateEntry<T>(this DataRow self) {
+        internal static StatLogEntry<T> CreateEntry<T>(this DataRow self) {
 
             return new StatLogEntry<T>() {
-                Value = (T)self[0],
-                Timestamp = DateTime.Parse((string)self[2]),
-                Identifier = (string)self[3],
-                Description = (string)self[4]
+                Id = self.GetId(),
+                Value = (T)self["value"],
+                Timestamp = DateTime.Parse((string)self["timestamp"]),
+                Identifier = (string)self["identifier"],
+                Description = (string)(self["description"] ?? "")
             };
+
         }
+
     }
 
 }

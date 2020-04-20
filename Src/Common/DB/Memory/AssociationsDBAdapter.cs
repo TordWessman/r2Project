@@ -22,7 +22,7 @@ using System.Collections.Generic;
 
 namespace R2Core.Common
 {
-	public class AssociationsDBAdapter : DBAdapter, IAssociationsDBAdapter {
+	public class AssociationsDBAdapter : SQLDBAdapter, IAssociationsDBAdapter {
 
         protected override string GetTableName() => throw new NotImplementedException();
         protected override IDictionary<string, string> GetColumns() => throw new NotImplementedException();
@@ -54,7 +54,7 @@ namespace R2Core.Common
 				throw new InvalidOperationException("Database not ready!");
 			}
 			
-			Database.Update(sql);
+			Database.Query(sql);
 		}
 
 		#endregion
@@ -149,7 +149,7 @@ namespace R2Core.Common
 				throw new InvalidOperationException("Database not ready!");
 			}
 			
-			Database.Update(sql);
+			Database.Query(sql);
 			
 		}
 		

@@ -63,6 +63,7 @@
     <Reference Include="IronPython.Wpf">
       <HintPath>..\..\..\Implementations\MainFramePi\packages\IronPython.2.7.9\lib\net45\IronPython.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DummyClasses\DummyDevice.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="DummyClasses\Extensions.cs" />
     <Compile Include="DummyClasses\Networking\DummyNetworkConnection.cs" />
     <Compile Include="DummyClasses\DummyIdentity.cs" />
+    <Compile Include="DummyClasses\DummyDBAdapter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

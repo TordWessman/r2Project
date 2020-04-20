@@ -21,6 +21,7 @@ using Mono.Data.Sqlite;
 using System.IO;
 using System.Data;
 using R2Core.Device;
+using System.Collections.Generic;
 
 namespace R2Core.Common
 {
@@ -113,8 +114,18 @@ namespace R2Core.Common
 			}
 			
 		}
-		
-		public int Update(string queryString) {
+
+        public int Count(string queryString) {
+
+            using (SqliteCommand cmd = new SqliteCommand(queryString, m_con)) {
+
+               return Convert.ToInt32(cmd.ExecuteScalar());
+
+            }
+
+        }
+
+        public int Query(string queryString) {
 
 			lock(m_queryLock) {
 
@@ -164,6 +175,25 @@ namespace R2Core.Common
 
 		}
 
-	}
+        public IEnumerable<string> GetColumns(string tableName) {
+
+            IList<string> names = new List<string>();
+            DataSet columns = Select($"PRAGMA table_info({tableName})");
+
+            foreach (DataRow row in columns.Tables[0].Rows) {
+
+                yield return (string)row["name"];
+            
+            }
+        
+        }
+
+        public void Delete(string tableName) {
+
+            Query($"DROP TABLE IF EXISTS {tableName}");
+
+        }
+
+    }
 
 }

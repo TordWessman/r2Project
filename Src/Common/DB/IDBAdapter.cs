@@ -22,25 +22,50 @@ using System.Linq;
 
 namespace R2Core.Common
 {
+    /// <summary>
+    /// An object acting as an semi-complete abstraction layer over a database.
+    /// </summary>
 	public interface IDBAdapter {
 
+        /// <summary>
+        /// Returns ´true´ if the adapter is ready for commands.
+        /// </summary>
+        /// <value><c>true</c> if ready; otherwise, <c>false</c>.</value>
 		bool Ready { get; }
 
+        /// <summary>
+        /// Configure the database. This includes creating the tables if necessary. 
+        /// </summary>
 		void SetUp();
 	
     }
 
-    public abstract class DBAdapter : IDBAdapter {
+    public abstract class SQLDBAdapter : IDBAdapter {
 
         protected ISQLDatabase Database { get; private set; }
 
         protected abstract string GetTableName();
 
+        /// <summary>
+        /// Return a list of the required collumns in the format (i.e.: "name": "INTEGER NOT NULL").
+        /// </summary>
+        /// <returns>The columns.</returns>
         protected abstract IDictionary<string, string> GetColumns();
 
         protected abstract IEnumerable<string> GetPrimaryKeys();
 
-        public DBAdapter(ISQLDatabase database) {
+        /// <summary>
+        /// Return true if the autoincremented id parameter should be used.
+        /// </summary>
+        /// <returns><c>true</c>, if incremental identifier was used, <c>false</c> otherwise.</returns>
+        protected virtual bool UseIncrementalIdentifier() { return true; }
+
+        /// <summary>
+        /// The column name of the auto incremented Id parameter
+        /// </summary>
+        public static readonly string IdParameterName = "id";
+
+        public SQLDBAdapter(ISQLDatabase database) {
 
             Database = database;
         
@@ -52,94 +77,217 @@ namespace R2Core.Common
 
             if (!Database.Ready) { throw new InvalidOperationException("Database not ready!"); }
 
-            Database.Update(CreateSQL);
+            CreateTable();
+            SynchronizeTable();
 
         }
 
-        protected string CreateSQL { get {
+        private void CreateTable() {
 
-            string sql = $"CREATE TABLE IF NOT EXIST \"{GetTableName()}\" (";
+            Database.Query(CreateSQL);
 
-            foreach (var column in GetColumns()) { sql += $"\"{column.Key}\" {column.Value}, "; }
-            sql = sql.Substring(0, sql.Length - 3);
+        }
 
-            if (GetPrimaryKeys().Count() > 0) {
+        private void SynchronizeTable() {
 
-                sql += ", PRIMARY KEY (";
-                foreach(string key in GetPrimaryKeys()) {  sql += $"{key}, "; }
-                sql = sql.Substring(0, sql.Length - 3);
-                sql += ")";
+            IDictionary<string, string> newRows = new Dictionary<string, string>();
+  
+            IEnumerable<string> existingColumns = Database.GetColumns(GetTableName());
 
-            }
+            foreach (string name in existingColumns) {
 
-            sql += ")";
+                if (!GetColumns().Keys.Contains(name)) {
 
-            return sql;
-
-       } }
-
-        public string UpdateSQL(IDictionary<string, string> values, string conditionsSQL) {
-
-            string sql = $"UPDATE \"{GetTableName()}\" SET ";
-
-            foreach (var value in values) {
-
-                if (!GetColumns().ContainsKey(value.Key)) {
-
-                    throw new ArgumentException($"Invalid key '{value.Key}' not found in Columns.");
+                    Log.w($"Warning: Unmapped column '{name}' in table '{GetTableName()}' in database with identifier: {Database.Identifier}. ");
 
                 }
 
-                sql += $"\"{value.Key}\" = \"{value.Value}\", ";
-
             }
-            sql = sql.Substring(0, sql.Length - 3);
 
-            sql += $" WHERE {conditionsSQL}";
-            return sql;
-        }
+            foreach (KeyValuePair<string,string> column in GetColumns()) {
 
-        protected string DeleteSQL(string conditionsSQL) {
+                if (!existingColumns.Contains(column.Key)) {
 
-            return $"DELETE FROM {GetTableName()} WHERE {conditionsSQL}";
+                    newRows[column.Key] = column.Value;
 
-        }
-
-        protected string SelectSQL(string conditionsSQL) {
-
-            string sql = $"SELECT ";
-            foreach (string column in GetColumns().Keys) { sql += $"{column}, "; }
-            sql = sql.Substring(0, sql.Length - 3);
-
-            sql += $" FROM {GetTableName()} WHERE {conditionsSQL}";
-            return sql;
-
-        }
-
-        protected string InsertSQL(IEnumerable<string> values) {
-
-            string sql = $"INSERT INTO \"{GetTableName()}\" (";
-
-            if (values.Count() != GetColumns().Count) {
-
-                throw new ArgumentException($"Invalid parameter count. Required {GetColumns().Count}. Got {values.Count()}");
+                }
 
             }
 
-            foreach (string column in GetColumns().Keys) { sql += $"\"{column}\", "; }
-            sql = sql.Substring(0, sql.Length - 3);
+            if (newRows.Count > 0) {
+
+                foreach (KeyValuePair<string, string> column in newRows) {
+
+                    string createSql = column.Value;
+
+                    if (createSql.HasNotNull()) {
+
+                        if (createSql.HasIllegalUpdateParameters()) {
+
+                            throw new ApplicationException($"Unable to synchronize table. Collumn with key '{column.Key}' = '{createSql}' contains SQL parameters for ALTER table {GetTableName()}");
+
+                        }
+
+                        createSql = createSql.AddDefaultValueSql();
+
+                    }
+
+                    string sql = $@"ALTER TABLE {GetTableName()} ADD ""{column.Key}"" {createSql}";
+                    Database.Query(sql);
+
+                    Log.d($"Adding column {column.Key} to table {GetTableName()}");
+
+                }
+
+            } 
+
+        }
+
+        public string CreateSQL {
+
+            get {
+
+                string sql = $@"CREATE TABLE IF NOT EXISTS ""{GetTableName()}"" (";
+
+                if (UseIncrementalIdentifier()) {
+
+                    sql += $@"""{IdParameterName}"" INTEGER PRIMARY KEY AUTOINCREMENT, ";
+
+                }
+
+                foreach (KeyValuePair<string, string> column in GetColumns()) { sql += $@"""{column.Key}"" {column.Value}, "; }
+                sql = sql.Substring(0, sql.Length - 2);
+
+
+                if (GetPrimaryKeys().Any() && UseIncrementalIdentifier()) {
+
+                    throw new ApplicationException("Only one primary key allowed: Primary keys and incremental identifier can't live together.");
+
+                }
+
+                if (GetPrimaryKeys().Any()) {
+
+                    sql += ", PRIMARY KEY (";
+                    foreach (string key in GetPrimaryKeys()) { sql += $@"{key}, "; }
+                    sql = sql.Substring(0, sql.Length - 2);
+                    sql += ")";
+
+                }
+
+                sql += ")";
+
+                return sql;
+
+            }
+        }
+
+        public string UpdateSQL(IDictionary<string, dynamic> values, string conditionsSQL) {
+
+            string sql = $@"UPDATE ""{GetTableName()}"" SET ";
+
+            foreach (var nameValue in values) {
+
+                if (!GetColumns().ContainsKey(nameValue.Key)) {
+
+                    throw new ArgumentException($"Invalid key '{nameValue.Key}' not found in Columns.");
+
+                }
+
+                sql += $"\"{nameValue.Key}\" = ";
+
+                if (nameValue.Value is string || nameValue.Value is DateTime) {
+
+                    sql += $@"""{nameValue.Value}"", ";
+
+                } else { sql += $" {nameValue.Value}, "; }
+
+            }
+            sql = sql.Substring(0, sql.Length - 2);
+
+            sql += $@" WHERE {conditionsSQL}";
+            return sql;
+
+        }
+
+        public string DeleteSQL(string conditionsSQL = null) {
+
+            string sql = $@"DELETE FROM {GetTableName()}";
+
+            if (conditionsSQL != null) {
+
+                sql += $" WHERE {conditionsSQL}";
+
+            }
+
+            return sql;
+
+        }
+
+        public string SelectSQL(string conditionsSQL = null) {
+
+            string sql = $@"SELECT *";
+
+            sql += $@" FROM {GetTableName()}";
+
+            if (conditionsSQL != null) { sql += $" WHERE {conditionsSQL}"; }
+
+            return sql;
+
+        }
+
+        public long Count(string conditionsSQL = null) {
+
+            string sql = $"SELECT COUNT(*) FROM {GetTableName()}";
+
+            if (conditionsSQL != null) {
+
+                sql += $" WHERE {conditionsSQL}";
+              
+            } 
+
+            return Database.Count(sql);
+
+        }
+
+        /// <summary>
+        /// Remove all rows and reset the id sequence.
+        /// </summary>
+        public void Truncate() {
+
+            Database.Query(DeleteSQL());
+            string sql = $"UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME='{GetTableName()}'";
+            Database.Query(sql);
+
+        }
+
+        public string InsertSQL(IEnumerable<dynamic> values) {
+
+            string sql = $@"INSERT INTO ""{GetTableName()}"" (";
+
+            foreach (string column in GetColumns().Keys) { sql += $@"""{column}"", "; }
+            sql = sql.Substring(0, sql.Length - 2);
 
             sql += ") VALUES (";
-            foreach (string value in values) { sql += $" \"{value}\", "; }
 
-            sql = sql.Substring(0, sql.Length - 3);
+            foreach (dynamic value in values) {
+
+                if (value is string || value is DateTime) {
+
+                    sql += $@" ""{value}"", ";
+
+                } else { sql += $" {value}, "; }
+
+            }
+
+            sql = sql.Substring(0, sql.Length - 2);
 
             sql += ")";
 
-            return sql;
+            return sql.Replace(@"\", "");
+
         }
 
-
     }
-}
 
+
+}

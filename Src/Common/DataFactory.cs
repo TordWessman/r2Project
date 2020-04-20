@@ -74,7 +74,7 @@ namespace R2Core.Common {
 
         }
 
-        public T CreateDatabaseAdapter<T>(ISQLDatabase database) where T : DBAdapter {
+        public T CreateDatabaseAdapter<T>(ISQLDatabase database) where T : SQLDBAdapter {
 
             return (T)Activator.CreateInstance(typeof(T), database);
 
@@ -85,6 +85,7 @@ namespace R2Core.Common {
             ISQLDatabase database = CreateSqlDatabase($"{id}_db", $"{id}.db");
             database.Start();
             IStatLoggerDBAdapter adapter = CreateDatabaseAdapter<StatLoggerDBAdapter>(database);
+            adapter.SetUp();
             return new StatLogger(id, adapter);
 
         }
