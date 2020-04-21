@@ -280,7 +280,7 @@ void sleep(bool on, byte cycles) {
 
   sleepCycles = cycles;
   
-  // Avoid retundant EEPROM writes:
+  // Avoid redundant EEPROM writes:
   if (on != shouldSleep) {
   
     shouldSleep = on;

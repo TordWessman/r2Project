@@ -173,6 +173,7 @@ namespace R2Core.GPIO
 			byte[] requestData = m_packageFactory.SerializeRequest(request);
 
 			bool retry = request.Action != SerialActionType.Initialization;
+            Log.i($"ArduinoDevice: Sending: {request}");
 
 			try {
 			
@@ -192,7 +193,8 @@ namespace R2Core.GPIO
 
 				}
 
-				return response;
+                Log.i($"ArduinoDevice: Got response: {response}");
+                return response;
 
 			} catch (SerialConnectionException ex) {
 

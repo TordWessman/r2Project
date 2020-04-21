@@ -131,14 +131,14 @@ namespace R2Core.GPIO
 
 			}
 
-			int contentLength = response [RESPONSE_POSITION_CONTENT_LENGTH];
+			int contentLength = response[RESPONSE_POSITION_CONTENT_LENGTH];
 
 			return new DeviceResponsePackage<T>() {
 				Checksum = response[RESPONSE_POSITION_CHECKSUM],
-				MessageId = response [RESPONSE_POSITION_MESSAGE_ID],
-				NodeId = response [RESPONSE_POSITION_HOST],
-				Action = (SerialActionType)response [RESPONSE_POSITION_ACTION],
-				Id = response [RESPONSE_POSITION_ID],
+				MessageId = response[RESPONSE_POSITION_MESSAGE_ID],
+				NodeId = response[RESPONSE_POSITION_HOST],
+				Action = (SerialActionType)response[RESPONSE_POSITION_ACTION],
+				Id = response[RESPONSE_POSITION_ID],
 				Content = contentLength > 0 ? response.Skip(RESPONSE_POSITION_CONTENT).Take(contentLength)?.ToArray() ?? new byte[]{ } : new byte[]{ }
 			};
 
@@ -148,7 +148,7 @@ namespace R2Core.GPIO
 
 			// Node expects <device type><IOPort1><IOPort2> ...
 			byte[] content = new byte[1 + ports.Length];
-			content [POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
+			content[POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
 			Array.Copy(ports, 0, content, 1, ports.Length);
 
 			if ((type == SerialDeviceType.AnalogInput || type == SerialDeviceType.SimpleMoist) && !VALID_ANALOG_PORTS_ON_ARDUINO.Contains(ports[0])) {

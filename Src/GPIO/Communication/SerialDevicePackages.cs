@@ -282,7 +282,9 @@ namespace R2Core.GPIO
 
 					return(Content?.Length ?? 0) > 0 ? (SerialErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : SerialErrorType.Undefined;
 
-				} else  { return SerialErrorType.Undefined; }
+				} 
+
+                return SerialErrorType.Undefined;
 
 			}
 
@@ -300,6 +302,7 @@ namespace R2Core.GPIO
 				}
 
 				return info.ToString();
+
 			}
 
 		}
@@ -316,19 +319,21 @@ namespace R2Core.GPIO
 					
 					return(T)(object)(Content [0] > 0);
 	
-				} else if (typeof(T) == typeof(int[])) {
-						
-					int[] values = new int[NUMBER_OF_RETURN_VALUES];
+				} if (typeof(T) == typeof(int[])) {
 
-					for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt(i * 2, 2); }
+                    int[] values = new int[NUMBER_OF_RETURN_VALUES];
 
-					return(T)(object)values;
+                    for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt(i * 2, 2); }
 
-				} else if (typeof(T) != typeof(byte[])) {
-				
-					throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int or byte´, but was ´{typeof(T)}´."); 
+                    return (T)(object)values;
 
-				}
+                }
+
+                if (typeof(T) != typeof(byte[])) {
+			
+				    throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int[] or byte´, but was ´{typeof(T)}´."); 
+
+			    }
 
 				return(T)(object)Content;
 			
@@ -338,16 +343,20 @@ namespace R2Core.GPIO
 
         public override string ToString() {
 
-            string value = "";
+            string value = "-";
 
             if (Value is IEnumerable) {
 
                 foreach (var val in (Value as IEnumerable)) { value += $"[{val}]"; }
 
-            } else value = $"{Value}";
+            } else if (new Type[]{typeof(byte[]), typeof(int[]), typeof(bool)}.Contains(typeof(T))) {
 
+                value = $"{Value}";
+
+            }
 
             return $"DeviceResponsePackage<{typeof(T)}>: [Id/NodeId: {Id}/{NodeId}, Value: {value}, Action: {Action}" + (IsError ? $" Error: {ErrorInfo}]" : "]");
+        
         }
 
     }

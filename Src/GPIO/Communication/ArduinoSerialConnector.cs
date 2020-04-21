@@ -34,7 +34,7 @@ namespace R2Core.GPIO
 		private byte[] m_packageHeader;
 
 		private SerialPort m_serialPort;
-		private int m_timeout = 0;
+		private readonly int m_timeout;
 
 		private static readonly object m_lock = new object();
 
@@ -86,7 +86,7 @@ namespace R2Core.GPIO
 
 		private string GetSerialPort(string portIdentifier) {
 
-			return SerialPort.GetPortNames().Where(p => p == portIdentifier).FirstOrDefault() ??
+			return SerialPort.GetPortNames().FirstOrDefault(p => p == portIdentifier) ??
 				SerialPort.GetPortNames().FirstOrDefault(p => new Regex(portIdentifier).IsMatch(p));
 
 		}
@@ -123,12 +123,12 @@ namespace R2Core.GPIO
 
 				byte[] requestBytes = new byte[request.Length + 1 + m_packageHeader.Length];
 
-				System.Buffer.BlockCopy(m_packageHeader, 0, requestBytes, 0, m_packageHeader.Length);
+				Buffer.BlockCopy(m_packageHeader, 0, requestBytes, 0, m_packageHeader.Length);
 
 				// First byte of the non-package header should have the value of the rest of the transaction.
-				requestBytes [m_packageHeader.Length] = (byte)request.Length;
+				requestBytes[m_packageHeader.Length] = (byte)request.Length;
 
-				System.Buffer.BlockCopy(request, 0, requestBytes, 1 + m_packageHeader.Length, request.Length);
+				Buffer.BlockCopy(request, 0, requestBytes, 1 + m_packageHeader.Length, request.Length);
 
 				m_serialPort.Write(requestBytes, 0, requestBytes.Length);
 
@@ -144,9 +144,9 @@ namespace R2Core.GPIO
 
 				byte headerByte = (byte)m_serialPort.ReadByte();
 
-				if (headerByte != m_packageHeader [i]) {
+				if (headerByte != m_packageHeader[i]) {
 
-					throw new System.IO.IOException($"Bad Package header: {headerByte} at {i} (should have been {m_packageHeader [i]}).");
+					throw new System.IO.IOException($"Bad Package header: {headerByte} at {i} (should have been {m_packageHeader[i]}).");
 				
 				}
 
@@ -180,7 +180,7 @@ namespace R2Core.GPIO
 		/// </summary>
 		private void ClearPipe() {
 
-			if (m_serialPort.BytesToRead > 0) { Log.w("Ahr, there was apparently some data in the pipe."); }
+			if (m_serialPort.BytesToRead > 0) { Log.w("ArduinoSerial: ClearPipe: There was apparently some data in the pipe."); }
 			m_serialPort.DiscardInBuffer();
 
 		}
