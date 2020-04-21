@@ -50,7 +50,7 @@ namespace R2Core.Tests
 
 			IDictionary<string, object> headers = new Dictionary<string, object>();
 
-			headers ["Dog"] = "Mouse";
+			headers["Dog"] = "Mouse";
 
 			// Test dynamic serialization
 
@@ -60,7 +60,7 @@ namespace R2Core.Tests
 
 			TCPMessage punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 
-			Assert.AreEqual("Mouse", punwrapped.Headers ["Dog"]);
+			Assert.AreEqual("Mouse", punwrapped.Headers["Dog"]);
 
 			Assert.AreEqual(42.25f, punwrapped.Payload.HAHA);
 
@@ -85,7 +85,7 @@ namespace R2Core.Tests
 			Assert.IsTrue(punwrapped.Payload is byte[]);
 
 			for (int i = 0; i < byteArray.Length; i++) {
-				Assert.AreEqual(byteArray [i], punwrapped.Payload [i]);
+				Assert.AreEqual(byteArray[i], punwrapped.Payload[i]);
 			}
 
 
@@ -228,7 +228,7 @@ namespace R2Core.Tests
 			Assert.IsTrue(client.Ready);
 
 			var requestPayload = new DeviceRequest() {
-				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
+				Params = new List<object> {"Foo", 42, new Dictionary<string,string> {{"Cat", "Dog"}}}.ToArray(),
 				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
@@ -427,7 +427,7 @@ namespace R2Core.Tests
 			};
 		
 			R2Dynamic tmp = new R2Dynamic();
-			tmp ["Bar"] = 42;
+			tmp["Bar"] = 42;
 
 			s.Broadcast(new TCPMessage() { Destination = "ehh", Payload = tmp }, (response, error) => {
 

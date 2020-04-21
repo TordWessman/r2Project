@@ -35,7 +35,7 @@ namespace R2Core.Scripting
 		private IScriptFactory<T>m_scriptFactory;
 		private Random m_random;
 		private string m_scriptId;
-		private string m_currentScriptId;
+		private string m_currentScriptId = null;
 		
 		public ScriptExecutor(string id, 
 		                       	string scriptId,
@@ -71,7 +71,7 @@ namespace R2Core.Scripting
 		
 		public override void Start() {
 			
-			IScript script = m_scripts [m_currentScriptId];
+			IScript script = m_scripts[m_currentScriptId];
 			
 			m_deviceManager.Add(script);
 			

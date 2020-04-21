@@ -37,7 +37,7 @@ namespace R2Core.GPIO
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.Sonar_HCSR04; } }
 
-		public int Value { get { return GetValue() [0]; } }
+		public int Value { get { return GetValue()[0]; } }
 
 	}
 }

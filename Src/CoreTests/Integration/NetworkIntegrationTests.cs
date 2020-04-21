@@ -157,7 +157,7 @@ namespace R2Core.IntegrationTests
 
 		private void TestInvokeDictionary(dynamic remoteDummy) {
 
-			object sendDict = new Dictionary<string, string>() { {"apa" , "hund"}, {"gris" , "katt"} };
+			object sendDict = new Dictionary<string, string> { {"apa" , "hund"}, {"gris" , "katt"} };
 
 			R2Dynamic result = remoteDummy.AddCatToKeysAnd42ToValues(sendDict);
 			for (int i = 0; i < result.Count; i++) {

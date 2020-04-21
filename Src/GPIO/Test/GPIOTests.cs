@@ -50,11 +50,11 @@ namespace R2Core.GPIO.Tests
 
 			byte[] serialized = m_packageFactory.SerializeRequest(request);
 
-			Assert.AreEqual((byte)SerialActionType.Create, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION]);
-			Assert.AreEqual(42, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_ID]);
-			Assert.AreEqual(10, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT]);
-			Assert.AreEqual(20, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT + 1]);
-			Assert.AreEqual(99, serialized [ArduinoSerialPackageFactory.REQUEST_POSITION_HOST]);
+			Assert.AreEqual((byte)SerialActionType.Create, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION]);
+			Assert.AreEqual(42, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_ID]);
+			Assert.AreEqual(10, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT]);
+			Assert.AreEqual(20, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT + 1]);
+			Assert.AreEqual(99, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_HOST]);
 
 		}
 
@@ -71,7 +71,7 @@ namespace R2Core.GPIO.Tests
 			for (int i = 0; i < 100; i++) {
 
 				int rand = random.Next(0, 65535);
-				remoteMock.IntValues [0] = rand; Assert.AreEqual(rand, sensor.Value);
+				remoteMock.IntValues[0] = rand; Assert.AreEqual(rand, sensor.Value);
 	
 			}
 
@@ -84,8 +84,8 @@ namespace R2Core.GPIO.Tests
 
 				int rand = random.Next(0, 65535);
 				int rand2 = random.Next(0, 65535);
-				remoteMock.IntValues [0] = rand;
-				remoteMock.IntValues [1] = rand2;
+				remoteMock.IntValues[0] = rand;
+				remoteMock.IntValues[1] = rand2;
 
 				Assert.AreEqual(rand, temp.Value);
 				Assert.AreEqual(rand2, humid.Value);
@@ -116,7 +116,7 @@ namespace R2Core.GPIO.Tests
 			Assert.IsTrue(host.IsNodeAvailable(3));
 
 			var remoteMock = mock_connection.Devices.Last();
-			remoteMock.IntValues [0] = 42;
+			remoteMock.IntValues[0] = 42;
 
 			Assert.AreEqual(42, sensor.Value);
 
@@ -124,7 +124,7 @@ namespace R2Core.GPIO.Tests
 			factory[3].Sleep = true;
 
 			// Change value. This should not affect the sensor value immediately
-			remoteMock.IntValues [0] = 543;
+			remoteMock.IntValues[0] = 543;
 
 			// Now we should use the cached value
 			Assert.AreEqual(42, sensor.Value);
@@ -136,10 +136,10 @@ namespace R2Core.GPIO.Tests
 			Assert.AreEqual(543, sensor.Value);
 
 			// The update should now be disabled
-			((SerialNode) factory [3]).ContinousSynchronization = false;
+			((SerialNode) factory[3]).ContinousSynchronization = false;
 
 			// This value should therefore never be read
-			remoteMock.IntValues [0] = 43;
+			remoteMock.IntValues[0] = 43;
 
 			// Wait for the next update cycle(which should not occur)
 			Thread.Sleep(2500);
@@ -152,7 +152,7 @@ namespace R2Core.GPIO.Tests
 		[Test]
 		public void TestDevicePackages() {
 		
-			DeviceResponsePackage<byte> p = new DeviceResponsePackage<byte>() {
+			DeviceResponsePackage<byte> p = new DeviceResponsePackage<byte> {
 				Checksum = 11,
 				Id = 42, NodeId = 200, Content = new byte[2]{11, 12}};
 

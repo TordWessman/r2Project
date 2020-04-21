@@ -18,11 +18,8 @@
 //
 using System;
 using R2Core.Device;
-using R2Core.Network;
 using NUnit.Framework;
-using R2Core.Data;
 using System.Diagnostics;
-using R2Core.Common;
 using R2Core.Common;
 using System.Threading;
 
@@ -42,7 +39,7 @@ namespace R2Core.Tests
 
 			Thread.Sleep(200);
 
-			Log.d($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` FINISHED ---");
+			Log.d($"--- TEST `{TestContext.CurrentContext.Test.FullName }` FINISHED ---");
 			Log.d($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}");
 
 		}
@@ -75,7 +72,7 @@ namespace R2Core.Tests
 
 				m_deviceFactory = new DeviceFactory("device_factory", m_deviceManager);
 
-				m_dataFactory = new DataFactory("f", new System.Collections.Generic.List<string>() {Settings.Paths.TestData()});
+				m_dataFactory = new DataFactory("f", new System.Collections.Generic.List<string> {Settings.Paths.TestData()});
 
 			} catch (Exception ex) {
 			
@@ -83,7 +80,7 @@ namespace R2Core.Tests
 
 			}
 
-			Log.d($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName}` STARTED ---");
+			Log.d($"--- TEST `{TestContext.CurrentContext.Test.FullName}` STARTED ---");
 
 		}
 
@@ -95,7 +92,8 @@ namespace R2Core.Tests
 			StackTrace stackTrace = new StackTrace();
 
 			Log.d($"########################## {stackTrace.GetFrames()[1].GetMethod().Name} ##########################");
-		}
+		
+        }
 
 	}
 

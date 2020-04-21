@@ -25,7 +25,7 @@ namespace R2Core.Common
 	public interface IAssociationsDBAdapter : IDBAdapter
 	{
 		void SetAssociation(int memoryId, int memoryId2);
-		int [] GetAssociations(int memoryId);
+		int[] GetAssociations(int memoryId);
 		void RemoveAssociations(int memoryId);
 	}
 }

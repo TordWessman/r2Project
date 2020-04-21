@@ -17,9 +17,7 @@
 //
 //
 using System;
-using System.Net;
 using System.Collections.Generic;
-using MessageIdType = System.String;
 
 namespace R2Core.Network
 {
@@ -39,21 +37,21 @@ namespace R2Core.Network
 
 		public int Code { get; set; }
 		public string Destination { get; set; }
-		public System.Collections.Generic.IDictionary<string, object> Headers { get; set; }
+		public IDictionary<string, object> Headers { get; set; }
 		public dynamic Payload { get; set; }
 
 		/// <summary>
 		/// An unique identifier in the payload allowing messages to be tracked back to it's origin.
 		/// </summary>
 		/// <value>The identifier.</value>
-		public String Identifier { 
+		public string Identifier { 
 
-			get { return Headers [BroadcastMessageUniqueIdentifierHeaderKey].ToString(); } 
+			get { return Headers[BroadcastMessageUniqueIdentifierHeaderKey].ToString(); } 
 
 			set {
 
 				if (Headers == null) { Headers = new Dictionary<string, object>(); }
-				Headers [BroadcastMessage.BroadcastMessageUniqueIdentifierHeaderKey] = value;
+				Headers[BroadcastMessageUniqueIdentifierHeaderKey] = value;
 
 			}
 

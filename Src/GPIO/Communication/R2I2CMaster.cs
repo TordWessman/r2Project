@@ -92,7 +92,7 @@ namespace R2Core.GPIO
 				
 				byte[] response = new byte[r2I2C_get_response_size()];
 
-				for (int i = 0; i < r2I2C_get_response_size(); i++) { response [i] = r2I2C_get_response(i); }
+				for (int i = 0; i < r2I2C_get_response_size(); i++) { response[i] = r2I2C_get_response(i); }
 
 				return response;
 
@@ -100,7 +100,7 @@ namespace R2Core.GPIO
 
 		}
 
-		public byte[] Send(byte []data) {
+		public byte[] Send(byte[] data) {
 		
 			lock(m_lock) {
 

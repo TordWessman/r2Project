@@ -67,13 +67,13 @@ namespace R2Core.Network
 
 			}
 
-			if (m_exportObjectContainer [key] is T) {
+			if (m_exportObjectContainer[key] is T) {
 			
-				return new JsonExportObject<T>((T) m_exportObjectContainer [key]);
+				return new JsonExportObject<T>((T) m_exportObjectContainer[key]);
 
 			} else {
 			
-				return m_exportObjectContainer [key];
+				return m_exportObjectContainer[key];
 
 			}
 

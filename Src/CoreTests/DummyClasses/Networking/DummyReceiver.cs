@@ -32,7 +32,7 @@ namespace R2Core.Tests
 
 			Assert.AreEqual("Bar", input.Payload.Foo);
 			Assert.AreEqual(42, input.Payload.Bar);
-			Assert.AreEqual("InputFooBar", input.Headers ["InputBaz"]);
+			Assert.AreEqual("InputFooBar", input.Headers["InputBaz"]);
 			Response.AddMetadata("Baz", "FooBar");
 
 			return Response;

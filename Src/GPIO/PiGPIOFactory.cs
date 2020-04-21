@@ -91,13 +91,13 @@ namespace R2Core.GPIO
 		
 		private void ReservePort(RaspberryPiDotNet.GPIO port) {
 			
-			if (m_ioPortsUsed [(int)port.Pin]) {
+			if (m_ioPortsUsed[(int)port.Pin]) {
 				
 				throw new InvalidOperationException($"Port: {port } is already used!");
 			
 			}
 			
-			m_ioPortsUsed [(int)port.Pin] = true;
+			m_ioPortsUsed[(int)port.Pin] = true;
 
 		}
 		

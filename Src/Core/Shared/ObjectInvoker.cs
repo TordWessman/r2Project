@@ -70,8 +70,8 @@ namespace R2Core
 			// Convert the dynamic parameters to the types required by the subject.
 			for (int i = 0; i < paramsInfo.Length; i++) {
 
-				object parameter = parameters.ToArray() [i];
-				Type requiredType = paramsInfo [i].ParameterType;
+				object parameter = parameters.ToArray()[i];
+				Type requiredType = paramsInfo[i].ParameterType;
 
 				p.Add(requiredType.ConvertObject(parameter));
 
@@ -106,13 +106,13 @@ namespace R2Core
 
 					throw new ArgumentException($"Property '{property}' not found in '{target}'.");
 
-				} else if (!(members [0] is FieldInfo)) {
+				} else if (!(members[0] is FieldInfo)) {
 
 					throw new ArgumentException($"Get property: Unable to access '{property}' in '{target}'.");
 
 				}
 
-				FieldInfo fieldInfo = (members [0] as FieldInfo);
+				FieldInfo fieldInfo = (members[0] as FieldInfo);
 
 				return fieldInfo.GetValue(target);
 
@@ -151,13 +151,13 @@ namespace R2Core
 
 					throw new ArgumentException($"Property '{property}' not found in '{target}'.");
 
-				} else if (!(members [0] is FieldInfo)) {
+				} else if (!(members[0] is FieldInfo)) {
 
 					throw new ArgumentException($"Set property: Unable to access '{property}' in '{target}'.");
 
 				}
 
-				FieldInfo fieldInfo = (members [0] as FieldInfo);
+				FieldInfo fieldInfo = (members[0] as FieldInfo);
 
 				fieldInfo.SetValue(target, fieldInfo.FieldType.ConvertObject(value));
 

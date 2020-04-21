@@ -69,7 +69,7 @@ namespace R2Core.Network
 
 				try {
 					
-					byte [] requestData = m_listener.Receive(ref client);
+					byte[] requestData = m_listener.Receive(ref client);
 
 					if (!AllowLocalRequests && (IPAddress.IsLoopback(client.Address) || Addresses.Contains(client.Address.ToString()))) {
 					

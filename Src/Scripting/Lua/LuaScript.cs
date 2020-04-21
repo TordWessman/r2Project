@@ -56,7 +56,7 @@ namespace R2Core.Scripting
 
 		public override dynamic Invoke(string handle, params dynamic[] args) {
 		
-			LuaFunction function = m_state [handle] as LuaFunction;
+			LuaFunction function = m_state[handle] as LuaFunction;
 		
 			return function.Call(args)?.FirstOrDefault();
 

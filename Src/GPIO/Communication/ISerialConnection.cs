@@ -12,12 +12,12 @@ namespace R2Core.GPIO {
 		/// Will send the array of bytes to node and return the reply(if any)
 		/// </summary>
 		/// <param name="data">Data.</param>
-		byte [] Send(byte []data);
+		byte[] Send(byte[] data);
 
 		/// <summary>
 		/// Will try to read from the node.
 		/// </summary>
-		byte [] Read();
+		byte[] Read();
 
 	}
 

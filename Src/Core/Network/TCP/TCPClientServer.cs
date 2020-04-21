@@ -199,7 +199,7 @@ namespace R2Core.Network
 
 				}
 
-				response.OverrideHeaders(new Dictionary<string, object>() { 
+				response.OverrideHeaders(new Dictionary<string, object> { 
 					{ Settings.Consts.ConnectionRouterHeaderHostNameKey(), Identity.Name }
 				});
 

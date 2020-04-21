@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace R2Core
 {
-	public enum LogType: int {
+	public enum LogType {
 
         Info = 0,
 		Message = 1,

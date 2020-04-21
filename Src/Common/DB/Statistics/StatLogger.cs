@@ -42,7 +42,7 @@ namespace R2Core.Common {
 
         private void LogEntry(string identifier, double value) {
 
-            m_adapter.LogEntry(new StatLogEntry<double>() { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
+            m_adapter.LogEntry(new StatLogEntry<double> { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
 
         }
 

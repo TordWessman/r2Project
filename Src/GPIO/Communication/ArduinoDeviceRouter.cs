@@ -62,7 +62,7 @@ namespace R2Core.GPIO
 
 			DeviceResponsePackage<T>response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId));
 
-			return new DeviceData<T>() { Id = response.Id, Value = response.Value };
+			return new DeviceData<T> { Id = response.Id, Value = response.Value };
 
 		}
 
@@ -78,7 +78,7 @@ namespace R2Core.GPIO
 
 			DeviceResponsePackage<T> response = Send<T>(request);
 
-			return new DeviceData<T>() { Id = response.Id, Value = response.Value };
+			return new DeviceData<T> { Id = response.Id, Value = response.Value };
 
 		}
 

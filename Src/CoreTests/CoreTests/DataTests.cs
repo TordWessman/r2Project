@@ -94,14 +94,14 @@ namespace R2Core.Tests
 		public void TestSerializeWithEnum() {
 			PrintName();
 
-			DeviceRequest wob = new DeviceRequest() { 
+			DeviceRequest wob = new DeviceRequest { 
 				Identifier = "dummy_device",
 				ActionType = DeviceRequest.ObjectActionType.Invoke,
 				Action = "MultiplyByTen",
 				Params = new object[] { 42 }
 			};
 
-			byte [] serialized = serializer.Serialize(wob);
+			byte[] serialized = serializer.Serialize(wob);
 
 			dynamic deserialized = serializer.Deserialize(serialized);
 
@@ -120,7 +120,7 @@ namespace R2Core.Tests
 
 			DummyDevice d = new DummyDevice("duuumm");
 			dynamic res = invoker.Invoke(d, "NoParamsNoNothing", null);
-			dynamic ros = invoker.Invoke(d, "OneParam", new List<dynamic>() {9999} );
+			dynamic ros = invoker.Invoke(d, "OneParam", new List<dynamic> {9999} );
 
 			Assert.IsNull(res);
 			Assert.IsNull(ros);
@@ -133,7 +133,7 @@ namespace R2Core.Tests
 			var invoker = new ObjectInvoker();
 			var o = new InvokableDummy();
 
-			var res = invoker.Invoke(o, "AddBar", new List<object>() {"foo"});
+			var res = invoker.Invoke(o, "AddBar", new List<object> {"foo"});
 
 			Assert.AreEqual("foobar", res);
 
@@ -149,16 +149,16 @@ namespace R2Core.Tests
 			Assert.IsFalse(invoker.ContainsPropertyOrMember(o, "NotAMember"));
 
 			//Test invoking a IEnumerable<>
-			IEnumerable<object> aStringArray = new List<object>() { "foo", "bar" };
-			int count = invoker.Invoke(o, "GiveMeAnArray", new List<object>() {aStringArray});
+			IEnumerable<object> aStringArray = new List<object>{ "foo", "bar" };
+			int count = invoker.Invoke(o, "GiveMeAnArray", new List<object> {aStringArray});
 			Assert.AreEqual(aStringArray.Count(), count);
 
-			IEnumerable<object> OneTwoThree = new List<object>() { 1, 2, 3 };
+			IEnumerable<object> OneTwoThree = new List<object> { 1, 2, 3 };
 			invoker.Set(o, "EnumerableInts", OneTwoThree);
 
 			for (int i = 0; i < OneTwoThree.Count(); i++) {
 			
-				Assert.AreEqual(OneTwoThree.ToList() [i], o.EnumerableInts.ToList() [i]);
+				Assert.AreEqual(OneTwoThree.ToList()[i], o.EnumerableInts.ToList()[i]);
 
 			}
 
@@ -166,14 +166,14 @@ namespace R2Core.Tests
 			IDictionary<object, object> dictionary = new Dictionary<object,object>();
 			foreach (int i in OneTwoThree) {
 			
-				dictionary [$"apa{i}"] = i;
+				dictionary[$"apa{i}"] = i;
 			}
 
-			IEnumerable<int> allValues = invoker.Invoke(o, "GiveMeADictionary", new List<object>() {dictionary});
+			IEnumerable<int> allValues = invoker.Invoke(o, "GiveMeADictionary", new List<object> {dictionary});
 
 			for (int i = 0; i < OneTwoThree.Count(); i++) {
 			
-				Assert.AreEqual(allValues.ToArray() [i], OneTwoThree.ToArray() [i]);
+				Assert.AreEqual(allValues.ToArray()[i], OneTwoThree.ToArray()[i]);
 
 			}
 
@@ -207,7 +207,7 @@ namespace R2Core.Tests
                 42,  "Hej",  DateTime.Now
             })));
 
-            Assert.AreEqual(2, database.Insert(adapter.InsertSQL(new List<dynamic>() {
+            Assert.AreEqual(2, database.Insert(adapter.InsertSQL(new List<dynamic> {
                 43, "Nej",  DateTime.MinValue
             })));
 
@@ -233,7 +233,7 @@ namespace R2Core.Tests
             database.Query(adapter.DeleteSQL("value = 43"));
             Assert.AreEqual(1, adapter.Count());
 
-            Assert.AreEqual(3, database.Insert(adapter.InsertSQL(new List<dynamic>() {
+            Assert.AreEqual(3, database.Insert(adapter.InsertSQL(new List<dynamic> {
                 45, "Hej", DateTime.Now
             })));
 
@@ -264,7 +264,7 @@ namespace R2Core.Tests
 
             // Test update
 
-            database.Query(adapter.UpdateSQL(new Dictionary<string, dynamic>() {
+            database.Query(adapter.UpdateSQL(new Dictionary<string, dynamic> {
                 { "value", 42 },
                 { "timestamp", DateTime.MinValue }
             }, @"text = ""Yay"""));
@@ -304,7 +304,7 @@ namespace R2Core.Tests
             Assert.AreEqual(3, database.GetColumns("dummy_db").Count());
 
             for (int i = 0; i < 10; i++) {
-                database.Insert(adapter.InsertSQL(new List<dynamic>() {
+                database.Insert(adapter.InsertSQL(new List<dynamic> {
                     i, "Hej"
                 }));
             }

@@ -61,7 +61,7 @@ namespace R2Core.Common
 			}
 
 			DataSet ds = Database.Select(sql);
-			DataTable dt = ds.Tables [0];
+			DataTable dt = ds.Tables[0];
 
 			foreach (DataRow row in dt.Rows) {
 
@@ -85,7 +85,7 @@ namespace R2Core.Common
 			}
 
 			DataSet ds = Database.Select(sql);
-			DataTable dt = ds.Tables [0];
+			DataTable dt = ds.Tables[0];
 
 			foreach (DataRow row in dt.Rows) {
 
@@ -170,7 +170,7 @@ namespace R2Core.Common
 			}
 			
 			DataSet ds = Database.Select(sql);
-			DataTable dt = ds.Tables [0];
+			DataTable dt = ds.Tables[0];
 			
 			foreach (DataRow row in dt.Rows) {
 				
@@ -211,9 +211,9 @@ namespace R2Core.Common
 		private IMemoryReference CreateReference(DataRow row) {
 		
 			return new MemoryReference(
-				(int)((long)row [ID_COL]),
-				(string)row [NAME_COL],
-				(string)row [TYPE_COL] 
+				(int)((long)row[ID_COL]),
+				(string)row[NAME_COL],
+				(string)row[TYPE_COL] 
 			);
 
 		}

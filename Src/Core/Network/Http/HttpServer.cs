@@ -86,7 +86,7 @@ namespace R2Core.Network
 
 				foreach (var key in request.QueryString.AllKeys) {
 				
-					payload.Add (key, request.QueryString [key]);
+					payload.Add (key, request.QueryString[key]);
 
 				}
 

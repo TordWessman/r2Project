@@ -23,12 +23,12 @@ namespace R2Core.Tests
 
 			m1.Associate(m2);
 
-			Assert.NotNull(m1.Associations.Where(m => m == m2).FirstOrDefault());
+			Assert.NotNull(m1.Associations.FirstOrDefault(m => m == m2));
 
 			m2.Value = "c";
 			Assert.AreEqual(m2.Value, "c");
 
-			Assert.AreEqual(m1.Associations.Where(m => m == m2).FirstOrDefault()?.Value, "c");
+			Assert.AreEqual(m1.Associations.FirstOrDefault(m => m == m2)?.Value, "c");
 
 			Assert.True(memorySource.Delete(m2));
 

@@ -42,8 +42,8 @@ namespace R2Core.Video
 		
 		public CvPoint(string[] vals) {
 			
-			X = int.Parse(vals [1]);
-			Y = int.Parse(vals [2]);
+			X = int.Parse(vals[1]);
+			Y = int.Parse(vals[2]);
 
 		}
 

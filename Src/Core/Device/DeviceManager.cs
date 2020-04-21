@@ -45,9 +45,9 @@ namespace R2Core.Device
 
 		}
 			
-		public IEnumerable<IDevice> Devices { get { return m_devices.Values; } }
+		public IEnumerable<IDevice> Devices => m_devices.Values;
 
-		public IEnumerable<IDevice> LocalDevices { get { return m_devices.Values.Where(device => device.IsLocal()); } }
+		public IEnumerable<IDevice> LocalDevices => m_devices.Values.Where(device => device.IsLocal());
 
 		/// <summary>
 		/// Add the device internally
@@ -57,7 +57,7 @@ namespace R2Core.Device
 			
 			lock(m_lock) {
 
-				IDevice existingDevice = m_devices.Values.Where(d => d.Identifier == device.Identifier).FirstOrDefault();
+				IDevice existingDevice = m_devices.Values.FirstOrDefault(d => d.Identifier == device.Identifier);
 				if (existingDevice != null && existingDevice.IsLocal()) {
 
 					Log.w($"Replacing device duplicated device with id `{device.Identifier}`");
@@ -66,7 +66,6 @@ namespace R2Core.Device
 				}
 
 				m_devices.Add(device.Guid, device);
-
 
 				// Device Manager will be able to propagate changes in any device to it's own observers.
 				if (device.IsLocal()) {
@@ -87,7 +86,7 @@ namespace R2Core.Device
 
 		private IDevice _Get(string identifier) {
 		
-			return m_devices.Select(d => d.Value).Where(dv => dv.Identifier == identifier).FirstOrDefault();
+			return m_devices.Select(d => d.Value).FirstOrDefault(dv => dv.Identifier == identifier);
 
 		}
 		
@@ -99,7 +98,7 @@ namespace R2Core.Device
 
 		public T GetByGuid<T>(Guid guid) {
 
-			IDevice device = m_devices.Select(d => d.Value).Where(dv => dv.Guid == guid).FirstOrDefault();
+			IDevice device = m_devices.Select(d => d.Value).FirstOrDefault(dv => dv.Guid == guid);
 		
 			if (device != null && device is T) {
 
@@ -109,7 +108,7 @@ namespace R2Core.Device
 			} else if (device != null) {
 
 				// Device found but of wrong type
-				throw new InvalidCastException("Device with Guid: " + guid.ToString() + " cannot be retrieved, is correct type: " + (device is T).ToString());
+				throw new InvalidCastException($"Device with Guid: {guid} cannot be retrieved, is correct type: {device is T}");
 
 			}
 
@@ -124,7 +123,7 @@ namespace R2Core.Device
 
 			if (device == null) {
 
-				throw new DeviceException("Device identifier not found: " + identifier);
+				throw new DeviceException($"Device identifier not found:  {identifier}");
 
 			}
 
@@ -132,11 +131,9 @@ namespace R2Core.Device
 
 				return  (T) device;
 
-			} else {
-
-				throw new InvalidCastException("Device: " + identifier + " cannot be retrieved, since it is not of type: " + typeof (T));
-
-			}
+			} 
+				
+            throw new InvalidCastException($"Device: {identifier} cannot be retrieved, since it is not of type: " + typeof (T));
 
 		}
 
@@ -166,7 +163,7 @@ namespace R2Core.Device
 
 					if (device.IsLocal() && !ignoreDevices.Any(d => d.Guid == device.Guid )) {
 
-						Log.d("Stopping device: " + device.Identifier);
+						Log.d($"Stopping device: {device.Identifier}");
 
 						device.Stop();
 

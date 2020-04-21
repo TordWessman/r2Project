@@ -38,7 +38,7 @@ namespace R2Core
 
 			foreach (KeyValuePair<TKey, Object> kvp in (expandoObject as IDictionary<TKey, Object>)) {
 				
-				m_members [kvp.Key] = kvp.Value is ExpandoObject ? new R2Dynamic(kvp.Value as ExpandoObject) : kvp.Value;
+				m_members[kvp.Key] = kvp.Value is ExpandoObject ? new R2Dynamic(kvp.Value as ExpandoObject) : kvp.Value;
 
 			}
 
@@ -94,9 +94,9 @@ namespace R2Core
 		//
 		// Indexer
 		//
-		public TValue this [TKey key] {
-			get { return m_members [key]; }
-			set { m_members [key] = value; }
+		public TValue this[TKey key] {
+			get { return m_members[key]; }
+			set { m_members[key] = value; }
 		}
 
 		//

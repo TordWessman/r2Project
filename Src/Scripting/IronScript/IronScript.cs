@@ -18,7 +18,6 @@
 //
 using System;
 using System.IO;
-using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +58,7 @@ namespace R2Core.Scripting
 
 		public void AddSearchPath(string searchPath) {
 
-			m_engine.SetSearchPaths(m_engine.GetSearchPaths().Concat(new List<string>() { searchPath }).ToList());
+			m_engine.SetSearchPaths(m_engine.GetSearchPaths().Concat(new List<string> { searchPath }).ToList());
 		
 		}
 

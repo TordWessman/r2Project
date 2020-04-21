@@ -47,10 +47,10 @@ namespace R2Core
 						
 						foreach (string id in m_tasks.Keys) {
 							
-							if (m_tasks [id] != null) {
-								if (m_tasks [id].Status == TaskStatus.RanToCompletion) {
+							if (m_tasks[id] != null) {
+								if (m_tasks[id].Status == TaskStatus.RanToCompletion) {
 									done.Add(id);
-								} else if (m_tasks [id].Status == TaskStatus.Faulted) {
+								} else if (m_tasks[id].Status == TaskStatus.Faulted) {
 									faulted.Add(id);
 								}
 								                                                        
@@ -64,7 +64,7 @@ namespace R2Core
 						}
 						
 						foreach (string id in faulted) {
-							Log.x(m_tasks [id].Exception);
+							Log.x(m_tasks[id].Exception);
 							m_tasks.Remove(id);
 						}
 				
@@ -139,7 +139,7 @@ namespace R2Core
 			
 			lock(m_assignLock) {
 				foreach (string id in m_tasks.Keys) {
-					Log.d("[" + id + "]" + (m_tasks [id] != null ? m_tasks [id].Status.ToString() + " (" + m_tasks [id].GetHashCode()  + ") " : "(null)"));
+					Log.d("[" + id + "]" + (m_tasks[id] != null ? m_tasks[id].Status.ToString() + " (" + m_tasks[id].GetHashCode()  + ") " : "(null)"));
 				}
 				
 			}

@@ -55,21 +55,22 @@ namespace R2Core.Network
 
 		}
 
-		public void Start() {
+		public override void Start() {
 		
 			m_shouldRun = true;
 			m_listener = Task.Factory.StartNew(Connection);
 
 		}
 
-		public void Stop() {
+		public override void Stop() {
+
 			m_shouldRun = false;
-		}
+		
+        }
 
 		private void Connection() {
 		
-
-
+            if (m_shouldRun) { }
 		}
 	}
 }

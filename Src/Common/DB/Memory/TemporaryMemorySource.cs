@@ -81,7 +81,7 @@ namespace R2Core.Common
 
 		public ICollection<IMemory> GetAssociations(IMemory memory) {
 	
-			return m_memories [memory];
+			return m_memories[memory];
 
 		}
 
@@ -99,7 +99,7 @@ namespace R2Core.Common
 
 		public bool Delete(int memoryId) {
 		
-			IMemory memory = m_memories.Keys.Where(m => m.Id == memoryId).FirstOrDefault();
+			IMemory memory = m_memories.Keys.FirstOrDefault(m => m.Id == memoryId);
 
 			if (memory == null) {
 			
@@ -115,7 +115,7 @@ namespace R2Core.Common
 				
 					IList<IMemory> associations = kvp.Value;
 					associations.Remove(memory);
-					removeFromUs [kvp.Key] = associations;
+					removeFromUs[kvp.Key] = associations;
 
 				}
 
@@ -123,7 +123,7 @@ namespace R2Core.Common
 
 			foreach (KeyValuePair<IMemory, IList<IMemory>> kvp in removeFromUs) {
 			
-				m_memories [kvp.Key] = kvp.Value;
+				m_memories[kvp.Key] = kvp.Value;
 			}
 
 			return m_memories.Remove(memory);
@@ -144,8 +144,8 @@ namespace R2Core.Common
 
 		public void Associate(IMemory one, IMemory two) {
 		
-			m_memories [one]?.Add(two);
-			m_memories [two]?.Add(one);
+			m_memories[one]?.Add(two);
+			m_memories[two]?.Add(one);
 		}
 
 	}

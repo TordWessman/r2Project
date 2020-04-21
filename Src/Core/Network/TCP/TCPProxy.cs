@@ -35,7 +35,7 @@ namespace R2Core.Network
 		private TcpListener m_outListener;
 
 		private Task m_inService;
-		private Task m_outService;
+		//private Task m_outService;
 		private bool m_shouldRun = true;
 		private readonly object m_clientsLock = new object();
 

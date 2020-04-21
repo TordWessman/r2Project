@@ -185,7 +185,7 @@ namespace R2Core.Tests
             RemoteDevice remoteDevice = new RemoteDevice("test", Guid.Empty, host);
 
             // Next response will return a string
-            host.NextResponse = new NetworkMessage() {
+            host.NextResponse = new NetworkMessage {
 
                 Payload = new DeviceResponse() {
                     ActionResponse = "hund"
@@ -264,7 +264,7 @@ namespace R2Core.Tests
 
             // Test error:
 
-            host.NextResponse = new NetworkMessage() {
+            host.NextResponse = new NetworkMessage {
 
                 Payload = "Argh!",
                 Code = NetworkStatusCode.BadRequest.Raw()

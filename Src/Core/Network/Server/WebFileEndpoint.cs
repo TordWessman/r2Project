@@ -84,9 +84,9 @@ namespace R2Core.Network
 			string extension = new Regex(ExtensionMatchRegexp).Match(imageName)?.Value?.ToLower();
 
 			IDictionary<string, object> headers = m_extraHeaders;
-			headers ["Content-Type"] = GetMimeType(extension);
+			headers["Content-Type"] = GetMimeType(extension);
 
-			return new NetworkMessage() {
+			return new NetworkMessage {
 				Payload = File.ReadAllBytes(fileName), 
 				Headers = headers,
 				Destination = fileName

@@ -279,7 +279,7 @@ namespace R2Core.GPIO
 		
 				if (IsError) {
 
-					return(Content?.Length ?? 0) > 0 ? (SerialErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : SerialErrorType.Undefined;
+					return(Content?.Length ?? 0) > 0 ? (SerialErrorType)Content[ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : SerialErrorType.Undefined;
 
 				} 
 
@@ -291,7 +291,7 @@ namespace R2Core.GPIO
 
 		public string ErrorInfo { get {
 				
-				int info = (Content?.Length ?? 0) > 1 ? Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
+				int info = (Content?.Length ?? 0) > 1 ? Content[ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
 
 				if (Error == SerialErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
 
@@ -316,7 +316,7 @@ namespace R2Core.GPIO
 			
 				if (typeof(T) == typeof(bool)) {
 					
-					return(T)(object)(Content [0] > 0);
+					return(T)(object)(Content[0] > 0);
 	
 				} if (typeof(T) == typeof(int[])) {
 

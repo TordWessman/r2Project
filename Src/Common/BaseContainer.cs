@@ -84,7 +84,7 @@ namespace R2Core.Common
 
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
 			m_runLoop = new InterpreterRunLoop(Settings.Identifiers.RunLoop(), runLoopInterpreter, consoleLogger);
-			var dataFactory = m_deviceFactory.CreateDataFactory(Settings.Identifiers.DataFactory(), new List<string>() {Settings.Paths.Databases()});
+			var dataFactory = m_deviceFactory.CreateDataFactory(Settings.Identifiers.DataFactory(), new List<string> {Settings.Paths.Databases()});
 
 			// Set up database and memory
 			m_db = new SqliteDatabase(Settings.Identifiers.Database(), dbFile);

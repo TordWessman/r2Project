@@ -40,7 +40,7 @@ namespace R2Core.Common {
 
         public void LogEntry(StatLogEntry<double> entry) {
 
-            IList<dynamic> values = new List<dynamic>() {
+            IList<dynamic> values = new List<dynamic> {
                 entry.Value,
                 $"{entry.GetType().GetGenericArguments()[0]}",
                 $"{entry.Timestamp.AsSQLiteTimestamp()}",
@@ -115,7 +115,7 @@ namespace R2Core.Common {
 
         internal static StatLogEntry<T> CreateEntry<T>(this DataRow self) {
 
-            return new StatLogEntry<T>() {
+            return new StatLogEntry<T> {
                 Id = self.GetId(),
                 Value = (T)self["value"],
                 Timestamp = DateTime.Parse((string)self["timestamp"]),

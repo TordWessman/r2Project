@@ -148,7 +148,7 @@ namespace R2Core.Network
 				ActionType = DeviceRequest.ObjectActionType.Get
 			};
 
-			INetworkMessage message = new NetworkMessage() { Payload = request, Destination = Settings.Consts.DeviceDestination() };
+			INetworkMessage message = new NetworkMessage { Payload = request, Destination = Settings.Consts.DeviceDestination() };
 
 			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
 
@@ -286,7 +286,7 @@ namespace R2Core.Network
 
 			string id = $"host{address}:{port}";
 
-			IClientConnection connection = m_hosts.ContainsKey(id) ? m_hosts [id] : null;
+			IClientConnection connection = m_hosts.ContainsKey(id) ? m_hosts[id] : null;
 
 			if (connection == null) {
 

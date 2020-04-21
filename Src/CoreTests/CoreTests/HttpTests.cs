@@ -51,16 +51,16 @@ namespace R2Core.Tests
 
 			IWebEndpoint ep = factory.CreateJsonEndpoint(receiver);
 
-			INetworkMessage inputObject = new NetworkMessage() { 
+			INetworkMessage inputObject = new NetworkMessage { 
 				Payload = new DummyInput(),
-				Headers = new Dictionary<string, object>() { { "InputBaz", "InputFooBar" } },
+				Headers = new Dictionary<string, object> { { "InputBaz", "InputFooBar" } },
 				Destination = receiver.DefaultPath
 			};
 
 			INetworkMessage output = ep.Interpret(inputObject, null);
 
 			Assert.AreEqual(response.Payload.Foo, output.Payload.Foo);
-			Assert.AreEqual(response.Headers ["Baz"], "FooBar");
+			Assert.AreEqual(response.Headers["Baz"], "FooBar");
 
 		}
 
@@ -75,7 +75,7 @@ namespace R2Core.Tests
 			rec.AddDevice(dummyObject);
 
 			var request = new DeviceRequest() {
-				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
+				Params = new List<object> {"Foo", 42, new Dictionary<string,string> {{"Cat", "Dog"}}}.ToArray(),
 				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
@@ -85,7 +85,7 @@ namespace R2Core.Tests
 
 			Assert.AreEqual("dummy_device", deserialized.Identifier);
 			Assert.NotNull(deserialized.Params[2]);
-			Assert.AreEqual("Dog", deserialized.Params [2].Cat);
+			Assert.AreEqual("Dog", deserialized.Params[2].Cat);
 
 			INetworkMessage result = rec.OnReceive(new NetworkMessage{Payload = deserialized}, null);
 
@@ -182,8 +182,8 @@ namespace R2Core.Tests
 			Assert.AreEqual(200, response.Code);
 			Assert.AreEqual(6, (response.Payload as byte[]).Length);
 
-			Assert.AreEqual('d', (response.Payload as byte[]) [0]);
-			Assert.AreEqual('h', (response.Payload as byte[]) [4]);
+			Assert.AreEqual('d', (response.Payload as byte[])[0]);
+			Assert.AreEqual('h', (response.Payload as byte[])[4]);
 
 			webServer.Stop();
 
@@ -291,7 +291,7 @@ namespace R2Core.Tests
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 
 			var requestPayload = new DeviceRequest() {
-				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
+				Params = new List<object> {"Foo", 42, new Dictionary<string,string> {{"Cat", "Dog"}}}.ToArray(),
 				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};

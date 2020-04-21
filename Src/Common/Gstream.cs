@@ -194,7 +194,7 @@ namespace R2Core.Common
 
 		public System.Collections.Generic.IDictionary<string, Task> GetTasksToObserve() {
 
-			return new System.Collections.Generic.Dictionary<string,Task>() {{ "Gst" + Identifier, m_task}};
+			return new System.Collections.Generic.Dictionary<string,Task> {{ "Gst" + Identifier, m_task}};
 		
 		}
 

@@ -39,7 +39,7 @@ namespace R2Core.Audio
 		/// Returns the available files available for the audio player
 		/// </summary>
 		/// <value>The get file list.</value>
-		string []GetFileList {get;}
+		string[] GetFileList {get;}
 	}
 }
 

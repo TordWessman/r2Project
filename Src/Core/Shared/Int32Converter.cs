@@ -69,7 +69,7 @@ namespace R2Core
 
 			for (int i = Int32Converter.ValueSize; i > 0; i--) {
 			
-				if (this [i - 1] > 0) {
+				if (this[i - 1] > 0) {
 				
 					m_lenght = i;
 					break;
@@ -87,7 +87,7 @@ namespace R2Core
 
 			m_lenght = 0;
 
-			foreach (byte b in bytes) { this [m_lenght++] = b; }
+			foreach (byte b in bytes) { this[m_lenght++] = b; }
 
 		}
 
@@ -104,7 +104,7 @@ namespace R2Core
 
 			IList<byte> byteArray = new List<byte>();
 
-			for (int i = 0; i < (size ?? Length); i++) { byteArray.Add(this [i]); }
+			for (int i = 0; i < (size ?? Length); i++) { byteArray.Add(this[i]); }
 
 			return byteArray.ToArray();
 

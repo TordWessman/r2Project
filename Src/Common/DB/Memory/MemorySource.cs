@@ -168,7 +168,7 @@ namespace R2Core.Common
 			IMemoryReference reference = m_memoryFactory.StoreMemoryReference(
 				newId, name, type);
 			
-			Bus.AddMemories(new List<IMemoryReference>() {reference});
+			Bus.AddMemories(new List<IMemoryReference> {reference});
 			
 			return m_memoryFactory.CreateMemory(reference, this, true);
 		}

@@ -114,7 +114,7 @@ namespace R2Core.PushNotifications
 
 		public IDictionary<string,Task> GetTasksToObserve() {
 		
-			return new Dictionary<string,Task>() { { this.ToString(), m_sendTask } };
+			return new Dictionary<string,Task> { { this.ToString(), m_sendTask } };
 		
 		}
 

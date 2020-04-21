@@ -175,15 +175,15 @@ namespace R2Core.GPIO
 
 			byte[] checksum = m_host.GetChecksum(NodeId);
 
-			if ((checksum [0] & 63) != m_devices.Count) {
+			if ((checksum[0] & 63) != m_devices.Count) {
 			
-				Log.e($"Checksum failed for device count(was {(checksum [0] & 63)}).");
+				Log.e($"Checksum failed for device count(was {(checksum[0] & 63)}).");
 				return false;
 			}
 
 			for (int i = 0; i < m_devices.Count; i++) {
 			
-				if (checksum [i + 1] != m_devices [i].Checksum) {
+				if (checksum[i + 1] != m_devices[i].Checksum) {
 
 					Log.e($"Checksum failed for serial device '{m_devices[i].Identifier}'.");
 					return false;
