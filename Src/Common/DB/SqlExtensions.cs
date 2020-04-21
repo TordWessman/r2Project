@@ -97,9 +97,9 @@ namespace R2Core.Common {
 
         }
 
-        public static int GetId(this DataRow self) {
+        public static long GetId(this DataRow self) {
 
-            return (int)self[SQLDBAdapter.IdParameterName];
+            return (long)self[SQLDBAdapter.IdParameterName];
 
         }
 

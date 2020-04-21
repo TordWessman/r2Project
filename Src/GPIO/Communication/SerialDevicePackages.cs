@@ -18,7 +18,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Linq;
-using R2Core.Data;
 using System.Collections;
 
 namespace R2Core.GPIO

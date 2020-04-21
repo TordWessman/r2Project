@@ -29,7 +29,7 @@ namespace R2Core.Common {
         /// <summary>
         /// Id of the log entry.
         /// </summary>
-        public int Id;
+        public long Id;
 
         /// <summary>
         /// The identifier of the object being logged.

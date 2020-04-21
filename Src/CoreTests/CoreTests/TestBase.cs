@@ -43,7 +43,7 @@ namespace R2Core.Tests
 			Thread.Sleep(200);
 
 			Log.d($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` FINISHED ---");
-			Log.d("\n\n\n\n\n");
+			Log.d($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}{Environment.NewLine}");
 
 		}
 
@@ -83,7 +83,7 @@ namespace R2Core.Tests
 
 			}
 
-			Log.d($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName }` STARTED ---");
+			Log.d($"--- TEST `{NUnit.Framework.TestContext.CurrentContext.Test.FullName}` STARTED ---");
 
 		}
 

@@ -52,8 +52,8 @@ namespace R2Core.GPIO
 
 		}
 
-		private int m_bus;
-		private int m_port;
+		private readonly int m_bus;
+		private readonly int m_port;
 
 		public R2I2CMaster(string id, int? bus = null, int? port = null) : base(id) {
 
@@ -81,7 +81,9 @@ namespace R2Core.GPIO
 		}
 
 		public override void Stop() {
+
 			r2I2C_should_run(false);
+
 		}
 
 		private byte[] Response {

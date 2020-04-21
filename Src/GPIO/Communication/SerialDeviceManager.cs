@@ -24,8 +24,8 @@ namespace R2Core.GPIO
 	
 	internal class SerialDeviceManager {
 		
-		private IArduinoDeviceRouter m_host;
-		private int m_updateInterval;
+		private readonly IArduinoDeviceRouter m_host;
+		private readonly int m_updateInterval;
 
 		internal IList<ISerialNode> Nodes { get; private set; }
 

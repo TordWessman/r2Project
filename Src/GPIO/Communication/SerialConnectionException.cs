@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 namespace R2Core.GPIO
 {
@@ -8,13 +7,11 @@ namespace R2Core.GPIO
 	/// </summary>
 	public class SerialConnectionException : IOException {
 
-		private SerialErrorType m_errorType;
-
-		public SerialErrorType ErrorType { get { return m_errorType; } } 
+		public SerialErrorType ErrorType { get; private set; } 
 
 		public SerialConnectionException(string message, SerialErrorType type) : base(message, (int)type) {
 
-			m_errorType = type;
+			ErrorType = type;
 
 		}
 

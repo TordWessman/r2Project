@@ -123,7 +123,7 @@ namespace R2Core.GPIO
 
 			if (response.Length < RESPONSE_POSITION_CONTENT_LENGTH) {
 			
-				return new DeviceResponsePackage<T>() {
+				return new DeviceResponsePackage<T> {
 					Checksum = 0,
 					Action = SerialActionType.Error,
 					Content = new byte[] {(byte)SerialErrorType.ERROR_INVALID_RESPONSE_SIZE}
@@ -133,7 +133,7 @@ namespace R2Core.GPIO
 
 			int contentLength = response[RESPONSE_POSITION_CONTENT_LENGTH];
 
-			return new DeviceResponsePackage<T>() {
+			return new DeviceResponsePackage<T> {
 				Checksum = response[RESPONSE_POSITION_CHECKSUM],
 				MessageId = response[RESPONSE_POSITION_MESSAGE_ID],
 				NodeId = response[RESPONSE_POSITION_HOST],
@@ -157,7 +157,7 @@ namespace R2Core.GPIO
 
 			}
 
-			DeviceRequestPackage package = new DeviceRequestPackage() { 
+			DeviceRequestPackage package = new DeviceRequestPackage { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Create, 
 				Id = m_deviceCount[nodeId]++, //Actually decided by the node...
@@ -172,7 +172,7 @@ namespace R2Core.GPIO
 
 			byte[] content = { (byte)(value & 0xFF) , (byte)((value >> 8) & 0xFF) };
 
-			return new DeviceRequestPackage() { 
+			return new DeviceRequestPackage { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Set, 
 				Id = deviceId, 
@@ -183,7 +183,7 @@ namespace R2Core.GPIO
 
 		public DeviceRequestPackage GetDevice(byte deviceId, byte nodeId) {
 
-			return new DeviceRequestPackage() { 
+			return new DeviceRequestPackage { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Get, 
 				Id = deviceId, 
@@ -195,10 +195,10 @@ namespace R2Core.GPIO
 		public DeviceRequestPackage Sleep(byte nodeId, bool toggle, byte cycles) {
 		
 			byte[] content = new byte[2];
-			content [POSITION_CONTENT_SLEEP_TOGGLE] = (byte)(toggle ? 1 : 0);
-			content [POSITION_CONTENT_SLEEP_CYCLES] = (byte)cycles;
+			content[POSITION_CONTENT_SLEEP_TOGGLE] = (byte)(toggle ? 1 : 0);
+			content[POSITION_CONTENT_SLEEP_CYCLES] = cycles;
 
-			return new DeviceRequestPackage() {
+			return new DeviceRequestPackage {
 				NodeId = nodeId,
 				Action = SerialActionType.SendToSleep, 
 				Content = content
@@ -207,7 +207,7 @@ namespace R2Core.GPIO
 
 		public DeviceRequestPackage SetNodeId(byte nodeId) {
 
-			return new DeviceRequestPackage() {
+			return new DeviceRequestPackage {
 				NodeId = 0x0, 
 				Action = SerialActionType.Initialization, 
 				Id = nodeId, 
@@ -217,5 +217,5 @@ namespace R2Core.GPIO
 		}
 
 	}
-}
 
+}
