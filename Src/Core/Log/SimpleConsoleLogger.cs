@@ -28,9 +28,9 @@ namespace R2Core
 	/// </summary>
 	public class SimpleConsoleLogger : DeviceBase, IMessageLogger {
 		
-		private ConsoleColor m_defaultColor;
-		private Stack<ILogMessage> m_history;
-		private int m_maxHistory;
+		private readonly ConsoleColor m_defaultColor;
+		private readonly Stack<ILogMessage> m_history;
+		private readonly int m_maxHistory;
 
 		public const int DefaultMaxHistory = 100;
 
@@ -40,20 +40,14 @@ namespace R2Core
 		/// <param name="id">Identifier.</param>
 		/// <param name="maxHistory">Max history.</param>
 		public SimpleConsoleLogger(string id, int maxHistory = DefaultMaxHistory) : base(id) {
+
 			m_defaultColor = Console.ForegroundColor;
 			m_history = new Stack<ILogMessage>();
 			m_maxHistory = maxHistory;
+
 		}
 
-		public IEnumerable<ILogMessage> History {
-		
-			get {
-		
-				return m_history.Reverse().Select(t => t);
-
-			}
-		
-		}
+		public IEnumerable<ILogMessage> History  => m_history.Reverse().Select(t => t);
 
 		public void Write(ILogMessage message) {
 			
@@ -125,7 +119,12 @@ namespace R2Core
 				SetConsoleColor(ConsoleColor.Gray);
 				break;
 
-			}
+            case LogType.Info:
+                
+                SetConsoleColor(ConsoleColor.DarkGray);
+                break;
+
+            }
 		
 		}
 	

@@ -26,7 +26,7 @@ namespace R2Core
 {
 	public class ConsoleLogger : DeviceBase, IMessageLogger {
 		
-		private ConsoleColor m_defaultColor;
+		private readonly ConsoleColor m_defaultColor;
 		private static readonly object m_lock = new object();
 		private Queue<Action> m_queue;
 		private Timer m_consoleTimer;
@@ -138,7 +138,7 @@ namespace R2Core
 
 				SetConsoleColor(message.Type);
 
-				Console.WriteLine((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
+				Console.WriteLine((message.Tag != null ? $"[{message.Tag }] " : "") + message.Message);
 
 				SetConsoleColor(m_defaultColor);
 
@@ -157,30 +157,37 @@ namespace R2Core
 		}
 
 		private void SetConsoleColor(LogType logType) {
-			switch (logType) {
 
-			case LogType.Error:
-				
-				SetConsoleColor(ConsoleColor.Red);
-				break;
+            switch (logType) {
 
-			case LogType.Warning:
-				
-				SetConsoleColor(ConsoleColor.Yellow);
-				break;
-			
-			case LogType.Temp:
+                case LogType.Error:
 
-				SetConsoleColor(ConsoleColor.Green);
-				break;
+                    SetConsoleColor(ConsoleColor.Red);
+                    break;
 
-			case LogType.Message:
+                case LogType.Warning:
 
-				SetConsoleColor(ConsoleColor.Gray);
-				break;
-			}
+                    SetConsoleColor(ConsoleColor.Yellow);
+                    break;
 
-		}
+                case LogType.Temp:
+
+                    SetConsoleColor(ConsoleColor.Green);
+                    break;
+
+                case LogType.Message:
+
+                    SetConsoleColor(ConsoleColor.Gray);
+                    break;
+
+                case LogType.Info:
+
+                    SetConsoleColor(ConsoleColor.DarkGray);
+                    break;
+
+            }
+
+        }
 
 	}
 

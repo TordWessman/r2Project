@@ -18,10 +18,7 @@
 
 using System.Collections.Generic;
 using System;
-using System.Threading;
 using R2Core.Device;
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections;
@@ -34,7 +31,10 @@ namespace R2Core
 		private List<IMessageLogger> loggers;
 		protected static Log instance;
 
-		public LogType LogLevel = LogType.Temp;
+        /// <summary>
+        /// The minimum visible log level.
+        /// </summary>
+		public LogType LogLevel = LogType.Message;
 
 		/// <summary>
 		/// Define how many rows to print of the stacktrace.
@@ -56,13 +56,13 @@ namespace R2Core
 
 		public static void SetLogLevelForCurrentTask(LogType level) {
 		
-			if (System.Threading.Tasks.Task.CurrentId != null) {
+			if (Task.CurrentId != null) {
 
-				Instance.m_threadLogLevels [(int)System.Threading.Tasks.Task.CurrentId] = level;
+				Instance.m_threadLogLevels[(int)System.Threading.Tasks.Task.CurrentId] = level;
 
 			} else {
 			
-				Log.w("Can't SetLogLevelForCurrentTask. Not in a Task.");
+				w("Can't SetLogLevelForCurrentTask. Not in a Task.");
 
 			}
 
@@ -71,8 +71,8 @@ namespace R2Core
 
 		public static Log Instantiate(string id) {
 		
-			Log.instance = new Log(id);
-			return Log.instance;
+			instance = new Log(id);
+			return instance;
 
 		}
 		
@@ -123,27 +123,27 @@ namespace R2Core
 		/// Returns true if all conditions are satisfied for writing messages.
 		/// </summary>
 		/// <returns><c>true</c> if this instance can write the specified message; otherwise, <c>false</c>.</returns>
-		/// <param name="message">Message.</param>
-		private bool CanWrite(ILogMessage message) {
+		/// <param name="msg">Message.</param>
+		private bool CanWrite(ILogMessage msg) {
 
-			return message.Type >= LogLevel && 
-					message.Type >= 
+			return msg.Type >= LogLevel && 
+					msg.Type >= 
 						((Task.CurrentId != null && m_threadLogLevels.ContainsKey((int)Task.CurrentId)) ? 
-							m_threadLogLevels [(int)Task.CurrentId] : LogType.Temp);
+							m_threadLogLevels[(int)Task.CurrentId] : LogType.Info);
 
 		}
 
-		private string FormatMessage(object message, int depth = 0) {
+		private string FormatMessage(object msg, int depth = 0) {
 		
-			string output = message?.ToString();
+			string output = msg?.ToString();
 
-			if (!(message is string) && message is IEnumerable) {
+			if (!(msg is string) && msg is IEnumerable) {
 				
 				output = "";
 
-				foreach (object value in (message as IEnumerable)) {
+				foreach (object value in (msg as IEnumerable)) {
 
-					output += new String('-', depth + 1) + " " + FormatMessage(value, depth + 1) + Environment.NewLine;
+					output += new String('-', depth + 1) + $" {FormatMessage(value, depth + 1)}{Environment.NewLine}";
 
 				}
 
@@ -153,70 +153,87 @@ namespace R2Core
 
 		}
 
-		public void message(object message, string tag = null) {
+        public void info(object msg, string tag = null) {
+
+            Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Info, tag));
+
+        }
+
+        public void message(object msg, string tag = null) {
 			
-			Log.Instance?.Write(new LogMessage(FormatMessage(message), LogType.Message, tag));
+			Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Message, tag));
 		
 		}
 
-		public void warning(object message, string tag = null) {
+		public void warning(object msg, string tag = null) {
 		
-			Log.Instance?.Write(new LogMessage(FormatMessage(message), LogType.Warning, tag));
-		
-		}
-
-		public void error(object message, string tag = null) {
-		
-			Log.Instance?.Write(new LogMessage(FormatMessage(message), LogType.Error, tag));
+			Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Warning, tag));
 		
 		}
 
-		public void temp(object message, string tag = null) {
+		public void error(object msg, string tag = null) {
 		
-			Log.Instance?.Write(new LogMessage(FormatMessage(message), LogType.Temp, tag));
+			Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Error, tag));
 		
 		}
 
-		/// <summary>
-		/// Used to print debug messages
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="tag">Tag.</param>
-		public static void d(object message, string tag = null) {
+		public void temp(object msg, string tag = null) {
+		
+			Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Temp, tag));
+		
+		}
+
+        /// <summary>
+        /// Log info message (low priority and defaults to be disabled).
+        /// </summary>
+        /// <param name="msg">Message.</param>
+        /// <param name="tag">Tag.</param>
+        public static void i(object msg, string tag = null) {
+
+            Instance?.info(msg, tag);
+
+        }
+
+        /// <summary>
+        /// Used to print debug messages
+        /// </summary>
+        /// <param name="msg">Message.</param>
+        /// <param name="tag">Tag.</param>
+        public static void d(object msg, string tag = null) {
 			
-			Log.Instance?.message(message, tag);
+			Instance?.message(msg, tag);
 
 		}
 
 		/// <summary>
 		/// Used to print warning messages
 		/// </summary>
-		/// <param name="message">Message.</param>
+		/// <param name="msg">Message.</param>
 		/// <param name="tag">Tag.</param>
-		public static void w(object message, string tag = null) {
+		public static void w(object msg, string tag = null) {
 			
-			Log.Instance?.warning(message, tag);	
+			Instance?.warning(msg, tag);	
 		
 		}
 
 		/// <summary>
 		/// Used to print error messages
 		/// </summary>
-		/// <param name="message">Message.</param>
+		/// <param name="msg">Message.</param>
 		/// <param name="tag">Tag.</param>
-		public static void e(object message, string tag = null) {
+		public static void e(object msg, string tag = null) {
 
-			Log.Instance?.error(message, tag);
+			Instance?.error(msg, tag);
 
 		}
 
 		/// <summary>
 		/// Used for temporary testing outprint
 		/// </summary>
-		/// <param name="message">Message.</param>
-		public static void t(object message) {
+		/// <param name="msg">Message.</param>
+		public static void t(object msg) {
 			
-			Log.Instance?.temp(message);
+			Instance?.temp(msg);
 
 		}
 
@@ -228,30 +245,30 @@ namespace R2Core
 		public static void x(Exception ex, int recursionCount = 0) {
 
 			if (!string.IsNullOrEmpty(ex.Message)) {
-				
-				IList<string> stackTrace = ex.StackTrace?.Split('\n').ToList() ?? new List<string>();
 
-				if (stackTrace.Count > (Log.Instance?.MaxStackTrace ?? 0)) {
+                IList<string> stackTrace = ex.StackTrace?.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList() ?? new List<string>();
 
-					stackTrace = stackTrace.Take(Log.instance.MaxStackTrace).ToList();
+				if (stackTrace.Count > (Instance?.MaxStackTrace ?? 0)) {
+
+					stackTrace = stackTrace.Take(instance.MaxStackTrace).ToList();
 					stackTrace.Add("... (Ignoring the rest) ...");
 
 				}
 
-				string stackTraceString = stackTrace.Aggregate("", (current, next) => current + "\n" + next);
+				string stackTraceString = stackTrace.Aggregate("", (current, next) => current + Environment.NewLine + next);
 				string exString = 
-					new string('-', recursionCount * 2) + "--" + ex.ToString() + "--" + "\n" +
-					new string('-', recursionCount * 2) + ex.Source + "\n" +
-					new string('-', recursionCount * 2) + ex.Message + "\n" +
-					new string('-', recursionCount * 2) + stackTraceString + "\n";
+					new string('-', recursionCount * 2) + $"--{ex}--{Environment.NewLine}" +
+					new string('-', recursionCount * 2) + ex.Source + Environment.NewLine +
+					new string('-', recursionCount * 2) + ex.Message + Environment.NewLine +
+					new string('-', recursionCount * 2) + stackTraceString + Environment.NewLine;
 
-				Log.Instance.Write(new LogMessage(exString, LogType.Error, null));
+				Instance.Write(new LogMessage(exString, LogType.Error, null));
 
 			}
 			
 			if (ex.InnerException != null && recursionCount < 10) {
 
-				Log.Instance.Write(new LogMessage("==== Inner Exception ====", LogType.Error));
+				Instance.Write(new LogMessage("==== Inner Exception ====", LogType.Error));
 				x(ex.InnerException, recursionCount + 1);
 			
 			}

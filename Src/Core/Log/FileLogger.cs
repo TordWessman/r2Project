@@ -28,7 +28,7 @@ namespace R2Core
 		private StreamWriter m_outputStream;
 		private FileStream m_fs;
 
-		private string m_fileName;
+		private readonly string m_fileName;
 		private readonly object m_lock = new object(); 
 
 		public FileLogger(string id, string path) : base(id) {
@@ -84,5 +84,6 @@ namespace R2Core
 		}
 
 	}
+
 }
 
