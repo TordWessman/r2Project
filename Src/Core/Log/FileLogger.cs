@@ -71,7 +71,7 @@ namespace R2Core
 		
 			get {
 
-				yield return new LogMessage("History not allowed for FileLogger (not implemented)", LogType.Error);
+				yield return new LogMessage("History not allowed for FileLogger (not implemented)", LogLevel.Error);
 
 			}
 			 
@@ -79,7 +79,7 @@ namespace R2Core
 
 		private ILogMessage ParseLog(string line) {
 		
-			return new LogMessage(line, LogType.Temp);
+			return new LogMessage(line, LogLevel.Temp);
 
 		}
 

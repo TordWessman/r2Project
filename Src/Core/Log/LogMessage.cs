@@ -26,11 +26,11 @@ namespace R2Core
 	public class LogMessage : ILogMessage {
 
 		private object m_message;
-		private LogType m_type;
+		private LogLevel m_type;
 		private string m_tag;
 		private DateTime m_creationTime;
 
-		public LogMessage(object message, LogType type, string tag = null) {
+		public LogMessage(object message, LogLevel type, string tag = null) {
 
 			m_message = message;
 			m_type = type;
@@ -42,7 +42,7 @@ namespace R2Core
 
 		public object Message { get { return m_message; } }
 
-		public LogType Type { get { return m_type; } }
+		public LogLevel Type { get { return m_type; } }
 
 		public string Tag { get { return m_tag; } }
 

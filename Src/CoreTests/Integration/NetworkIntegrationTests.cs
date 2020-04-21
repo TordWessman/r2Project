@@ -41,7 +41,7 @@ namespace R2Core.IntegrationTests
 			int randomWorkCount = 500;
 			int clientCount = 5;
 
-			Log.Instance.LogLevel = LogType.Message;
+			Log.Instance.LogLevel = LogLevel.Message;
 
 			var packageFactory = new TCPPackageFactory(serialization);
 			var server1 = factory.CreateTcpServer(Settings.Identifiers.TcpServer(), 10000);

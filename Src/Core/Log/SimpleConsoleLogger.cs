@@ -59,7 +59,7 @@ namespace R2Core
 			
 			} catch (Exception ex) {
 			
-				_Write(new LogMessage("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogType.Error));
+				_Write(new LogMessage("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogLevel.Error));
 
 			}
 
@@ -95,33 +95,33 @@ namespace R2Core
 		
 		}
 
-		private void SetConsoleColor(LogType logType) {
+		private void SetConsoleColor(LogLevel logType) {
 
 			switch (logType) {
 
-			case LogType.Error:
+			case LogLevel.Error:
 
 				SetConsoleColor(ConsoleColor.Red);
 				break;
 
-			case LogType.Warning:
+			case LogLevel.Warning:
 
 				SetConsoleColor(ConsoleColor.Yellow);
 				break;
 
-			case LogType.Temp:
+			case LogLevel.Temp:
 
 				SetConsoleColor(ConsoleColor.Green);
 				break;
 
-			case LogType.Message:
+			case LogLevel.Message:
 
 				SetConsoleColor(ConsoleColor.Gray);
 				break;
 
-            case LogType.Info:
+            case LogLevel.Info:
                 
-                SetConsoleColor(ConsoleColor.DarkGray);
+                SetConsoleColor(ConsoleColor.DarkBlue);
                 break;
 
             }

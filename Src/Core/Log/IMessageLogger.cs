@@ -21,7 +21,7 @@ using System.Collections.Generic;
 
 namespace R2Core
 {
-	public enum LogType {
+	public enum LogLevel {
 
         Info = 0,
 		Message = 1,
@@ -46,7 +46,7 @@ namespace R2Core
 		/// Type of message
 		/// </summary>
 		/// <value>The type.</value>
-		LogType Type { get; }
+		LogLevel Type { get; }
 
 		/// <summary>
 		/// Optional tag for the message.

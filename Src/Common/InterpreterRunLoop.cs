@@ -125,7 +125,7 @@ namespace R2Core.Common
 					line = line.Trim();
 
 					ClearLine(line);
-					m_logger.Write(new LogMessage(COMMAND_DEFINITION + line,LogType.Message));
+					m_logger.Write(new LogMessage(COMMAND_DEFINITION + line,LogLevel.Message));
 					m_history.Add(line);
 					m_historyPosition = m_history.Count;
 

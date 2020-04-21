@@ -34,7 +34,7 @@ namespace R2Core
         /// <summary>
         /// The minimum visible log level.
         /// </summary>
-		public LogType LogLevel = LogType.Message;
+		public LogLevel LogLevel = LogLevel.Message;
 
 		/// <summary>
 		/// Define how many rows to print of the stacktrace.
@@ -42,7 +42,7 @@ namespace R2Core
 		public int MaxStackTrace = 10;
 
 		// Keeps track of all log levels for specific threads.
-		private IDictionary<int, LogType> m_threadLogLevels;
+		private IDictionary<int, LogLevel> m_threadLogLevels;
 
 		public IEnumerable<ILogMessage> History {
 
@@ -54,7 +54,7 @@ namespace R2Core
 
 		}
 
-		public static void SetLogLevelForCurrentTask(LogType level) {
+		public static void SetLogLevelForCurrentTask(LogLevel level) {
 		
 			if (Task.CurrentId != null) {
 
@@ -89,7 +89,7 @@ namespace R2Core
 		public Log(string id) : base(id) {
 
 			loggers = new List<IMessageLogger>();
-			m_threadLogLevels = new Dictionary<int, LogType>();
+			m_threadLogLevels = new Dictionary<int, LogLevel>();
 
 		}
 		
@@ -129,7 +129,7 @@ namespace R2Core
 			return msg.Type >= LogLevel && 
 					msg.Type >= 
 						((Task.CurrentId != null && m_threadLogLevels.ContainsKey((int)Task.CurrentId)) ? 
-							m_threadLogLevels[(int)Task.CurrentId] : LogType.Info);
+							m_threadLogLevels[(int)Task.CurrentId] : LogLevel.Info);
 
 		}
 
@@ -155,31 +155,31 @@ namespace R2Core
 
         public void info(object msg, string tag = null) {
 
-            Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Info, tag));
+            Instance?.Write(new LogMessage(FormatMessage(msg), LogLevel.Info, tag));
 
         }
 
         public void message(object msg, string tag = null) {
 			
-			Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Message, tag));
+			Instance?.Write(new LogMessage(FormatMessage(msg), LogLevel.Message, tag));
 		
 		}
 
 		public void warning(object msg, string tag = null) {
 		
-			Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Warning, tag));
+			Instance?.Write(new LogMessage(FormatMessage(msg), LogLevel.Warning, tag));
 		
 		}
 
 		public void error(object msg, string tag = null) {
 		
-			Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Error, tag));
+			Instance?.Write(new LogMessage(FormatMessage(msg), LogLevel.Error, tag));
 		
 		}
 
 		public void temp(object msg, string tag = null) {
 		
-			Instance?.Write(new LogMessage(FormatMessage(msg), LogType.Temp, tag));
+			Instance?.Write(new LogMessage(FormatMessage(msg), LogLevel.Temp, tag));
 		
 		}
 
@@ -262,13 +262,13 @@ namespace R2Core
 					new string('-', recursionCount * 2) + ex.Message + Environment.NewLine +
 					new string('-', recursionCount * 2) + stackTraceString + Environment.NewLine;
 
-				Instance.Write(new LogMessage(exString, LogType.Error, null));
+				Instance.Write(new LogMessage(exString, LogLevel.Error, null));
 
 			}
 			
 			if (ex.InnerException != null && recursionCount < 10) {
 
-				Instance.Write(new LogMessage("==== Inner Exception ====", LogType.Error));
+				Instance.Write(new LogMessage("==== Inner Exception ====", LogLevel.Error));
 				x(ex.InnerException, recursionCount + 1);
 			
 			}
