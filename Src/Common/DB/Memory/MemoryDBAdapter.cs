@@ -15,12 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
 using System;
-using R2Core.Data;
 using System.Collections.Generic;
 using System.Data;
-using MemoryType = System.String;
 
 namespace R2Core.Common
 {

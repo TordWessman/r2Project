@@ -17,8 +17,6 @@
 // 
 
 using System;
-using R2Core.Network;
-using System.Net;
 using System.Collections.Generic;
 
 
@@ -98,5 +96,6 @@ namespace R2Core.Device
 		void Stop(IDevice[] ignoreDevices);
 
 	}
+
 }
 

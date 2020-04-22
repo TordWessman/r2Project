@@ -15,14 +15,9 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
 using System;
 using System.Collections.Generic;
-using R2Core.Network;
-using System.Net;
 using System.Linq;
-
-using System.Threading.Tasks;
 
 namespace R2Core.Device
 {

@@ -18,7 +18,6 @@
 //
 using System;
 using R2Core.Device;
-using R2Core.Data;
 using System.Net;
 using System.IO;
 using System.Linq;

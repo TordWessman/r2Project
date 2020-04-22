@@ -15,14 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
-using System;
 using NUnit.Framework;
-using R2Core.Data;
 using System.Linq;
 using R2Core.Network;
 using System.Collections.Generic;
-using R2Core.Common;
-using System.Data;
 
 namespace R2Core.Tests
 {

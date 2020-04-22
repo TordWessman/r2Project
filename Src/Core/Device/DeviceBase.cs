@@ -15,15 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
 using System;
-using System.Runtime.Serialization;
 using System.Runtime.CompilerServices;
 using System.Diagnostics;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Dynamic;
 
 namespace R2Core.Device
 {
@@ -43,6 +38,7 @@ namespace R2Core.Device
 			m_id = id;
 			m_guid = Guid.NewGuid();
 			m_observers = new List<WeakReference<IDeviceObserver>>();
+
 		}
 
 		public string Identifier { get { return m_id; } }

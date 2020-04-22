@@ -20,14 +20,10 @@ using System;
 using NUnit.Framework;
 using System.Threading;
 using R2Core.Network;
-using R2Core.Data;
-using System.Threading.Tasks;
 using R2Core.Device;
-using System.Collections.Generic;
 
 namespace R2Core.Tests
 {
-
 
 	[TestFixture]
 	public class UDPTests : NetworkTests {

@@ -43,6 +43,7 @@ namespace R2Core.Device
 	/// Standard interface of all components.
 	/// </summary>
 	public interface IDevice : IStartable, IStopable, IDeviceObservable {
+
 		/// <summary>
 		/// Textual representation of the device. Used as key for retrieving the device from a device manager.
 		/// </summary>

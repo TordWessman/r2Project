@@ -16,15 +16,9 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using NUnit.Framework;
 using R2Core.Network;
-using R2Core.Data;
-using System.Collections.Generic;
-using R2Core.Device;
 using System.Threading;
-using System.Net;
-using R2Core.Scripting;
 
 namespace R2Core.Tests
 {

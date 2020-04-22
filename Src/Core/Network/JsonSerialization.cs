@@ -22,8 +22,9 @@ using System.Dynamic;
 using Newtonsoft.Json.Converters;
 using R2Core.Device;
 
-namespace R2Core.Data
+namespace R2Core.Network
 {
+
 	/// <summary>
 	/// Allows serialization of (generic) non-primitive data types.
 	/// </summary>

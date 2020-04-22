@@ -15,19 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
-﻿using System;
-using System.Runtime.Serialization.Json;
-using System.IO;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using System.Collections.Specialized;
-using System.Dynamic;
-using Newtonsoft.Json.Converters;
-using System.Web;
 using System.Linq;
-using R2Core.Data;
 
 namespace R2Core.Network
 {
@@ -39,14 +28,12 @@ namespace R2Core.Network
 
 		private IWebObjectReceiver m_receiver;
 		private IDictionary<string, object> m_extraHeaders;
-		private ISerialization m_serialization;
+		private readonly ISerialization m_serialization;
 
 		/// <summary>
 		/// Parsing the input as a dictionary.
 		/// receiver is the interface responsible of handle incoming input json and returning data in a suitable format.
 		/// </summary>
-		/// <param name="responsePath">Response path.</param>
-		/// <param name="responsePath">receiver</param>
 		public WebJsonEndpoint(IWebObjectReceiver receiver, ISerialization serialization) {
 			
 			m_receiver = receiver;
@@ -85,7 +72,7 @@ namespace R2Core.Network
 
 		public string UriPath { get { return m_receiver.DefaultPath; } }
 
-		public IDictionary<string, object> Metadata { get { return m_extraHeaders; } }
+        public IDictionary<string, object> Metadata => m_extraHeaders;
 
 		#endregion
 

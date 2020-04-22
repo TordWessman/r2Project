@@ -314,11 +314,11 @@ namespace R2Core.GPIO
 		
 			get {
 			
-				if (typeof(T) == typeof(bool)) {
+                if (typeof(T) == typeof(bool)) {
 					
 					return(T)(object)(Content[0] > 0);
 	
-				} if (typeof(T) == typeof(int[])) {
+                } if (typeof(T) == typeof(int[])) {
 
                     int[] values = new int[NUMBER_OF_RETURN_VALUES];
 
@@ -339,12 +339,12 @@ namespace R2Core.GPIO
                 }
 
                 if (typeof(T) != typeof(byte[])) {
-			
-				    throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int[], int or byte´, but was ´{typeof(T)}´."); 
+			    
+                    throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int[], int or byte´, but was ´{typeof(T)}´."); 
+                
+                }
 
-			    }
-
-				return(T)(object)Content;
+                return(T)(object)Content;
 			
 			}
 		
@@ -352,7 +352,7 @@ namespace R2Core.GPIO
 
         public override string ToString() {
 
-            string value = "-";
+            string value = "<undefined>";
 
             if (Value is IEnumerable) {
 

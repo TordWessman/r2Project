@@ -16,10 +16,9 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
-
 namespace R2Core
 {
+
 	public static class StringExtensions {
 		
 		public static byte[] ToByteArray(this string self, System.Text.Encoding encoding = null) {

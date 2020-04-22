@@ -16,12 +16,10 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using R2Core.Device;
 
-namespace R2Core.Data
+namespace R2Core.Network
 {
-
 
 	/// <summary>
 	/// Capable of serializing from any type and deserializing objects into a dynamic type.

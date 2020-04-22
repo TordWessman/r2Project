@@ -18,7 +18,6 @@
 //
 using System;
 using System.Net.Sockets;
-using System.IO;
 using System.Net.NetworkInformation;
 
 namespace R2Core.Network
@@ -40,11 +39,11 @@ namespace R2Core.Network
 				return 	socketException.SocketErrorCode == SocketError.Interrupted ||
 						socketException.SocketErrorCode == SocketError.ConnectionReset;
 
-			} else if (ex is System.Threading.ThreadAbortException) {
+			} if (ex is System.Threading.ThreadAbortException) {
 			
 				return true;
 
-			} else if (ex.InnerException is SocketException) {
+			} if (ex.InnerException is SocketException) {
 
 				return ex.InnerException.IsClosingNetwork();
 
@@ -61,8 +60,6 @@ namespace R2Core.Network
 		/// <summary>
 		/// Simplifies the comparation with a status code 
 		/// </summary>
-		/// <returns><c>true</c> if is self rawValue; otherwise, <c>false</c>.</returns>
-		/// <param name="rawValue">Raw value.</param>
 		public static bool HasCode(this INetworkMessage self, NetworkStatusCode? code) {
 
 			return code?.Raw() == self.Code;
@@ -103,7 +100,7 @@ namespace R2Core.Network
 
 			foreach(dynamic address in addresses) {
 
-				System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+				Ping ping = new Ping();
 				PingReply reply = ping.Send(address);
 
 				if (reply.Status == IPStatus.Success) {

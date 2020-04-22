@@ -19,7 +19,6 @@
 ﻿using System;
 using R2Core.Device;
 using System.Collections.Generic;
-using R2Core.Data;
 using MemoryType = System.String;
 using System.Linq;
 

@@ -15,10 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
 using R2Core.Device;
 using R2Core.Network;
-using R2Core.Data;
 using System.Collections.Generic;
 
 namespace R2Core.Common
@@ -31,8 +29,10 @@ namespace R2Core.Common
 		private IDeviceManager m_deviceManager;
 
 		public DeviceFactory(string id, IDeviceManager deviceManager) : base(id) {
+
 			m_deviceManager = deviceManager;
-		}
+		
+        }
 
 		/// <summary>
 		/// Creates a simple gstreamer pipeline. Requires libr2gstparseline.so to be compiled and installed into your system library directory.

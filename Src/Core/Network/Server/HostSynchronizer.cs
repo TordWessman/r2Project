@@ -18,15 +18,10 @@
 //
 using System;
 using R2Core.Device;
-using R2Core.Network;
-using System.Threading.Tasks;
-using System.Net;
-using R2Core.Data;
 using MessageIdType = System.String;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
-using System.Net.NetworkInformation;
 
 namespace R2Core.Network
 {

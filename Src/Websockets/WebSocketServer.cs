@@ -18,13 +18,9 @@
 
 using System;
 using WebSocketSharp;
-using WebSocketSharp.Net;
-using R2Core;
 using R2Core.Device;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using R2Core.Data;
 
 namespace R2Core.Network
 {

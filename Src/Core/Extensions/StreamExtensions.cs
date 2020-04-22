@@ -16,7 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using System.IO;
 
 namespace R2Core
@@ -55,5 +54,6 @@ namespace R2Core
 		}
 
 	}
+
 }
 

@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using R2Core.Data;
 
 namespace R2Core.GPIO.Tests
 {
