@@ -38,7 +38,7 @@ namespace R2Core.Common {
 
         public StatLoggerDBAdapter(ISQLDatabase database) : base(database) {}
 
-        public void LogEntry(StatLogEntry<double> entry) {
+        public void SaveEntry<T>(StatLogEntry<T> entry) {
 
             IList<dynamic> values = new List<dynamic> {
                 entry.Value,

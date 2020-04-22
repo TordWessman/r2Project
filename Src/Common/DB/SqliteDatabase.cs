@@ -29,13 +29,21 @@ namespace R2Core.Common
 	public class SqliteDatabase : DeviceBase, ISQLDatabase {
 
 		private readonly string m_fileName;
-		private SqliteConnection m_con;
+		private SqliteConnection m_connection;
 
 		private readonly object m_queryLock = new object();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:R2Core.Common.SqliteDatabase"/> class.
+        /// By setting ´fileName´ parameter to ´null´, the database will live in memory only.
+        /// </summary>
+        /// <param name="id">Identifier.</param>
+        /// <param name="fileName">File name.</param>
 		public SqliteDatabase(string id, string fileName) : base(id) {
 
-			m_fileName = fileName;
+            m_fileName = fileName;
+
+            if (fileName == null) { Log.i($"Creating an in-memory database only for database with identifier: '{id}'"); }
 
 		}
 		
@@ -44,7 +52,7 @@ namespace R2Core.Common
 			get {
 
 				//TODO: check this
-				return m_con != null;// && m_con.State == ConnectionState.Open
+				return m_connection != null;// && m_con.State == ConnectionState.Open
 			
 			}
 		
@@ -54,24 +62,31 @@ namespace R2Core.Common
 
 			lock(m_queryLock) {
 				
-				if (!File.Exists(m_fileName)) {
+                if (m_fileName == null) {
 
-					SqliteConnection.CreateFile(m_fileName);
-				
-				}
+                    m_connection = new SqliteConnection("Data Source=:memory:");
 
-				if (m_con != null) {
+                } else {
 
-					throw new InvalidOperationException("Unable to sqlite instance - one instance for this file name already started.");
-				
-				}
-	
-				string cs = "URI=file:" + m_fileName;
+                    if (!File.Exists(m_fileName)) {
 
-				m_con = new SqliteConnection(cs);
-				m_con.Open();
-				
-			}
+                        SqliteConnection.CreateFile(m_fileName);
+
+                    }
+
+                    if (m_connection != null) {
+
+                        throw new InvalidOperationException("Unable to sqlite instance - one instance for this file name already started.");
+
+                    }
+
+                    m_connection = new SqliteConnection($"URI=file:{m_fileName}");
+                   
+                }
+
+                m_connection.Open();
+
+            }
 			
 		}
 		
@@ -79,13 +94,13 @@ namespace R2Core.Common
 
 			lock(m_queryLock) {
 
-				if (m_con != null) {
+				if (m_connection != null) {
 				
-					m_con.Close();
+					m_connection.Close();
 				
 				}
 				
-				m_con = null;
+				m_connection = null;
 			
 			}
 		
@@ -95,7 +110,7 @@ namespace R2Core.Common
 
 			lock(m_queryLock) {
 
-				if (m_con == null) {
+				if (m_connection == null) {
 
 					throw new InvalidOperationException("Sqlite Database not started.");
 				
@@ -103,7 +118,7 @@ namespace R2Core.Common
 				
 				DataSet ds = new DataSet();
 				
-				using(SqliteDataAdapter adapter = new SqliteDataAdapter(queryString, m_con)) {
+				using(SqliteDataAdapter adapter = new SqliteDataAdapter(queryString, m_connection)) {
 	
 					adapter.Fill(ds);
 	
@@ -117,7 +132,7 @@ namespace R2Core.Common
 
         public int Count(string queryString) {
 
-            using (SqliteCommand cmd = new SqliteCommand(queryString, m_con)) {
+            using (SqliteCommand cmd = new SqliteCommand(queryString, m_connection)) {
 
                return Convert.ToInt32(cmd.ExecuteScalar());
 
@@ -129,7 +144,7 @@ namespace R2Core.Common
 
 			lock(m_queryLock) {
 
-				if (m_con == null) {
+				if (m_connection == null) {
 
 					throw new InvalidOperationException("Sqlite Database not started.");
 				
@@ -137,7 +152,7 @@ namespace R2Core.Common
 				
 				int rows = 0;
 			
-				using(SqliteCommand cmd = new SqliteCommand(queryString, m_con)) {
+				using(SqliteCommand cmd = new SqliteCommand(queryString, m_connection)) {
 				
 					rows = cmd.ExecuteNonQuery();                                                                   
 				
@@ -153,19 +168,19 @@ namespace R2Core.Common
 
 			lock(m_queryLock) {
 
-				if (m_con == null) {
+				if (m_connection == null) {
 
 					throw new InvalidOperationException("Sqlite Database not started.");
 				
 				}
 			
-				using(SqliteCommand cmd = new SqliteCommand(queryString, m_con)) {
+				using(SqliteCommand cmd = new SqliteCommand(queryString, m_connection)) {
 
 					cmd.ExecuteNonQuery();                                                                   
 				
 				}
 			
-				using(SqliteCommand cmd = new SqliteCommand(@"select last_insert_rowid()", m_con)) {
+				using(SqliteCommand cmd = new SqliteCommand(@"select last_insert_rowid()", m_connection)) {
 				
 					return (long)cmd.ExecuteScalar();                                                         
 				

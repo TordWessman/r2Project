@@ -16,6 +16,8 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
+using System;
+using System.Collections.Generic;
 using R2Core.Device;
 
 namespace R2Core.Common {
@@ -30,6 +32,21 @@ namespace R2Core.Common {
         /// </summary>
         /// <value>The value to be logged.</value>
         T Value { get; }
+
+    }
+
+    public static class StatLoggerExtension {
+
+        public static void Log(this StatLogger self, IStatLoggable<float> device) { self.Log(device); }
+        public static void Log(this StatLogger self, IStatLoggable<double> device) { self.Log(device); }
+        public static void Log(this StatLogger self, IStatLoggable<int> device) { self.Log(device); }
+        public static void Log(this StatLogger self, IStatLoggable<byte> device) { self.Log(device); }
+
+        public static IDictionary<string, IEnumerable<StatLogEntry<double>>> GetEntries(this StatLogger self, IEnumerable<string> identifiers, DateTime? start = null, DateTime? end = null) {
+
+            return self.GetEntries<double>(identifiers, start, end);
+
+        }
 
     }
 

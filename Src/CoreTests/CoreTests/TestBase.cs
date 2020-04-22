@@ -52,6 +52,7 @@ namespace R2Core.Tests
 				if (Log.Instance == null) {
 					
 					Log.Instantiate(Settings.Identifiers.Logger());
+                    Log.Instance.LogLevel = LogLevel.Info;
 
 					console = new ConsoleLogger(Settings.Identifiers.ConsoleLogger());
 

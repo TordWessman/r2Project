@@ -15,17 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
-//
+using System;
+using Mono.Data.Sqlite;
+using R2Core.Common;
 
-using System.Collections.Generic;
+namespace R2Core.Tests {
 
-namespace R2Core.Common {
+    public static class DataFactoryExtensions {
 
-    public interface IStatLoggerDBAdapter : IDBAdapter {
+        public static ISQLDatabase CreateTemporaryDatabase(this DataFactory self) {
 
-        void SaveEntry<T>(StatLogEntry<T> entry);
-        void ClearEntries(string identifier);
-        IEnumerable<StatLogEntry<T>> GetEntries<T>(string identifier);
+            return new SqliteDatabase("db", null);
+
+        }
 
     }
 

@@ -28,21 +28,33 @@ namespace R2Core.Common {
 
         private IStatLoggerDBAdapter m_adapter;
 
+        /// <summary>
+        /// The types of IStatLoggable that has logging supported.
+        /// </summary>
+        public readonly Type[] AllowedTypes = { typeof(int), typeof(float), typeof(byte), typeof(double) };
+
         public StatLogger(string id, IStatLoggerDBAdapter adapter) : base (id) {
 
             m_adapter = adapter;
 
         }
 
-        public void Log(IStatLoggable<double> device) { LogEntry(device.Identifier, device.Value); }
+        public void Log<T>(IStatLoggable<T> device) {
 
-        public void Log(IStatLoggable<int> device) { LogEntry(device.Identifier, device.Value); }
+            if (!AllowedTypes.Contains(typeof(T))) {
 
-        public void Log(IStatLoggable<float> device) { LogEntry(device.Identifier, device.Value); }
+                throw new NotImplementedException($"Logging a value of type {typeof(T)} is not yet implemented.");
+            
+            }
+
+
+            LogEntry(device.Identifier, Convert.ToDouble(device.Value));
+
+        }
 
         private void LogEntry(string identifier, double value) {
 
-            m_adapter.LogEntry(new StatLogEntry<double> { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
+            m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
 
         }
 
@@ -52,11 +64,16 @@ namespace R2Core.Common {
 
             foreach (string identifier in identifiers) {
 
+                if (!entries.ContainsKey(identifier)) {
+
+                    entries[identifier] = new List<StatLogEntry<T>>();
+
+                }
+
                 foreach (StatLogEntry<T> entry in m_adapter.GetEntries<T>(identifier)) {
 
-                    if (!entries.ContainsKey(identifier)) {
-                        entries[identifier] = new List<StatLogEntry<T>>();
-                    }
+                    if (start != null && start > entry.Timestamp) { continue; }
+                    if (end != null && end < entry.Timestamp) { continue; }
 
                     (entries[identifier] as List<StatLogEntry<T>>).Add(entry);
 
