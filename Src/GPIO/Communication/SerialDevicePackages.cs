@@ -326,11 +326,21 @@ namespace R2Core.GPIO
 
                     return (T)(object)values;
 
+                } if (typeof(T) == typeof(int) || typeof(T) == typeof(byte)) {
+
+                    if (Content.Length > 0) {
+
+                        return (T)(object)Content[0];
+
+                    }
+
+                    return (T)(object)0;
+
                 }
 
                 if (typeof(T) != typeof(byte[])) {
 			
-				    throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int[] or byte´, but was ´{typeof(T)}´."); 
+				    throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int[], int or byte´, but was ´{typeof(T)}´."); 
 
 			    }
 
