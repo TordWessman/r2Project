@@ -33,7 +33,6 @@ namespace R2Core.Device
 		protected Guid m_guid;
 		private INetworkMessage m_message;
         private AsyncRemoteDeviceTask m_lastAsyncTask;
-        private bool m_lossy;
 
         public string Identifier { get { return m_identifier; } }
         public bool Busy => m_host.Busy;
@@ -57,7 +56,7 @@ namespace R2Core.Device
 
 				var response = m_host.Send(m_message).Payload;
 
-				if (response is bool) { return m_host.Send (m_message).Payload == true; } 
+				if (response.ActionResponse is bool) { return response.ActionResponse; } 
 
 				throw new DeviceException($"Unable to check ´Ready´ state for RemoteDevice '{Identifier}'. Response Payload was not bool, but {response}.");
 
@@ -70,7 +69,7 @@ namespace R2Core.Device
         /// be executed if there are ongoing requests.
         /// </summary>
         /// <value><c>true</c> if lossy; otherwise, <c>false</c>.</value>
-        public bool LossyRequests { get { return m_lossy; } set { m_lossy = value; } }
+        public bool LossyRequests { get; set; }
 
         /// <summary>
         /// Instantiate a remote device representation. ´destination´ is the path (i.e. "/destination" which the other end is listening to). 

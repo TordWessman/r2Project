@@ -101,8 +101,13 @@ namespace R2Core.Tests
 
 			RemoteDevice remoteDummy = new RemoteDevice("dummy_device", Guid.Empty, connection);
 
-			// Test method with result
-			Task invokeTask = remoteDummy.Async((result, ex) => { 
+            //Remote dummy should be ready after Start()
+            Assert.False(remoteDummy.Ready);
+            dummyObject.Start();
+            Assert.True(remoteDummy.Ready);
+
+            // Test method with result
+            Task invokeTask = remoteDummy.Async((result, ex) => { 
 				
 				Assert.IsNull(ex);
 				Assert.AreEqual(100, result);
