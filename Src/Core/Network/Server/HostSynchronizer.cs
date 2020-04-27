@@ -269,8 +269,6 @@ namespace R2Core.Network
 
 		}
 
-
-
 		/// <summary>
 		/// Creates the connection to the remote host. Will add a connection to m_host if none was found.
 		/// </summary>

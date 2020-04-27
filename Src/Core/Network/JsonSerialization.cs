@@ -30,12 +30,11 @@ namespace R2Core.Network
 	/// </summary>
 	public class JsonSerialization : DeviceBase, ISerialization {
 
-		private System.Text.Encoding m_encoding;
 		private ExpandoObjectConverter m_converter;
 
 		public JsonSerialization(string id, System.Text.Encoding encoding = null): base(id) {
 
-			m_encoding = encoding ?? System.Text.Encoding.UTF8;
+			Encoding = encoding ?? System.Text.Encoding.UTF8;
 			m_converter = new ExpandoObjectConverter();
 
 			JsonConvert.DefaultSettings =  delegate() { return new JsonSerializerSettings {
@@ -46,13 +45,13 @@ namespace R2Core.Network
 
 		}
 
-		public System.Text.Encoding Encoding { get { return m_encoding; } }
+		public System.Text.Encoding Encoding { get; private set; }
 
 		public byte[] Serialize(dynamic obj) {
 			
 			if (obj is string) {
 
-				return m_encoding.GetBytes(obj);
+				return Encoding.GetBytes(obj);
 
 			} else if (obj is byte[]) {
 
@@ -60,9 +59,9 @@ namespace R2Core.Network
 
 			}
 		
-			// Data will be serialized to a JSON object string defore transformed into raw byte data.
+			// Data will be serialized to a JSON object string before transformed into raw byte data.
 			string outputString = Convert.ToString(JsonConvert.SerializeObject(obj));
-			return m_encoding.GetBytes(outputString) ?? new byte[0];
+			return Encoding.GetBytes(outputString) ?? new byte[0];
 
 		}
 
@@ -71,7 +70,7 @@ namespace R2Core.Network
 			if (data.Length > 0) {
 
 				//Deserialize complex object
-				return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(m_encoding.GetString(data), m_converter));
+				return new R2Dynamic(JsonConvert.DeserializeObject<ExpandoObject>(Encoding.GetString(data), m_converter));
 	
 			} 
 

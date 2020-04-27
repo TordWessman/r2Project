@@ -147,7 +147,9 @@ namespace R2Core.Network
             HttpListenerRequest request = context.Request;
             HttpListenerResponse response = context.Response;
 
-			Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
+            Log.i($"HttpServer: Got request from {request.RemoteEndPoint.Address}.");
+
+            Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
 			byte[] responseBody = new byte[0];
 
 			try {
@@ -213,8 +215,8 @@ namespace R2Core.Network
 			}
 
 			Write(response, responseBody);
-
-		}
+            Log.i($"HttpServer: Did reply to {request.RemoteEndPoint.Address}. Response: {response}");
+        }
 
 		private void ClearInactiveWriteTasks() {
 
@@ -242,6 +244,7 @@ namespace R2Core.Network
 
 			ClearInactiveWriteTasks();
 
+            Log.i($"HttpServer: Will write. Current task count: {m_writeTasks.Count}. ");
             Task writeTask = new Task(() => {
 
                 try {
