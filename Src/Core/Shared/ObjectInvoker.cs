@@ -197,8 +197,13 @@ namespace R2Core
 			
 			if (requiredType.IsGenericType) {
 
-				// Check if it's a generic IEnumerable
-				if (typeof(IEnumerable).IsAssignableFrom(requiredType)) {
+                //if (typeof(DateTime?).IsAssignableFrom(requiredType)) {
+
+                //    return parameter == null ? null : (DateTime?)DateTime.Parse((string)parameter);
+
+                //}
+                // Check if it's a generic IEnumerable
+                if (typeof(IEnumerable).IsAssignableFrom(requiredType)) {
 
 					var enumeratedParameter = parameter as IEnumerable;
 
@@ -231,7 +236,7 @@ namespace R2Core
 
 						return dictionary;
 
-					} else  if (containedTypes.Length == 1) {
+					} if (containedTypes.Length == 1) {
 
 						// Assuming IEnumerable<T>
 						Type listGenericType = typeof (List<>);
@@ -250,7 +255,7 @@ namespace R2Core
 
 				}
 
-				throw new NotImplementedException($"Dynamic conversion not implemented for type {requiredType} (using parameters {parameter})");
+				throw new ArgumentException($"Dynamic conversion not implemented for type {requiredType} (using parameters {parameter})");
 
 			} else if (typeof(IConvertible).IsAssignableFrom(requiredType)) {
 

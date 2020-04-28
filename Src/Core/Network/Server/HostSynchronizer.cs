@@ -131,7 +131,12 @@ namespace R2Core.Network
 
 		}
 
-		~HostSynchronizer() { Stop(); }
+		~HostSynchronizer() { 
+        
+            Stop();
+            m_synchronizationTimer?.Dispose();
+    
+        }
 
 		/// <summary>
 		/// Broadcast for TCPServers. Will try to establish a connection to any server found and synchronize their devices.
@@ -196,7 +201,7 @@ namespace R2Core.Network
 			m_hosts = new Dictionary<string, IClientConnection>();
 			m_retries = new Dictionary<string, int>();
 
-		}
+        }
 
 		/// <summary>
 		/// Manually connect to a given address and port
@@ -384,6 +389,13 @@ namespace R2Core.Network
 		}
 
 		private void ResetSynchronizationTimer() {
+
+            if (m_synchronizationTimer?.Enabled == true) {
+
+                m_synchronizationTimer?.Stop();
+                m_synchronizationTimer?.Dispose();
+
+            }
 
 			m_synchronizationTimer = new Timer(m_synchronizationTimer?.Interval ?? Settings.Consts.BroadcastInterval());
 			m_synchronizationTimer.Elapsed += new ElapsedEventHandler(OnConnectionSynchronizerEvent);

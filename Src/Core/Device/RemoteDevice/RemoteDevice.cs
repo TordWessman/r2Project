@@ -151,7 +151,9 @@ namespace R2Core.Device
 
             if (response.IsError()) {
 
-                throw new DeviceException(response.ErrorDescription());
+                string errorMessage = response.ErrorDescription();
+                Log.i($"{this} got error: {errorMessage}");
+                throw new DeviceException(errorMessage);
 
             }
 
@@ -233,6 +235,13 @@ namespace R2Core.Device
 		}
 
         #endregion
+
+        public override string ToString() {
+
+            return $"RemoteDevice[{Identifier}]: Host {m_host}";
+
+        }
+
     }
 
 }

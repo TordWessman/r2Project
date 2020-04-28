@@ -30,7 +30,7 @@ namespace R2Core.Network
 	/// </summary>
 	public class JsonSerialization : DeviceBase, ISerialization {
 
-		private ExpandoObjectConverter m_converter;
+		private readonly ExpandoObjectConverter m_converter;
 
 		public JsonSerialization(string id, System.Text.Encoding encoding = null): base(id) {
 
