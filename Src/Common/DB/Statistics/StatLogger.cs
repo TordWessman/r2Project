@@ -21,44 +21,60 @@ using System;
 using System.Collections.Generic;
 using R2Core.Device;
 using System.Linq;
+using System.Globalization;
 
 namespace R2Core.Common {
 
+    /// <summary>
+    /// Tool for storing values of devices implementing IStatLoggable.
+    /// </summary>
     public class StatLogger : DeviceBase {
 
         private IStatLoggerDBAdapter m_adapter;
+        private IDictionary<string, IDevice> m_processes;
 
         /// <summary>
         /// The types of IStatLoggable that has logging supported.
         /// </summary>
-        public readonly Type[] AllowedTypes = { typeof(int), typeof(float), typeof(byte), typeof(double) };
+        public readonly Type[] AllowedTypes = { typeof(int), typeof(float), typeof(byte), typeof(double), typeof(long), typeof(string) };
 
         public StatLogger(string id, IStatLoggerDBAdapter adapter) : base (id) {
 
             m_adapter = adapter;
+            m_processes = new Dictionary<string, IDevice>();
 
         }
 
+        /// <summary>
+        /// Logs an entry of a device.
+        /// </summary>
+        /// <param name="device">Device.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
         public void Log<T>(IStatLoggable<T> device) {
 
             if (!AllowedTypes.Contains(typeof(T))) {
 
-                throw new NotImplementedException($"Logging a value of type {typeof(T)} is not yet implemented.");
+                throw new InvalidOperationException($"Logging a value of type {typeof(T)} is not implemented.");
             
             }
 
+            if (typeof(T) == typeof(string)) {
 
-            LogEntry(device.Identifier, Convert.ToDouble(device.Value));
+            } else {
+
+                LogEntry(device.Identifier, Convert.ToDouble(device.Value));
+
+            }
 
         }
 
-        private void LogEntry(string identifier, double value) {
-
-            m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
-
-        }
-
-        public IDictionary<string, IEnumerable<StatLogEntry<T>>> GetEntries<T>(IEnumerable<string> identifiers, DateTime? start = null, DateTime? end = null) {
+        /// <summary>
+        /// Returns a dictionary containing all track entries for the devices specified by ´idesnifiers´.
+        /// ´startTime´ and ´endTime´ is the delimiter for the tracking span.
+        /// </summary>
+        /// <returns>The entries.</returns>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public IDictionary<string, IEnumerable<StatLogEntry<T>>> GetEntries<T>(IEnumerable<string> identifiers, DateTime? startTime = null, DateTime? endTime = null) {
 
             IDictionary<string, IEnumerable<StatLogEntry<T>>> entries = new Dictionary<string, IEnumerable<StatLogEntry<T>>>();
 
@@ -70,18 +86,106 @@ namespace R2Core.Common {
 
                 }
 
-                foreach (StatLogEntry<T> entry in m_adapter.GetEntries<T>(identifier)) {
+                lock(m_adapter) {
 
-                    if (start != null && start > entry.Timestamp) { continue; }
-                    if (end != null && end < entry.Timestamp) { continue; }
+                    foreach (StatLogEntry<T> entry in m_adapter.GetEntries<T>(identifier)) {
 
-                    (entries[identifier] as List<StatLogEntry<T>>).Add(entry);
+                        if (startTime != null && startTime > entry.Timestamp) { continue; }
+                        if (endTime != null && endTime < entry.Timestamp) { continue; }
+
+                        (entries[identifier] as List<StatLogEntry<T>>).Add(entry);
+
+                    }
 
                 }
 
             }
 
             return entries;
+
+        }
+
+        /// <summary>
+        /// Starts tracking a device using ´frequency´ in milliseconds. 
+        /// ´startTime´ defines which time of the day the tracking will commence on.
+        /// </summary>
+        /// <returns>The tracking process.</returns>
+        /// <param name="device">Device.</param>
+        /// <param name="frequency">Frequency.</param>
+        /// <param name="startTime">Start time.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public StatLogProcess<T> Track<T>(IStatLoggable<T> device, int frequency, DateTime? startTime = null) {
+
+            lock (m_processes) {
+
+                if (m_processes.ContainsKey(device.Identifier)) {
+
+                    Untrack(device);
+
+                }
+
+                StatLogProcess<T> process = new StatLogProcess<T>(device, this, frequency, startTime);
+                process.Start();
+                m_processes[device.Identifier] = process;
+                return process;
+
+            }
+
+        }
+
+        /// <summary>
+        /// Removes a device from track processing.
+        /// </summary>
+        /// <param name="device">Device.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public void Untrack<T>(IStatLoggable<T> device) {
+
+            lock(m_processes) {
+
+                if (m_processes.ContainsKey(device.Identifier)) {
+
+                    m_processes[device.Identifier]?.Stop();
+                    m_processes.Remove(device.Identifier);
+
+                } else {
+
+                    R2Core.Log.w($"Unable to Untrack({device}). Not registered for tracking.");
+
+                }
+
+            }
+           
+        }
+
+        /// <summary>
+        /// Get entries for callers unable to provide ´DateTime´ parameters and handle generics.
+        /// </summary>
+        public IDictionary<string, IEnumerable<StatLogEntry<double>>> GetValues(IEnumerable<string> identifiers, string startDate, string endDate) {
+
+            return GetEntries<double>(identifiers, startDate?.ParseTime(), endDate?.ParseTime());
+
+        }
+
+        private void LogEntry(string identifier, string value) {
+
+            double result = 0;
+            double.TryParse(value, out result);
+
+            lock (m_adapter) {
+
+                m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = result, Timestamp = DateTime.Now, Description = value });
+
+            }
+
+        }
+
+        private void LogEntry(string identifier, double value) {
+
+            lock (m_adapter) {
+
+                m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
+
+            }
 
         }
 

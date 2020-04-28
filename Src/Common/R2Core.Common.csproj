@@ -70,6 +70,7 @@
     <Compile Include="LinearDataSet.cs" />
     <Compile Include="DB\SqlExtensions.cs" />
     <Compile Include="DB\Statistics\StatLogProcess.cs" />
+    <Compile Include="DB\Statistics\StatLoggerExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

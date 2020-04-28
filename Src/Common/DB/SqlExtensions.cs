@@ -74,13 +74,19 @@ namespace R2Core.Common {
         }
 
         /// <summary>
+        /// The format which Sqlite uses for string conversions of DateTime.
+        /// </summary>
+        /// <returns>The date format.</returns>
+        public static string SqliteDateFormat() { return "yyyy-MM-dd HH:mm:ss"; }
+
+        /// <summary>
         /// Return a timestamp formatted string.
         /// </summary>
         /// <returns>The SQL ite timestamp.</returns>
         /// <param name="self">Self.</param>
         internal static string AsSQLiteTimestamp(this DateTime self) {
 
-            return self.ToString("yyyy-MM-dd HH:mm:ss");
+            return self.ToString(SqliteDateFormat());
 
         }
 

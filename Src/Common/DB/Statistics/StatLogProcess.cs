@@ -21,47 +21,86 @@ using System;
 using System.Timers;
 using R2Core.Device;
 
-namespace R2Core.Common.DB.Statistics {
+namespace R2Core.Common {
 
-    public class StatLogProcess : DeviceBase {
+    /// <summary>
+    /// A process for recurring tracking of a IStatLoggable device.
+    /// </summary>
+    public class StatLogProcess<T> : DeviceBase {
 
-        public DateTime? StartTime { get; set; }
-        public int Frequency { get; set; }
+        public DateTime? StartTime { get; private set; }
+        public int Frequency { get; private set; }
         private Timer m_timer;
+        private Timer m_startTimer;
         private readonly StatLogger m_logger;
-        private readonly IStatLoggable<double> m_device;
+        private readonly IStatLoggable<T> m_device;
 
-        public StatLogProcess(string id, IStatLoggable<double> device, StatLogger logger) : base(id) {
+        public StatLogProcess(IStatLoggable<T> device, StatLogger logger, int frequency, DateTime? startTime = null) : base($"log_process_{device.Identifier}") {
 
             m_device = device;
             m_logger = logger;
+            Frequency = frequency;
+            StartTime = startTime;
 
-            //Frequency = frequency;
+            m_timer = new Timer(Frequency);
+            m_timer.Elapsed += delegate { LogDevice(); };
+            m_timer.AutoReset = true;
 
-            //if (startTime != null) {
+            DateTime now = DateTime.Now;
 
-            //    //StartTime = DateTime.Parse()
+            if (startTime != null) {
 
-            //}
+                if (StartTime < now) { StartTime?.AddDays(1); }
 
-
+            }
 
         }
 
         public override void Start() {
 
-            m_timer = new Timer(Frequency);
-            m_timer.Elapsed += TimerEvent;
+            if (m_timer != null) { 
+
+                Log.w($"StatLogProcess.Start(): Resetting timer for: {Identifier}");
+                Stop();
+
+            }
+
+            if (StartTime == null || StartTime < DateTime.Now) {
+
+                StartLogging();
+
+            } else {
+
+                TimeSpan startTime = (StartTime ?? DateTime.MaxValue) - DateTime.Now;
+                m_startTimer = new Timer(startTime.TotalMilliseconds);
+                m_startTimer.Elapsed += delegate { StartLogging(); };
+                m_startTimer.Enabled = true;
+                m_startTimer.Start();
+
+            }
+
+        }
+
+        public override void Stop() {
+
+            m_timer?.Stop();
+
+        }
+
+        private void StartLogging() {
+
+            m_timer.Enabled = true;
             m_timer.Start();
+            LogDevice();
 
         }
 
-        void TimerEvent(object sender, ElapsedEventArgs eventArgs) {
+        private void LogDevice() {
 
-
+            m_logger.Log(m_device);
 
         }
-    
+
     }
 
 }
