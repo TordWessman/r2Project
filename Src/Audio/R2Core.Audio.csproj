@@ -36,9 +36,6 @@
       <HintPath>..\..\3rdParty\AIMLbot.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\3rdParty\IronLanguages\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
     </Reference>
