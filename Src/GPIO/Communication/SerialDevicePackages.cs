@@ -352,10 +352,11 @@ namespace R2Core.GPIO
 
         public override string ToString() {
 
-            string value = "<undefined>";
+            string value = $"<undefined>";
 
             if (Value is IEnumerable) {
 
+                value = "";
                 foreach (var val in (Value as IEnumerable)) { value += $"[{val}]"; }
 
             } else if (new Type[]{typeof(byte[]), typeof(int[]), typeof(bool)}.Contains(typeof(T))) {
@@ -364,7 +365,7 @@ namespace R2Core.GPIO
 
             }
 
-            return $"DeviceResponsePackage<{typeof(T)}>: [Id/NodeId: {Id}/{NodeId}, Value: {value}, Action: {Action}" + (IsError ? $" Error: {ErrorInfo}]" : "]");
+            return $"DeviceResponsePackage<{typeof(T)}>: [Id/NodeId: {Id}/{NodeId}, Value: '{value}', Action: {Action}" + (IsError ? $" Error: {ErrorInfo}]" : "]");
         
         }
 
@@ -396,7 +397,13 @@ namespace R2Core.GPIO
 		/// </summary>
 		public byte[] Content;
 
-	}
+        public override string ToString() {
+
+            return this.Description();
+
+        }
+
+    }
 
 	public static class DevicePackageExtensions {
 	

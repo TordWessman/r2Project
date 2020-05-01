@@ -23,7 +23,6 @@ XmlDocument doc = GetConfigXml(config[1]);
 #>
 
 using System;
-using System.IO;
 using System.Xml;
 using System.Collections.Generic;
 using R2Core.Device;
