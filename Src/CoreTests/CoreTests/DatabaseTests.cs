@@ -226,6 +226,7 @@ namespace R2Core.Tests {
             DummyStatLoggerDBAdapter adapter = new DummyStatLoggerDBAdapter();
             StatLogger logger = new StatLogger("stat", adapter);
 
+            adapter.DeubugOutput = true;
             DummyDevice d1 = new DummyDevice("d1");
 
             // test untracking a device not tracked
@@ -238,6 +239,7 @@ namespace R2Core.Tests {
             System.Timers.Timer stopTimer = new System.Timers.Timer(count * interval - interval / 2);
 
             stopTimer.Elapsed += delegate { logger.Untrack(d1); };
+
             logger.Track(d1, interval);
             stopTimer.Enabled = true;
             stopTimer.Start();
@@ -254,9 +256,9 @@ namespace R2Core.Tests {
             stopTimer.Dispose();
             DummyDevice d2 = new DummyDevice("d2");
 
-            stopTimer = new System.Timers.Timer(count * interval - interval / 2);
+            stopTimer = new System.Timers.Timer(count * interval + interval / 2);
 
-            stopTimer.Elapsed += delegate { 
+            stopTimer.Elapsed += delegate {
 
                 logger.Untrack(d1);
                 logger.Untrack(d2);
@@ -266,26 +268,25 @@ namespace R2Core.Tests {
             // Track d1 as before
             logger.Track(d1, interval);
             // d2 should start after 2 "ticks"
-            logger.Track(d2, interval, DateTime.Now.AddMilliseconds((count - 2) * interval));
+            logger.Track(d2, interval, DateTime.Now.AddMilliseconds(interval * (count - 2)));
             stopTimer.Enabled = true;
             stopTimer.Start();
 
-            Thread.Sleep((count + 2) * interval);
+            Thread.Sleep((count + 3) * interval);
 
             entries = logger.GetEntries(new string[] { "d1", "d2" });
 
-            // d1 should have added ´count´ new entries
-            Assert.AreEqual(count * 2, entries["d1"].Count());
+            // d1 should have added ´count´ + 1 for the first recording
+            Assert.AreEqual(count * 2 + 1, entries["d1"].Count());
             // d2 should have started later and only have ´count - 2´ entries.
             Assert.AreEqual(count - 2, entries["d2"].Count());
 
             // Test parsing string as start time:
             stopTimer.Dispose();
 
-            stopTimer = new System.Timers.Timer(count * interval - interval / 2);
-
+            stopTimer = new System.Timers.Timer(count * interval);
             stopTimer.Elapsed += delegate { logger.Untrack(d1); };
-            string startTime = DateTime.Now.ToString("H:m:s:fff");
+            string startTime = DateTime.Now.AddMilliseconds(interval).ToString("HH:mm:ss fff");
             logger.Track(d1, interval, startTime);
             stopTimer.Enabled = true;
             stopTimer.Start();
@@ -293,10 +294,29 @@ namespace R2Core.Tests {
             // wait until after the count + 1 tracking could have occured.
             Thread.Sleep((count + 1) * interval);
 
-            entries = logger.GetEntries(new string[] { "d1" });
-
+            stopTimer.Enabled = false;
+            stopTimer.Dispose();
             // d1 should have added ´count´ new entries
-            Assert.AreEqual(count * 3, entries["d1"].Count());
+            entries = logger.GetEntries(new string[] { "d1" });
+            Assert.AreEqual(count * 3 + 1, entries["d1"].Count());
+
+            // Test logger.Stop()
+            stopTimer = new System.Timers.Timer(count * interval);
+
+            stopTimer.Elapsed += delegate { logger.Stop(); };
+            logger.Track(d1, interval);
+            stopTimer.Enabled = true;
+            stopTimer.Start();
+
+            // wait until after the count + 1 tracking could have occured.
+            Thread.Sleep((count + 1) * interval);
+
+            // d1 should have added ´count´ + 1 new entries.
+            entries = logger.GetEntries(new string[] { "d1" });
+            Assert.AreEqual(count * 4 + 1 + 1, entries["d1"].Count());
+
+            stopTimer.Dispose();
+
 
         }
 
@@ -335,11 +355,11 @@ namespace R2Core.Tests {
             // Log 5 entries fairly present
             for (int i = 0; i < 5; i++) { logger.Log(d1); }
 
-            // Log 4 entries from yesterday
+            // Log 4 entries from the past
             adapter.MockTimestamp = DateTime.Now.AddDays(-2);
             for (int i = 0; i < 4; i++) { logger.Log(d1); }
 
-            // Log 3 entries from tomorrow
+            // Log 3 entries from the future
             adapter.MockTimestamp = DateTime.Now.AddDays(2);
             for (int i = 0; i < 3; i++) { logger.Log(d1); }
 
@@ -350,7 +370,7 @@ namespace R2Core.Tests {
 
             // Fetch entries from today
             // Format "now" to a start date that is parseable. It should include 5 from today and 3 from tomorrow.
-            string startDate = DateTime.Now.ToString("yyyy-MM-dd");
+            string startDate = DateTime.Now.Date.ToString(StatLoggerDateParsingExtensions.GetStatLoggerDateFormat());
             string endDate = null;
             IEnumerable<dynamic> entries = (IEnumerable<dynamic>)remoteLogger.GetValues(new string[] { "d1" }, startDate, endDate)["d1"];
 
@@ -358,11 +378,22 @@ namespace R2Core.Tests {
 
             // Fetch entries until today
             // Format "now" to an end date that is parseable. It should include 5 from today and 4 from yesterday.
-            startDate = DateTime.Now.Date.ToString("yyyy-MM-dd");
-            endDate = DateTime.Now.AddDays(1).ToString("yyyy-MM-dd");
+            startDate = null;
+            endDate = DateTime.Now.Date.AddDays(1).ToString(StatLoggerDateParsingExtensions.GetStatLoggerDateFormat());
             entries = (IEnumerable<dynamic>)remoteLogger.GetValues(new string[] { "d1" }, startDate, endDate)["d1"];
 
             Assert.AreEqual(5 + 4, entries.Count());
+
+            // Log 2 entries from tomorrow
+            adapter.MockTimestamp = DateTime.Now.Date.AddDays(1);
+            for (int i = 0; i < 2; i++) { logger.Log(d1); }
+
+            startDate = DateTime.Now.Date.ToString(StatLoggerDateParsingExtensions.GetStatLoggerDateFormat());
+            endDate = DateTime.Now.Date.AddDays(1).ToString(StatLoggerDateParsingExtensions.GetStatLoggerDateFormat());
+            entries = (IEnumerable<dynamic>)remoteLogger.GetValues(new string[] { "d1" }, startDate, endDate)["d1"];
+
+            // 5 from today and 2 from tomorrow.
+            Assert.AreEqual(5 + 2, entries.Count());
 
         }
 

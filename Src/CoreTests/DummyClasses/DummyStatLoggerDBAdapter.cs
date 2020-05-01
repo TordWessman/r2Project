@@ -28,6 +28,7 @@ namespace R2Core.Tests {
 
         public bool Ready { get; set; }
         public DateTime? MockTimestamp;
+        public bool DeubugOutput = false;
 
         public void ClearEntries(string identifier) {
 
@@ -49,6 +50,8 @@ namespace R2Core.Tests {
         }
 
         public void SaveEntry<T>(StatLogEntry<T> entry) {
+
+            if (DeubugOutput) { Log.t($"Saving entry: {entry.Identifier}"); }
 
             Entries.Add(new StatLogEntry<dynamic> {
                     Value = entry.Value,

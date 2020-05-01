@@ -67,7 +67,26 @@ namespace R2Core.Common {
 
     }
 
-    public static class DateParsingExtensions {
+    public static class StatLoggerDateTimeExtensions {
+
+        /// <summary>
+        /// The string representation of (the least granular) StatLogger date format.
+        /// </summary>
+        public static string ToStatLoggerString(this DateTime self) {
+
+            return self.ToString(StatLoggerDateParsingExtensions.GetStatLoggerDateFormat());
+
+        }
+
+    }
+
+    public static class StatLoggerDateParsingExtensions {
+
+        /// <summary>
+        /// The DateFormat the StatLogger uses to represent a date with the least precission.
+        /// </summary>
+        /// <returns>The stat logger date format.</returns>
+        public static string GetStatLoggerDateFormat() { return "yyyy-MM-dd"; }
 
         /// <summary>
         /// Gets the available time formats which ´string.ParseTime()´ uses.
@@ -76,7 +95,7 @@ namespace R2Core.Common {
         public static string[] GetAvailableTimeFormats() {
 
             return new string[] {
-                SqlExtensions.SqliteDateFormat(), "yyyy-MM-dd",
+                SqlExtensions.SqliteDateFormat(), GetStatLoggerDateFormat(),
                 "HH:mm:ss fff", "HH:mm:ss ff", "HH:mm:ss f",
                 "HH:mm:ss", "HH:mm", "HH"
             };

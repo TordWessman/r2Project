@@ -42,10 +42,6 @@ namespace R2Core.Common {
             Frequency = frequency;
             StartTime = startTime;
 
-            m_timer = new Timer(Frequency);
-            m_timer.Elapsed += delegate { LogDevice(); };
-            m_timer.AutoReset = true;
-
             DateTime now = DateTime.Now;
 
             if (startTime != null) {
@@ -83,11 +79,42 @@ namespace R2Core.Common {
 
         public override void Stop() {
 
-            m_timer?.Stop();
+            if (m_timer != null) {
+
+                m_timer.Enabled = false;
+                m_timer.Stop();
+                m_timer.Dispose();
+                m_timer = null;
+
+            } else {
+
+                Log.w($"Trying to dispose StatLogProcess for ''{m_device.Identifier}', but process was not running.");
+
+            }
+
+            StopStartTimer();
+
+        }
+
+        private void StopStartTimer() {
+
+            if (m_startTimer != null) {
+
+                m_startTimer.Stop();
+                m_startTimer.Enabled = false;
+                m_startTimer.Dispose();
+                m_startTimer = null;
+
+            }
 
         }
 
         private void StartLogging() {
+
+            StopStartTimer();
+            m_timer = new Timer(Frequency);
+            m_timer.Elapsed += delegate { LogDevice(); };
+            m_timer.AutoReset = true;
 
             m_timer.Enabled = true;
             m_timer.Start();
@@ -97,7 +124,12 @@ namespace R2Core.Common {
 
         private void LogDevice() {
 
-            m_logger.Log(m_device);
+            if (m_timer?.Enabled == true) {
+
+                try { m_logger.Log(m_device); }
+                catch (Exception ex) { Log.e(ex.Message); }
+
+            }
 
         }
 

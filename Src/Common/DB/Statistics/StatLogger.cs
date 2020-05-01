@@ -19,9 +19,8 @@
 
 using System;
 using System.Collections.Generic;
-using R2Core.Device;
 using System.Linq;
-using System.Globalization;
+using R2Core.Device;
 
 namespace R2Core.Common {
 
@@ -120,9 +119,11 @@ namespace R2Core.Common {
 
                 if (m_processes.ContainsKey(device.Identifier)) {
 
-                    Untrack(device);
+                    RemoveProcess(device.Identifier);
 
                 }
+
+                R2Core.Log.i($"StatLogger starting to track: '{device.Identifier}' using frequency: {frequency}. Start time: {startTime?.ToString() ?? "now" }");
 
                 StatLogProcess<T> process = new StatLogProcess<T>(device, this, frequency, startTime);
                 process.Start();
@@ -138,23 +139,28 @@ namespace R2Core.Common {
         /// </summary>
         /// <param name="device">Device.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        public void Untrack<T>(IStatLoggable<T> device) {
+        public void Untrack(IDevice device) {
 
             lock(m_processes) {
 
-                if (m_processes.ContainsKey(device.Identifier)) {
+                RemoveProcess(device.Identifier);
 
-                    m_processes[device.Identifier]?.Stop();
-                    m_processes.Remove(device.Identifier);
+            }
+           
+        }
 
-                } else {
+        public override void Stop() {
 
-                    R2Core.Log.w($"Unable to Untrack({device}). Not registered for tracking.");
+            lock (m_processes) {
+
+                foreach (string identifier in m_processes.Keys) {
+
+                    RemoveProcess(identifier);
 
                 }
 
             }
-           
+
         }
 
         /// <summary>
@@ -184,6 +190,22 @@ namespace R2Core.Common {
             lock (m_adapter) {
 
                 m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
+
+            }
+
+        }
+
+        private void RemoveProcess(string identifier) {
+
+            if (m_processes.ContainsKey(identifier)) {
+
+                m_processes[identifier]?.Stop();
+                m_processes.Remove(identifier);
+                R2Core.Log.i($"Untracking process: '{identifier}'.");
+
+            } else {
+
+                R2Core.Log.w($"Unable to Untrack '{identifier}'. Not registered for tracking.");
 
             }
 
