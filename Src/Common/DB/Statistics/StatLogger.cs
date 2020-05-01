@@ -153,7 +153,7 @@ namespace R2Core.Common {
 
             lock (m_processes) {
 
-                foreach (string identifier in m_processes.Keys) {
+                foreach (string identifier in new List<string>(m_processes.Keys)) {
 
                     RemoveProcess(identifier);
 

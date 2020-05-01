@@ -16,7 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 
 namespace R2Core.Common {
@@ -59,7 +58,7 @@ namespace R2Core.Common {
         /// <summary>
         /// Track using ´startTime´ as an input string. Usable by callers that can't provide DateTime parameters.
         /// </summary>
-        public static StatLogProcess<T> Track<T>(this StatLogger self, IStatLoggable<T> device, int frequency, string startTime) {
+        public static StatLogProcess<T> TrackFrom<T>(this StatLogger self, IStatLoggable<T> device, int frequency, string startTime) {
 
             return self.Track(device, frequency, startTime.ParseTime());
 
@@ -128,6 +127,5 @@ namespace R2Core.Common {
         }
 
     }
-
 
 }
