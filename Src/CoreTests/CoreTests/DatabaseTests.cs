@@ -287,7 +287,7 @@ namespace R2Core.Tests {
             stopTimer = new System.Timers.Timer(count * interval);
             stopTimer.Elapsed += delegate { logger.Untrack(d1); };
             string startTime = DateTime.Now.AddMilliseconds(interval).ToString("HH:mm:ss fff");
-            logger.Track(d1, interval, startTime);
+            logger.TrackFrom(d1, interval, startTime);
             stopTimer.Enabled = true;
             stopTimer.Start();
 
@@ -305,6 +305,7 @@ namespace R2Core.Tests {
 
             stopTimer.Elapsed += delegate { logger.Stop(); };
             logger.Track(d1, interval);
+            logger.Track(d2, interval);
             stopTimer.Enabled = true;
             stopTimer.Start();
 
@@ -312,8 +313,11 @@ namespace R2Core.Tests {
             Thread.Sleep((count + 1) * interval);
 
             // d1 should have added ´count´ + 1 new entries.
-            entries = logger.GetEntries(new string[] { "d1" });
+            entries = logger.GetEntries(new string[] { "d1", "d2" });
             Assert.AreEqual(count * 4 + 1 + 1, entries["d1"].Count());
+
+            // d2 should have added ´count´ + 1 new entries.
+            Assert.AreEqual(count * 2 - 2 + 1, entries["d2"].Count());
 
             stopTimer.Dispose();
 
