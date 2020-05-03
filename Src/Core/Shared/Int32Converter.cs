@@ -59,7 +59,7 @@ namespace R2Core
 		[FieldOffset(3)] public byte Byte4;
 
 		[FieldOffset(4)]
-		private int m_lenght;
+		private readonly int m_lenght;
 
 		public Int32Converter(int value) {
 
@@ -67,7 +67,7 @@ namespace R2Core
 			Value = value;
 			m_lenght = 0;
 
-			for (int i = Int32Converter.ValueSize; i > 0; i--) {
+			for (int i = ValueSize; i > 0; i--) {
 			
 				if (this[i - 1] > 0) {
 				
@@ -91,7 +91,7 @@ namespace R2Core
 
 		}
 
-		public int Length { get { return m_lenght; } }
+        public int Length => m_lenght;
 
 		//Returns all 4 bytes.
 		public byte[] Bytes { get { return new byte[] { Byte1, Byte2, Byte3, Byte4 }; } }
@@ -110,7 +110,7 @@ namespace R2Core
 
 		}
 
-		public byte this [int key] {
+		public byte this[int key] {
 			
 			get { 
 			
@@ -149,11 +149,14 @@ namespace R2Core
 				default:
 
 					throw new IndexOutOfRangeException();
+
 				}
+
 			}
+
 		}
 
-		public static implicit operator Int32(Int32Converter value) {
+		public static implicit operator int(Int32Converter value) {
 			
 			return value.Value;
 		

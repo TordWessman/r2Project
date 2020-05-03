@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
 using R2Core.Device;
 using R2Core.Network;
 using System.Collections.Generic;
@@ -146,6 +145,8 @@ namespace R2Core.Common
 			new System.Threading.ManualResetEvent(false).WaitOne(milliseconds);
 
 		}
+
 	}
+
 }
 

@@ -104,7 +104,9 @@ namespace R2Core
 
 					throw new ArgumentException($"Property '{property}' not found in '{target}'.");
 
-				} else if (!(members[0] is FieldInfo)) {
+				}  
+
+                if (!(members[0] is FieldInfo)) {
 
 					throw new ArgumentException($"Get property: Unable to access '{property}' in '{target}'.");
 
@@ -114,11 +116,9 @@ namespace R2Core
 
 				return fieldInfo.GetValue(target);
 
-			} else {
-
-				return propertyInfo.GetValue(target);
-
 			}
+
+            return propertyInfo.GetValue(target);
 
 		}
 
@@ -149,7 +149,9 @@ namespace R2Core
 
 					throw new ArgumentException($"Property '{property}' not found in '{target}'.");
 
-				} else if (!(members[0] is FieldInfo)) {
+				} 
+
+                if (!(members[0] is FieldInfo)) {
 
 					throw new ArgumentException($"Set property: Unable to access '{property}' in '{target}'.");
 
@@ -178,7 +180,7 @@ namespace R2Core
 			return 
 				target.GetType().GetProperty(property) != null ||
 				target.GetType().GetMember(property).Length > 0 ||
-				((target is R2Dynamic) ? (target as R2Dynamic).Has(property) : false);
+				((target is R2Dynamic) && (target as R2Dynamic).Has(property));
 
 		}
 
@@ -197,11 +199,6 @@ namespace R2Core
 			
 			if (requiredType.IsGenericType) {
 
-                //if (typeof(DateTime?).IsAssignableFrom(requiredType)) {
-
-                //    return parameter == null ? null : (DateTime?)DateTime.Parse((string)parameter);
-
-                //}
                 // Check if it's a generic IEnumerable
                 if (typeof(IEnumerable).IsAssignableFrom(requiredType)) {
 
@@ -243,6 +240,7 @@ namespace R2Core
 						Type listType = listGenericType.MakeGenericType(containedTypes);
 
 						IList list = (IList)Activator.CreateInstance(listType);
+
 						foreach(object p in enumeratedParameter) {
 
 							list.Add(containedTypes.FirstOrDefault().ConvertObject(p));
@@ -257,16 +255,16 @@ namespace R2Core
 
 				throw new ArgumentException($"Dynamic conversion not implemented for type {requiredType} (using parameters {parameter})");
 
-			} else if (typeof(IConvertible).IsAssignableFrom(requiredType)) {
+			} 
+
+            if (typeof(IConvertible).IsAssignableFrom(requiredType)) {
 
 				// Primitive type
 				return Convert.ChangeType(parameter, requiredType);
 
-			} else {
-
-				return parameter;
-
 			}
+
+            return parameter;
 
 		}
 
