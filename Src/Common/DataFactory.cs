@@ -80,12 +80,17 @@ namespace R2Core.Common {
 
         }
 
-        public StatLogger CreateStatLogger(string id) {
+        public StatLogger CreateStatLogger(string id, IStatLoggerDBAdapter adapter = null) {
 
-            ISQLDatabase database = CreateSqlDatabase($"{id}_db", $"{id}.db");
-            database.Start();
-            IStatLoggerDBAdapter adapter = CreateDatabaseAdapter<StatLoggerDBAdapter>(database);
-            adapter.SetUp();
+            if (adapter == null) {
+
+                ISQLDatabase database = CreateSqlDatabase($"{id}_db", $"{id}.db");
+                database.Start();
+                adapter = CreateDatabaseAdapter<StatLoggerDBAdapter>(database);
+                adapter.SetUp();
+
+            }
+
             return new StatLogger(id, adapter);
 
         }

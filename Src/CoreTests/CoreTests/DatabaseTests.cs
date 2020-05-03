@@ -401,6 +401,43 @@ namespace R2Core.Tests {
 
         }
 
+        [Test]
+        public void TestStatLoggerWithDatabase() {
+            PrintName();
+
+            DataFactory factory = new DataFactory("factory");
+            ISQLDatabase database = factory.CreateTemporaryDatabase();
+            database.Start();
+            IStatLoggerDBAdapter adapter = factory.CreateDatabaseAdapter<StatLoggerDBAdapter>(database);
+            adapter.SetUp();
+            StatLogger logger = new StatLogger("stat", adapter);
+
+            IEnumerable<StatLogEntry<double>> entries = logger.GetValues(new string[] { "d1" }, null, null)["d1"];
+
+            Log.t(entries.Count());
+            Assert.AreEqual(0, entries.Count());
+
+            DummyDevice d1 = new DummyDevice("d1");
+            d1.Value = 42;
+
+            logger.Log(d1);
+
+            entries = logger.GetValues(new string[] { "d1" }, null, null)["d1"];
+
+            Assert.AreEqual(1, entries.Count());
+
+            IEnumerable<StatLogEntry<int>> entriesInt = logger.GetEntries<int>(new string[] { "d1" })["d1"];
+            IEnumerable<StatLogEntry<float>> entriesFloat = logger.GetEntries<float>(new string[] { "d1" })["d1"];
+
+            Assert.AreEqual(1, entriesInt.Count());
+            Assert.AreEqual(1, entriesFloat.Count());
+
+            Assert.AreEqual(42, entries.First().Value);
+            Assert.AreEqual(42, entriesInt.First().Value);
+            Assert.AreEqual(42, entriesFloat.First().Value);
+
+        }
+
     }
 
 }

@@ -113,11 +113,43 @@ namespace R2Core.Common {
 
     internal static class DataRowCollectionExtension {
 
+        /// <summary>
+        /// Creates a StatLogEntry with the Value parameter of type T from a DataRow.
+        /// </summary>
+        /// <returns>The entry.</returns>
+        /// <param name="self">Self.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
         internal static StatLogEntry<T> CreateEntry<T>(this DataRow self) {
+
+            T value = default(T);
+
+            // This is the rather idiosyncratic strategy i came up with to cast System.Single, which is the type of the
+            // "value" parameter returned by the DB
+            if (typeof(T) == typeof(double)) {
+
+                value = (T)(dynamic)double.Parse(self["value"].ToString());
+
+            } else if (typeof(T) == typeof(int)) {
+
+                value = (T)(dynamic)int.Parse(self["value"].ToString());
+
+            } else if (typeof(T) == typeof(long)) {
+
+                value = (T)(dynamic)long.Parse(self["value"].ToString());
+
+            } else if (typeof(T) == typeof(byte)) {
+
+                value = (T)(dynamic)byte.Parse(self["value"].ToString());
+
+            } else {
+
+                value = (T)self["value"];
+
+            }
 
             return new StatLogEntry<T> {
                 Id = self.GetId(),
-                Value = (T)self["value"],
+                Value = value,
                 Timestamp = DateTime.Parse((string)self["timestamp"]),
                 Identifier = (string)self["identifier"],
                 Description = (string)(self["description"] ?? "")
