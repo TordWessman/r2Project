@@ -82,7 +82,7 @@ namespace R2Core.Network
         /// <param name="requestMessage">Message.</param>
         /// <param name="responseDelegate">Response delegate.</param>
         /// <param name="timeout">Timout.</param>
-        public MessageIdType Broadcast(INetworkMessage requestMessage, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = 2000) {
+        public MessageIdType Broadcast(INetworkMessage requestMessage, Action<INetworkMessage, string, Exception> responseDelegate = null, int timeout = 2000) {
 
 			if (!Ready) {
 			
@@ -111,7 +111,7 @@ namespace R2Core.Network
 
 				if (requestData.Length != m_socket.SendTo(requestData, m_host)) {
 
-					throw new System.Net.WebException($"Bytes sent to host '{m_host.ToString()}' mismatch.");
+					throw new WebException($"Bytes sent to host '{m_host.ToString()}' mismatch.");
 
 				}
 
@@ -119,24 +119,24 @@ namespace R2Core.Network
 				
 					WaitForResponse(responseDelegate);
 
-				} catch (System.Net.Sockets.SocketException ex) {
+				} catch (SocketException ex) {
 
 					// Ignore timeouts, since they are expected...
 					if (ex.SocketErrorCode != SocketError.TimedOut) {
 						
 						Log.x(ex);
-						responseDelegate.Invoke(null, ex);
+						responseDelegate.Invoke(null, null, ex);
 
 					}
 
-				}  catch (System.Threading.ThreadAbortException) {
+				}  catch (ThreadAbortException) {
 
-					Log.d("Broadcast thread aborted.");
+					Log.i("Broadcast thread aborted.");
 
 				} catch (Exception ex) {
 				
 					Log.x(ex);
-					responseDelegate.Invoke(null, ex);
+					responseDelegate.Invoke(null, null, ex);
 
 				}
 
@@ -151,11 +151,11 @@ namespace R2Core.Network
 		/// Waits for responses until m_cancelationToken is set. Delegates are called asynchronously.
 		/// </summary>
 		/// <param name="responseDelegate">Response delegate.</param>
-		private void WaitForResponse(Action<BroadcastMessage, Exception> responseDelegate) {
+		private void WaitForResponse(Action<BroadcastMessage, string, Exception> responseDelegate) {
 
 			byte[] buffer = new byte[MaximumPackageSize];
 
-			EndPoint remoteHost = (EndPoint)m_host;
+			EndPoint remoteHost = m_host;
 
 			while(!m_cancelationToken.Token.IsCancellationRequested) {
 				
@@ -169,21 +169,25 @@ namespace R2Core.Network
 					continue;
 				}
 
-				responseDelegate?.BeginInvoke(new BroadcastMessage(response, m_host.GetAddress(), m_host.GetPort()), null, (asyncResult) => {
+                Log.t($"responseDelegate.BeginInvoke ... =>");
+				responseDelegate?.BeginInvoke(
+                    new BroadcastMessage(response, m_host.GetAddress(), m_host.GetPort()),
+                    remoteHost.GetAddress(), 
+                    null, (asyncResult) => {
 					
-					try {
-						
-						// Make sure we log exceptions in delegates, at least...
-						((asyncResult as AsyncResult).AsyncDelegate as Action<BroadcastMessage, Exception>).EndInvoke(asyncResult);
+    					try {
+    						
+    						// Make sure we log exceptions in delegates, at least...
+    						((asyncResult as AsyncResult).AsyncDelegate as Action<BroadcastMessage, string, Exception>).EndInvoke(asyncResult);
 
-					} catch (Exception ex) {
-						
-						Log.w("Broadcast delegate crashed!");
-						Log.x(ex);
+    					} catch (Exception ex) {
+    						
+    						Log.w("Broadcast delegate crashed!");
+    						Log.x(ex);
 
-					}
+    					}
 
-				}, null);
+    				}, null);
 
 			}
 

@@ -65,7 +65,7 @@ namespace R2Core.Network
 
 		public override bool Ready { get { return ShouldRun && m_listener != null; } }
 
-		public MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = DefaultBroadcastTimeout) {
+		public MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, string, Exception> responseDelegate = null, int timeout = DefaultBroadcastTimeout) {
 
 			m_connections.AsParallel().ForAll((connection) => {
 
@@ -77,15 +77,15 @@ namespace R2Core.Network
 
 						if (response.IsError()) {
 						
-							responseDelegate(response, new NetworkException(response)); 
+							responseDelegate(response, connection.LocalAddress, new NetworkException(response)); 
 
-						} else { responseDelegate(response, null); }
+						} else { responseDelegate(response, connection.LocalAddress, null); }
 
 					}
 
 				} catch (Exception ex) {
 
-                    responseDelegate?.Invoke(null, ex);
+                    responseDelegate?.Invoke(null, null, ex);
 
                 }
 

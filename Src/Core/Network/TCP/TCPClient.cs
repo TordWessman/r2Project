@@ -76,27 +76,30 @@ namespace R2Core.Network
 
 		~TCPClient() {
 		
-			Log.d($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
+			Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
 			Stop();
 			m_receiverTask?.Dispose();
 
 		}
 
-		public string Address { get; private set; }
+        public string LocalAddress => m_client?.GetLocalEndPoint()?.GetAddress();
+        public string Address { get; private set; }
 		public int Port { get; private set; }
 		public override bool Ready { get { return m_shouldRun && m_client?.IsConnected() == true; } }
 
         public override void Start() {
 		
-			Log.d($"TCPClient will connect to {Address}:{Port}");
+			Log.i($"TCPClient will connect to {Address}:{Port}");
 
 			m_readError = null;
 			m_shouldRun = true;
-            m_client = new TcpClient();
-            m_client.SendTimeout = Timeout;
-			m_client.Client.Blocking = true;
+            m_client = new TcpClient {
+                SendTimeout = Timeout
+            };
+            m_client.Client.Blocking = true;
 			m_client.Connect(Address, Port);
-			m_receiverTask = Receive();
+
+            m_receiverTask = Receive();
 			m_ping = new PingService(this, Timeout);
 			m_connectionPoller = new ConnectionPoller(m_client, () => {
 
@@ -112,7 +115,7 @@ namespace R2Core.Network
 
 			if (!m_shouldRun) { return; }
 
-			Log.d($"{this} will Stop.");
+			Log.i($"{this} will Stop.");
 
 			m_shouldRun = false;
 

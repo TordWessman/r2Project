@@ -22,7 +22,7 @@ using R2Core.Device;
 namespace R2Core.Network
 {
 	/// <summary>
-	/// Represent a connection between two hosts
+	/// Represent a connection between two hosts.
 	/// </summary>
 	public interface INetworkConnection : IDevice {
 		
@@ -33,13 +33,13 @@ namespace R2Core.Network
 		INetworkMessage Send(INetworkMessage request);
 
 		/// <summary>
-		/// The address of the remote host
+		/// The address of the remote host.
 		/// </summary>
 		/// <value>The address.</value>
 		string Address { get; }
 
 		/// <summary>
-		/// The port used to connect
+		/// The port used to connect.
 		/// </summary>
 		/// <value>The port.</value>
 		int Port { get; }
@@ -54,6 +54,12 @@ namespace R2Core.Network
         /// </summary>
         /// <value><c>true</c> if busy; otherwise, <c>false</c>.</value>
         bool Busy { get; }
+
+        /// <summary>
+        /// Gets the local address used to connect to remote host.
+        /// </summary>
+        /// <value>The local address.</value>
+        string LocalAddress { get; }
 
     }
 

@@ -95,7 +95,9 @@ namespace R2Core.Network
 
 		~TCPServerConnection() { Log.i($"Deallocating {this}."); }
 
-		public string Address { get { return m_client.GetEndPoint()?.GetAddress(); } }
+        public string LocalAddress { get { return m_client.GetLocalEndPoint()?.GetAddress(); } }
+
+        public string Address { get { return m_client.GetEndPoint()?.GetAddress(); } }
 
 		public int Port { get { return m_client.GetEndPoint()?.GetPort() ?? 0; } }
 

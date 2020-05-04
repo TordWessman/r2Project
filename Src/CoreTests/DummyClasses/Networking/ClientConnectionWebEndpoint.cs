@@ -49,8 +49,9 @@ namespace R2Core.Tests
 
 		}
 
-		public string Address { get { return "localhost"; } }
-		public int Port { get { return 1; } }
+        public string LocalAddress => "localhost";
+        public string Address => "localhost";
+        public int Port => 4242;
 
 		public void StopListening() {
 

@@ -40,6 +40,8 @@ namespace R2Core.Network
         public int Port => m_lastPort;
         public IDictionary<string, object> Headers { get; set; }
 
+        public string LocalAddress => throw new NotImplementedException();
+
         public HttpClient(string id, ISerialization serializer) : base(id) {
 
 			m_serializer = serializer;
@@ -52,7 +54,7 @@ namespace R2Core.Network
 
 		}
 
-		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
+		public Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
 		
 			return Task.Factory.StartNew( () => {
 			
@@ -98,7 +100,7 @@ namespace R2Core.Network
                 byte[] requestData = message.Payload?.GetType().IsValueType == true || message.Payload != null ? m_serializer.Serialize(message.Payload) : new byte[0];
 
                 httpRequest.ContentLength = requestData.Length;
-                ((WebRequest)httpRequest).ContentType = message.ContentType;
+                httpRequest.ContentType = message.ContentType;
 
                 httpRequest.ReadWriteTimeout = Timeout;
                 httpRequest.Timeout = Timeout;
@@ -135,7 +137,7 @@ namespace R2Core.Network
 
                     }
 
-                } catch (System.Net.WebException ex) {
+                } catch (WebException ex) {
 
                     Log.w($"Connection failed: {httpRequest.RequestUri.ToString()} exception: '{ex.Message}'");
 

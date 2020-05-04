@@ -48,7 +48,7 @@ namespace R2Core.Tests {
         }
 
         public string Address => "localhost";
-
+        public string LocalAddress => "localhost";
         public int Port => 4242;
 
         public void StopListening() { throw new NotImplementedException(""); }

@@ -18,8 +18,8 @@
 //
 using System;
 using R2Core.Device;
-using System.Threading.Tasks;
 using MessageIdType = System.String;
+using System.Net;
 
 namespace R2Core.Network
 {
@@ -36,7 +36,7 @@ namespace R2Core.Network
 		/// <param name="message">Message.</param>
 		/// <param name="timeout">Timeout.</param>
 		/// <param name="responseDelegate">Response delegate.</param>
-		MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = 2000);
+		MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, string, Exception> responseDelegate = null, int timeout = 2000);
 
 	}
 

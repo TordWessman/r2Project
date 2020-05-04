@@ -425,11 +425,12 @@ namespace R2Core.Tests
 
 				Assert.AreEqual(42, msg.Payload.Bar); 
 			};
-		
-			R2Dynamic tmp = new R2Dynamic();
-			tmp["Bar"] = 42;
 
-			s.Broadcast(new TCPMessage() { Destination = "ehh", Payload = tmp }, (response, error) => {
+            R2Dynamic tmp = new R2Dynamic {
+                ["Bar"] = 42
+            };
+
+            s.Broadcast(new TCPMessage() { Destination = "ehh", Payload = tmp }, (response, address, error) => {
 
 				Assert.Null(error);
 
@@ -454,24 +455,24 @@ namespace R2Core.Tests
 		bool waitingForClientStop = true;
 
 		public void TestTCP_ClientFunc() {
-		
-			DummyClientObserver observer = new DummyClientObserver();
 
-			observer.OnCloseAsserter = (c, exception) => { 
+            DummyClientObserver observer = new DummyClientObserver {
+                OnCloseAsserter = (c, exception) => {
 
-				onClientDisconnect = true;
-				Assert.IsFalse(c.Ready);
-				Assert.IsNull(exception);
+                    onClientDisconnect = true;
+                    Assert.IsFalse(c.Ready);
+                    Assert.IsNull(exception);
 
-			};
+                }
+            };
 
-			var client = (TCPClient) factory.CreateTcpClient("c", "localhost", tcp_port);
+            var client = factory.CreateTcpClient("c", "localhost", tcp_port);
 			client.AddClientObserver(observer);
 			client.Start();
 
 			Thread.Sleep(200);
 
-			TCPMessage message = new TCPMessage() { Destination = "apa", Payload = "bleh"};
+			TCPMessage message = new TCPMessage { Destination = "apa", Payload = "bleh"};
 			client.Send(message);
 
 			client.Stop();

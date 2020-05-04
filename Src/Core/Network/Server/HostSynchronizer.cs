@@ -22,6 +22,7 @@ using MessageIdType = System.String;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
+using System.Net;
 
 namespace R2Core.Network
 {
@@ -150,11 +151,11 @@ namespace R2Core.Network
 
 			INetworkMessage message = new NetworkMessage { Payload = request, Destination = Settings.Consts.DeviceDestination() };
 
-			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
+			m_messageId = m_broadcaster.Broadcast(message, (response, address, exception) => {
 
 				if (NetworkStatusCode.Ok.Is(response?.Code)) {
 
-					HandleBroadcastResponse(response);
+					HandleBroadcastResponse(response, address);
 
 				} else if (exception != null) {
 					
@@ -402,7 +403,7 @@ namespace R2Core.Network
 
 		}
 
-		private void HandleBroadcastResponse(dynamic response) {
+		private void HandleBroadcastResponse(dynamic response, string address) {
 
 			DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
 			dynamic endpoint = deviceResponse.Object;
@@ -413,8 +414,7 @@ namespace R2Core.Network
 
 			} else {
 
-				string address = NetworkExtensions.GetAvailableAddress((IEnumerable<dynamic>)endpoint.Addresses);
-				int port = (int)endpoint.Port;
+                int port = (int)endpoint.Port;
 
 				if (address != null) {
 
