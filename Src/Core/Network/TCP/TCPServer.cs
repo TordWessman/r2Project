@@ -85,11 +85,11 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					if (responseDelegate != null) { responseDelegate(null, ex); }
+                    responseDelegate?.Invoke(null, ex);
 
-				}
+                }
 
-			});
+            });
 
 			return null;
 		
@@ -129,7 +129,7 @@ namespace R2Core.Network
 
 					if (ex.IsClosingNetwork()) {
 
-						Log.d("Closing TCPServer connection.");
+						Log.i("Closing TCPServer connection.");
 
 					} else {
 					
@@ -155,7 +155,7 @@ namespace R2Core.Network
 
 		}
 
-		public override INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
+		public override INetworkMessage Interpret(INetworkMessage request, IPEndPoint source) {
 
 			IWebEndpoint endpoint = GetEndpoint(request.Destination);
 

@@ -147,7 +147,7 @@ namespace R2Core.Network
             HttpListenerRequest request = context.Request;
             HttpListenerResponse response = context.Response;
 
-            Log.i($"HttpServer: Got request from {request.RemoteEndPoint.Address}.");
+            Log.i($"HttpServer: Got request from {request.RemoteEndPoint.Address}. Path: {request.Url.AbsolutePath}");
 
             Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
 			byte[] responseBody = new byte[0];
@@ -163,7 +163,7 @@ namespace R2Core.Network
 				// Perserve the HTTP Method by 
 				requestHeaders[Settings.Consts.HttpServerHeaderMethodKey()] = request.HttpMethod;
 
-				HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = requestHeaders};
+				HttpMessage requestObject = new HttpMessage {Destination = request.Url.AbsolutePath, Headers = requestHeaders};
 				requestObject.Method = request.HttpMethod;
 
 				requestObject.Payload = GetPayload(request);
@@ -215,7 +215,7 @@ namespace R2Core.Network
 			}
 
 			Write(response, responseBody);
-            Log.i($"HttpServer: Did reply to {request.RemoteEndPoint.Address}. Response: {response}");
+            Log.i($"HttpServer: Did reply to {request.RemoteEndPoint.Address}. Length: {responseBody.Length}. StatusCode: {response.StatusCode}");
         }
 
 		private void ClearInactiveWriteTasks() {
@@ -252,9 +252,13 @@ namespace R2Core.Network
                     output.Write(data, 0, data.Length);
 
                 } catch (Exception ex) { Log.x(ex); } 
-                finally { output.Close(); }
+                finally {
 
+                    output.Close();
+                    response.Close();
+                }
             });
+
             m_writeTasks.Add(writeTask);
             writeTask.Start();
 

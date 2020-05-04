@@ -93,7 +93,7 @@ namespace R2Core.Network
 		
 		}
 
-		~TCPServerConnection() { Log.d($"Deallocating {this}."); }
+		~TCPServerConnection() { Log.i($"Deallocating {this}."); }
 
 		public string Address { get { return m_client.GetEndPoint()?.GetAddress(); } }
 
@@ -111,7 +111,7 @@ namespace R2Core.Network
 
 			m_shouldRun = true;
 
-			Log.d($"Server accepted connection from {m_client.GetDescription()}.");
+			Log.i($"Server accepted connection from {m_client.GetDescription()}.");
 
 			m_listener = Task.Factory.StartNew(() => {
 
@@ -157,7 +157,7 @@ namespace R2Core.Network
 
 		public override string ToString() {
 			
-			return $"TCPServerConnection [`{m_description}`. Ready: {Ready}].";
+			return $"TCPServerConnection [`{m_description}`. Ready: {Ready}]";
 
 		}
 
@@ -165,7 +165,7 @@ namespace R2Core.Network
 
 			m_shouldRun = false;
 
-			Log.d($"{this} disconnected.");
+			Log.i($"{this} disconnected.");
 
 			m_connectionPoller.Stop();
 

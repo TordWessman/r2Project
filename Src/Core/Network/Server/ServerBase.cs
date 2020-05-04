@@ -51,7 +51,7 @@ namespace R2Core.Network
 
 		~ServerBase() {
 
-			Log.d($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
+			Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
 			Stop();
             m_serviceTask?.Dispose();
 
