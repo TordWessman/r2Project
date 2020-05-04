@@ -33,13 +33,28 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="PushSharp.Apple">
-      <HintPath>..\..\3rdParty\PushSharp\PushSharp.Apple.dll</HintPath>
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Apple.dll</HintPath>
     </Reference>
     <Reference Include="PushSharp.Core">
-      <HintPath>..\..\3rdParty\PushSharp\PushSharp.Core.dll</HintPath>
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Amazon">
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Amazon.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Blackberry">
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Blackberry.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Firefox">
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Firefox.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Google">
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Google.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Windows">
+      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Windows.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -63,5 +78,8 @@
       <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
       <Name>R2Core.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
