@@ -184,11 +184,11 @@ namespace R2Core.Network
 			
 			}
 
-			if (OnDisconnect != null) { OnDisconnect(this, ex); } 
+            OnDisconnect?.Invoke(this, ex);
 
-		}
+        }
 
-		private void Reply(TCPMessage clientRequest) {
+        private void Reply(TCPMessage clientRequest) {
 		
 			try {
 

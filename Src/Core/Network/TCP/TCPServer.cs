@@ -149,7 +149,7 @@ namespace R2Core.Network
 
 			lock(m_connectionsLock) {
 
-				m_connections.Remove(connection);
+                m_connections.Remove(c => c.Address == connection.Address && c.Port == connection.Port);
 
 			}
 
