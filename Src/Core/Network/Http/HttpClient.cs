@@ -18,7 +18,6 @@
 //
 using System;
 using R2Core.Device;
-using R2Core.Data;
 using System.Net;
 using System.IO;
 using System.Linq;
@@ -35,13 +34,13 @@ namespace R2Core.Network
         private ISerialization m_serializer;
         private int m_lastPort;
         private string m_lastHost;
-        private IDictionary<string, object> m_headers;
-        private bool m_sending = false;
 
-        public bool Busy => m_sending;
-        public string Address { get { return m_lastHost; } }
-        public int Port { get { return m_lastPort; } }
-        public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
+        public bool Busy { get; private set; }
+        public string Address => m_lastHost;
+        public int Port => m_lastPort;
+        public IDictionary<string, object> Headers { get; set; }
+
+        public string LocalAddress => throw new NotImplementedException();
 
         public HttpClient(string id, ISerialization serializer) : base(id) {
 
@@ -55,7 +54,7 @@ namespace R2Core.Network
 
 		}
 
-		public System.Threading.Tasks.Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
+		public Task SendAsync(INetworkMessage message, Action<INetworkMessage> responseDelegate) {
 		
 			return Task.Factory.StartNew( () => {
 			
@@ -85,7 +84,7 @@ namespace R2Core.Network
 
             try {
 
-                m_sending = true;
+                Busy = true;
                 HttpMessage message = new HttpMessage(request);
 
                 HttpMessage responseObject = new HttpMessage() { Headers = new Dictionary<string, object>() };
@@ -101,7 +100,7 @@ namespace R2Core.Network
                 byte[] requestData = message.Payload?.GetType().IsValueType == true || message.Payload != null ? m_serializer.Serialize(message.Payload) : new byte[0];
 
                 httpRequest.ContentLength = requestData.Length;
-                ((WebRequest)httpRequest).ContentType = message.ContentType;
+                httpRequest.ContentType = message.ContentType;
 
                 httpRequest.ReadWriteTimeout = Timeout;
                 httpRequest.Timeout = Timeout;
@@ -138,7 +137,7 @@ namespace R2Core.Network
 
                     }
 
-                } catch (System.Net.WebException ex) {
+                } catch (WebException ex) {
 
                     Log.w($"Connection failed: {httpRequest.RequestUri.ToString()} exception: '{ex.Message}'");
 
@@ -202,7 +201,7 @@ namespace R2Core.Network
 
             } finally {
             
-                m_sending = false;
+                Busy = false;
             
             }
 

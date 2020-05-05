@@ -23,23 +23,16 @@ using System.Net;
 
 namespace R2Core.Network
 {
-	public struct RegistrationRequest {
-	
-		public string HostName { get; set; }
-		public string Address { get; set; }
-		public int Port { get; set; }
-	}
 
-	public class TCPClientServer : ServerBase {
+    public class TCPClientServer : ServerBase {
 
-		private static string AddressKey;
-		private static string PortKey;
-		private static string ServerTypeKey;
+        private static string AddressKey;
+        private static string PortKey;
+        private static string ServerTypeKey;
 
-		private string m_address;
-		private TcpClient m_client;
-		private ITCPPackageFactory<TCPMessage> m_serializer;
-		private string m_hostName;
+        private TcpClient m_client;
+        private ITCPPackageFactory<TCPMessage> m_serializer;
+
 		private IDictionary<string,IServer> m_servers;
 
 		// Keeps track of the connectivity of a socket
@@ -50,8 +43,18 @@ namespace R2Core.Network
 		/// </summary>
 		public int Timeout = 30000;
 
-		public string Address { get { return m_address; } }
-		public string HostName { get { return m_hostName; } }
+        /// <summary>
+        /// The identity used to route requests to this server.
+        /// The identity is set by calling ´Configure´.
+        /// </summary>
+        /// <value>The identity.</value>
+        public IIdentity Identity { get; private set; }
+
+        /// <summary>
+        /// The remote address to the router.
+        /// </summary>
+        /// <value>The address.</value>
+        public string Address { get; private set; }
 
 		public override bool Ready {
 			
@@ -69,11 +72,17 @@ namespace R2Core.Network
 
 		}
 
-		public void Configure(string hostName, string address, int port) {
+        /// <summary>
+        /// Set the configuration parameters required for connecting to a remote router.
+        /// </summary>
+        /// <param name="identity">Identity of this instance.</param>
+        /// <param name="address">Address to the router.</param>
+        /// <param name="port">Port to the router.</param>
+		public void Configure(IIdentity identity, string address, int port) {
 			
-			m_address = address;
-			m_hostName = hostName;
-			SetPort(port);
+			Address = address;
+            Identity = identity;
+            SetPort(port);
 		
 		}
 
@@ -154,8 +163,8 @@ namespace R2Core.Network
 							
 								IPAddress address = IPAddress.Parse((string)request.Headers[AddressKey]);
 
-								System.Int64 port = (System.Int64)request.Headers[PortKey];
-								clientEndpoint = new System.Net.IPEndPoint(address, (int)port);
+								long port = (long)request.Headers[PortKey];
+								clientEndpoint = new IPEndPoint(address, (int)port);
 
 							} 
 
@@ -190,8 +199,8 @@ namespace R2Core.Network
 
 				}
 
-				response.OverrideHeaders(new Dictionary<string, object>() { 
-					{ Settings.Consts.ConnectionRouterHeaderHostNameKey(), m_hostName }
+				response.OverrideHeaders(new Dictionary<string, object> { 
+					{ Settings.Consts.ConnectionRouterHeaderHostNameKey(), Identity.Name }
 				});
 
 				response.Destination = request.Destination;
@@ -207,8 +216,8 @@ namespace R2Core.Network
 
 			TCPMessage attachMessage = new TCPMessage () {
 				Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
-				Payload = new RegistrationRequest() { 
-					HostName = m_hostName,
+				Payload = new RoutingRegistrationRequest() { 
+					HostName = Identity.Name,
 					Address = m_client.GetLocalEndPoint()?.GetAddress(),
 					Port = m_client.GetLocalEndPoint()?.GetPort() ?? 0
 				}

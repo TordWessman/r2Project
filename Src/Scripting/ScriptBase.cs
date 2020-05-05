@@ -32,11 +32,11 @@ namespace R2Core.Scripting
 	/// </summary>
 	public class ScriptException: Exception {
 
-		private string m_stacktrace;
+		private readonly string m_stacktrace;
 
-		public ScriptException(Exception exception) : base($"\n[{exception.GetType()}]\n" + exception.Message, exception.InnerException) {
+		public ScriptException(Exception exception) : base($"{Environment.NewLine}[{exception.GetType()}]{ Environment.NewLine}" + exception.Message, exception.InnerException) {
 			
-			m_stacktrace = String.Join(Environment.NewLine, exception.StackTrace.Split(new string[1] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToArray().Where(line => !(new List<string>() { "Microsoft.Scripting.", "System.Dynamic.UpdateDelegates", ".Runtime.Calls.", "Microsoft.Scripting.Hosting", "(wrapper dynamic-method)", "(wrapper delegate-invoke)", "(wrapper remoting-invoke-with-check)" }).Any(l => line.Contains(l))).ToArray().Where(line => line != Environment.NewLine));
+			m_stacktrace = string.Join(Environment.NewLine, exception.StackTrace.Split(new string[1] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToArray().Where(line => !(new List<string> { "Microsoft.Scripting.", "System.Dynamic.UpdateDelegates", ".Runtime.Calls.", "Microsoft.Scripting.Hosting", "(wrapper dynamic-method)", "(wrapper delegate-invoke)", "(wrapper remoting-invoke-with-check)" }).Any(l => line.Contains(l))).ToArray().Where(line => line != Environment.NewLine));
 
 		}
 
@@ -216,7 +216,7 @@ namespace R2Core.Scripting
 		}
 
 
-		public IDictionary<string,Task> GetTasksToObserve() { return new Dictionary<string, Task>() {{"SCRIPT: " + m_id, m_processTask} }; }
+		public IDictionary<string,Task> GetTasksToObserve() { return new Dictionary<string, Task> {{"SCRIPT: " + m_id, m_processTask} }; }
 
 
 		public override string ToString() {

@@ -38,7 +38,7 @@ namespace R2Core.Video
 		
 		public CvRect(string[]vals) {
 			
-			this = new CvRect() {X = int.Parse(vals [1]), Y = int.Parse(vals [2]), Width = int.Parse(vals [3]), Height =  int.Parse(vals [4])};
+			this = new CvRect() {X = int.Parse(vals[1]), Y = int.Parse(vals[2]), Width = int.Parse(vals[3]), Height =  int.Parse(vals[4])};
 
 		}
 

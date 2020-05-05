@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using R2Core.Data;
 
 namespace R2Core.GPIO.Tests
 {
@@ -49,13 +48,13 @@ namespace R2Core.GPIO.Tests
 				byte bytesPerInt = 2;
 
 				byte[] response = new byte[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT + bytesPerInt * DeviceResponsePackage<byte[]>.NUMBER_OF_RETURN_VALUES];
-				response [ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST] = Host;
-				response [ArduinoSerialPackageFactory.RESPONSE_POSITION_ACTION] = (byte)SerialActionType.Get;
-				response [ArduinoSerialPackageFactory.RESPONSE_POSITION_ID] = Id;
-				response [ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH] = (byte)(((byte)DeviceResponsePackage<byte[]>.NUMBER_OF_RETURN_VALUES) * bytesPerInt);
+				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST] = Host;
+				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ACTION] = (byte)SerialActionType.Get;
+				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ID] = Id;
+				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH] = (byte)(((byte)DeviceResponsePackage<byte[]>.NUMBER_OF_RETURN_VALUES) * bytesPerInt);
 
 				for (int i = 0; i < DeviceResponsePackage<byte[]>.NUMBER_OF_RETURN_VALUES; i++) {
-					Array.Copy(IntValues [i].ToBytes(bytesPerInt), 0, response, ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT + i * bytesPerInt, bytesPerInt);
+					Array.Copy(IntValues[i].ToBytes(bytesPerInt), 0, response, ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT + i * bytesPerInt, bytesPerInt);
 				}
 
 				return response;
@@ -96,26 +95,26 @@ namespace R2Core.GPIO.Tests
 			return Devices.Where(d => d.Id == id).First();
 		}
 
-		private byte CalculateChecksum(byte []response, int stupidSubtracohduthoudoudh = 0) {
+		private byte CalculateChecksum(byte[]response, int stupidSubtracohduthoudoudh = 0) {
 		
 			byte checksum = 0;
 //			//Checksum starts with host
 //			for (int i = ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST; i < response.Length; i++) {
 //
-//				checksum += response [i];
+//				checksum += response[i];
 //
 //			}
 
 			//Checksum starts with host
 			for (int i = ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST; i < ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT; i++) {
 
-				checksum += response [i];
+				checksum += response[i];
 
 			}
 
 			for (int i = ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT; i < ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT + response[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH] - stupidSubtracohduthoudoudh; i++) {
 
-				checksum += response [i];
+				checksum += response[i];
 
 			}
 
@@ -124,13 +123,13 @@ namespace R2Core.GPIO.Tests
 
 		}
 
-		public byte [] Send(byte []data) {
+		public byte[] Send(byte[] data) {
 		
 			lock(m_lock) {
 
-				byte host = data [ArduinoSerialPackageFactory.REQUEST_POSITION_HOST];
-				byte action = data [ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION];
-				byte id = data [ArduinoSerialPackageFactory.REQUEST_POSITION_ID];
+				byte host = data[ArduinoSerialPackageFactory.REQUEST_POSITION_HOST];
+				byte action = data[ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION];
+				byte id = data[ArduinoSerialPackageFactory.REQUEST_POSITION_ID];
 				byte contentLength = (byte)(data.Length - ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT);
 				byte[] content = new byte[2];
 
@@ -141,11 +140,11 @@ namespace R2Core.GPIO.Tests
 				}
 
 				byte[] response = new byte[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT + 1 + contentLength];
-				response [ArduinoSerialPackageFactory.RESPONSE_POSITION_MESSAGE_ID] = messageId++;
+				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_MESSAGE_ID] = messageId++;
 				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST] = host;
 				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ACTION] = action;
 				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ID] = id;
-				response [ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH] = 2;
+				response[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH] = 2;
 
 				if ((SerialActionType)action == SerialActionType.Get) {
 
@@ -157,13 +156,13 @@ namespace R2Core.GPIO.Tests
 						nodes.Add(host);
 					}
 
-					byte type = content [ArduinoSerialPackageFactory.POSITION_CONTENT_DEVICE_TYPE];
-					response [ArduinoSerialPackageFactory.RESPONSE_POSITION_ID] = CreatedId++;
-					Devices.Add(MockSlaveDevice.Create(host, type, response [ArduinoSerialPackageFactory.RESPONSE_POSITION_ID], 0));
+					byte type = content[ArduinoSerialPackageFactory.POSITION_CONTENT_DEVICE_TYPE];
+					response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ID] = CreatedId++;
+					Devices.Add(MockSlaveDevice.Create(host, type, response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ID], 0));
 
 				} else if ((SerialActionType)action == SerialActionType.Initialization) {
 
-					response [ArduinoSerialPackageFactory.RESPONSE_POSITION_ACTION] = (byte)SerialActionType.InitializationOk;
+					response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ACTION] = (byte)SerialActionType.InitializationOk;
 
 				} else if ((SerialActionType)action == SerialActionType.IsNodeAvailable) {
 				
@@ -173,7 +172,7 @@ namespace R2Core.GPIO.Tests
 				}
 
 				var len = ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT +
-				          response [ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH];
+				          response[ArduinoSerialPackageFactory.RESPONSE_POSITION_CONTENT_LENGTH];
 				
 				if (response.Length < len) {
 
@@ -192,13 +191,13 @@ namespace R2Core.GPIO.Tests
 
 		}
 
-		public byte [] Read() {
+		public byte[] Read() {
 
 			byte[] response = new byte[4 + ReadResponsePackage.Content?.Length ?? 0];
-			response [ArduinoSerialPackageFactory.RESPONSE_POSITION_MESSAGE_ID] = messageId++;
-			response [ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST] = ReadResponsePackage.NodeId;
-			response [ArduinoSerialPackageFactory.RESPONSE_POSITION_ACTION] = (byte)ReadResponsePackage.Action;
-			response [ArduinoSerialPackageFactory.RESPONSE_POSITION_ID] = ReadResponsePackage.Id;
+			response[ArduinoSerialPackageFactory.RESPONSE_POSITION_MESSAGE_ID] = messageId++;
+			response[ArduinoSerialPackageFactory.RESPONSE_POSITION_HOST] = ReadResponsePackage.NodeId;
+			response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ACTION] = (byte)ReadResponsePackage.Action;
+			response[ArduinoSerialPackageFactory.RESPONSE_POSITION_ID] = ReadResponsePackage.Id;
 
 			if (ReadResponsePackage.Content != null) {
 			

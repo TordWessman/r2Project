@@ -2,13 +2,13 @@
 #define R2I2C_CONFIG_H
 
 // If defined, I2C communication will be enabled
-#define USE_I2C
+//#define USE_I2C
 
 // If defined, serial communication will be enabled 
 //#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
-//#define USE_RH24
+#define USE_RH24
 
 #ifdef USE_RH24
   
@@ -21,7 +21,7 @@
 #endif
 
 // The timing scale factor for led output. The higher the denomiator, the faster the LED blink rate.
-#define LED_TIME_DENOMIATOR 2
+#define LED_TIME_DENOMIATOR 1
 
 // Serial communication port
 #define SERIAL_BAUD_RATE 9600

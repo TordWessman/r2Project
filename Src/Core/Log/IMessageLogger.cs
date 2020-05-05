@@ -21,11 +21,14 @@ using System.Collections.Generic;
 
 namespace R2Core
 {
-	public enum LogType: int {
-		Message = 0,
-		Warning = 1,
-		Error = 2,
-		Temp = -1
+	public enum LogLevel {
+
+        Info = 0,
+		Message = 1,
+		Warning = 2,
+		Error = 3,
+		Temp = 4
+
 	}
 
 	/// <summary>
@@ -43,7 +46,7 @@ namespace R2Core
 		/// Type of message
 		/// </summary>
 		/// <value>The type.</value>
-		LogType Type { get; }
+		LogLevel Type { get; }
 
 		/// <summary>
 		/// Optional tag for the message.
@@ -71,12 +74,11 @@ namespace R2Core
 		void Write(ILogMessage message);
 
 		/// <summary>
-		/// Returns output history(descending age) 
+		/// Returns output history (descending age).
 		/// </summary>
-		/// <returns>The history.</returns>
-		/// <param name="count">Maximum number of output messages.</param>
 		IEnumerable<ILogMessage> History { get; } 
 
 	}
+
 }
 

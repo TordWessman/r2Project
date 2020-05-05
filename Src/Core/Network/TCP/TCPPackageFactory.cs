@@ -17,17 +17,15 @@
 //
 //
 using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using R2Core.Device;
-using R2Core.Data;
-using System.Linq;
 using System.IO;
 using System.Runtime;
 
 namespace R2Core.Network
 {
 	
+    /// <summary>
+    /// Default serializer/deserializer for TCPPackages
+    /// </summary>
 	public class TCPPackageFactory : ITCPPackageFactory<TCPMessage> {
 		
 		/// <summary>
@@ -46,8 +44,6 @@ namespace R2Core.Network
 
 			// Raw byte array
 			Bytes = 3
-
-				//public static PayloadType Parse(dynamic value) {
 
 		}
 

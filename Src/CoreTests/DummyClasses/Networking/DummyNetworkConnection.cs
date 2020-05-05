@@ -35,26 +35,24 @@ namespace R2Core.Tests {
 
             try {
 
-                m_busy = true;
+                Busy = true;
                 Thread.Sleep(Delay);
                 return NextResponse;
             
             } finally {
 
-                m_busy = false;
+                Busy = false;
             
             }
         
         }
 
-        private bool m_busy;
-
         public string Address => "localhost";
-
+        public string LocalAddress => "localhost";
         public int Port => 4242;
 
         public void StopListening() { throw new NotImplementedException(""); }
 
-        public bool Busy => m_busy;
+        public bool Busy { get; private set; }
     }
 }

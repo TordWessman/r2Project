@@ -39,7 +39,7 @@ namespace R2Core.Network
 
 		private TcpListener m_listener;
 
-		private ITCPPackageFactory<TCPMessage> m_packageFactory;
+		private readonly ITCPPackageFactory<TCPMessage> m_packageFactory;
 		private IList<IClientConnection> m_connections;
 
 		/// <summary>
@@ -65,7 +65,7 @@ namespace R2Core.Network
 
 		public override bool Ready { get { return ShouldRun && m_listener != null; } }
 
-		public MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = DefaultBroadcastTimeout) {
+		public MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, string, Exception> responseDelegate = null, int timeout = DefaultBroadcastTimeout) {
 
 			m_connections.AsParallel().ForAll((connection) => {
 
@@ -77,19 +77,19 @@ namespace R2Core.Network
 
 						if (response.IsError()) {
 						
-							responseDelegate(response, new NetworkException(response)); 
+							responseDelegate(response, connection.LocalAddress, new NetworkException(response)); 
 
-						} else { responseDelegate(response, null); }
+						} else { responseDelegate(response, connection.LocalAddress, null); }
 
 					}
 
 				} catch (Exception ex) {
 
-					if (responseDelegate != null) { responseDelegate(null, ex); }
+                    responseDelegate?.Invoke(null, null, ex);
 
-				}
+                }
 
-			});
+            });
 
 			return null;
 		
@@ -129,7 +129,7 @@ namespace R2Core.Network
 
 					if (ex.IsClosingNetwork()) {
 
-						Log.d("Closing TCPServer connection.");
+						Log.i("Closing TCPServer connection.");
 
 					} else {
 					
@@ -149,13 +149,13 @@ namespace R2Core.Network
 
 			lock(m_connectionsLock) {
 
-				m_connections.Remove(connection);
+                m_connections.Remove(c => c.Address == connection.Address && c.Port == connection.Port);
 
 			}
 
 		}
 
-		public override INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
+		public override INetworkMessage Interpret(INetworkMessage request, IPEndPoint source) {
 
 			IWebEndpoint endpoint = GetEndpoint(request.Destination);
 

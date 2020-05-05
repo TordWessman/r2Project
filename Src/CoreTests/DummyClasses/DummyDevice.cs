@@ -16,17 +16,15 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using R2Core.Device;
 using NUnit.Framework;
 using System.Collections.Generic;
+using R2Core.Common;
 
 namespace R2Core.Tests
 {
-	public class DummyDevice : DeviceBase {
+	public class DummyDevice : DeviceBase, IStatLoggable<int> {
 		
-		private int m_val = 99;
-		private string m_bar = "";
 		private bool m_isRunning = false;
 
 		public DummyDevice(string id): base(id) {
@@ -50,14 +48,14 @@ namespace R2Core.Tests
 
 		}
 
-		public int Value {get{return m_val;}set{m_val = value;}}
-		public string Bar {get{return m_bar;}set{m_bar = value;}}
+		public int Value { get; set; }
+		public string Bar { get; set; }
 
-		public double HAHA;
+        public double HAHA;
 
 		public float GiveMeFooAnd42AndAnObject(string foo, int _42, dynamic anObject) {
 		
-			m_bar = foo;
+			Bar = foo;
 			Assert.AreEqual("Foo", foo);
 			Assert.AreEqual(42, _42);
 			Assert.AreEqual("Dog", anObject.Cat);
@@ -91,7 +89,6 @@ namespace R2Core.Tests
 			return value * 10;
 
 		}
-
-	}
+    }
 }
 

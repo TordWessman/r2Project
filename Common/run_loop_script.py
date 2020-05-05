@@ -1,5 +1,4 @@
 import sys
-print sys.path
 import io
 import scriptbase
 import time

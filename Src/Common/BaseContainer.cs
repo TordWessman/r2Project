@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -15,14 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
 using R2Core.Device;
 using R2Core.Network;
-using R2Core.Data;
 using System.Collections.Generic;
 using R2Core.Scripting;
-using R2Core.DataManagement.Memory;
-using R2Core.DataManagement;
 
 namespace R2Core.Common
 {
@@ -34,20 +30,19 @@ namespace R2Core.Common
 	public class BaseContainer : DeviceBase {
 
 		private IDeviceManager m_devices;
-		private ITaskMonitor m_taskMonitor;
 		private IMemorySource m_memory;
 		private DeviceFactory m_deviceFactory;
 		
-		private IDatabase m_db;
+		private ISQLDatabase m_db;
 		private IRunLoop m_runLoop;
 
-		public ITaskMonitor TaskMonitor { get { return m_taskMonitor; } }
+		public ITaskMonitor TaskMonitor { get; private set; }
 
 		public IDeviceManager GetDeviceManager() { return m_devices; }
 
 		public BaseContainer(string dbFile, int tcpPort = -1) : base(Settings.Identifiers.Core()) {
 
-			m_taskMonitor = new SimpleTaskMonitor(Settings.Identifiers.TaskMonitor());
+			TaskMonitor = new SimpleTaskMonitor(Settings.Identifiers.TaskMonitor());
 
 			//Set up logging
 			SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger(Settings.Identifiers.ConsoleLogger(), Settings.Consts.MaxConsoleHistory());
@@ -63,7 +58,7 @@ namespace R2Core.Common
 			// Creating a device factory used for the creation of yet uncategorized devices...
 			m_deviceFactory = new DeviceFactory(Settings.Identifiers.DeviceFactory(), m_devices);
 
-			m_devices.Add(m_taskMonitor);
+			m_devices.Add(TaskMonitor);
 			m_devices.Add(Settings.Instance);
 			m_devices.Add(consoleLogger);
 			m_devices.Add(Log.Instance);
@@ -87,7 +82,7 @@ namespace R2Core.Common
 
 			// Create the run loop. Use the IScript declared above to interpret commands and the consoleLogger for output.
 			m_runLoop = new InterpreterRunLoop(Settings.Identifiers.RunLoop(), runLoopInterpreter, consoleLogger);
-			var dataFactory = m_deviceFactory.CreateDataFactory(Settings.Identifiers.DataFactory(), new List<string>() {Settings.Paths.Databases()});
+			var dataFactory = m_deviceFactory.CreateDataFactory(Settings.Identifiers.DataFactory(), new List<string> {Settings.Paths.Databases()});
 
 			// Set up database and memory
 			m_db = new SqliteDatabase(Settings.Identifiers.Database(), dbFile);
@@ -106,7 +101,7 @@ namespace R2Core.Common
 			m_devices.Add(m_memory);
 			m_devices.Add(m_db);
 			m_devices.Add(m_deviceFactory);
-			m_taskMonitor.AddMonitorable(runLoopScript);
+			TaskMonitor.AddMonitorable(runLoopScript);
 
 		}
 
@@ -115,7 +110,7 @@ namespace R2Core.Common
 			if (m_devices.Has(script.Identifier)) {
 			
 				m_devices.Remove(script.Identifier);
-				m_taskMonitor.RemoveMonitorable(script);
+				TaskMonitor.RemoveMonitorable(script);
 			
 			}
 		
@@ -129,7 +124,7 @@ namespace R2Core.Common
 
 		public override void Start() {
 
-			m_taskMonitor.Start();
+			TaskMonitor.Start();
 			
 			m_db.Start();
 			m_memory.Start();
@@ -150,6 +145,8 @@ namespace R2Core.Common
 			new System.Threading.ManualResetEvent(false).WaitOne(milliseconds);
 
 		}
+
 	}
+
 }
 

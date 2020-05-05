@@ -33,9 +33,6 @@ namespace R2Core.IntegrationTests
 	[TestFixture]
 	public class NetworkIntegrationTests : NetworkTests {
 		
-		public NetworkIntegrationTests() {
-		}
-
 		int clientStop = 0;
 
 		[Test]
@@ -44,7 +41,7 @@ namespace R2Core.IntegrationTests
 			int randomWorkCount = 500;
 			int clientCount = 5;
 
-			Log.Instance.LogLevel = LogType.Message;
+			Log.Instance.LogLevel = LogLevel.Message;
 
 			var packageFactory = new TCPPackageFactory(serialization);
 			var server1 = factory.CreateTcpServer(Settings.Identifiers.TcpServer(), 10000);
@@ -160,7 +157,7 @@ namespace R2Core.IntegrationTests
 
 		private void TestInvokeDictionary(dynamic remoteDummy) {
 
-			object sendDict = new Dictionary<string, string>() { {"apa" , "hund"}, {"gris" , "katt"} };
+			object sendDict = new Dictionary<string, string> { {"apa" , "hund"}, {"gris" , "katt"} };
 
 			R2Dynamic result = remoteDummy.AddCatToKeysAnd42ToValues(sendDict);
 			for (int i = 0; i < result.Count; i++) {

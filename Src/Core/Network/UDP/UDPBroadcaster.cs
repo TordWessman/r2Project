@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.Runtime.Remoting.Messaging;
 using MessageIdType = System.String;
@@ -38,9 +37,7 @@ namespace R2Core.Network
 		ITCPPackageFactory<TCPMessage> m_serializer;
 		private IPEndPoint m_host;
 		private Socket m_socket;
-		private Task m_task;
 		private CancellationTokenSource m_cancelationToken;
-		private IDictionary<string, object> m_headers;
 
 		// Used to uniquely identify broadcast messages sent by this client. This value will be appended to the headers any message sent.
 		private MessageIdType m_currentMessageId;
@@ -50,14 +47,14 @@ namespace R2Core.Network
 		/// </summary>
 		public const int MaximumPackageSize = 1024 * 10;
 
-		public Task BroadcastTask { get { return m_task; } }
+		public Task BroadcastTask { get; private set; }
 
-		/// <summary>
-		/// Default headers included in each request. These will override headers set in the message (´INetworkMessage.Headers)´.
-		/// </summary>
-		public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
+        /// <summary>
+        /// Default headers included in each request. These will override headers set in the message (´INetworkMessage.Headers)´.
+        /// </summary>
+        public IDictionary<string, object> Headers { get; set; }
 
-		public UDPBroadcaster(string id, int port, ITCPPackageFactory<TCPMessage> serializer, string address = null) : base(id) {
+        public UDPBroadcaster(string id, int port, ITCPPackageFactory<TCPMessage> serializer, string address = null) : base(id) {
 
 			m_serializer = serializer;
 			m_host = new IPEndPoint(address != null ? IPAddress.Parse(address) : IPAddress.Parse("255.255.255.255"), port);
@@ -73,23 +70,23 @@ namespace R2Core.Network
 			
 			get {
 				
-				return m_task?.Status != TaskStatus.Running && m_task?.Status != TaskStatus.WaitingToRun;
+				return BroadcastTask?.Status != TaskStatus.Running && BroadcastTask?.Status != TaskStatus.WaitingToRun;
 			
 			}
 		
 		}
 
-		/// <summary>
-		/// Broadcast the specified `message`. The `timeout` determines for how many milliseconds the client should wait for responses. `responseDelegate` is called if `timout` is specified for each response to this specific broadcast request.
-		/// </summary>
-		/// <param name="message">Message.</param>
-		/// <param name="timout">Timout.</param>
-		/// <param name="responseDelegate">Response delegate.</param>
-		public MessageIdType Broadcast(INetworkMessage requestMessage, Action<INetworkMessage, Exception> responseDelegate = null, int timeout = 2000) {
+        /// <summary>
+        /// Broadcast the specified `message`. The `timeout` determines for how many milliseconds the client should wait for responses. `responseDelegate` is called if `timeout` is specified for each response to this specific broadcast request.
+        /// </summary>
+        /// <param name="requestMessage">Message.</param>
+        /// <param name="responseDelegate">Response delegate.</param>
+        /// <param name="timeout">Timout.</param>
+        public MessageIdType Broadcast(INetworkMessage requestMessage, Action<INetworkMessage, string, Exception> responseDelegate = null, int timeout = 2000) {
 
 			if (!Ready) {
 			
-				throw new InvalidOperationException($"Unable to broadcast. Previous broadcast is not completed(task status: {m_task?.Status}).");
+				throw new InvalidOperationException($"Unable to broadcast. Previous broadcast is not completed(task status: {BroadcastTask?.Status}).");
 
 			}
 
@@ -102,7 +99,7 @@ namespace R2Core.Network
 			m_socket.ReceiveTimeout = timeout;
 			m_cancelationToken.CancelAfter(timeout);
 
-			m_task = new Task(() => {
+            BroadcastTask = new Task(() => {
 
 				byte[] requestData = m_serializer.SerializeMessage(new TCPMessage(message));
 
@@ -114,7 +111,7 @@ namespace R2Core.Network
 
 				if (requestData.Length != m_socket.SendTo(requestData, m_host)) {
 
-					throw new System.Net.WebException($"Bytes sent to host '{m_host.ToString()}' mismatch.");
+					throw new WebException($"Bytes sent to host '{m_host.ToString()}' mismatch.");
 
 				}
 
@@ -122,30 +119,30 @@ namespace R2Core.Network
 				
 					WaitForResponse(responseDelegate);
 
-				} catch (System.Net.Sockets.SocketException ex) {
+				} catch (SocketException ex) {
 
 					// Ignore timeouts, since they are expected...
 					if (ex.SocketErrorCode != SocketError.TimedOut) {
 						
 						Log.x(ex);
-						responseDelegate.Invoke(null, ex);
+						responseDelegate.Invoke(null, null, ex);
 
 					}
 
-				}  catch (System.Threading.ThreadAbortException) {
+				}  catch (ThreadAbortException) {
 
-					Log.d("Broadcast thread aborted.");
+					Log.i("Broadcast thread aborted.");
 
 				} catch (Exception ex) {
 				
 					Log.x(ex);
-					responseDelegate.Invoke(null, ex);
+					responseDelegate.Invoke(null, null, ex);
 
 				}
 
 			});
 
-			m_task.Start();
+            BroadcastTask.Start();
 			return m_currentMessageId;
 
 		}
@@ -154,11 +151,11 @@ namespace R2Core.Network
 		/// Waits for responses until m_cancelationToken is set. Delegates are called asynchronously.
 		/// </summary>
 		/// <param name="responseDelegate">Response delegate.</param>
-		private void WaitForResponse(Action<BroadcastMessage, Exception> responseDelegate) {
+		private void WaitForResponse(Action<BroadcastMessage, string, Exception> responseDelegate) {
 
 			byte[] buffer = new byte[MaximumPackageSize];
 
-			EndPoint remoteHost = (EndPoint)m_host;
+			EndPoint remoteHost = m_host;
 
 			while(!m_cancelationToken.Token.IsCancellationRequested) {
 				
@@ -172,21 +169,25 @@ namespace R2Core.Network
 					continue;
 				}
 
-				responseDelegate?.BeginInvoke(new BroadcastMessage(response, m_host.GetAddress(), m_host.GetPort()), null, (asyncResult) => {
+                Log.t($"responseDelegate.BeginInvoke ... =>");
+				responseDelegate?.BeginInvoke(
+                    new BroadcastMessage(response, m_host.GetAddress(), m_host.GetPort()),
+                    remoteHost.GetAddress(), 
+                    null, (asyncResult) => {
 					
-					try {
-						
-						// Make sure we log exceptions in delegates, at least...
-						((asyncResult as AsyncResult).AsyncDelegate as Action<BroadcastMessage, Exception>).EndInvoke(asyncResult);
+    					try {
+    						
+    						// Make sure we log exceptions in delegates, at least...
+    						((asyncResult as AsyncResult).AsyncDelegate as Action<BroadcastMessage, string, Exception>).EndInvoke(asyncResult);
 
-					} catch (Exception ex) {
-						
-						Log.w("Broadcast delegate crashed!");
-						Log.x(ex);
+    					} catch (Exception ex) {
+    						
+    						Log.w("Broadcast delegate crashed!");
+    						Log.x(ex);
 
-					}
+    					}
 
-				}, null);
+    				}, null);
 
 			}
 

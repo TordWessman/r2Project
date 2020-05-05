@@ -16,8 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
-
 namespace R2Core.Device
 {
 	public interface IDeviceManagerObserver {

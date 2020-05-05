@@ -16,10 +16,9 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
 
 namespace R2Core.Network {
 
@@ -30,7 +29,7 @@ namespace R2Core.Network {
 	/// </summary>
 	public class TCPRouterEndpoint : IWebEndpoint {
 
-		private TCPServer m_tcpServer;
+		private readonly TCPServer m_tcpServer;
 		private IDictionary<string, IClientConnection> m_connections;
 		private static string HeaderHostName = Settings.Consts.ConnectionRouterHeaderHostNameKey();
 
@@ -47,25 +46,30 @@ namespace R2Core.Network {
 
 			if (request.Destination == Settings.Consts.ConnectionRouterAddHostDestination()) {
 
-				IClientConnection connection = m_tcpServer.Connections.Where(c => 
-					c.Address == request.Payload.Address &&
-					c.Port == request.Payload.Port).FirstOrDefault();
+				IClientConnection connection = m_tcpServer.Connections.FirstOrDefault(c => 
+					c.Address == source.Address.ToString() &&
+					c.Port == source.Port);
 
-				Debug.Assert (connection != null);
+                System.Diagnostics.Debug.Assert(connection != null);
 
-				lock (m_lock) {
-					
-					m_connections[request.Payload.HostName] = connection;
+                lock (m_lock) {
+
+                    m_connections[request.Payload.HostName] = connection;
 
 					connection.StopListening();
 
                     m_connections = m_connections.Where(c => c.Value.Ready).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-				}
+                }
 
 				return new TCPMessage () {
-					Code = NetworkStatusCode.Ok.Raw ()
-				};
+					Code = NetworkStatusCode.Ok.Raw (),
+                    Payload = new RoutingRegistrationResponse() {
+                        Address = source.Address.ToString(),
+                        Port = source.Port
+                    }
+
+                };
 
 			} else if (request.Headers.ContainsKey(HeaderHostName)) {
 

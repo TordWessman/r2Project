@@ -62,6 +62,7 @@
       <HintPath>..\..\3rdParty\nunit\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="I18N.Other" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -138,6 +139,10 @@
     <ProjectReference Include="..\CoreTests\R2Core.Tests.csproj">
       <Project>{B6397024-E95C-43D8-8CDF-0EB826804949}</Project>
       <Name>R2Core.Tests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\R2Core.Common.csproj">
+      <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
+      <Name>R2Core.Common</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

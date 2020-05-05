@@ -100,7 +100,6 @@ typedef struct RequestPackage RequestPackage;
 #define DEVICE_TYPE_DHT11 6
 #define DEVICE_TYPE_SIMPLE_MOIST 7
 #define DEVICE_TYPE_ANALOGE_OUTPUT 8
-
 // -- Error codes --
 
 // No device with the specified id was found.

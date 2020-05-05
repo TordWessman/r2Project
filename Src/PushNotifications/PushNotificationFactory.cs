@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -22,14 +22,14 @@ using R2Core.Device;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using R2Core.DataManagement.Memory;
+using R2Core.Common;
 
 namespace R2Core.PushNotifications
 {
 	/// <summary>
 	/// Factory methods for creating push notification messages as well as facades
 	/// </summary>
-	public class PushNotificationFactory : R2Core.Device.DeviceBase {
+	public class PushNotificationFactory : DeviceBase {
 		
 		private string m_certPath;
 
@@ -40,9 +40,10 @@ namespace R2Core.PushNotifications
 		/// <param name="id">Identifier.</param>
 		/// <param name="certPath">Cert path.</param>
 		public PushNotificationFactory(string id, string certPath = null) : base(id) {
+
 			m_certPath = certPath;
 
-			if (certPath != null && !m_certPath.EndsWith(Path.DirectorySeparatorChar.ToString())) {
+			if (certPath != null && !m_certPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)) {
 				
 				m_certPath += Path.DirectorySeparatorChar;	
 			

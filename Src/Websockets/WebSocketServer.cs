@@ -18,13 +18,9 @@
 
 using System;
 using WebSocketSharp;
-using WebSocketSharp.Net;
-using R2Core;
 using R2Core.Device;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using R2Core.Data;
 
 namespace R2Core.Network
 {
@@ -133,7 +129,7 @@ namespace R2Core.Network
 			m_endpoints = new Dictionary<string, IWebEndpoint>();
 			m_senders = new Dictionary<string, IList<IWebSocketSender>>();
 
-			m_server.Log.Level = LogLevel.Trace;
+            m_server.Log.Level = WebSocketSharp.LogLevel.Trace;
 
 		}
 
@@ -156,7 +152,7 @@ namespace R2Core.Network
 
 			IWebEndpoint endpoints = m_endpoints.Where(e => e.Key == uriPath).FirstOrDefault().Value;
 			IEnumerable<IWebSocketSender> senders = m_senders.Where(s => s.Key == uriPath).FirstOrDefault().Value;
-			m_server.Log.Level = LogLevel.Fatal;
+            m_server.Log.Level = WebSocketSharp.LogLevel.Fatal;
 
 			return new WebSocketHandler(senders, endpoints, m_packageFactory); 
 		}

@@ -16,7 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using R2Core.Device;
 
 namespace R2Core.GPIO
@@ -50,7 +49,13 @@ namespace R2Core.GPIO
 		/// <value>The node identifier.</value>
 		byte NodeId { get; }
 
-	}
+        /// <summary>
+        /// If the node should perpetually be trying to fetch the values (Update) it's associated devices. Defaults to true.
+        /// </summary>
+        /// <value><c>true</c> if should update; otherwise, <c>false</c>.</value>
+        bool ContinousSynchronization { get; set; }
+
+    }
 
 }
 

@@ -1,8 +1,5 @@
 ﻿using System;
 using R2Core.Device;
-using System.Collections.Generic;
-using R2Core;
-using System.IO;
 
 namespace R2Core.GPIO
 {
@@ -16,8 +13,6 @@ namespace R2Core.GPIO
 		
 		private ISerialConnection m_connection;
 		private ISerialPackageFactory m_packageFactory;
-		private int m_retryCount = 7;
-		private Action<byte> m_delegate;
 
 		/// <summary>
 		/// Delay after an error response or a bad response checksum before executing a new retry.
@@ -29,20 +24,15 @@ namespace R2Core.GPIO
 		/// <summary>
 		/// Informs that a host has been reinitialized and need to be reconfigured(i.e. add devices). 
 		/// </summary>
-		public Action<byte> HostDidReset { 
-			get { return m_delegate; }
-			set { m_delegate = value; }
-		}
+		public Action<byte> HostDidReset { get; set; }
 
-		public int RetryCount { 
-			get { return m_retryCount;  }
-			set { m_retryCount = value; } 
-		}
+        public int RetryCount { get; set; }
 
-		public ArduinoDeviceRouter(string id, ISerialConnection connection, ISerialPackageFactory packageFactory) : base(id) {
+        public ArduinoDeviceRouter(string id, ISerialConnection connection, ISerialPackageFactory packageFactory) : base(id) {
 			
 			m_connection = connection;
 			m_packageFactory = packageFactory;
+            RetryCount = 7;
 
 		}
 
@@ -72,7 +62,7 @@ namespace R2Core.GPIO
 
 			DeviceResponsePackage<T>response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId));
 
-			return new DeviceData<T>() { Id = response.Id, Value = response.Value };
+			return new DeviceData<T> { Id = response.Id, Value = response.Value };
 
 		}
 
@@ -88,7 +78,7 @@ namespace R2Core.GPIO
 
 			DeviceResponsePackage<T> response = Send<T>(request);
 
-			return new DeviceData<T>() { Id = response.Id, Value = response.Value };
+			return new DeviceData<T> { Id = response.Id, Value = response.Value };
 
 		}
 
@@ -118,7 +108,6 @@ namespace R2Core.GPIO
 
 			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.CheckSleepState, NodeId = (byte)nodeId };
 			DeviceResponsePackage<bool> response = Send<bool> (request);
-
 			return response.Value;
 
 		}
@@ -184,6 +173,7 @@ namespace R2Core.GPIO
 			byte[] requestData = m_packageFactory.SerializeRequest(request);
 
 			bool retry = request.Action != SerialActionType.Initialization;
+            Log.i($"ArduinoDevice: Sending: {request}");
 
 			try {
 			
@@ -203,7 +193,8 @@ namespace R2Core.GPIO
 
 				}
 
-				return response;
+                Log.i($"ArduinoDevice: Got response: {response}");
+                return response;
 
 			} catch (SerialConnectionException ex) {
 
@@ -267,7 +258,7 @@ namespace R2Core.GPIO
 
 				}
 
-				return response;
+                return response;
 
 			}
 

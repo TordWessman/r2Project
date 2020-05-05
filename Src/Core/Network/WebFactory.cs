@@ -15,12 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
-
-﻿using System;
 using R2Core.Device;
-using System.Linq;
-using System.Dynamic;
-using R2Core.Data;
 using System.Collections.Generic;
 
 namespace R2Core.Network
@@ -74,21 +69,31 @@ namespace R2Core.Network
 		/// Creates a receiver capable of routing device access.
 		/// </summary>
 		/// <returns>The device object receiver.</returns>
-		/// <param name="security">Security.</param>
 		public IWebObjectReceiver CreateDeviceRouter(IDeviceContainer container) {
 		
 			return new DeviceRouter(container);
 
 		}
 
-		/// <summary>
-		/// Creates an endpoit that serves files. localPath is the path where files are stored, uriPath is the uri path (i.e. /images) and contentType is the contentType returned to the client(if contentType="images", the content-type header will be image/[file extension of the file being served.])
-		/// </summary>
-		/// <returns>The file endpoint.</returns>
-		/// <param name="localPath">Local path.</param>
-		/// <param name="uriPath">URI path.</param>
-		/// <param name="contentType">Content type.</param>
-		public IWebEndpoint CreateFileEndpoint(string localPath, string uriPath) {
+        /// <summary>
+        /// Creates a IWebEndpoint containing a DeviceRouter as receiver.
+        /// </summary>
+        /// <returns>The device router endpoint.</returns>
+        /// <param name="container">Container.</param>
+        public IWebEndpoint CreateDeviceRouterEndpoint(IDeviceContainer container) {
+
+            IWebObjectReceiver receiver = CreateDeviceRouter(container);
+            return CreateJsonEndpoint(receiver);
+
+        }
+
+        /// <summary>
+        /// Creates an endpoit that serves files. localPath is the path where files are stored, uriPath is the uri path (i.e. /images) and contentType is the contentType returned to the client(if contentType="images", the content-type header will be image/[file extension of the file being served.])
+        /// </summary>
+        /// <returns>The file endpoint.</returns>
+        /// <param name="localPath">Local path.</param>
+        /// <param name="uriPath">URI path.</param>
+        public IWebEndpoint CreateFileEndpoint(string localPath, string uriPath) {
 
 			return new WebFileEndpoint(localPath, uriPath);
 
@@ -98,7 +103,6 @@ namespace R2Core.Network
 		/// Creates an endpoint capable of receiving and returning Json-data..
 		/// </summary>
 		/// <returns>The json endpoint.</returns>
-		/// <param name="deviceListenerPath">Device listener path.</param>
 		/// <param name="receiver">Receiver.</param>
 		public IWebEndpoint CreateJsonEndpoint(IWebObjectReceiver receiver) {
 

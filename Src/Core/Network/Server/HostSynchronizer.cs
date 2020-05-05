@@ -18,15 +18,11 @@
 //
 using System;
 using R2Core.Device;
-using R2Core.Network;
-using System.Threading.Tasks;
-using System.Net;
-using R2Core.Data;
 using MessageIdType = System.String;
 using System.Collections.Generic;
 using System.Linq;
 using System.Timers;
-using System.Net.NetworkInformation;
+using System.Net;
 
 namespace R2Core.Network
 {
@@ -136,7 +132,12 @@ namespace R2Core.Network
 
 		}
 
-		~HostSynchronizer() { Stop(); }
+		~HostSynchronizer() { 
+        
+            Stop();
+            m_synchronizationTimer?.Dispose();
+    
+        }
 
 		/// <summary>
 		/// Broadcast for TCPServers. Will try to establish a connection to any server found and synchronize their devices.
@@ -148,13 +149,13 @@ namespace R2Core.Network
 				ActionType = DeviceRequest.ObjectActionType.Get
 			};
 
-			INetworkMessage message = new NetworkMessage() { Payload = request, Destination = Settings.Consts.DeviceDestination() };
+			INetworkMessage message = new NetworkMessage { Payload = request, Destination = Settings.Consts.DeviceDestination() };
 
-			m_messageId = m_broadcaster.Broadcast(message, (response, exception) => {
+			m_messageId = m_broadcaster.Broadcast(message, (response, address, exception) => {
 
 				if (NetworkStatusCode.Ok.Is(response?.Code)) {
 
-					HandleBroadcastResponse(response);
+					HandleBroadcastResponse(response, address);
 
 				} else if (exception != null) {
 					
@@ -201,7 +202,7 @@ namespace R2Core.Network
 			m_hosts = new Dictionary<string, IClientConnection>();
 			m_retries = new Dictionary<string, int>();
 
-		}
+        }
 
 		/// <summary>
 		/// Manually connect to a given address and port
@@ -274,8 +275,6 @@ namespace R2Core.Network
 
 		}
 
-
-
 		/// <summary>
 		/// Creates the connection to the remote host. Will add a connection to m_host if none was found.
 		/// </summary>
@@ -286,7 +285,7 @@ namespace R2Core.Network
 
 			string id = $"host{address}:{port}";
 
-			IClientConnection connection = m_hosts.ContainsKey(id) ? m_hosts [id] : null;
+			IClientConnection connection = m_hosts.ContainsKey(id) ? m_hosts[id] : null;
 
 			if (connection == null) {
 
@@ -392,12 +391,19 @@ namespace R2Core.Network
 
 		private void ResetSynchronizationTimer() {
 
+            if (m_synchronizationTimer?.Enabled == true) {
+
+                m_synchronizationTimer?.Stop();
+                m_synchronizationTimer?.Dispose();
+
+            }
+
 			m_synchronizationTimer = new Timer(m_synchronizationTimer?.Interval ?? Settings.Consts.BroadcastInterval());
 			m_synchronizationTimer.Elapsed += new ElapsedEventHandler(OnConnectionSynchronizerEvent);
 
 		}
 
-		private void HandleBroadcastResponse(dynamic response) {
+		private void HandleBroadcastResponse(dynamic response, string address) {
 
 			DeviceResponse deviceResponse = new DeviceResponse(response?.Payload);
 			dynamic endpoint = deviceResponse.Object;
@@ -408,8 +414,7 @@ namespace R2Core.Network
 
 			} else {
 
-				string address = NetworkExtensions.GetAvailableAddress((IEnumerable<dynamic>)endpoint.Addresses);
-				int port = (int)endpoint.Port;
+                int port = (int)endpoint.Port;
 
 				if (address != null) {
 

@@ -25,10 +25,8 @@ namespace R2Core.Tests
 	public class ClientConnectionWebEndpoint : DeviceBase, INetworkConnection {
 		
 		private IWebObjectReceiver m_endpoint;
-        // True if sending or receiving data.
-        private bool m_sending = false;
 
-        public bool Busy => m_sending;
+        public bool Busy { get; private set; }
 
         public ClientConnectionWebEndpoint(IWebObjectReceiver endpoint) : base("dummy_client_connection") {
 			
@@ -40,25 +38,28 @@ namespace R2Core.Tests
 
             try {
 
-                m_sending = true;
+                Busy = true;
                 return m_endpoint.OnReceive(message, new System.Net.IPEndPoint(0, 1));
 
             } finally {
 
-                m_sending = false;
+                Busy = false;
 
             }
 
 		}
 
-		public string Address { get { return "localhost"; } }
-		public int Port { get { return 1; } }
+        public string LocalAddress => "localhost";
+        public string Address => "localhost";
+        public int Port => 4242;
 
 		public void StopListening() {
 
 			throw new NotImplementedException();
 
 		}
+
 	}
+
 }
 

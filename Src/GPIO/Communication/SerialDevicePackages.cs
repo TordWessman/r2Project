@@ -18,7 +18,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Linq;
-using R2Core.Data;
+using System.Collections;
 
 namespace R2Core.GPIO
 {
@@ -279,9 +279,11 @@ namespace R2Core.GPIO
 		
 				if (IsError) {
 
-					return(Content?.Length ?? 0) > 0 ? (SerialErrorType)Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : SerialErrorType.Undefined;
+					return(Content?.Length ?? 0) > 0 ? (SerialErrorType)Content[ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_TYPE] : SerialErrorType.Undefined;
 
-				} else  { return SerialErrorType.Undefined; }
+				} 
+
+                return SerialErrorType.Undefined;
 
 			}
 
@@ -289,7 +291,7 @@ namespace R2Core.GPIO
 
 		public string ErrorInfo { get {
 				
-				int info = (Content?.Length ?? 0) > 1 ? Content [ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
+				int info = (Content?.Length ?? 0) > 1 ? Content[ArduinoSerialPackageFactory.POSITION_CONTENT_POSITION_ERROR_INFO] : 0;
 
 				if (Error == SerialErrorType.ERROR_RH24_MESSAGE_SYNCHRONIZATION) {
 
@@ -299,6 +301,7 @@ namespace R2Core.GPIO
 				}
 
 				return info.ToString();
+
 			}
 
 		}
@@ -311,31 +314,62 @@ namespace R2Core.GPIO
 		
 			get {
 			
-				if (typeof(T) == typeof(bool)) {
+                if (typeof(T) == typeof(bool)) {
 					
-					return(T)(object)(Content [0] > 0);
+					return(T)(object)(Content[0] > 0);
 	
-				} else if (typeof(T) == typeof(int[])) {
-						
-					int[] values = new int[NUMBER_OF_RETURN_VALUES];
+                } if (typeof(T) == typeof(int[])) {
 
-					for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt(i * 2, 2); }
+                    int[] values = new int[NUMBER_OF_RETURN_VALUES];
 
-					return(T)(object)values;
+                    for (int i = 0; i < NUMBER_OF_RETURN_VALUES; i++) { values[i] = Content.ToInt(i * 2, 2); }
 
-				} else if (typeof(T) != typeof(byte[])) {
-				
-					throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int or byte´, but was ´{typeof(T)}´."); 
+                    return (T)(object)values;
 
-				}
+                } if (typeof(T) == typeof(int) || typeof(T) == typeof(byte)) {
 
-				return(T)(object)Content;
+                    if (Content.Length > 0) {
+
+                        return (T)(object)Content[0];
+
+                    }
+
+                    return (T)(object)0;
+
+                }
+
+                if (typeof(T) != typeof(byte[])) {
+			    
+                    throw new InvalidCastException($"Expected type constraint T to be of type ´byte[], bool, int[], int or byte´, but was ´{typeof(T)}´."); 
+                
+                }
+
+                return(T)(object)Content;
 			
 			}
 		
 		}
 
-	}
+        public override string ToString() {
+
+            string value = $"<undefined>";
+
+            if (Value is IEnumerable) {
+
+                value = "";
+                foreach (var val in (Value as IEnumerable)) { value += $"[{val}]"; }
+
+            } else if (new Type[]{typeof(byte[]), typeof(int[]), typeof(bool)}.Contains(typeof(T))) {
+
+                value = $"{Value}";
+
+            }
+
+            return $"DeviceResponsePackage<{typeof(T)}>: [Id/NodeId: {Id}/{NodeId}, Value: '{value}', Action: {Action}" + (IsError ? $" Error: {ErrorInfo}]" : "]");
+        
+        }
+
+    }
 
 	/// <summary>
 	/// Represents a request sent to a node(for creating a device, getting a value etc).
@@ -363,7 +397,13 @@ namespace R2Core.GPIO
 		/// </summary>
 		public byte[] Content;
 
-	}
+        public override string ToString() {
+
+            return this.Description();
+
+        }
+
+    }
 
 	public static class DevicePackageExtensions {
 	

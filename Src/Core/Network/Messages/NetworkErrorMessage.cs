@@ -62,7 +62,7 @@ namespace R2Core.Network
 		
 		}
 
-		public override string ToString() { return base.ToString(); }
+		public override string ToString() { return $"NetworkErrorMessage: [Code: {Code}, Destination: {Destination}, Message: {Payload}]"; }
 
 	}
 
@@ -79,7 +79,9 @@ namespace R2Core.Network
 
 		}
 
-	}
+        public override string ToString() { return Message; }
+
+    }
 
 }
 

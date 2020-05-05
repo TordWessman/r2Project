@@ -87,7 +87,7 @@ namespace R2Core.Network
 
 		public void AddDevice(IDevice device) {
 		
-			m_devices [device.Identifier] = device;
+			m_devices[device.Identifier] = device;
 
 		}
 
@@ -125,7 +125,7 @@ namespace R2Core.Network
 
 			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Set) {
 				
-				m_invoker.Set(device, message.Payload.Action, message.Payload.Params? [0]);
+				m_invoker.Set(device, message.Payload.Action, message.Payload.Params?[0]);
 				response.ActionResponse = m_invoker.Get(device, message.Payload.Action);
 
 			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Get) { 

@@ -28,7 +28,7 @@ namespace R2Core
 		private StreamWriter m_outputStream;
 		private FileStream m_fs;
 
-		private string m_fileName;
+		private readonly string m_fileName;
 		private readonly object m_lock = new object(); 
 
 		public FileLogger(string id, string path) : base(id) {
@@ -71,7 +71,7 @@ namespace R2Core
 		
 			get {
 
-				yield return new LogMessage("History not allowed for FileLogger (not implemented)", LogType.Error);
+				yield return new LogMessage("History not allowed for FileLogger (not implemented)", LogLevel.Error);
 
 			}
 			 
@@ -79,10 +79,11 @@ namespace R2Core
 
 		private ILogMessage ParseLog(string line) {
 		
-			return new LogMessage(line, LogType.Temp);
+			return new LogMessage(line, LogLevel.Temp);
 
 		}
 
 	}
+
 }
 

@@ -68,9 +68,9 @@ do
 		compileT4 $video_configuration_template $video_configuration_output
 		compileT4 $gpio_configuration_template $gpio_configuration_output
 	fi
-	
+
 	if [ $var == "-p" ]; then
-		
+
 		echo "-p Not implemented yet"
     		exit 1
 	fi
@@ -83,6 +83,7 @@ compileT4 $template_file $implementation_path/$1/$1/$1ConfigurationTemplate.cs
 if [ $? -eq 0 ];
 then
 
+touch "$cwd/$core_configuration_path/Shared.cs"
 msbuild "$project_file"
 
 fi

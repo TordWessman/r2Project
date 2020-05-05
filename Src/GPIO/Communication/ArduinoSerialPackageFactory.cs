@@ -16,7 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 using System;
-using System.Runtime.InteropServices;
 using System.Linq;
 
 namespace R2Core.GPIO
@@ -124,7 +123,7 @@ namespace R2Core.GPIO
 
 			if (response.Length < RESPONSE_POSITION_CONTENT_LENGTH) {
 			
-				return new DeviceResponsePackage<T>() {
+				return new DeviceResponsePackage<T> {
 					Checksum = 0,
 					Action = SerialActionType.Error,
 					Content = new byte[] {(byte)SerialErrorType.ERROR_INVALID_RESPONSE_SIZE}
@@ -132,14 +131,14 @@ namespace R2Core.GPIO
 
 			}
 
-			int contentLength = response [RESPONSE_POSITION_CONTENT_LENGTH];
+			int contentLength = response[RESPONSE_POSITION_CONTENT_LENGTH];
 
-			return new DeviceResponsePackage<T>() {
+			return new DeviceResponsePackage<T> {
 				Checksum = response[RESPONSE_POSITION_CHECKSUM],
-				MessageId = response [RESPONSE_POSITION_MESSAGE_ID],
-				NodeId = response [RESPONSE_POSITION_HOST],
-				Action = (SerialActionType)response [RESPONSE_POSITION_ACTION],
-				Id = response [RESPONSE_POSITION_ID],
+				MessageId = response[RESPONSE_POSITION_MESSAGE_ID],
+				NodeId = response[RESPONSE_POSITION_HOST],
+				Action = (SerialActionType)response[RESPONSE_POSITION_ACTION],
+				Id = response[RESPONSE_POSITION_ID],
 				Content = contentLength > 0 ? response.Skip(RESPONSE_POSITION_CONTENT).Take(contentLength)?.ToArray() ?? new byte[]{ } : new byte[]{ }
 			};
 
@@ -149,16 +148,16 @@ namespace R2Core.GPIO
 
 			// Node expects <device type><IOPort1><IOPort2> ...
 			byte[] content = new byte[1 + ports.Length];
-			content [POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
+			content[POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
 			Array.Copy(ports, 0, content, 1, ports.Length);
 
-			if ((type == SerialDeviceType.AnalogInput || type == SerialDeviceType.SimpleMoist) && !(VALID_ANALOG_PORTS_ON_ARDUINO.Contains(ports[0]))) {
+			if ((type == SerialDeviceType.AnalogInput || type == SerialDeviceType.SimpleMoist) && !VALID_ANALOG_PORTS_ON_ARDUINO.Contains(ports[0])) {
 
 				throw new System.IO.IOException($"Not a valid analogue port: '{ports[0]}'. Use: {string.Concat(VALID_ANALOG_PORTS_ON_ARDUINO.Select(b => b.ToString() + ' '))}");
 
 			}
 
-			DeviceRequestPackage package = new DeviceRequestPackage() { 
+			DeviceRequestPackage package = new DeviceRequestPackage { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Create, 
 				Id = m_deviceCount[nodeId]++, //Actually decided by the node...
@@ -173,7 +172,7 @@ namespace R2Core.GPIO
 
 			byte[] content = { (byte)(value & 0xFF) , (byte)((value >> 8) & 0xFF) };
 
-			return new DeviceRequestPackage() { 
+			return new DeviceRequestPackage { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Set, 
 				Id = deviceId, 
@@ -184,7 +183,7 @@ namespace R2Core.GPIO
 
 		public DeviceRequestPackage GetDevice(byte deviceId, byte nodeId) {
 
-			return new DeviceRequestPackage() { 
+			return new DeviceRequestPackage { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Get, 
 				Id = deviceId, 
@@ -196,10 +195,10 @@ namespace R2Core.GPIO
 		public DeviceRequestPackage Sleep(byte nodeId, bool toggle, byte cycles) {
 		
 			byte[] content = new byte[2];
-			content [POSITION_CONTENT_SLEEP_TOGGLE] = (byte)(toggle ? 1 : 0);
-			content [POSITION_CONTENT_SLEEP_CYCLES] = (byte)cycles;
+			content[POSITION_CONTENT_SLEEP_TOGGLE] = (byte)(toggle ? 1 : 0);
+			content[POSITION_CONTENT_SLEEP_CYCLES] = cycles;
 
-			return new DeviceRequestPackage() {
+			return new DeviceRequestPackage {
 				NodeId = nodeId,
 				Action = SerialActionType.SendToSleep, 
 				Content = content
@@ -208,7 +207,7 @@ namespace R2Core.GPIO
 
 		public DeviceRequestPackage SetNodeId(byte nodeId) {
 
-			return new DeviceRequestPackage() {
+			return new DeviceRequestPackage {
 				NodeId = 0x0, 
 				Action = SerialActionType.Initialization, 
 				Id = nodeId, 
@@ -218,5 +217,5 @@ namespace R2Core.GPIO
 		}
 
 	}
-}
 
+}

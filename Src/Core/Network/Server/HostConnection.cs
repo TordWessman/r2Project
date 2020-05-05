@@ -41,7 +41,7 @@ namespace R2Core.Network
         /// .`connection` is the connection used for transfers.
         /// </summary>
         /// <param name="id">Identifier.</param>
-        /// <param name="host">Host.</param>
+        /// <param name="connection">Host.</param>
         public HostConnection(string id, IMessageClient connection) : base(id) {
 			
 			m_connection = connection;
@@ -50,8 +50,10 @@ namespace R2Core.Network
 		}
 
 		public string Address { get { return m_connection.Address; } }
-	
-		public int Port { get { return m_connection.Port; } } 
+
+        public string LocalAddress { get { return m_connection.LocalAddress; } }
+
+        public int Port { get { return m_connection.Port; } } 
 	
 		public override bool Ready { get { return m_connection.Ready; } }
 

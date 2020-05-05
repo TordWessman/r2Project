@@ -25,37 +25,34 @@ namespace R2Core.Device
 	/// </summary>
 	public class DeviceNotification : IDeviceNotification<object> {
 		
-		private string m_id;
-		private string m_action;
-		private object m_newValue;
-
 		public DeviceNotification(string id, string action, object newValue = null) {
 			
-			m_id = id;
-			m_action = action;
-			m_newValue = newValue;
+			Identifier = id;
+			Action = action;
+			NewValue = newValue;
 		}
 
-		public Type Type { get { return m_newValue?.GetType(); } }
+		public Type Type => NewValue?.GetType();
 
 		/// <summary>
 		/// The string identifier (IDevice.Identifier) of the object changed.
 		/// </summary>
 		/// <value>The identifier.</value>
-		public string Identifier { get { return m_id; } }
+		public string Identifier { get; private set; }
 
 		/// <summary>
 		/// The string representation of the method or property that has been changed.
 		/// </summary>
 		/// <value>The name of the method.</value>
-		public string Action { get { return m_action; } }
+		public string Action { get; private set; }
 
 		/// <summary>
 		/// The new value of the property or the return value of the method(should be null if it's a void method).
 		/// </summary>
 		/// <value>The new value.</value>
-		public object NewValue { get { return m_newValue; } }
+		public object NewValue { get; private set; }
 
 	}
+
 }
 

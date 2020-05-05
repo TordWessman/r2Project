@@ -22,7 +22,6 @@ using R2Core.Device;
 using R2Core.Network;
 using R2Core.Scripting;
 using System.Collections.Generic;
-using R2Core.Data;
 using System.Threading;
 using System.Linq;
 

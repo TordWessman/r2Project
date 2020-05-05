@@ -22,8 +22,6 @@ using PushSharp;
 using PushSharp.Apple;
 using System.IO;
 using System.Collections.Generic;
-using R2Core;
-using System.Linq;
 using Newtonsoft.Json.Linq;
 
 
@@ -59,7 +57,7 @@ namespace R2Core.PushNotifications
 
 				fbs.Check();
 
-			} catch (System.AggregateException ex) {
+			} catch (AggregateException ex) {
 
 				Log.e($"Certificate `{certFileName}` is probably invalid. Exception: `{ex.InnerException?.InnerException?.Message ?? ex.InnerException?.Message ?? ex.Message}`. Apple Push notification is broken.");
 
@@ -115,26 +113,24 @@ namespace R2Core.PushNotifications
 
 				aggregateEx.Handle(ex => {
 
-					// See what kind of exception it was to further diagnose
-					if (ex is ApnsNotificationException) {
+                    // See what kind of exception it was to further diagnose
+                    if (ex is ApnsNotificationException notificationException) {
 
-						var notificationException = (ApnsNotificationException)ex;
+                        // Deal with the failed notification
+                        var apnsNotification = notificationException.Notification;
+                        var statusCode = notificationException.ErrorStatusCode;
 
-						// Deal with the failed notification
-						var apnsNotification = notificationException.Notification;
-						var statusCode = notificationException.ErrorStatusCode;
+                        Log.e($"Apple Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
 
-						Log.e($"Apple Notification Failed: ID={apnsNotification.Identifier}, Code={statusCode}");
+                    } else {
 
-					} else {
+                        // Inner exception might hold more useful information like an ApnsConnectionException           
+                        Log.e($"Apple Notification Failed for some unknown reason : {ex.InnerException}");
 
-						// Inner exception might hold more useful information like an ApnsConnectionException           
-						Log.e($"Apple Notification Failed for some unknown reason : {ex.InnerException}");
+                    }
 
-					}
-
-					// Mark it as handled
-					return true;
+                    // Mark it as handled
+                    return true;
 
 				});
 

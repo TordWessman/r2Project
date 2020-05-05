@@ -85,7 +85,7 @@ namespace R2Core.Tests
 			pythonScriptFactory.AddSourcePath(Settings.Paths.TestData());
 			pythonScriptFactory.AddSourcePath(Settings.Paths.Common());
 
-			var remoteScript = pythonScriptFactory.CreateScript ("python_test");
+			var remoteScript = pythonScriptFactory.CreateScript("python_test");
 			remote.DeviceManager.Add(remoteScript);
 
 			remote.DeviceManager.Add(remoteDummy);
@@ -199,9 +199,9 @@ namespace R2Core.Tests
 		/// </summary>
 		[Test]
 		public void FailedConnections() {
-			PrintName ();
-			var devices1 = factory.SetUpServers (tcp_port - 151, udp_port, udp_port - 152);
-			var devices2 = factory.SetUpServers (tcp_port - 152, udp_port - 152, udp_port);
+			PrintName();
+			var devices1 = factory.SetUpServers(tcp_port - 151, udp_port, udp_port - 152);
+			var devices2 = factory.SetUpServers(tcp_port - 152, udp_port - 152, udp_port);
 			devices2.Start();
 			devices1.Start();
 			Thread.Sleep(200);
@@ -224,10 +224,10 @@ namespace R2Core.Tests
 		/// </summary>
 		[Test]
 		public void Reconnection() {
-			PrintName ();
+			PrintName();
 
-			var devices1 = factory.SetUpServers (tcp_port - 141, udp_port, udp_port - 142);
-			var devices2 = factory.SetUpServers (tcp_port - 142, udp_port - 142, udp_port);
+			var devices1 = factory.SetUpServers(tcp_port - 141, udp_port, udp_port - 142);
+			var devices2 = factory.SetUpServers(tcp_port - 142, udp_port - 142, udp_port);
 			devices2.Start();
 			devices1.Start();
 			Thread.Sleep(200);

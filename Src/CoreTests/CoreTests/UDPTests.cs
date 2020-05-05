@@ -20,14 +20,11 @@ using System;
 using NUnit.Framework;
 using System.Threading;
 using R2Core.Network;
-using R2Core.Data;
-using System.Threading.Tasks;
 using R2Core.Device;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace R2Core.Tests
 {
-
 
 	[TestFixture]
 	public class UDPTests : NetworkTests {
@@ -59,10 +56,14 @@ namespace R2Core.Tests
 
 			bool didReceiveResponse = false;
 
-			var guid = client.Broadcast(new TCPMessage() { Destination = "should not be found" }, (response, error) => {
+			var guid = client.Broadcast(new TCPMessage { Destination = "should not be found" }, (response, address, error) => {
 				
 				Assert.IsNull(error);
-				Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), (response.Code));
+				Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), response.Code);
+
+                // Check that the "remote" address parameter seems correct.
+                Assert.IsNotNull(address);
+                Assert.True(s.Addresses.Contains(address));
 				didReceiveResponse = true;
 
 			});
@@ -90,7 +91,7 @@ namespace R2Core.Tests
 
 			});
 
-			guid = client.Broadcast(request, (response, error) => {
+			guid = client.Broadcast(request, (response, address, error) => {
 
 				Assert.IsNull(error);
 				Assert.AreEqual(4242, response.Code);
@@ -128,7 +129,7 @@ namespace R2Core.Tests
 
 			for (int i = 0; i < 6; i++) {
 			
-				var guid = client.Broadcast(new TCPMessage() { Destination = "should not be found" }, (response, error) => {
+				var guid = client.Broadcast(new TCPMessage() { Destination = "should not be found" }, (response, address, error) => {
 
 					Assert.IsNull(error);
 					Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), (response.Code));

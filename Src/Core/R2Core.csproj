@@ -100,10 +100,8 @@
     <Compile Include="Network\Server\JsonExportObject.cs" />
     <Compile Include="Network\ISerialization.cs" />
     <Compile Include="Network\JsonSerialization.cs" />
-    <Compile Include="Shared\DataFactory.cs" />
     <Compile Include="Shared\ILinearDataSet.cs" />
     <Compile Include="Shared\Int32Converter.cs" />
-    <Compile Include="Shared\LinearDataSet.cs" />
     <Compile Include="Shared\R2Dynamic.cs" />
     <Compile Include="Extensions\WeakReferenceExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
@@ -127,7 +125,6 @@
     <Compile Include="Network\ConnectionPoller.cs" />
     <Compile Include="Extensions\NetworkSocketExtensions.cs" />
     <Compile Include="Network\TCP\TCPClientServer.cs" />
-    <Compile Include="Network\TCP\TCPRouterEndpoint.cs" />
     <Compile Include="Network\TCP\TCPProxy.cs" />
     <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Network\TCP\TCPProxyConnection.cs" />
@@ -135,6 +132,10 @@
     <Compile Include="Device\RemoteDevice\IRemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice\RemoteDevice.cs" />
     <Compile Include="Device\RemoteDevice\AsyncRemoteDeviceRequest.cs" />
+    <Compile Include="Shared\Identity.cs" />
+    <Compile Include="Shared\IIdentity.cs" />
+    <Compile Include="Network\Messages\RoutingRegistrationRequest.cs" />
+    <Compile Include="Network\TCP\TCPRouterEndpoint.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

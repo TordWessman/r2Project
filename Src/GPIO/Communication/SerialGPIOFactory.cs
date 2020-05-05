@@ -42,7 +42,7 @@ namespace R2Core.GPIO
 		/// </summary>
 		/// <returns>The node.</returns>
 		/// <param name="nodeId">Node identifier.</param>
-		public ISerialNode GetNode(int nodeId) { return m_devices.Nodes.Where(node => (int)node.NodeId == nodeId).FirstOrDefault(); } 
+		public ISerialNode GetNode(int nodeId) { return m_devices.Nodes.FirstOrDefault(node => node.NodeId == nodeId); } 
 		public ISerialNode this[int key] { get { return GetNode(key); } }
 			
 		//public IDictionary<byte, ISerialNode> Nodes { get { return m_devices.Nodes; } }

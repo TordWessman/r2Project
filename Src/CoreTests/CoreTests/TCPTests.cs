@@ -19,13 +19,10 @@
 using System;
 using NUnit.Framework;
 using R2Core.Network;
-using R2Core.Data;
 using System.Collections.Generic;
 using R2Core.Device;
 using System.Threading;
-using System.Net;
 using R2Core.Scripting;
-using R2Core.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -53,7 +50,7 @@ namespace R2Core.Tests
 
 			IDictionary<string, object> headers = new Dictionary<string, object>();
 
-			headers ["Dog"] = "Mouse";
+			headers["Dog"] = "Mouse";
 
 			// Test dynamic serialization
 
@@ -63,7 +60,7 @@ namespace R2Core.Tests
 
 			TCPMessage punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 
-			Assert.AreEqual("Mouse", punwrapped.Headers ["Dog"]);
+			Assert.AreEqual("Mouse", punwrapped.Headers["Dog"]);
 
 			Assert.AreEqual(42.25f, punwrapped.Payload.HAHA);
 
@@ -88,7 +85,7 @@ namespace R2Core.Tests
 			Assert.IsTrue(punwrapped.Payload is byte[]);
 
 			for (int i = 0; i < byteArray.Length; i++) {
-				Assert.AreEqual(byteArray [i], punwrapped.Payload [i]);
+				Assert.AreEqual(byteArray[i], punwrapped.Payload[i]);
 			}
 
 
@@ -231,7 +228,7 @@ namespace R2Core.Tests
 			Assert.IsTrue(client.Ready);
 
 			var requestPayload = new DeviceRequest() {
-				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
+				Params = new List<object> {"Foo", 42, new Dictionary<string,string> {{"Cat", "Dog"}}}.ToArray(),
 				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
@@ -428,11 +425,12 @@ namespace R2Core.Tests
 
 				Assert.AreEqual(42, msg.Payload.Bar); 
 			};
-		
-			R2Dynamic tmp = new R2Dynamic();
-			tmp ["Bar"] = 42;
 
-			s.Broadcast(new TCPMessage() { Destination = "ehh", Payload = tmp }, (response, error) => {
+            R2Dynamic tmp = new R2Dynamic {
+                ["Bar"] = 42
+            };
+
+            s.Broadcast(new TCPMessage() { Destination = "ehh", Payload = tmp }, (response, address, error) => {
 
 				Assert.Null(error);
 
@@ -457,24 +455,24 @@ namespace R2Core.Tests
 		bool waitingForClientStop = true;
 
 		public void TestTCP_ClientFunc() {
-		
-			DummyClientObserver observer = new DummyClientObserver();
 
-			observer.OnCloseAsserter = (c, exception) => { 
+            DummyClientObserver observer = new DummyClientObserver {
+                OnCloseAsserter = (c, exception) => {
 
-				onClientDisconnect = true;
-				Assert.IsFalse(c.Ready);
-				Assert.IsNull(exception);
+                    onClientDisconnect = true;
+                    Assert.IsFalse(c.Ready);
+                    Assert.IsNull(exception);
 
-			};
+                }
+            };
 
-			var client = (TCPClient) factory.CreateTcpClient("c", "localhost", tcp_port);
+            var client = factory.CreateTcpClient("c", "localhost", tcp_port);
 			client.AddClientObserver(observer);
 			client.Start();
 
 			Thread.Sleep(200);
 
-			TCPMessage message = new TCPMessage() { Destination = "apa", Payload = "bleh"};
+			TCPMessage message = new TCPMessage { Destination = "apa", Payload = "bleh"};
 			client.Send(message);
 
 			client.Stop();
@@ -602,10 +600,10 @@ namespace R2Core.Tests
 			TCPServer s = (TCPServer)factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
 			DummyEndpoint ep = new DummyEndpoint(Settings.Consts.ConnectionRouterAddHostDestination());
 
-			string testHostName = "test_hostName";
+			IIdentity identity = new DummyIdentity();
 			ep.MessingUp = new Func<INetworkMessage,INetworkMessage>(msg => {
 			
-				Assert.AreEqual(testHostName, msg.Payload.HostName);
+				Assert.AreEqual(identity.Name, msg.Payload.HostName);
 				return new TCPMessage() { Code = NetworkStatusCode.Ok.Raw() };
 
 			});
@@ -614,9 +612,9 @@ namespace R2Core.Tests
 			s.Start();
 			Thread.Sleep(100);
 
-			TCPClientServer clientServer = (TCPClientServer)factory.CreateTcpClientServer("client_server");
+			TCPClientServer clientServer = factory.CreateTcpClientServer("client_server");
 			clientServer.Timeout = 250;
-			clientServer.Configure(testHostName, "127.0.0.1", port);
+			clientServer.Configure(identity, "127.0.0.1", port);
 			clientServer.Start();
 
 			Thread.Sleep(100);

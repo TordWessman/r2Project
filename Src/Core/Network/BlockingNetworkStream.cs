@@ -16,9 +16,7 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using System.Net.Sockets;
-using System.IO;
 
 namespace R2Core.Network
 {
@@ -36,7 +34,7 @@ namespace R2Core.Network
 
 		}
 
-		public override string Message { get { return m_message; } }
+        public override string Message => m_message;
 
 	}
 
@@ -49,8 +47,10 @@ namespace R2Core.Network
 		}
 
 		public override void Write(byte[] buffer, int offset, int size) {
+
 			base.Write(buffer, offset, size);
-		}
+		
+        }
 
 		public override int Read(byte[] buffer, int offset, int size) {
 

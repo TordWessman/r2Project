@@ -1,9 +1,22 @@
-﻿using System;
+﻿// This file is part of r2Poject.
+//
+// Copyright 2016 Tord Wessman
+//
+// r2Project is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// r2Project is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with r2Project. If not, see <http://www.gnu.org/licenses/>.
+//
 using NUnit.Framework;
-using R2Core.Data;
-using R2Core.Device;
 using System.Linq;
-using System.Dynamic;
 using R2Core.Network;
 using System.Collections.Generic;
 
@@ -92,14 +105,14 @@ namespace R2Core.Tests
 		public void TestSerializeWithEnum() {
 			PrintName();
 
-			DeviceRequest wob = new DeviceRequest() { 
+			DeviceRequest wob = new DeviceRequest { 
 				Identifier = "dummy_device",
 				ActionType = DeviceRequest.ObjectActionType.Invoke,
 				Action = "MultiplyByTen",
 				Params = new object[] { 42 }
 			};
 
-			byte [] serialized = serializer.Serialize(wob);
+			byte[] serialized = serializer.Serialize(wob);
 
 			dynamic deserialized = serializer.Deserialize(serialized);
 
@@ -118,7 +131,7 @@ namespace R2Core.Tests
 
 			DummyDevice d = new DummyDevice("duuumm");
 			dynamic res = invoker.Invoke(d, "NoParamsNoNothing", null);
-			dynamic ros = invoker.Invoke(d, "OneParam", new List<dynamic>() {9999} );
+			dynamic ros = invoker.Invoke(d, "OneParam", new List<dynamic> {9999} );
 
 			Assert.IsNull(res);
 			Assert.IsNull(ros);
@@ -131,7 +144,7 @@ namespace R2Core.Tests
 			var invoker = new ObjectInvoker();
 			var o = new InvokableDummy();
 
-			var res = invoker.Invoke(o, "AddBar", new List<object>() {"foo"});
+			var res = invoker.Invoke(o, "AddBar", new List<object> {"foo"});
 
 			Assert.AreEqual("foobar", res);
 
@@ -147,16 +160,16 @@ namespace R2Core.Tests
 			Assert.IsFalse(invoker.ContainsPropertyOrMember(o, "NotAMember"));
 
 			//Test invoking a IEnumerable<>
-			IEnumerable<object> aStringArray = new List<object>() { "foo", "bar" };
-			int count = invoker.Invoke(o, "GiveMeAnArray", new List<object>() {aStringArray});
+			IEnumerable<object> aStringArray = new List<object>{ "foo", "bar" };
+			int count = invoker.Invoke(o, "GiveMeAnArray", new List<object> {aStringArray});
 			Assert.AreEqual(aStringArray.Count(), count);
 
-			IEnumerable<object> OneTwoThree = new List<object>() { 1, 2, 3 };
+			IEnumerable<object> OneTwoThree = new List<object> { 1, 2, 3 };
 			invoker.Set(o, "EnumerableInts", OneTwoThree);
 
 			for (int i = 0; i < OneTwoThree.Count(); i++) {
 			
-				Assert.AreEqual(OneTwoThree.ToList() [i], o.EnumerableInts.ToList() [i]);
+				Assert.AreEqual(OneTwoThree.ToList()[i], o.EnumerableInts.ToList()[i]);
 
 			}
 
@@ -164,22 +177,22 @@ namespace R2Core.Tests
 			IDictionary<object, object> dictionary = new Dictionary<object,object>();
 			foreach (int i in OneTwoThree) {
 			
-				dictionary [$"apa{i}"] = i;
+				dictionary[$"apa{i}"] = i;
 			}
 
-			IEnumerable<int> allValues = invoker.Invoke(o, "GiveMeADictionary", new List<object>() {dictionary});
+			IEnumerable<int> allValues = invoker.Invoke(o, "GiveMeADictionary", new List<object> {dictionary});
 
 			for (int i = 0; i < OneTwoThree.Count(); i++) {
 			
-				Assert.AreEqual(allValues.ToArray() [i], OneTwoThree.ToArray() [i]);
+				Assert.AreEqual(allValues.ToArray()[i], OneTwoThree.ToArray()[i]);
 
 			}
 
 			//var dummyDevice = new DummyDevice();
 
-
 		}
 
-	}
+
+    }
 
 }

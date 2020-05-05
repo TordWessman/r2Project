@@ -20,15 +20,8 @@
 using System.Net;
 using System.Threading.Tasks;
 using System.IO;
-using System.Text;
-using R2Core.Device;
 using System.Collections.Generic;
 using System.Linq;
-using System.Collections.Specialized;
-using System.Web;
-using R2Core.Data;
-using System.Text.RegularExpressions;
-using System.Timers;
 
 namespace R2Core.Network
 {
@@ -62,7 +55,7 @@ namespace R2Core.Network
 
 				if (m_listener.IsListening) {
 
-					HandleRequest(context.Request, context.Response);
+                    HandleRequest(context);
 
 				}
 
@@ -92,7 +85,7 @@ namespace R2Core.Network
 
 				foreach (var key in request.QueryString.AllKeys) {
 				
-					payload.Add (key, request.QueryString [key]);
+					payload.Add (key, request.QueryString[key]);
 
 				}
 
@@ -149,9 +142,14 @@ namespace R2Core.Network
 
 		}
 
-		private void HandleRequest(HttpListenerRequest request, HttpListenerResponse response) {
+		private void HandleRequest(HttpListenerContext context) {
 
-			Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
+            HttpListenerRequest request = context.Request;
+            HttpListenerResponse response = context.Response;
+
+            Log.i($"HttpServer: Got request from {request.RemoteEndPoint.Address}. Path: {request.Url.AbsolutePath}");
+
+            Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
 			byte[] responseBody = new byte[0];
 
 			try {
@@ -165,7 +163,7 @@ namespace R2Core.Network
 				// Perserve the HTTP Method by 
 				requestHeaders[Settings.Consts.HttpServerHeaderMethodKey()] = request.HttpMethod;
 
-				HttpMessage requestObject = new HttpMessage() {Destination = request.Url.AbsolutePath, Headers = requestHeaders};
+				HttpMessage requestObject = new HttpMessage {Destination = request.Url.AbsolutePath, Headers = requestHeaders};
 				requestObject.Method = request.HttpMethod;
 
 				requestObject.Payload = GetPayload(request);
@@ -217,8 +215,8 @@ namespace R2Core.Network
 			}
 
 			Write(response, responseBody);
-
-		}
+            Log.i($"HttpServer: Did reply to {request.RemoteEndPoint.Address}. Length: {responseBody.Length}. StatusCode: {response.StatusCode}");
+        }
 
 		private void ClearInactiveWriteTasks() {
 
@@ -241,24 +239,28 @@ namespace R2Core.Network
 		private void Write(HttpListenerResponse response, byte[] data) {
 
 			response.ContentLength64 = data.Length;
-			System.IO.Stream output = response.OutputStream;
+			Stream output = response.OutputStream;
 			WeakReference<HttpListenerResponse> reference = new WeakReference<HttpListenerResponse>(response);
 
 			ClearInactiveWriteTasks();
 
-			try {
+            Log.i($"HttpServer: Will write. Current task count: {m_writeTasks.Count}. ");
+            Task writeTask = new Task(() => {
 
-				m_writeTasks.Add(output.WriteAsync(data, 0, data.Length));
+                try {
 
-			} catch (Exception ex) {
+                    output.Write(data, 0, data.Length);
 
-				Log.x(ex);
-			
-			} finally {
-			
-				output.Close();
-			
-			}
+                } catch (Exception ex) { Log.x(ex); } 
+                finally {
+
+                    output.Close();
+                    response.Close();
+                }
+            });
+
+            m_writeTasks.Add(writeTask);
+            writeTask.Start();
 
 		}
 

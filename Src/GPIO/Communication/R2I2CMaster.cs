@@ -1,8 +1,6 @@
-﻿using System;
-using R2Core.Device;
+﻿using R2Core.Device;
 using System.Runtime.InteropServices;
 using System.Linq;
-using R2Core;
 
 namespace R2Core.GPIO
 {
@@ -54,8 +52,8 @@ namespace R2Core.GPIO
 
 		}
 
-		private int m_bus;
-		private int m_port;
+		private readonly int m_bus;
+		private readonly int m_port;
 
 		public R2I2CMaster(string id, int? bus = null, int? port = null) : base(id) {
 
@@ -83,7 +81,9 @@ namespace R2Core.GPIO
 		}
 
 		public override void Stop() {
+
 			r2I2C_should_run(false);
+
 		}
 
 		private byte[] Response {
@@ -92,7 +92,7 @@ namespace R2Core.GPIO
 				
 				byte[] response = new byte[r2I2C_get_response_size()];
 
-				for (int i = 0; i < r2I2C_get_response_size(); i++) { response [i] = r2I2C_get_response(i); }
+				for (int i = 0; i < r2I2C_get_response_size(); i++) { response[i] = r2I2C_get_response(i); }
 
 				return response;
 
@@ -100,7 +100,7 @@ namespace R2Core.GPIO
 
 		}
 
-		public byte[] Send(byte []data) {
+		public byte[] Send(byte[] data) {
 		
 			lock(m_lock) {
 

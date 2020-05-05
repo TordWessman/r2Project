@@ -19,8 +19,6 @@
 using System;
 using R2Core.Device;
 using Newtonsoft.Json;
-using R2Core.Data;
-
 namespace R2Core.Network
 {
 	public class WebSocketSender : DeviceBase, IWebSocketSender

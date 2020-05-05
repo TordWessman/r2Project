@@ -26,7 +26,7 @@ namespace R2Core
 {
 	public class ConsoleLogger : DeviceBase, IMessageLogger {
 		
-		private ConsoleColor m_defaultColor;
+		private readonly ConsoleColor m_defaultColor;
 		private static readonly object m_lock = new object();
 		private Queue<Action> m_queue;
 		private Timer m_consoleTimer;
@@ -120,7 +120,7 @@ namespace R2Core
 
 					} catch (Exception ex) {
 
-						_Write(new LogMessage("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogType.Error));
+						_Write(new LogMessage("Logger could not notify observers: " + ex.Message + " stacktrace: " + ex.StackTrace, LogLevel.Error));
 
 					}
 
@@ -138,7 +138,7 @@ namespace R2Core
 
 				SetConsoleColor(message.Type);
 
-				Console.WriteLine((message.Tag != null ? "[" + message.Tag + "] " : "") + message.Message);
+				Console.WriteLine((message.Tag != null ? $"[{message.Tag }] " : "") + message.Message);
 
 				SetConsoleColor(m_defaultColor);
 
@@ -156,31 +156,38 @@ namespace R2Core
 		
 		}
 
-		private void SetConsoleColor(LogType logType) {
-			switch (logType) {
+		private void SetConsoleColor(LogLevel logType) {
 
-			case LogType.Error:
-				
-				SetConsoleColor(ConsoleColor.Red);
-				break;
+            switch (logType) {
 
-			case LogType.Warning:
-				
-				SetConsoleColor(ConsoleColor.Yellow);
-				break;
-			
-			case LogType.Temp:
+                case LogLevel.Error:
 
-				SetConsoleColor(ConsoleColor.Green);
-				break;
+                    SetConsoleColor(ConsoleColor.Red);
+                    break;
 
-			case LogType.Message:
+                case LogLevel.Warning:
 
-				SetConsoleColor(ConsoleColor.Gray);
-				break;
-			}
+                    SetConsoleColor(ConsoleColor.Yellow);
+                    break;
 
-		}
+                case LogLevel.Temp:
+
+                    SetConsoleColor(ConsoleColor.Green);
+                    break;
+
+                case LogLevel.Message:
+
+                    SetConsoleColor(ConsoleColor.Gray);
+                    break;
+
+                case LogLevel.Info:
+
+                    SetConsoleColor(ConsoleColor.DarkBlue);
+                    break;
+
+            }
+
+        }
 
 	}
 

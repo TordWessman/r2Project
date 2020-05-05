@@ -20,8 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
-using R2Core.Data;
-using System.Dynamic;
 using System.Collections;
 using R2Core.Device;
 
@@ -70,8 +68,8 @@ namespace R2Core
 			// Convert the dynamic parameters to the types required by the subject.
 			for (int i = 0; i < paramsInfo.Length; i++) {
 
-				object parameter = parameters.ToArray() [i];
-				Type requiredType = paramsInfo [i].ParameterType;
+				object parameter = parameters.ToArray()[i];
+				Type requiredType = paramsInfo[i].ParameterType;
 
 				p.Add(requiredType.ConvertObject(parameter));
 
@@ -106,21 +104,21 @@ namespace R2Core
 
 					throw new ArgumentException($"Property '{property}' not found in '{target}'.");
 
-				} else if (!(members [0] is FieldInfo)) {
+				}  
+
+                if (!(members[0] is FieldInfo)) {
 
 					throw new ArgumentException($"Get property: Unable to access '{property}' in '{target}'.");
 
 				}
 
-				FieldInfo fieldInfo = (members [0] as FieldInfo);
+				FieldInfo fieldInfo = (members[0] as FieldInfo);
 
 				return fieldInfo.GetValue(target);
 
-			} else {
-
-				return propertyInfo.GetValue(target);
-
 			}
+
+            return propertyInfo.GetValue(target);
 
 		}
 
@@ -151,13 +149,15 @@ namespace R2Core
 
 					throw new ArgumentException($"Property '{property}' not found in '{target}'.");
 
-				} else if (!(members [0] is FieldInfo)) {
+				} 
+
+                if (!(members[0] is FieldInfo)) {
 
 					throw new ArgumentException($"Set property: Unable to access '{property}' in '{target}'.");
 
 				}
 
-				FieldInfo fieldInfo = (members [0] as FieldInfo);
+				FieldInfo fieldInfo = (members[0] as FieldInfo);
 
 				fieldInfo.SetValue(target, fieldInfo.FieldType.ConvertObject(value));
 
@@ -180,7 +180,7 @@ namespace R2Core
 			return 
 				target.GetType().GetProperty(property) != null ||
 				target.GetType().GetMember(property).Length > 0 ||
-				((target is R2Dynamic) ? (target as R2Dynamic).Has(property) : false);
+				((target is R2Dynamic) && (target as R2Dynamic).Has(property));
 
 		}
 
@@ -199,8 +199,8 @@ namespace R2Core
 			
 			if (requiredType.IsGenericType) {
 
-				// Check if it's a generic IEnumerable
-				if (typeof(IEnumerable).IsAssignableFrom(requiredType)) {
+                // Check if it's a generic IEnumerable
+                if (typeof(IEnumerable).IsAssignableFrom(requiredType)) {
 
 					var enumeratedParameter = parameter as IEnumerable;
 
@@ -233,13 +233,14 @@ namespace R2Core
 
 						return dictionary;
 
-					} else  if (containedTypes.Length == 1) {
+					} if (containedTypes.Length == 1) {
 
 						// Assuming IEnumerable<T>
 						Type listGenericType = typeof (List<>);
 						Type listType = listGenericType.MakeGenericType(containedTypes);
 
 						IList list = (IList)Activator.CreateInstance(listType);
+
 						foreach(object p in enumeratedParameter) {
 
 							list.Add(containedTypes.FirstOrDefault().ConvertObject(p));
@@ -252,18 +253,18 @@ namespace R2Core
 
 				}
 
-				throw new NotImplementedException($"Dynamic conversion not implemented for type {requiredType} (using parameters {parameter})");
+				throw new ArgumentException($"Dynamic conversion not implemented for type {requiredType} (using parameters {parameter})");
 
-			} else if (typeof(IConvertible).IsAssignableFrom(requiredType)) {
+			} 
+
+            if (typeof(IConvertible).IsAssignableFrom(requiredType)) {
 
 				// Primitive type
 				return Convert.ChangeType(parameter, requiredType);
 
-			} else {
-
-				return parameter;
-
 			}
+
+            return parameter;
 
 		}
 

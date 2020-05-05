@@ -93,9 +93,11 @@ namespace R2Core.Network
 		
 		}
 
-		~TCPServerConnection() { Log.d($"Deallocating {this}."); }
+		~TCPServerConnection() { Log.i($"Deallocating {this}."); }
 
-		public string Address { get { return m_client.GetEndPoint()?.GetAddress(); } }
+        public string LocalAddress { get { return m_client.GetLocalEndPoint()?.GetAddress(); } }
+
+        public string Address { get { return m_client.GetEndPoint()?.GetAddress(); } }
 
 		public int Port { get { return m_client.GetEndPoint()?.GetPort() ?? 0; } }
 
@@ -111,7 +113,7 @@ namespace R2Core.Network
 
 			m_shouldRun = true;
 
-			Log.d($"Server accepted connection from {m_client.GetDescription()}.");
+			Log.i($"Server accepted connection from {m_client.GetDescription()}.");
 
 			m_listener = Task.Factory.StartNew(() => {
 
@@ -157,7 +159,7 @@ namespace R2Core.Network
 
 		public override string ToString() {
 			
-			return $"TCPServerConnection [`{m_description}`. Ready: {Ready}].";
+			return $"TCPServerConnection [`{m_description}`. Ready: {Ready}]";
 
 		}
 
@@ -165,7 +167,7 @@ namespace R2Core.Network
 
 			m_shouldRun = false;
 
-			Log.d($"{this} disconnected.");
+			Log.i($"{this} disconnected.");
 
 			m_connectionPoller.Stop();
 
@@ -182,11 +184,11 @@ namespace R2Core.Network
 			
 			}
 
-			if (OnDisconnect != null) { OnDisconnect(this, ex); } 
+            OnDisconnect?.Invoke(this, ex);
 
-		}
+        }
 
-		private void Reply(TCPMessage clientRequest) {
+        private void Reply(TCPMessage clientRequest) {
 		
 			try {
 

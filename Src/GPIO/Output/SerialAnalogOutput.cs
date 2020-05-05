@@ -14,7 +14,7 @@ namespace R2Core.GPIO
             set {
 
                 m_value = value;
-                Host.Set(DeviceId, NodeId, value);
+                Host.Set(DeviceId, Node.NodeId, value);
 
             }
 

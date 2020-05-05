@@ -82,7 +82,7 @@ namespace R2Core.Network
 
 			if (!m_previousPollSuccess && !pollSuccessful) {
 				
-				Log.d($"Polling failed to: {m_client.GetDescription()}. Will call fail delegate and stop polling.");
+				Log.i($"Polling failed to: {m_client.GetDescription()}. Will call fail delegate and stop polling.");
 				Stop();
 
 				try {

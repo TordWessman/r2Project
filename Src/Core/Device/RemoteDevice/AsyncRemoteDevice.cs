@@ -81,7 +81,7 @@ namespace R2Core.Device
 		/// <param name="propertyName">Property name.</param>
 		public Task GetValue(string propertyName) {
 		
-			AsyncRemoteDeviceRequest request = new AsyncRemoteDeviceRequest (propertyName, m_callback, m_device);
+			AsyncRemoteDeviceRequest request = new AsyncRemoteDeviceRequest(propertyName, m_callback, m_device);
 			return request.Get();
 
 		}

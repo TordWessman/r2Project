@@ -1,4 +1,4 @@
-// This file is part of r2Poject.
+﻿// This file is part of r2Poject.
 //
 // Copyright 2016 Tord Wessman
 // 
@@ -16,20 +16,17 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
+using R2Core.Common;
 using R2Core.Device;
-
 
 namespace R2Core.GPIO
 {
 	/// <summary>
 	/// Sensor or port returning a value of type ´T´.
 	/// </summary>
-	public interface IInputMeter<T> : IDevice {
-		
-		T Value { get; }
-	
-	}
+	public interface IInputMeter<T> : IDevice, IStatLoggable<T> {
+
+    }
 
 }
 

@@ -16,23 +16,18 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using R2Core.Device;
-using System.Threading;
-using R2Core;
 
 namespace R2Core.GPIO
 {
 	
 	internal class SerialDeviceManager {
 		
-		private IList<ISerialNode> m_nodes;
-		private IArduinoDeviceRouter m_host;
-		private int m_updateInterval;
+		private readonly IArduinoDeviceRouter m_host;
+		private readonly int m_updateInterval;
 
-		internal IList<ISerialNode> Nodes { get { return m_nodes; } }
+		internal IList<ISerialNode> Nodes { get; private set; }
 
 		/// <summary>
 		/// ISerialHost used for serial communication. Update interval: how often(in seconds) should the nodes update if in sleep mode(if zero, do not update. if below zero, use default value). 
@@ -42,7 +37,7 @@ namespace R2Core.GPIO
 		internal SerialDeviceManager(IArduinoDeviceRouter host, int updateInterval = -1) {
 
 			m_host = host;
-			m_nodes = new List<ISerialNode>();
+			Nodes = new List<ISerialNode>();
 			m_host.HostDidReset = NodeDidReset;
 			m_updateInterval = updateInterval < 0 ? Settings.Consts.SerialNodeUpdateTime() * 1000 : updateInterval * 1000;
 
@@ -53,13 +48,13 @@ namespace R2Core.GPIO
 			// Wake up node, just in case
 			m_host.PauseSleep(nodeId, Settings.Consts.SerialNodePauseSleepInterval());
 
-			m_nodes.Where(n => n.NodeId == nodeId).FirstOrDefault()?.Synchronize();
+			Nodes.FirstOrDefault(n => n.NodeId == nodeId)?.Synchronize();
 
 		}
 
 		internal ISerialNode GetNode(int nodeId) {
 		
-			ISerialNode node = m_nodes.Where(n => n.NodeId == (byte)nodeId).FirstOrDefault();
+			ISerialNode node = Nodes.FirstOrDefault(n => n.NodeId == (byte)nodeId);
 
 			if (node == null) {
 
@@ -70,7 +65,7 @@ namespace R2Core.GPIO
 				}
 
 				node = new SerialNode((byte)nodeId, m_host, m_updateInterval);
-				m_nodes.Add(node);
+				Nodes.Add(node);
 
 			}
 
@@ -79,5 +74,6 @@ namespace R2Core.GPIO
 		}
 
 	}
+
 }
 

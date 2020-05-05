@@ -51,7 +51,7 @@ namespace R2Core.Network
 
 		~ServerBase() {
 
-			Log.d($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
+			Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
 			Stop();
             m_serviceTask?.Dispose();
 
@@ -85,7 +85,7 @@ namespace R2Core.Network
 
 		protected IWebEndpoint GetEndpoint(string path) {
 		
-			return m_endpoints.Where(endpoint => System.Text.RegularExpressions.Regex.IsMatch(path, endpoint.UriPath)).FirstOrDefault();
+			return m_endpoints.FirstOrDefault(endpoint => System.Text.RegularExpressions.Regex.IsMatch(path, endpoint.UriPath));
 
 		}
 
@@ -124,7 +124,7 @@ namespace R2Core.Network
 
 		#region ITaskMonitored implementation
 		public IDictionary<string,Task> GetTasksToObserve() {
-			return new Dictionary<string, Task>() { { Identifier, ServiceTask} };
+			return new Dictionary<string, Task> { { Identifier, ServiceTask} };
 		}
 		#endregion
 

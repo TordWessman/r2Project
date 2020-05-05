@@ -18,14 +18,10 @@
 //
 using System;
 using NUnit.Framework;
-using R2Core.Tests;
-using R2Core;
 using R2Core.Network;
 using System.Threading;
-using R2Core.Data;
 using R2Core.Scripting;
 using System.Collections.Generic;
-using R2Core.Common;
 
 namespace R2Core.Tests
 {
@@ -55,16 +51,16 @@ namespace R2Core.Tests
 
 			IWebEndpoint ep = factory.CreateJsonEndpoint(receiver);
 
-			INetworkMessage inputObject = new NetworkMessage() { 
+			INetworkMessage inputObject = new NetworkMessage { 
 				Payload = new DummyInput(),
-				Headers = new Dictionary<string, object>() { { "InputBaz", "InputFooBar" } },
+				Headers = new Dictionary<string, object> { { "InputBaz", "InputFooBar" } },
 				Destination = receiver.DefaultPath
 			};
 
 			INetworkMessage output = ep.Interpret(inputObject, null);
 
 			Assert.AreEqual(response.Payload.Foo, output.Payload.Foo);
-			Assert.AreEqual(response.Headers ["Baz"], "FooBar");
+			Assert.AreEqual(response.Headers["Baz"], "FooBar");
 
 		}
 
@@ -79,7 +75,7 @@ namespace R2Core.Tests
 			rec.AddDevice(dummyObject);
 
 			var request = new DeviceRequest() {
-				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
+				Params = new List<object> {"Foo", 42, new Dictionary<string,string> {{"Cat", "Dog"}}}.ToArray(),
 				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
@@ -89,7 +85,7 @@ namespace R2Core.Tests
 
 			Assert.AreEqual("dummy_device", deserialized.Identifier);
 			Assert.NotNull(deserialized.Params[2]);
-			Assert.AreEqual("Dog", deserialized.Params [2].Cat);
+			Assert.AreEqual("Dog", deserialized.Params[2].Cat);
 
 			INetworkMessage result = rec.OnReceive(new NetworkMessage{Payload = deserialized}, null);
 
@@ -186,8 +182,8 @@ namespace R2Core.Tests
 			Assert.AreEqual(200, response.Code);
 			Assert.AreEqual(6, (response.Payload as byte[]).Length);
 
-			Assert.AreEqual('d', (response.Payload as byte[]) [0]);
-			Assert.AreEqual('h', (response.Payload as byte[]) [4]);
+			Assert.AreEqual('d', (response.Payload as byte[])[0]);
+			Assert.AreEqual('h', (response.Payload as byte[])[4]);
 
 			webServer.Stop();
 
@@ -295,7 +291,7 @@ namespace R2Core.Tests
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 
 			var requestPayload = new DeviceRequest() {
-				Params = new List<object>() {"Foo", 42, new Dictionary<string,string>() {{"Cat", "Dog"}}}.ToArray(),
+				Params = new List<object> {"Foo", 42, new Dictionary<string,string> {{"Cat", "Dog"}}}.ToArray(),
 				ActionType =  DeviceRequest.ObjectActionType.Invoke,
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
@@ -338,7 +334,7 @@ namespace R2Core.Tests
 			var httpPort = 1118;
 
 			// Server name
-			var myHostName = "test_host";
+			IIdentity identity = new DummyIdentity();
 
 			// Create the routing server that will route incomming tcp requests
 			TCPServer routingServer = factory.CreateTcpServer("tcp_router", tcpPort);
@@ -361,7 +357,7 @@ namespace R2Core.Tests
 
 			// Server side router that will route traffic to a local servers
 			TCPClientServer clientServer = factory.CreateTcpClientServer("client_server");
-			clientServer.Configure(myHostName, "127.0.0.1", tcpPort);
+			clientServer.Configure(identity, "127.0.0.1", tcpPort);
 			clientServer.Start();
 
 			Thread.Sleep(100);
@@ -387,7 +383,7 @@ namespace R2Core.Tests
 			httpServer.AddEndpoint(ep);
 
 			// Create the remote TCP client (imitate being a HTTP client)
-			IMessageClient client = factory.CreateTcpClient("client", "127.0.0.1", tcpPort, myHostName);
+			IMessageClient client = factory.CreateTcpClient("client", "127.0.0.1", tcpPort, identity.Name);
 			client.Start();
 
 			// Override default behaviour: Set the destination server type. This means that all requests from this client should be directed to the HTTP server (if present)
@@ -400,7 +396,7 @@ namespace R2Core.Tests
 			Assert.AreEqual("din mamma: argh", response.Payload);
 			Assert.AreEqual(210, response.Code);
 
-			IMessageClient httpClient = factory.CreateHttpClient("http_client", myHostName);
+			IMessageClient httpClient = factory.CreateHttpClient("http_client", identity.Name);
 
 			HttpMessage httpMessage = new HttpMessage () { Destination = $"http://127.0.0.1:{httpPort}/not_found", Payload = "argh" };
 			httpMessage.ContentType = "text/string";

@@ -30,13 +30,10 @@ namespace R2Core.Network
 	/// </summary>
 	public class TCPClient : DeviceBase, IMessageClient {
 		
-		private string m_host;
-		private int m_port;
 		private TcpClient m_client;
 		private ITCPPackageFactory<TCPMessage> m_serializer;
 		private System.Threading.Tasks.Task m_receiverTask;
-		private bool m_shouldRun = false;
-		private IDictionary<string, object> m_headers;
+		private bool m_shouldRun;
 
 		private readonly object m_sendLock = new object();
 		private AutoResetEvent m_writeLock;
@@ -59,22 +56,19 @@ namespace R2Core.Network
 		// if false, nothing will be read from remote host.
 		private bool m_shouldListen = true;
 
-		// True if sending or receiving data.
-		private bool m_sending = false;
-
-		public bool Busy => m_sending;
+		public bool Busy { get; private set; }
 
 		/// <summary>
 		/// Timeout in ms before a send operation dies.
 		/// </summary>
 		public int Timeout = 30000;
 
-		public IDictionary<string, object> Headers { get { return m_headers; } set { m_headers = value; } }
+        public IDictionary<string, object> Headers { get; set; }
 
 		public TCPClient(string id, ITCPPackageFactory<TCPMessage> serializer, string host, int port) : base(id) {
 
-			m_host = host;
-			m_port = port;
+			Address = host;
+			Port = port;
 			m_serializer = serializer;
 			m_observers = new List<WeakReference<IMessageClientObserver>>();
 
@@ -82,35 +76,36 @@ namespace R2Core.Network
 
 		~TCPClient() {
 		
-			Log.d($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
+			Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
 			Stop();
 			m_receiverTask?.Dispose();
 
 		}
 
-		public string Address { get { return m_host; } }
-		public int Port { get { return m_port; } }
+        public string LocalAddress => m_client?.GetLocalEndPoint()?.GetAddress();
+        public string Address { get; private set; }
+		public int Port { get; private set; }
 		public override bool Ready { get { return m_shouldRun && m_client?.IsConnected() == true; } }
 
         public override void Start() {
 		
-			Log.d($"TCPClient will connect to {Address}:{Port}");
+			Log.i($"TCPClient will connect to {Address}:{Port}");
 
 			m_readError = null;
 			m_shouldRun = true;
-            m_client = new TcpClient();
-            m_client.SendTimeout = Timeout;
-			m_client.Client.Blocking = true;
-			m_client.Connect(m_host, m_port);
-			m_receiverTask = Receive();
+            m_client = new TcpClient {
+                SendTimeout = Timeout
+            };
+            m_client.Client.Blocking = true;
+			m_client.Connect(Address, Port);
+
+            m_receiverTask = Receive();
 			m_ping = new PingService(this, Timeout);
 			m_connectionPoller = new ConnectionPoller(m_client, () => {
 
 				if (m_shouldRun) { Stop(); }
 
 			});
-
-
 
 			//m_ping.Start();
 
@@ -120,7 +115,7 @@ namespace R2Core.Network
 
 			if (!m_shouldRun) { return; }
 
-			Log.d($"{this} will Stop.");
+			Log.i($"{this} will Stop.");
 
 			m_shouldRun = false;
 
@@ -188,7 +183,7 @@ namespace R2Core.Network
 
 			try {
 
-				m_sending = true;
+				Busy = true;
 
     			lock(m_sendLock) {
 
@@ -273,7 +268,7 @@ namespace R2Core.Network
 
 			} finally {
 
-				m_sending = false;
+				Busy = false;
 
 			}
 
