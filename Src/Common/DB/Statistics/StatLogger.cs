@@ -33,6 +33,12 @@ namespace R2Core.Common {
         private IDictionary<string, IDevice> m_processes;
 
         /// <summary>
+        /// Userfriendly name added to Description parameter of the StatLogEntry.
+        /// </summary>
+        /// <value>The device names.</value>
+        public IDictionary<string, string> DeviceNames { get; private set; }
+
+        /// <summary>
         /// The types of IStatLoggable that has logging supported.
         /// </summary>
         public readonly Type[] AllowedTypes = { typeof(int), typeof(float), typeof(byte), typeof(double), typeof(long), typeof(string) };
@@ -41,6 +47,7 @@ namespace R2Core.Common {
 
             m_adapter = adapter;
             m_processes = new Dictionary<string, IDevice>();
+            DeviceNames = new Dictionary<string, string>();
 
         }
 
@@ -92,7 +99,14 @@ namespace R2Core.Common {
                         if (startTime != null && startTime > entry.Timestamp) { continue; }
                         if (endTime != null && endTime < entry.Timestamp) { continue; }
 
-                        (entries[identifier] as List<StatLogEntry<T>>).Add(entry);
+                        (entries[identifier] as List<StatLogEntry<T>>).Add(new StatLogEntry<T> { 
+                            Value = entry.Value,
+                            Timestamp = entry.Timestamp,
+                            Description = entry.Description,
+                            Identifier = entry.Identifier,
+                            Id = entry.Id,
+                            Name = DeviceNames.ContainsKey(entry.Identifier) ? DeviceNames[entry.Identifier] : entry.Identifier
+                        });
 
                     }
 
@@ -172,10 +186,15 @@ namespace R2Core.Common {
 
         }
 
+        public void SetDescription(IDevice device, string description) {
+
+            m_adapter.SetDescription(device.Identifier, description);
+
+        }
+
         private void LogEntry(string identifier, string value) {
 
-            double result = 0;
-            double.TryParse(value, out result);
+            double.TryParse(value, out double result);
 
             lock (m_adapter) {
 
@@ -185,11 +204,16 @@ namespace R2Core.Common {
 
         }
 
-        private void LogEntry(string identifier, double value) {
+        private void LogEntry(string identifier, double value, string description = null) {
 
             lock (m_adapter) {
 
-                m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
+                m_adapter.SaveEntry(new StatLogEntry<double> { 
+                    Identifier = identifier, 
+                    Value = value, 
+                    Timestamp = DateTime.Now, 
+                    Description = description 
+               });
 
             }
 
