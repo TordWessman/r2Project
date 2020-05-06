@@ -257,6 +257,12 @@ namespace R2Core
 
 			} 
 
+            if (requiredType.IsEnum) {
+
+                return Enum.ToObject(requiredType, parameter);
+
+            }
+
             if (typeof(IConvertible).IsAssignableFrom(requiredType)) {
 
 				// Primitive type

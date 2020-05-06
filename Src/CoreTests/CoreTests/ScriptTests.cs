@@ -65,7 +65,7 @@ namespace R2Core.Tests
 
 		}
 
-		[Test]
+        [Test]
 		public void PythonTests() {
 			PrintName();
 
@@ -85,12 +85,11 @@ namespace R2Core.Tests
 		
 		}
 
-		[Test]
+        [Test]
 		public void PythonRemoteScriptTests() {
 			PrintName();
 
 			dynamic python = m_pythonScriptFactory.CreateScript("python_test");
-
 
             m_deviceManager.Add(python);
 			var factory = new WebFactory("wf", new JsonSerialization("ser"));

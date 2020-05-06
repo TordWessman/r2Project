@@ -88,19 +88,20 @@
     <Compile Include="CoreTests\HostSynchronizerTests.cs" />
     <Compile Include="DummyClasses\Networking\ServerInstanceContainer.cs" />
     <Compile Include="DummyClasses\Networking\ClientConnectionWebEndpoint.cs" />
-    <Compile Include="DummyClasses\DeviceExtensions.cs" />
     <Compile Include="DummyClasses\Networking\DummyNetworkConnection.cs" />
     <Compile Include="DummyClasses\DummyIdentity.cs" />
     <Compile Include="DummyClasses\DummyDBAdapter.cs" />
     <Compile Include="DummyClasses\MemoryDatabase.cs" />
     <Compile Include="DummyClasses\DummyStatLoggerDBAdapter.cs" />
     <Compile Include="CoreTests\DatabaseTests.cs" />
+    <Compile Include="Extensions\DeviceExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="DummyClasses\" />
     <Folder Include="CoreTests\" />
     <Folder Include="Integration\" />
+    <Folder Include="Extensions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\R2Core.csproj">

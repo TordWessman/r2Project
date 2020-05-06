@@ -25,8 +25,22 @@ using System.Threading.Tasks;
 using R2Core.Scripting;
 namespace R2Core.Tests
 {
-	
-	[TestFixture]
+
+
+    /// <summary>
+    /// Only to test enum transcriptions.
+    /// </summary>
+    class DummyEnumClass : DeviceBase {
+
+        public DummyEnumClass() : base("dummy_enum") { }
+
+        public LogLevel LogLevel = LogLevel.Info;
+
+        public void SetLogLevel(LogLevel logLevel) { LogLevel = logLevel; }
+
+    }
+
+    [TestFixture]
 	public class DeviceTests: NetworkTests, IDeviceObserver {
 
 		const int tcp_port = 4444;
@@ -36,7 +50,7 @@ namespace R2Core.Tests
 
 			IServer s = factory.CreateTcpServer("s", tcp_port + 9998);
 			s.Start();
-			Thread.Sleep(500);
+            s.WaitFor();
 			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter(m_deviceManager);
 
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
@@ -77,7 +91,7 @@ namespace R2Core.Tests
 			Thread.Sleep(500);
 		}
 
-		[Test]
+        [Test]
 		public void TestRemoteDevice_UsingServers() {
 
 			IServer s = factory.CreateTcpServer("s", tcp_port + 9990);
@@ -88,14 +102,15 @@ namespace R2Core.Tests
 			rec.AddDevice(dummyObject);
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 			s.AddEndpoint(ep);
-			Thread.Sleep(200);
+            s.WaitFor();
 
-			var client = factory.CreateTcpClient("c", "localhost", tcp_port + 9990);
+            var client = factory.CreateTcpClient("c", "localhost", tcp_port + 9990);
 			client.Start();
 
-			Thread.Sleep(200);
-			//Client should be connected
-			Assert.IsTrue(client.Ready);
+            client.WaitFor();
+
+            //Client should be connected
+            Assert.IsTrue(client.Ready);
 
 			IClientConnection connection = new HostConnection("hc", client);
 
@@ -153,9 +168,27 @@ namespace R2Core.Tests
 		
 			failTask.Wait();
 
-			s.Stop();
+            // Test that enumerations can be changed remotely
+            DummyEnumClass dummyEnum = new DummyEnumClass();
+            rec.AddDevice(dummyEnum);
+
+            dynamic remoteDummyEnum = new RemoteDevice(dummyEnum.Identifier, Guid.Empty, connection);
+
+            Assert.AreEqual(LogLevel.Info, dummyEnum.LogLevel);
+            remoteDummyEnum.SetLogLevel(LogLevel.Message);
+            Assert.AreEqual(LogLevel.Message, dummyEnum.LogLevel);
+            remoteDummyEnum.SetLogLevel(2);
+            Assert.AreEqual(LogLevel.Warning, dummyEnum.LogLevel);
+            remoteDummyEnum.LogLevel = LogLevel.Error;
+            Assert.AreEqual(LogLevel.Error, dummyEnum.LogLevel);
+            remoteDummyEnum.LogLevel = 4;
+            Assert.AreEqual(LogLevel.Temp, dummyEnum.LogLevel);
+
+            // Stop everything
+            s.Stop();
 			client.Stop();
 			Thread.Sleep(500);
+
 		}
 
 
