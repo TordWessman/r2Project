@@ -426,8 +426,20 @@ namespace R2Core.Tests {
 
             Assert.AreEqual(1, entries.Count());
 
+            // Description has not been set
+            Assert.AreEqual("", entries.First().Description);
+
+            // Name has not been set and should be equal to Identifier
+            Assert.AreEqual(d1.Identifier, entries.First().Name);
+
+            logger.SetDescription(d1, "Din mamma");
+            logger.DeviceNames[d1.Identifier] = "Pappa"; // Make all "d1" get a Name property
+
             IEnumerable<StatLogEntry<int>> entriesInt = logger.GetEntries<int>(new string[] { "d1" })["d1"];
             IEnumerable<StatLogEntry<float>> entriesFloat = logger.GetEntries<float>(new string[] { "d1" })["d1"];
+
+            Assert.AreEqual("Din mamma", entriesInt.First().Description);
+            Assert.AreEqual("Pappa", entriesInt.First().Name);
 
             Assert.AreEqual(1, entriesInt.Count());
             Assert.AreEqual(1, entriesFloat.Count());

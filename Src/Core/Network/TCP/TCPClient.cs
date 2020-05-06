@@ -76,7 +76,7 @@ namespace R2Core.Network
 
 		~TCPClient() {
 		
-			Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
+			Log.i($"Deallocating TCPClient [{Identifier}:{Guid.ToString()}].");
 			Stop();
 			m_receiverTask?.Dispose();
 
@@ -276,7 +276,7 @@ namespace R2Core.Network
 
 		public override string ToString() {
 			
-			return $"TCPClient: `{m_client.GetDescription()}`. Ready: {Ready}.";
+			return $"TCPClient: `{m_client?.GetDescription()}`. Ready: {Ready}.";
 		
 		}
 

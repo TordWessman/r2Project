@@ -31,7 +31,7 @@ namespace R2Core.Network {
 
 		private readonly TCPServer m_tcpServer;
 		private IDictionary<string, IClientConnection> m_connections;
-		private static string HeaderHostName = Settings.Consts.ConnectionRouterHeaderHostNameKey();
+		private static readonly string HeaderHostName = Settings.Consts.ConnectionRouterHeaderHostNameKey();
 
 		private readonly object m_lock = new object();
 

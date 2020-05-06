@@ -20,6 +20,7 @@ using System;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 
 namespace R2Core.Network
 {
@@ -141,7 +142,7 @@ namespace R2Core.Network
 
 					if (m_client.Available < 1) {
 						
-						System.Threading.Thread.Yield();
+						Thread.Yield();
 						continue;
 
 					} 
@@ -194,8 +195,11 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					Log.x (ex);
-					response = new NetworkErrorMessage(ex);
+                    if (ex is ThreadAbortException) { return; }
+
+                    Log.x(ex);
+
+                    response = new NetworkErrorMessage(ex);
 
 				}
 
@@ -260,7 +264,9 @@ namespace R2Core.Network
 
 		}
 
-	}
+        public override string ToString() => $"TCPClientServer [Connected: {Ready}. Local port: {m_client?.GetLocalEndPoint()?.Port}]";
+
+    }
 
 }
 

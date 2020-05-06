@@ -49,11 +49,11 @@ namespace R2Core.Network
 
 		public int Timeout = 30000;
 
-		/// <summary>
-		/// Returns all current connections
-		/// </summary>
-		/// <value>The connections.</value>
-		public IEnumerable<IClientConnection> Connections { get { return m_connections; } }
+        /// <summary>
+        /// Returns all current connections
+        /// </summary>
+        /// <value>The connections.</value>
+        public IEnumerable<IClientConnection> Connections => m_connections;
 
 		public TCPServer(string id, int port, ITCPPackageFactory<TCPMessage> packageFactory) : base(id) {
 

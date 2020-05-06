@@ -256,6 +256,7 @@ namespace R2Core.Network
 
                     output.Close();
                     response.Close();
+                    Log.i($"HttpServer: did close stream. ");
                 }
             });
 

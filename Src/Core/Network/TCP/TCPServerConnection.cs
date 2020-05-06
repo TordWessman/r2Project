@@ -19,11 +19,8 @@
 using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Net;
-using System.IO;
 using R2Core.Device;
-using System.Threading;
 
 namespace R2Core.Network
 {
@@ -34,7 +31,7 @@ namespace R2Core.Network
 	public class TCPServerConnection : DeviceBase, IClientConnection {
 
 		// Delegate called when a message has been received
-		private Func<INetworkMessage,IPEndPoint,INetworkMessage> m_responseDelegate;
+		private Func<INetworkMessage, IPEndPoint, INetworkMessage> m_responseDelegate;
 
 		// Accept-client provided by the server
 		private TcpClient m_client;
@@ -61,15 +58,12 @@ namespace R2Core.Network
 		private ConnectionPoller m_connectionPoller;
 
 		// Used to retain the client Description, even after disconnection.
-		private string m_description;
+		private readonly string m_description;
 
 		// if false, the blocking read operation will cease.
 		private bool m_shouldListen = true;
 
-        // True if sending or receiving data.
-        private bool m_sending = false;
-
-        public bool Busy => m_sending;
+        public bool Busy { get; private set; }
         public event OnReceiveHandler OnReceive;
 		public event OnDisconnectHandler OnDisconnect;
 
@@ -192,7 +186,7 @@ namespace R2Core.Network
 		
 			try {
 
-				INetworkMessage responseToClient = m_responseDelegate(clientRequest, (IPEndPoint)m_client.GetEndPoint());
+				INetworkMessage responseToClient = m_responseDelegate(clientRequest, m_client.GetEndPoint());
 
 				// Only write directly back to stream if not a broadcast message. 
 				Write(new TCPMessage(responseToClient));
@@ -231,12 +225,12 @@ namespace R2Core.Network
 				}
 
 				if (!clientRequest.IsPingOrPong()) {
-				
-					if (OnReceive != null) { OnReceive(clientRequest, m_client.GetEndPoint()); }
 
-				}
+                    OnReceive?.Invoke(clientRequest, m_client.GetEndPoint());
 
-			} catch (Exception ex) {
+                }
+
+            } catch (Exception ex) {
 
 				m_readError = ex;
 
@@ -259,7 +253,7 @@ namespace R2Core.Network
 
             try {
 
-                m_sending = true;
+                Busy = true;
 
                 lock (m_writeLock) {
 
@@ -287,7 +281,7 @@ namespace R2Core.Network
 
             } finally {
 
-                m_sending = false;
+                Busy = false;
             
             }
 
