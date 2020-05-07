@@ -56,8 +56,8 @@ namespace R2Core.Common {
             Database = database;
 
         }
-
-        public bool Ready => Database.Ready;
+        
+        public virtual bool Ready => Database.Ready;
 
         public virtual void SetUp() {
 

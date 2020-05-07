@@ -59,14 +59,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IPushNotificationProxy.cs" />
-    <Compile Include="IPushNotificationFacade.cs" />
-    <Compile Include="ApplePushNotificationFacade.cs" />
-    <Compile Include="IPushNotification.cs" />
-    <Compile Include="PushNotificationHandler.cs" />
-    <Compile Include="PushNotificationFactory.cs" />
-    <Compile Include="PushNotification.cs" />
-    <Compile Include="PushNotificationClientType.cs" />
+    <Compile Include="Old\ApplePushNotificationFacade.cs" />
+    <Compile Include="Old\IPushNotification.cs" />
+    <Compile Include="Old\IPushNotificationFacade.cs" />
+    <Compile Include="Old\IPushNotificationProxy.cs" />
+    <Compile Include="Old\PushNotification.cs" />
+    <Compile Include="Old\PushNotificationClientType.cs" />
+    <Compile Include="Old\PushNotificationFactory.cs" />
+    <Compile Include="Old\PushNotificationHandler.cs" />
+    <Compile Include="PushNotificationStorage.cs" />
+    <Compile Include="PushNotificationDBAdapter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -80,6 +82,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="Old\packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Old\" />
   </ItemGroup>
 </Project>

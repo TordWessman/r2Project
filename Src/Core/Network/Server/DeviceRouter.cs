@@ -130,7 +130,7 @@ namespace R2Core.Network
 
 			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Get) { 
 
-				if (m_invoker.ContainsPropertyOrMember(message.Payload, "Action")) {
+				if (m_invoker.ContainsMember(message.Payload, "Action")) {
 
 					// Include the value of the invoked property
 					response.ActionResponse = m_invoker.Get(device, message.Payload.Action);

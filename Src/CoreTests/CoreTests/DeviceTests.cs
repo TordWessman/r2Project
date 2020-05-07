@@ -23,6 +23,9 @@ using System.Threading;
 using R2Core.Device;
 using System.Threading.Tasks;
 using R2Core.Scripting;
+using System.Linq;
+using System.Collections.Generic;
+
 namespace R2Core.Tests
 {
 
@@ -184,6 +187,34 @@ namespace R2Core.Tests
             remoteDummyEnum.LogLevel = 4;
             Assert.AreEqual(LogLevel.Temp, dummyEnum.LogLevel);
 
+            /// -- Test struct invocation
+            InvokableDummy dummyInvokable = new InvokableDummy();
+            rec.AddDevice(dummyInvokable);
+
+            dynamic remoteInvokable = new RemoteDevice(dummyInvokable.Identifier, Guid.Empty, connection);
+
+            Assert.AreEqual(0, remoteInvokable.Decodable.AnInt);
+            Assert.IsNull(remoteInvokable.Decodable.SomeStrings);
+
+            InvokableDecodableDummy decodable = new InvokableDecodableDummy { AnInt = 43, SomeStrings = new string[] { "Katt", "Hund" } };
+
+            remoteInvokable.SetDecodable(decodable);
+
+            Assert.AreEqual(43, dummyInvokable.Decodable.AnInt);
+            Assert.AreEqual(2, dummyInvokable.Decodable.SomeStrings.Count());
+            Assert.AreEqual("Hund", dummyInvokable.Decodable.SomeStrings.Last());
+
+            remoteInvokable.Decodable = new InvokableDecodableDummy { AnInt = 44, SomeStrings = new string[] { "Din", "Mammas", "Ost" } };
+            Assert.AreEqual(44, dummyInvokable.Decodable.AnInt);
+            Assert.AreEqual(3, dummyInvokable.Decodable.SomeStrings.Count());
+            Assert.AreEqual("Ost", dummyInvokable.Decodable.SomeStrings.Last());
+
+            remoteInvokable.Decodable = new InvokableDecodableDummy { Nested = new InvokableNestedStruct { AString = "Foo" } };
+
+            Assert.AreEqual(0, dummyInvokable.Decodable.AnInt);
+            Assert.IsNull(dummyInvokable.Decodable.SomeStrings);
+            Assert.AreEqual("Foo", dummyInvokable.Decodable.Nested.AString);
+
             // Stop everything
             s.Stop();
 			client.Stop();
@@ -268,7 +299,6 @@ namespace R2Core.Tests
             Thread.Sleep(100); // They should be done by now... (but maybe not)
 
             Assert.AreEqual(10, receiveCount); // .. and all 3 should have been executed.
-
 
             // Shoul lose requests before the last one.
             remoteDevice.LossyRequests = true;

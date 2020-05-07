@@ -156,8 +156,8 @@ namespace R2Core.Tests
 			Assert.AreEqual("42", o.Property);
 			Assert.AreEqual("42", invoker.Get(o,"Property"));
 			Assert.AreEqual(42, invoker.Get(o,"Member"));
-			Assert.IsTrue(invoker.ContainsPropertyOrMember(o, "Member"));
-			Assert.IsFalse(invoker.ContainsPropertyOrMember(o, "NotAMember"));
+			Assert.IsTrue(invoker.ContainsMember(o, "Member"));
+			Assert.IsFalse(invoker.ContainsMember(o, "NotAMember"));
 
 			//Test invoking a IEnumerable<>
 			IEnumerable<object> aStringArray = new List<object>{ "foo", "bar" };
@@ -188,9 +188,17 @@ namespace R2Core.Tests
 
 			}
 
-			//var dummyDevice = new DummyDevice();
+            Assert.AreEqual(0, o.Decodable.AnInt);
+            IDictionary<string, object> parmsToDecodable = new Dictionary<string, object>();
 
-		}
+            parmsToDecodable["AnInt"] = 42;
+            parmsToDecodable["SomeStrings"] = new List<string> { "Katt", "Hund" };
+            invoker.Invoke(o, "SetDecodable", new object[] { parmsToDecodable });
+            Assert.AreEqual(42, o.Decodable.AnInt);
+            Assert.AreEqual(2, o.Decodable.SomeStrings.Count());
+            Assert.AreEqual("Hund", o.Decodable.SomeStrings.Last());
+
+        }
 
 
     }
