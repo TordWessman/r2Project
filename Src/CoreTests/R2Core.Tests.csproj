@@ -95,6 +95,7 @@
     <Compile Include="DummyClasses\DummyStatLoggerDBAdapter.cs" />
     <Compile Include="CoreTests\DatabaseTests.cs" />
     <Compile Include="Extensions\DeviceExtensions.cs" />
+    <Compile Include="MemoryChecker.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
