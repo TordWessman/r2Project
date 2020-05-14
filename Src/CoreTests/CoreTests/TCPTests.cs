@@ -66,7 +66,6 @@ namespace R2Core.Tests
 
 			Assert.AreEqual("dummyXYZ", punwrapped.Payload.Identifier);
 
-
 			// Test string serialization
 
 			p = new TCPMessage() { Destination = "path", Headers = headers, Payload = "StringValue"};
@@ -87,7 +86,6 @@ namespace R2Core.Tests
 			for (int i = 0; i < byteArray.Length; i++) {
 				Assert.AreEqual(byteArray[i], punwrapped.Payload[i]);
 			}
-
 
 			// Test null-payload
 			p = new TCPMessage() { Destination = "path"};
@@ -115,15 +113,13 @@ namespace R2Core.Tests
 
 			IServer s = factory.CreateTcpServer("s", tcp_port);
 			s.Start();
-			Thread.Sleep(200);
-			Assert.IsTrue(s.Ready);
-			Thread.Sleep(200);
+            s.WaitFor();
 			s.Stop();
 			Thread.Sleep(200);
 			Assert.IsFalse(s.Ready);
 
 			s.Start();
-			Thread.Sleep(200);
+            s.WaitFor();
 
 			IMessageClient client = factory.CreateTcpClient("c", "localhost", tcp_port);
 
@@ -147,8 +143,6 @@ namespace R2Core.Tests
 			client.Stop();
 			s.Stop();
 
-
-
 		}
 
 
@@ -158,7 +152,7 @@ namespace R2Core.Tests
 
 			IServer s = factory.CreateTcpServer("s", tcp_port + 45);
 			s.Start();
-			Thread.Sleep(100);
+            s.WaitFor();
 
 			// Set up scripts and add endpoint
 			var scriptFactory = new PythonScriptFactory("sf", Settings.Instance.GetPythonPaths(), m_deviceManager);
@@ -219,7 +213,7 @@ namespace R2Core.Tests
 			rec.AddDevice(dummyObject);
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 			s.AddEndpoint(ep);
-			Thread.Sleep(500);
+            s.WaitFor();
 		
 			var client = factory.CreateTcpClient("c", "localhost", tcp_port + 44);
 			client.Start();
@@ -234,7 +228,7 @@ namespace R2Core.Tests
 				Identifier = "dummy_device"};
 			
 			TCPMessage  message = new TCPMessage() { Destination = Settings.Consts.DeviceDestination(), Payload = requestPayload};
-			Thread.Sleep(500);
+			
 			INetworkMessage response = client.Send(message);
 
 			Assert.AreEqual(NetworkStatusCode.Ok, (NetworkStatusCode)response.Code); 
@@ -276,11 +270,11 @@ namespace R2Core.Tests
 			s.Start();
 			DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
 			dummyObject.Bar = "XYZ";
-			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter(m_deviceManager);
+			DeviceRouter rec = (DeviceRouter)factory.CreateDeviceRouter(m_deviceManager);
 			rec.AddDevice(dummyObject);
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 			s.AddEndpoint(ep);
-			Thread.Sleep(500);
+            s.WaitFor();
 
 			var client = factory.CreateTcpClient("c", "localhost", tcp_port + 1144);
 			client.Start();
@@ -315,7 +309,7 @@ namespace R2Core.Tests
 			DummyEndpoint ep = new DummyEndpoint("apa");
 			s.AddEndpoint(ep);
 
-			Thread.Sleep(200);
+            s.WaitFor();
 
 			DummyClientObserver observer1 = new DummyClientObserver();
 			DummyClientObserver observer2 = new DummyClientObserver();
@@ -395,13 +389,13 @@ namespace R2Core.Tests
 			DummyEndpoint ep = new DummyEndpoint("apa");
 			s.AddEndpoint(ep);
 
-			//DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
-			//dummyObject.Bar = "XYZ";
-			//DeviceRouter rec = (DeviceRouter)factory.CreateDeviceObjectReceiver();
-			//rec.AddDevice(dummyObject);
-			//IWebEndpoint ep = factory.CreateJsonEndpoint("/test", rec);
-			//s.AddEndpoint(ep);
-			Thread.Sleep(100);
+            //DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
+            //dummyObject.Bar = "XYZ";
+            //DeviceRouter rec = (DeviceRouter)factory.CreateDeviceObjectReceiver();
+            //rec.AddDevice(dummyObject);
+            //IWebEndpoint ep = factory.CreateJsonEndpoint("/test", rec);
+            //s.AddEndpoint(ep);
+            s.WaitFor();
 
 			DummyClientObserver observer = new DummyClientObserver("ehh");
 
@@ -446,15 +440,15 @@ namespace R2Core.Tests
 	
 			s.Stop();
 			client.Stop();
-			Thread.Sleep(500);
-
 
 		}
 
 		bool onClientDisconnect = false;
 		bool waitingForClientStop = true;
+        bool waitingForClientConnect = true;
+        bool waitingForConnectionDelegateSetup = true;
 
-		public void TestTCP_ClientFunc() {
+        public void TestTCP_ClientFunc() {
 
             DummyClientObserver observer = new DummyClientObserver {
                 OnCloseAsserter = (c, exception) => {
@@ -470,12 +464,14 @@ namespace R2Core.Tests
 			client.AddClientObserver(observer);
 			client.Start();
 
-			Thread.Sleep(200);
+            client.WaitFor();
+            waitingForClientConnect = false;
+            while (waitingForConnectionDelegateSetup) { Thread.Sleep(100); }
 
-			TCPMessage message = new TCPMessage { Destination = "apa", Payload = "bleh"};
+            TCPMessage message = new TCPMessage { Destination = "apa", Payload = "bleh"};
 			client.Send(message);
 
-			client.Stop();
+            client.Stop();
 			Thread.Sleep(200);
 			client = null;
 			waitingForClientStop = false;
@@ -486,21 +482,21 @@ namespace R2Core.Tests
 		public void TestTCP_ServerClientConnectionsDelegatesTest() {
 			PrintName();
 
-			TCPServer s = (TCPServer)factory.CreateTcpServer(Settings.Identifiers.TcpServer(), tcp_port);
+			TCPServer s = factory.CreateTcpServer(Settings.Identifiers.TcpServer(), tcp_port);
 			s.Timeout = 1000;
 			s.Start();
 			DummyEndpoint ep = new DummyEndpoint("apa");
 			s.AddEndpoint(ep);
-			Thread.Sleep(200);
+            s.WaitFor();
 
 			Thread t = new Thread(new ThreadStart(TestTCP_ClientFunc));
 			t.Start();
 			bool onServerReceived = false;
 			bool onServerDisconnect = false;
 
-			Thread.Sleep(200);
+            while (waitingForClientConnect) { Thread.Sleep(100); }
 
-			IClientConnection connection = s.Connections.FirstOrDefault();
+            IClientConnection connection = s.Connections.FirstOrDefault();
 
 			connection.OnDisconnect += (c, ex) => {
 
@@ -517,7 +513,9 @@ namespace R2Core.Tests
 
 			};
 
-			while(waitingForClientStop) { Thread.Sleep(100); }
+            waitingForConnectionDelegateSetup = false;
+
+            while (waitingForClientStop) { Thread.Sleep(100); }
 
 			Thread.Sleep(200);
 
@@ -544,7 +542,7 @@ namespace R2Core.Tests
 			s.Timeout = 1000;
 			s.Start();
 
-			Thread.Sleep(200);
+            s.WaitFor();
 			Assert.True(s.Ready);
 			m_ClientReconnect_ServerCheck = true;
 
@@ -558,7 +556,7 @@ namespace R2Core.Tests
 			
 			};
 
-			TCPClient client = (TCPClient)factory.CreateTcpClient("c", "localhost", port);
+			TCPClient client = factory.CreateTcpClient("c", "localhost", port);
 			client.Timeout = 500;
 			client.AddClientObserver(observer);
 			client.Start();
@@ -574,12 +572,13 @@ namespace R2Core.Tests
 			Assert.False(s.Ready);
 			Assert.False(client.Ready);
 			s.Start();
-			Thread.Sleep(200);
-			Assert.True(s.Ready);
+            s.WaitFor();
 			m_ClientReconnect_ServerCheck = false;
 
-			// After this, the DummyClientObservers OnCloseAsserter should have started the client again.
-			Thread.Sleep(500);
+            Thread.Sleep(client.Timeout * 2);
+
+            // After this, the DummyClientObservers OnCloseAsserter should have started the client again.
+            client.WaitFor();
 
 			Assert.True(client.Ready);
 
@@ -610,14 +609,14 @@ namespace R2Core.Tests
 
 			s.AddEndpoint(ep);
 			s.Start();
-			Thread.Sleep(100);
+            s.WaitFor();
 
 			TCPClientServer clientServer = factory.CreateTcpClientServer("client_server");
 			clientServer.Timeout = 250;
 			clientServer.Configure(identity, "127.0.0.1", port);
 			clientServer.Start();
 
-			Thread.Sleep(100);
+            clientServer.WaitFor();
 
 			Assert.IsTrue(clientServer.Ready);
 
@@ -626,7 +625,8 @@ namespace R2Core.Tests
 			Thread.Sleep(50);
 			Assert.IsFalse(clientServer.Ready);
 			s.Start();
-			Thread.Sleep(600);
+            s.WaitFor();
+			Thread.Sleep(500);
 			Assert.IsTrue(clientServer.Ready);
 
 			s.Stop();

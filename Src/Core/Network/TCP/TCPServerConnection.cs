@@ -65,7 +65,7 @@ namespace R2Core.Network
 
         public bool Busy { get; private set; }
         public event OnReceiveHandler OnReceive;
-		public event OnDisconnectHandler OnDisconnect;
+        public event OnDisconnectHandler OnDisconnect;
 
 		public TCPServerConnection(
 			string id, 
@@ -116,7 +116,6 @@ namespace R2Core.Network
 			});
 
 			m_connectionPoller.Start();
-			//m_ping.Start();
 
 		}
 
@@ -158,14 +157,12 @@ namespace R2Core.Network
 		}
 
 		private void Disconnect(Exception ex = null) {
+    
+            m_shouldRun = false;
 
-			m_shouldRun = false;
-
-			Log.i($"{this} disconnected.");
+            Log.i($"{this} disconnected.");
 
 			m_connectionPoller.Stop();
-
-			//m_ping.Stop();
 
 			try {
 
@@ -234,18 +231,23 @@ namespace R2Core.Network
 
 				m_readError = ex;
 
-				if (m_shouldRun) {
+                if (m_shouldRun) {
 
-					if (!ex.IsClosingNetwork()) {
-					
-						Log.x(ex);
-						Disconnect(ex);
+                    if (!ex.IsClosingNetwork()) {
 
-					} else { Disconnect(); }
+                        Log.x(ex);
+                        Disconnect(ex);
 
-				}
-			
-			} 
+                    } else {
+
+                        Log.i($"TCPServerConnection read failed: '{ex.Message}'. Disconnecting.");
+                        Disconnect();
+
+                    }
+
+                }
+
+            } 
 
 		}
 

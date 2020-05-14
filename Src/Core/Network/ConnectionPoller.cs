@@ -32,8 +32,8 @@ namespace R2Core.Network
 		private bool m_previousPollSuccess = true;
 
 		private System.Timers.Timer m_connectionCheckTimer;
-		private TcpClient m_client;
-		private Action m_failDelegate;
+		private readonly TcpClient m_client;
+		private readonly Action m_failDelegate;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="R2Core.Network.ConnectionPoller"/> class.
@@ -46,33 +46,28 @@ namespace R2Core.Network
 			
 			m_client = client;
 			m_failDelegate = failDelegate;
-			m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
-			m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
 
 		}
 
-		public override bool Ready {
-			
-			get {
-				
-				return m_connectionCheckTimer.Enabled;
-			
-			}
-		
-		}
+        public override bool Ready => m_connectionCheckTimer?.Enabled == true;
 
-		public override void Start() {
+        public override void Start() {
 
 			m_previousPollSuccess = true;
-			m_connectionCheckTimer?.Start ();
+            m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
+            m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
+            m_connectionCheckTimer.Enabled = true;
+            m_connectionCheckTimer.Start ();
 
 		}
 
 		public override void Stop() {
 
 			m_connectionCheckTimer?.Stop();
+            m_connectionCheckTimer?.Dispose();
+            m_connectionCheckTimer = null;
 
-		}
+        }
 
 		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
 
@@ -92,6 +87,7 @@ namespace R2Core.Network
 				} catch (Exception ex) {
 
 					Log.w($"ConnectionPoller failed to call delegate: {ex.Message}.");
+                    Log.x(ex);
 
 				}
 

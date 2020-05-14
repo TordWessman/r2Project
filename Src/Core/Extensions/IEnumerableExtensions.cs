@@ -29,11 +29,12 @@ namespace R2Core
 		/// </summary>
 		/// <param name="predicate">Predicate.</param>
 		/// <typeparam name="T">The generic object type.</typeparam>
-		public static void Remove<T>(this IEnumerable<T> list, Predicate<T> predicate) {
+		public static IEnumerable<T> Remove<T>(this IEnumerable<T> list, Predicate<T> predicate) {
 
 			IEnumerable<T> remove = list.Where(item => predicate(item)).Select(client => client);
 			List<T> items = list.ToList();
 			remove.ToList().ForEach(item => items.Remove(item));
+            return remove;
 
 		}
 

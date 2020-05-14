@@ -149,7 +149,15 @@ namespace R2Core.Network
 
 			lock(m_connectionsLock) {
 
-                m_connections.Remove(c => c.Address == connection.Address && c.Port == connection.Port);
+                if (connection != null) {
+
+                    foreach (IClientConnection removed in m_connections.Remove(c => c.Address == connection.Address && c.Port == connection.Port)) {
+
+                        Log.i($"TCPServer removed client connection: {removed}");
+
+                    }
+
+                }
 
 			}
 
