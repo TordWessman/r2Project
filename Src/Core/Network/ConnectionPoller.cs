@@ -32,7 +32,7 @@ namespace R2Core.Network
 		private bool m_previousPollSuccess = true;
 
 		private System.Timers.Timer m_connectionCheckTimer;
-		private readonly TcpClient m_client;
+		private readonly WeakReference<TcpClient> m_client;
 		private readonly Action m_failDelegate;
 
 		/// <summary>
@@ -44,7 +44,7 @@ namespace R2Core.Network
 		/// <param name="failDelegate">Fail delegate.</param>
 		public ConnectionPoller(TcpClient client, Action failDelegate) : base(Settings.Identifiers.ConnectionPoller()) {
 			
-			m_client = client;
+			m_client = new WeakReference<TcpClient>(client);
 			m_failDelegate = failDelegate;
 
 		}
@@ -53,8 +53,14 @@ namespace R2Core.Network
 
         public override void Start() {
 
-			m_previousPollSuccess = true;
-            m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
+            if (m_client.GetTarget() == null) {
+
+                throw new NetworkException("TcpClient was null.");
+
+            }
+
+            m_previousPollSuccess = true;
+            m_connectionCheckTimer = new System.Timers.Timer(m_client.GetTarget().SendTimeout);
             m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
             m_connectionCheckTimer.Enabled = true;
             m_connectionCheckTimer.Start ();
@@ -71,13 +77,13 @@ namespace R2Core.Network
 
 		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
 
-			if (!Ready || m_client.GetSocket() == null) { return; }
+			if (!Ready || m_client.GetTarget()?.GetSocket() == null) { return; }
 
-			bool pollSuccessful = m_client.IsConnected();
+			bool pollSuccessful = m_client.GetTarget()?.IsConnected() ?? false;
 
 			if (!m_previousPollSuccess && !pollSuccessful) {
 				
-				Log.i($"Polling failed to: {m_client.GetDescription()}. Will call fail delegate and stop polling.");
+				Log.i($"Polling failed to: {m_client.GetTarget()?.GetDescription() ?? "null"}. Will call fail delegate and stop polling.");
 				Stop();
 
 				try {
