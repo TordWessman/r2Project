@@ -250,7 +250,7 @@ namespace R2Core
 
 				if (stackTrace.Count > (Instance?.MaxStackTrace ?? 0)) {
 
-					stackTrace = stackTrace.Take(instance.MaxStackTrace).ToList();
+					stackTrace = stackTrace.Take(Instance?.MaxStackTrace ?? 10).ToList();
 					stackTrace.Add("... (Ignoring the rest) ...");
 
 				}
