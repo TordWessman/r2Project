@@ -16,13 +16,14 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 using System;
+using System.Threading;
 using System.Timers;
 using R2Core;
 using R2Core.Device;
 
 namespace MainFrame {
 
-        public class MemoryChecker : DeviceBase {
+    public class MemoryChecker : DeviceBase {
 
         private Timer m_timer;
         public int Frequency = 1000 * 60 * 5;
@@ -64,5 +65,26 @@ namespace MainFrame {
 
         }
 
+        public Tuple<int, int> Threads {
+
+            get {
+
+                ThreadPool.GetAvailableThreads(out int workerThread, out int other);
+
+                return new Tuple<int, int>(workerThread, other);
+
+            }
+
+        }
+
+        public void PrintThreads() {
+
+            Tuple<int, int> threads = Threads;
+
+            Log.d("Number of available worker threads: " + threads.Item1 + " I/O threads: " + threads.Item2 + " ");
+
+        }
+
     }
+
 }
