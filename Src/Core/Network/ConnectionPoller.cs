@@ -86,16 +86,16 @@ namespace R2Core.Network
 				Log.i($"Polling failed to: {m_client.GetTarget()?.GetDescription() ?? "null"}. Will call fail delegate and stop polling.");
 				Stop();
 
-				try {
+                try {
 
-					m_failDelegate();
+                    m_failDelegate();
 
-				} catch (Exception ex) {
+                } catch (Exception ex) {
 
-					Log.w($"ConnectionPoller failed to call delegate: {ex.Message}.");
+                    Log.w($"Exception when calling fail delegate: {ex.Message}.");
                     Log.x(ex);
 
-				}
+                }
 
 			}
 

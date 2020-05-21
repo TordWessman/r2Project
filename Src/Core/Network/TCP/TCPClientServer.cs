@@ -95,7 +95,7 @@ namespace R2Core.Network
 
 		protected override void Cleanup() {
 
-			m_client.Close();
+			m_client?.Close();
 		
 		}
 

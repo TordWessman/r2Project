@@ -53,9 +53,10 @@ namespace R2Core.Network
 
 			Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
 			Stop();
-            m_serviceTask?.Dispose();
+            try { m_serviceTask?.Dispose(); }
+            catch (_) { };
 
-		}
+        }
 
 		public string UriPath { get { return ".*"; } }
 
