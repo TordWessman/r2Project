@@ -25,7 +25,7 @@ namespace MainFrame {
 
     public class MemoryChecker : DeviceBase {
 
-        private Timer m_timer;
+        private System.Timers.Timer m_timer;
         public int Frequency = 1000 * 60 * 5;
 
         public MemoryChecker(int frequency = -1) : base("memory_checker") {
@@ -43,7 +43,7 @@ namespace MainFrame {
         public override void Start() {
             base.Start();
 
-            m_timer = new Timer(Frequency);
+            m_timer = new System.Timers.Timer(Frequency);
             m_timer.Elapsed += delegate { Check(); };
             m_timer.AutoReset = true;
 

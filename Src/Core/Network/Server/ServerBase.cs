@@ -54,7 +54,7 @@ namespace R2Core.Network
 			Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
 			Stop();
             try { m_serviceTask?.Dispose(); }
-            catch (_) { };
+            catch (Exception _) { };
 
         }
 
