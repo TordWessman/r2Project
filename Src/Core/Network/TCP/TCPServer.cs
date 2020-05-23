@@ -17,14 +17,10 @@
 //
 //
 using System;
-using R2Core.Device;
 using System.Net.Sockets;
 using System.Net;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Collections.Generic;
-using R2Core.Network;
-using System.IO;
 using MessageIdType = System.String;
 
 namespace R2Core.Network
@@ -42,10 +38,10 @@ namespace R2Core.Network
 		private readonly ITCPPackageFactory<TCPMessage> m_packageFactory;
 		private IList<IClientConnection> m_connections;
 
-		/// <summary>
-		/// Default timeout for Broadcasts
-		/// </summary>
-		public const int DefaultBroadcastTimeout = 2000;
+        /// <summary>
+        /// Default timeout for Broadcasts
+        /// </summary>
+        public const int DefaultBroadcastTimeout = 2000;
 
 		public int Timeout = 30000;
 
@@ -63,7 +59,7 @@ namespace R2Core.Network
 
 		}
 
-		public override bool Ready { get { return ShouldRun && m_listener != null; } }
+        public override bool Ready => ShouldRun && m_listener?.Server?.IsBound == true;
 
 		public MessageIdType Broadcast(INetworkMessage message, Action<INetworkMessage, string, Exception> responseDelegate = null, int timeout = DefaultBroadcastTimeout) {
 
@@ -73,15 +69,11 @@ namespace R2Core.Network
 				
 					INetworkMessage response = connection.Send(new BroadcastMessage(message, connection.Address, connection.Port));
 
-					if (responseDelegate != null) { 
+					if (response.IsError()) {
+					
+						responseDelegate?.Invoke(response, connection.LocalAddress, new NetworkException(response)); 
 
-						if (response.IsError()) {
-						
-							responseDelegate(response, connection.LocalAddress, new NetworkException(response)); 
-
-						} else { responseDelegate(response, connection.LocalAddress, null); }
-
-					}
+					} else { responseDelegate?.Invoke(response, connection.LocalAddress, null); }
 
 				} catch (Exception ex) {
 

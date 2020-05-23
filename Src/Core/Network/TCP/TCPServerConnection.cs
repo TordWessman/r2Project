@@ -171,6 +171,7 @@ namespace R2Core.Network {
             }
 
             OnDisconnect?.Invoke(this, ex);
+            OnDisconnect = null;
 
         }
 

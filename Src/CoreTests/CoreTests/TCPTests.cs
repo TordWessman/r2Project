@@ -538,12 +538,12 @@ namespace R2Core.Tests
 			PrintName();
 		
 			var port = tcp_port + 912;
-			TCPServer s = (TCPServer)factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
+			TCPServer s = factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
 			s.Timeout = 1000;
 			s.Start();
 
             s.WaitFor();
-			Assert.True(s.Ready);
+
 			m_ClientReconnect_ServerCheck = true;
 
 			DummyClientObserver observer = new DummyClientObserver();
@@ -561,7 +561,7 @@ namespace R2Core.Tests
 			client.AddClientObserver(observer);
 			client.Start();
 
-			Thread.Sleep(200);
+            client.WaitFor();
 
 			Assert.True(client.Ready);
 

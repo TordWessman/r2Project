@@ -69,7 +69,6 @@ namespace R2Core.Network {
                         Address = source.Address.ToString(),
                         Port = source.Port
                     }
-
                 };
 
 			} 
