@@ -235,13 +235,20 @@ namespace R2Core.Network
 
 		private void Connect() {
 
-			m_client = new TcpClient();
-			m_client.SendTimeout = Timeout;
-			m_client.Client.Blocking = true;
+            m_client = new TcpClient {
+                SendTimeout = Timeout
+            };
+
+            m_client.Client.Blocking = true;
 
 			m_connectionPoller = new ConnectionPoller(m_client, () => {
 
-				if (ShouldRun) { Connect(); }
+				if (ShouldRun) {
+
+                    Log.t("TCPClientServer lost connection. Will reconnect.");
+                    Connect(); 
+
+                }
 
 			});
 

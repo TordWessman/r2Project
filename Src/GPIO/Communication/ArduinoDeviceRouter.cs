@@ -267,7 +267,6 @@ namespace R2Core.GPIO
 		/// <summary>
 		/// Will send the Initialize request to the node and clear it's data.
 		/// </summary>
-		/// <param name="host">Host.</param>
 		private void ResetNode(byte nodeId) {
 
 			Send<byte[]> (new DeviceRequestPackage() {Action = SerialActionType.Initialization, NodeId = nodeId});
