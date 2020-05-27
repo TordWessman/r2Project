@@ -44,10 +44,17 @@ namespace R2Core.Network
 
 		protected override void Service() {
 
-			m_listener = new HttpListener();
-			m_listener.Prefixes.Add(String.Format("http://*:{0}/", Port));
+            try {
 
-			m_listener.Start();
+                m_listener = new HttpListener();
+                m_listener.Prefixes.Add(String.Format("http://*:{0}/", Port));
+                m_listener.Start();
+
+            } catch (Exception ex) {
+
+                Log.x(ex);
+
+            }
 
 			while(ShouldRun) {
 

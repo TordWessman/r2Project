@@ -57,7 +57,7 @@ namespace R2Core.Network {
         /// </summary>
         protected Task ServiceTask { get; private set; }
 
-        public ServerBase(string id) : base(id) {
+        protected ServerBase(string id) : base(id) {
 
             m_endpoints = new List<IWebEndpoint>();
 

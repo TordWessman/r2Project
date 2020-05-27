@@ -269,7 +269,9 @@ namespace R2Core.Network
 
 			}
 
-		}
+            Log.i($"TCPClientServer did connect to: {Address}:{Port}.");
+
+        }
 
         public override string ToString() => $"TCPClientServer [Connected: {Ready}. Local port: {m_client?.GetLocalEndPoint()?.Port}]";
 

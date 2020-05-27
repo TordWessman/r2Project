@@ -69,7 +69,7 @@ namespace R2Core.Network
 
 		public override void Stop() {
 
-			m_connectionCheckTimer?.Stop();
+            m_connectionCheckTimer?.Stop();
             m_connectionCheckTimer?.Dispose();
             m_connectionCheckTimer = null;
 
