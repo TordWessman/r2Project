@@ -34,7 +34,7 @@ namespace R2Core {
 
         public static readonly string UnknownMachineId = "unknown";
 
-        public Identity(string name) : base (Settings.Identifiers.Identity()) {
+        public Identity(string name) : base(Settings.Identifiers.Identity()) {
 
             Name = name;
             MachineId = GetMachineId();

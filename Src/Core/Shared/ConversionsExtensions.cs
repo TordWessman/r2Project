@@ -71,6 +71,12 @@ namespace R2Core {
 
             IDictionary<string, dynamic> structProperties;
 
+            if (parameter.GetType() == requiredType) {
+
+                return parameter;
+
+            }
+
             if (parameter is ExpandoObject) {
 
                 structProperties = new R2Dynamic(parameter as ExpandoObject);

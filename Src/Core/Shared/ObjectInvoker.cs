@@ -75,7 +75,16 @@ namespace R2Core {
 
             }
 
-            return target.GetType().GetMethod(method).Invoke(target, p.ToArray());
+
+            dynamic invocationResult = target.GetType().GetMethod(method).Invoke(target, p.ToArray());
+
+            if (invocationResult == null) {
+
+                return invocationResult;
+            
+            }
+
+            return methodInfo.ReturnType.ConvertObject((object)invocationResult); ;
 
         }
 
