@@ -56,6 +56,7 @@
     <Reference Include="PushSharp.Windows">
       <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Windows.dll</HintPath>
     </Reference>
+    <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +70,8 @@
     <Compile Include="Old\PushNotificationHandler.cs" />
     <Compile Include="PushNotificationStorage.cs" />
     <Compile Include="PushNotificationDBAdapter.cs" />
+    <Compile Include="PushNotificationRegistryItem.cs" />
+    <Compile Include="IPushNotificationDBAdapter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

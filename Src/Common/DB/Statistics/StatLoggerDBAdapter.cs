@@ -34,8 +34,6 @@ namespace R2Core.Common {
                 { "description", "TEXT" }
             };
 
-        protected override IEnumerable<string> GetPrimaryKeys() => new List<string>();
-
         public StatLoggerDBAdapter(ISQLDatabase database) : base(database) {}
 
         public void SaveEntry<T>(StatLogEntry<T> entry) {
@@ -103,7 +101,6 @@ namespace R2Core.Common {
             foreach (DataRow row in result.Tables[0].Rows) {
 
                 yield return row.CreateEntry<T>();
-
 
             }
 

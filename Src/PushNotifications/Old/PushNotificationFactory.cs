@@ -18,11 +18,8 @@
 
 ﻿using System;
 using System.IO;
-using R2Core.Device;
-using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 using R2Core.Common;
+using R2Core.Device;
 
 namespace R2Core.PushNotifications
 {
@@ -31,7 +28,8 @@ namespace R2Core.PushNotifications
 	/// </summary>
 	public class PushNotificationFactory : DeviceBase {
 		
-		private string m_certPath;
+		private readonly string m_certPath;
+        private readonly DataFactory m_dataFactory;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="PushNotifications.PushNotificationFactory"/> class.
@@ -39,9 +37,10 @@ namespace R2Core.PushNotifications
 		/// </summary>
 		/// <param name="id">Identifier.</param>
 		/// <param name="certPath">Cert path.</param>
-		public PushNotificationFactory(string id, string certPath = null) : base(id) {
+		public PushNotificationFactory(string id, DataFactory dataFactory, string certPath = null) : base(id) {
 
 			m_certPath = certPath;
+            m_dataFactory = dataFactory;
 
 			if (certPath != null && !m_certPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)) {
 				
@@ -89,6 +88,17 @@ namespace R2Core.PushNotifications
 
 		}
 
-	}
+        public PushNotificationStorage CreateStorage(string id) {
+
+            ISQLDatabase database = m_dataFactory.CreateSqlDatabase($"{id}_db", $"{id}.db");
+            database.Start();
+            IPushNotificationDBAdapter adapter = m_dataFactory.CreateDatabaseAdapter<PushNotificationDBAdapter>(database);
+            adapter.SetUp();
+
+            return new PushNotificationStorage(id, adapter);
+
+        }
+
+    }
 
 }
