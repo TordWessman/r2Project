@@ -172,15 +172,12 @@ namespace R2Core.GPIO
 		
 			byte[] requestData = m_packageFactory.SerializeRequest(request);
 
-			bool retry = request.Action != SerialActionType.Initialization;
-            //Log.i($"ArduinoDevice: Sending: {request}");
-
 			try {
 			
 				byte[] responseData = m_connection.Send(requestData);
 				DeviceResponsePackage<T> response = m_packageFactory.ParseResponse<T>(responseData);
 
-				if (retry && response.CanRetry() && retryCount < RetryCount) {
+				if (response.CanRetry() && retryCount < RetryCount) {
 					
 					if (retryCount == 3) {
 						
@@ -232,15 +229,15 @@ namespace R2Core.GPIO
 
 					throw new SerialConnectionException($"Response checksum is bad({response.Checksum}): Node: '{request.NodeId}'. Action: '{request.Action}'. ", SerialErrorType.ERROR_BAD_CHECKSUM);
 
-				} else if (response.Action == SerialActionType.Initialization) {
+				} if (response.Action == SerialActionType.Initialization) {
 
 					// The node needs to be reset. Reset the node and notify delegate, allowing it to re-create and/or re-send
 					ResetNode(response.NodeId);
 
-					if (HostDidReset != null) { HostDidReset(response.NodeId); }
+                    HostDidReset?.Invoke(response.NodeId);
 
-					// Resend the current request
-					response = _Send<T>(request);
+                    // Resend the current request
+                    response = _Send<T>(request);
 
 				} else if (response.IsError) { 
 

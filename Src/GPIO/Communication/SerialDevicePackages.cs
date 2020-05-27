@@ -421,11 +421,10 @@ namespace R2Core.GPIO
 		/// </summary>
 		public static bool CanRetry(this IDeviceResponsePackage response) {
 
-			return 	response.Action != SerialActionType.Initialization && //Intialization is not considered an error
-					response.Error != SerialErrorType.NO_DEVICE_FOUND &&	// This error will cause the caller to recreate the device
-					response.Error != SerialErrorType.MAX_DEVICES_IN_USE && // Max devices can't be fixed by retrying
-					(response.IsError || !response.IsChecksumValid);
-			
+            return (response.IsError || !response.IsChecksumValid) && 
+                    response.Error != SerialErrorType.NO_DEVICE_FOUND &&    // This error will cause the caller to recreate the device
+                    response.Error != SerialErrorType.MAX_DEVICES_IN_USE; // Max devices can't be fixed by retrying
+					
 		}
 
 	}
