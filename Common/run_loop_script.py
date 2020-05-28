@@ -133,11 +133,11 @@ class MainClass:
 					command_output = self.object_invoker.Get(device, attrName)
 				else: # Invoke (currently incomplete).
 					methodName = attrSplit[1].split("(")[0].strip()
-					param = command.split('(')[-1].replace(')','')
+					params = command.split('(')[-1].replace(')','').split(',')
 					paramsArray = List[object]()
 					command = methodName # improve debug output...
 
-					if (len(param) > 0):
+					for param in params:
 						stringCheckSplit = param.split("\"")
 						if (len(stringCheckSplit) == 3):
 							paramsArray.Add(stringCheckSplit[1])	#string
