@@ -54,6 +54,7 @@ namespace R2Core.Scripting
 			m_params = parameters ?? new Dictionary<string,dynamic>();
 		
 			Reload();
+
 		}
 
 		public void AddSearchPath(string searchPath) {
@@ -106,7 +107,11 @@ namespace R2Core.Scripting
 
 			}
 
-			Invoke(HANDLE_INIT_FUNCTION);
+            if (m_engine.Operations.ContainsMember(m_mainClass, HANDLE_INIT_FUNCTION)) {
+
+                Invoke(HANDLE_INIT_FUNCTION);
+
+            }
 
 		}
 

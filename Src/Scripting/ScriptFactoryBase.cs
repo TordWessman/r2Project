@@ -16,7 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using R2Core.Device;
 using System.IO;
 using System.Collections.Generic;
@@ -27,20 +26,18 @@ namespace R2Core.Scripting
 	
 	public abstract class ScriptFactoryBase<T> : DeviceBase, IScriptFactory<T> where T : IScript {
 
-		private IList<string> m_scriptSourcePaths;
+		protected IList<string> ScriptSourcePaths { get; private set; }
 
-		protected IList<string> ScriptSourcePaths { get { return m_scriptSourcePaths; } }
+        protected ScriptFactoryBase(string id) : base(id) {
 
-		public ScriptFactoryBase(string id) : base(id) {
-
-			m_scriptSourcePaths = new List<string>();
+            ScriptSourcePaths = new List<string>();
 
 		}
 
 
 		public void AddSourcePath(string path) {
 
-			m_scriptSourcePaths.Add(path);
+            ScriptSourcePaths.Add(path);
 
 		}
 
@@ -50,9 +47,9 @@ namespace R2Core.Scripting
 
 			if (!File.Exists(fileName)) {
 
-				foreach (string path in m_scriptSourcePaths) {
+				foreach (string path in ScriptSourcePaths) {
 
-					string evaluatedPath = path.EndsWith (Path.DirectorySeparatorChar.ToString()) ? path + fileName : path + Path.DirectorySeparatorChar + fileName;
+					string evaluatedPath = path.EndsWith(Path.DirectorySeparatorChar.ToString(), System.StringComparison.Ordinal) ? path + fileName : path + Path.DirectorySeparatorChar + fileName;
 
 					if (File.Exists(evaluatedPath)) {
 
@@ -90,8 +87,9 @@ namespace R2Core.Scripting
 		/// Overridden implementation will be called upon new source path.
 		/// </summary>
 		/// <param name="path">Path.</param>
-		protected virtual void doAddSearchPath(string path) {}
+		protected virtual void DoAddSearchPath(string path) {}
 
 	}
+
 }
 
