@@ -67,11 +67,17 @@ namespace R2Core
 	/// </summary>
 	public interface IMessageLogger {
 		
-		/// <summary>
-		/// Writes message to the logger.
-		/// </summary>
-		/// <param name="message">Message.</param>
-		void Write(ILogMessage message);
+        /// <summary>
+        /// The output level of each individual logger implementation.
+        /// </summary>
+        /// <value>The log level.</value>
+        LogLevel LogLevel { get; set; }
+
+        /// <summary>
+        /// Writes message to the logger.
+        /// </summary>
+        /// <param name="message">Message.</param>
+        void Write(ILogMessage message);
 
 		/// <summary>
 		/// Returns output history (descending age).

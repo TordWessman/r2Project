@@ -29,9 +29,11 @@ namespace R2Core
 		private FileStream m_fs;
 
 		private readonly string m_fileName;
-		private readonly object m_lock = new object(); 
+		private readonly object m_lock = new object();
 
-		public FileLogger(string id, string path) : base(id) {
+        public LogLevel LogLevel { get; set; } = LogLevel.Message;
+
+        public FileLogger(string id, string path) : base(id) {
 
 			m_fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite);
 			m_outputStream = new StreamWriter(m_fs);
