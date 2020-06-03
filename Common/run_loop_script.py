@@ -138,14 +138,15 @@ class MainClass:
 					command = methodName # improve debug output...
 
 					for param in params:
-						stringCheckSplit = param.split("\"")
-						if (len(stringCheckSplit) == 3):
-							paramsArray.Add(stringCheckSplit[1])	#string
-						elif (len(stringCheckSplit) == 1):
-							paramsArray.Add(int(param))	#other
-						else:
-							raise Exception("Invokation of '" + device_name + "' failed. Unable to determine parameter type : '" + param + "'")
-
+						if (len(param.strip()) > 0):
+							stringCheckSplit = param.split("\"")
+							if (len(stringCheckSplit) == 3):
+								paramsArray.Add(stringCheckSplit[1])	#string
+							elif (len(stringCheckSplit) == 1):
+								paramsArray.Add(int(param))	#other
+							else:
+								raise Exception("Invokation of '" + device_name + "' failed. Unable to determine parameter type : '" + param + "'")
+	
 					command_output = self.object_invoker.Invoke(device, methodName, paramsArray)
 
 				if (command_output != None):
