@@ -44,13 +44,16 @@ namespace R2Core.Common
 
 			TaskMonitor = new SimpleTaskMonitor(Settings.Identifiers.TaskMonitor());
 
-			//Set up logging
-			SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger(Settings.Identifiers.ConsoleLogger(), Settings.Consts.MaxConsoleHistory());
-			consoleLogger.Start();
-			Log.Instantiate(Settings.Identifiers.Logger());
+            //Set up logging
 
-			Log.Instance.AddLogger(consoleLogger);
-			Log.Instance.AddLogger(new FileLogger(Settings.Identifiers.FileLogger(), Settings.Consts.FileLoggerDefaultFile()));
+            Log.Instantiate(Settings.Identifiers.Logger());
+
+            SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger(Settings.Identifiers.ConsoleLogger(), Settings.Consts.MaxConsoleHistory());
+			consoleLogger.Start();
+            Log.Instance.AddLogger(consoleLogger);
+
+            FileLogger fileLogger = new FileLogger(Settings.Identifiers.FileLogger(), Settings.Consts.FileLoggerDefaultFile());
+            Log.Instance.AddLogger(fileLogger);
 
 			// contains and manages all devices
 			m_devices = new DeviceManager(Settings.Identifiers.DeviceManager());
@@ -61,6 +64,7 @@ namespace R2Core.Common
 			m_devices.Add(TaskMonitor);
 			m_devices.Add(Settings.Instance);
 			m_devices.Add(consoleLogger);
+            m_devices.Add(fileLogger);
 			m_devices.Add(Log.Instance);
 			m_devices.Add(this);
 			m_devices.Add(new ObjectInvoker());
