@@ -17,6 +17,7 @@
 //
 using System;
 using System.Globalization;
+using System.Linq;
 
 namespace R2Core.Common {
 
@@ -24,6 +25,30 @@ namespace R2Core.Common {
     /// Enables non-generic logging.
     /// </summary>
     public static class StatLoggerExtensions {
+
+        /// <summary>
+        /// Fetch the most recent values of type double.
+        /// </summary>
+        /// <returns>The most recent.</returns>
+        /// <param name="self">Self.</param>
+        /// <param name="identifier">Identifier.</param>
+        public static StatLogEntry<double> GetMostRecent(this StatLogger self, string identifier) {
+
+            return self.GetMostRecent<double>(identifier);
+
+        }
+
+        /// <summary>
+        /// Simplify the fetch of the most recent entry. Returns a StatLogEntry of type T.
+        /// </summary>
+        /// <returns>The most recent.</returns>
+        /// <param name="identifier">Identifier.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        public static StatLogEntry<T> GetMostRecent<T>(this StatLogger self, string identifier) {
+
+            return self.GetEntries<T>(new string[] { identifier }).FirstOrDefault().Value.OrderBy(e => e.Timestamp).Last();
+
+        }
 
         /// <summary>
         /// Log a ´float´ value.

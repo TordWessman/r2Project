@@ -119,7 +119,7 @@ namespace R2Core.Common {
         }
 
         /// <summary>
-        /// Starts tracking a device using ´frequency´ in milliseconds. 
+        /// Starts tracking a device using ´frequency´ in minutes. 
         /// ´startTime´ defines which time of the day the tracking will commence on.
         /// </summary>
         /// <returns>The tracking process.</returns>
@@ -137,9 +137,9 @@ namespace R2Core.Common {
 
                 }
 
-                R2Core.Log.i($"StatLogger starting to track: '{device.Identifier}' using frequency: {frequency}. Start time: {startTime?.ToString() ?? "now" }");
+                R2Core.Log.i($"StatLogger starting to track: '{device.Identifier}' using frequency: {frequency} minutes. Start time: {startTime?.ToString() ?? "now" }");
 
-                StatLogProcess<T> process = new StatLogProcess<T>(device, this, frequency, startTime);
+                StatLogProcess<T> process = new StatLogProcess<T>(device, this, frequency * 60 * 1000, startTime);
                 process.Start();
                 m_processes[device.Identifier] = process;
                 return process;
