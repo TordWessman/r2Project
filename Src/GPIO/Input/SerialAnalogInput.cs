@@ -18,22 +18,28 @@
 
 namespace R2Core.GPIO
 {
-	internal class SerialAnalogInput: SerialDeviceBase<int[]>, IInputMeter<double> {
-		
-		protected byte[] m_ports;
+    internal class SerialAnalogInput : SerialDeviceBase<int[]>, IInputMeter<double> {
 
-		internal SerialAnalogInput(string id, ISerialNode node, IArduinoDeviceRouter host, int[] ports): base(id, node, host) {
+        protected byte[] m_ports;
 
-			m_ports = new byte[ports.Length];
-			for (int i = 0; i < ports.Length; i++) { m_ports[i] = (byte)ports[i]; }
+        internal SerialAnalogInput(string id, ISerialNode node, IArduinoDeviceRouter host, int[] ports) : base(id, node, host) {
 
-		}
+            m_ports = new byte[ports.Length];
+            Denomiator = 1;
+            for (int i = 0; i < ports.Length; i++) { m_ports[i] = (byte)ports[i]; }
 
-		protected override byte[] CreationParameters { get { return m_ports; } }
+        }
 
-		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogInput; } }
+        protected override byte[] CreationParameters { get { return m_ports; } }
 
-		public double Value { get { return GetValue()[0]; } }
+        protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogInput; } }
+
+        public double Value { get { return GetValue()[0] / Denomiator; } }
+
+        /// <summary>
+        /// Devides the value after reading. Provides an optional "normailzation" option for the returned value. 
+        /// </summary>
+        public double Denomiator{ get; set; }
 	
 	}
 
@@ -43,7 +49,7 @@ namespace R2Core.GPIO
 
             if (node.ContinousSynchronization) {
 
-                Log.e(  $"SimpleAnalogueHumiditySensor creation error: " +
+                Log.w(  $"SimpleAnalogueHumiditySensor creation error: " +
                 	    $"Node with id {node.NodeId} has ´ContinousSynchronization´ set to ´true´. This may cause probe electrolysis.");
             
             }
