@@ -25,6 +25,7 @@ using System.Timers;
 using System.Threading;
 using R2Core.Device;
 using R2Core.Network;
+using System.Globalization;
 
 namespace R2Core.Tests {
 
@@ -193,6 +194,8 @@ namespace R2Core.Tests {
             DummyDevice d1 = new DummyDevice("d1");
             DummyDevice d2 = new DummyDevice("d2");
 
+            DummyDevice d3 = new DummyDevice("d3");
+
             int count = 100;
             for (int i = 0; i < count; i++) {
 
@@ -216,6 +219,25 @@ namespace R2Core.Tests {
 
             // Ignoring "past" and 50 % of the future entries.
             Assert.AreEqual(count / 2 - count / 4, logger.GetEntries(new string[] { "d1" }, DateTime.Now, DateTime.Now.AddHours(count / 4))["d1"].Count());
+
+
+            // Test most recent:
+            d3.Value = 10;
+            adapter.MockTimestamp = DateTime.ParseExact("2011-03-21 13:26:00", "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            logger.Log(d3);
+
+
+            d3.Value = 42;
+            adapter.MockTimestamp = DateTime.ParseExact("2011-03-22 13:26:00", "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            logger.Log(d3);
+
+            d3.Value = 100;
+            adapter.MockTimestamp = DateTime.ParseExact("2011-03-20 13:26:00", "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            logger.Log(d3);
+
+            var entry = logger.GetMostRecent("d3");
+
+            Assert.AreEqual(42, entry.Value);
 
         }
 

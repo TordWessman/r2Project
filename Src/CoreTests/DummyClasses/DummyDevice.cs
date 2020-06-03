@@ -23,18 +23,17 @@ using R2Core.Common;
 
 namespace R2Core.Tests
 {
+    /// <summary>
+    /// An IDevice implementation used by various test cases.
+    /// </summary>
 	public class DummyDevice : DeviceBase, IStatLoggable<int> {
 		
-		private bool m_isRunning = false;
+		private bool m_isRunning;
+        private int m_value;
 
-		public DummyDevice(string id): base(id) {
-		}
+		public DummyDevice(string id): base(id) { }
 
-		public override bool Ready {
-			get {
-				return m_isRunning;
-			}
-		}
+        public override bool Ready => m_isRunning;
 
 		public override void Stop() {
 			
@@ -48,7 +47,15 @@ namespace R2Core.Tests
 
 		}
 
-		public int Value { get; set; }
+        public bool ValueDidChange { get; private set; }
+        public int Value { 
+            get { return m_value;  }
+            set { 
+                m_value = value; 
+                ValueDidChange = true; 
+                } 
+            }
+
 		public string Bar { get; set; }
 
         public double HAHA;
