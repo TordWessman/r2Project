@@ -34,7 +34,7 @@ namespace R2Core.GPIO
 
         protected override SerialDeviceType DeviceType { get { return SerialDeviceType.AnalogInput; } }
 
-        public double Value { get { return GetValue()[0] / Denomiator; } }
+        public virtual double Value { get { return GetValue()[0] / Denomiator; } }
 
         /// <summary>
         /// Devides the value after reading. Provides an optional "normailzation" option for the returned value. 
@@ -58,6 +58,17 @@ namespace R2Core.GPIO
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.SimpleMoist; } }
 
-	}
+        public override double Value { 
+
+            get {
+                    double value = base.Value;
+                    Log.i($"SimpleAnalogueHumiditySensor: Retrieved value: {value} for: {Identifier}");
+                    return value; 
+
+                }
+                 
+            }
+
+    }
 
 }
