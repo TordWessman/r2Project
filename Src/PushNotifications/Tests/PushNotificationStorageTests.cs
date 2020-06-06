@@ -22,12 +22,12 @@ using System.Linq;
 using R2Core.Network;
 using R2Core.Device;
 using R2Core.Common;
+using R2Core.Tests;
 
-namespace R2Core.Tests {
+namespace R2Core.PushNotifications.Tests {
 
-   
     [TestFixture]
-    public class PushNotificationTests : TestBase {
+    internal class PushNotificationStorageTests : TestBase {
 
         [Test]
         public void TestPushNotificationStorageAdapter() {

@@ -17,11 +17,10 @@
 //
 using System.Collections.Generic;
 using System.Linq;
-using R2Core.PushNotifications;
 
-namespace R2Core.Tests {
+namespace R2Core.PushNotifications.Tests {
 
-    class DummyPushNotificationDBAdapter : IPushNotificationDBAdapter {
+    internal class DummyPushNotificationDBAdapter : IPushNotificationDBAdapter {
 
         public List<PushNotificationRegistryItem> Items;
 

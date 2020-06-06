@@ -50,27 +50,19 @@ namespace R2Core.PushNotifications
 		
 		}
 
-		public IPushNotification CreateSimple(string message) {
-			
-			PushNotification note = new PushNotification(message);
+		public PushNotification CreateApple(string message, string identityName, string group = null) {
 
-			foreach (PushNotificationClientType type in Enum.GetValues(typeof(PushNotificationClientType)) ) {
-				note.AddClientType(type);
-			}
+            PushNotification note = new PushNotification { 
+                Message = message,
+                IdentityName = identityName,
+                Group = group
+             };
 
-			return note;
+            return note;
 
 		}
 
-		public IPushNotification CreateApple(string message) {
-			
-			PushNotification note = new PushNotification(message);
-			note.AddClientType(PushNotificationClientType.Apple);
-
-			return note;
-		}
-
-		public IPushNotificationFacade CreateAppleFacade(string id, string password, string appleCertFile ) {
+		public IPushNotificationFacade CreateAppleFacade(string id, string password, string appleCertFile) {
 			
 			if (!File.Exists(appleCertFile)) {
 
@@ -82,13 +74,13 @@ namespace R2Core.PushNotifications
 
 		}
 
-		public IPushNotificationProxy CreateHandler(string id, IMemorySource memory) {
+		public IPushNotificationProxy CreateHandler(string id, IPushNotificationStorage storage = null) {
 		
-			return new PushNotificationHandler(id, memory);
+			return new PushNotificationHandler(id, storage ?? CreateStorage($"{id}_storage"));
 
 		}
 
-        public PushNotificationStorage CreateStorage(string id) {
+        public IPushNotificationStorage CreateStorage(string id) {
 
             ISQLDatabase database = m_dataFactory.CreateSqlDatabase($"{id}_db", $"{id}.db");
             database.Start();

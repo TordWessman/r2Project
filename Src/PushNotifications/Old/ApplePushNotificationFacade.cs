@@ -32,7 +32,9 @@ namespace R2Core.PushNotifications
 		private ApnsServiceBroker m_push;
 		private ApnsConfiguration m_configuration;
 
-		public ApplePushNotificationFacade(string id,  string certFileName, string password) : base(id) {
+        public PushNotificationClientType ClientType => PushNotificationClientType.Apple;
+
+        public ApplePushNotificationFacade(string id,  string certFileName, string password) : base(id) {
 			
 			if (!File.Exists(certFileName)) {
 			
@@ -65,41 +67,35 @@ namespace R2Core.PushNotifications
 
 		}
 
-		public void QueuePushNotification(IPushNotification notification, IEnumerable<string> deviceIds) {
-
-			if (!AcceptsNotification(notification)) {
-				
-				throw new ArgumentException($"Cannot push notification with mask: '{notification.ClientTypeMask}' to Apple.");
-			
-			}
+		public void Send(PushNotification notification, string deviceToken) {
 
 			SetupBroker();
 
 			m_push.Start();
 
-			foreach (string deviceId in deviceIds) {
+			string payload = "{\"aps\":{\"alert\": \"" + notification.Message + "\""; 
 
-				string payload = "{\"aps\":{\"alert\": \"" + notification.Message + "\""; 
+            if (notification.Metadata != null) {
 
-				foreach (KeyValuePair<string, object> kvp in notification.Metadata) {
+                foreach (KeyValuePair<string, object> kvp in notification.Metadata) {
 
-					payload += ", \"" + kvp.Key + "\":\"" + kvp.Value.ToString() + "\"";
+                    payload += ", \"" + kvp.Key + "\":\"" + kvp.Value + "\"";
 
-				}
+                }
 
-				payload += "}}";
-				var pl = JObject.Parse(payload);
+            }
 
-				Log.t(payload);
+			payload += "}}";
+			var pl = JObject.Parse(payload);
 
-				m_push.QueueNotification(new ApnsNotification {
+			Log.t(payload);
 
-					DeviceToken = deviceId,
-					Payload = pl
-				
-				});
+			m_push.QueueNotification(new ApnsNotification {
 
-			}
+				DeviceToken = deviceToken,
+				Payload = pl
+			
+			});
 
 			m_push.Stop();
 
@@ -142,12 +138,6 @@ namespace R2Core.PushNotifications
 
 			};
 
-
-		}
-
-		public bool AcceptsNotification(IPushNotification notification) {
-
-			return(notification.ClientTypeMask & (int)PushNotificationClientType.Apple) > 0;
 
 		}
 

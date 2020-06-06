@@ -57,11 +57,14 @@
       <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Windows.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\3rdParty\nunit\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Old\ApplePushNotificationFacade.cs" />
-    <Compile Include="Old\IPushNotification.cs" />
     <Compile Include="Old\IPushNotificationFacade.cs" />
     <Compile Include="Old\IPushNotificationProxy.cs" />
     <Compile Include="Old\PushNotification.cs" />
@@ -72,6 +75,11 @@
     <Compile Include="PushNotificationDBAdapter.cs" />
     <Compile Include="PushNotificationRegistryItem.cs" />
     <Compile Include="IPushNotificationDBAdapter.cs" />
+    <Compile Include="IPushNotificationStorage.cs" />
+    <Compile Include="Tests\PushNotificationStorageTests.cs" />
+    <Compile Include="Tests\DummyPushNotificationDBAdapter.cs" />
+    <Compile Include="Tests\DummyPushNotificationStorage.cs" />
+    <Compile Include="Tests\PushNotificationHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -83,11 +91,16 @@
       <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
       <Name>R2Core.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\CoreTests\R2Core.Tests.csproj">
+      <Project>{B6397024-E95C-43D8-8CDF-0EB826804949}</Project>
+      <Name>R2Core.Tests</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Old\packages.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Old\" />
+    <Folder Include="Tests\" />
   </ItemGroup>
 </Project>

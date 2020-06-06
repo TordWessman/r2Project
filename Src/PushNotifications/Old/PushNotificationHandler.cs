@@ -30,80 +30,38 @@ namespace R2Core.PushNotifications
 	/// </summary>
 	public class PushNotificationHandler : DeviceBase, IPushNotificationProxy, ITaskMonitored {
 
-		public const string PUSH_CLIENT_ID = "push_client_id";
-		public const string PUSH_CLIENT_TYPE = "push_client_type";
-		public const string PUSH_CLIENT_TOKEN = "push_client_token";
+        private readonly IPushNotificationStorage m_storage;
+		private readonly IDictionary<PushNotificationClientType, IPushNotificationFacade> m_facades;
 
-		private IMemorySource m_memory;
-		private ICollection<IPushNotificationFacade> m_facades;
 		private bool m_isSending;
 		private Task m_sendTask;
 
-		public PushNotificationHandler(string id, IMemorySource memory) : base(id) {
-			
-			m_memory = memory;
-			m_facades = new List<IPushNotificationFacade>();
-		
-		}
+		public PushNotificationHandler(string id, IPushNotificationStorage storage) : base(id) {
 
-		public void Register(string deviceId, string deviceToken, int rawType) {
+            m_storage = storage;
+			m_facades = new Dictionary<PushNotificationClientType, IPushNotificationFacade>();
 		
-			RegisterClient(deviceId, deviceToken, (PushNotificationClientType) rawType);
-
 		}
 
 		public override bool Ready { get { return !m_isSending; } }
 
-		public void RegisterClient(string deviceId, string deviceToken, PushNotificationClientType type) {
-			
-			IMemory entry = m_memory.All(PUSH_CLIENT_ID).Where(d => d.Value == deviceId).FirstOrDefault();
+		public void AddFacade(IPushNotificationFacade facade) {
 
-			if (entry == null) {
+            m_facades[facade.ClientType] = facade;
 
-				entry = m_memory.Create(PUSH_CLIENT_ID, deviceId);
-			
-			}
+        }
 
-			IMemory clientType = entry.GetAssociation(PUSH_CLIENT_TYPE);
-
-			if (clientType == null) {
-
-				clientType = m_memory.Create(PUSH_CLIENT_TYPE, ((int)type).ToString());
-				entry.Associate(clientType);
-			
-			}
-
-			IMemory token = entry.GetAssociation(PUSH_CLIENT_TOKEN);
-
-			if (token == null) {
-
-				token = m_memory.Create(PUSH_CLIENT_TOKEN, deviceToken);
-			
-			} else {
-
-				token.Value = deviceToken;
-
-			}
-
-
-			entry.Associate(token);
-			clientType.Associate(token);
-
-		}
-
-		public void AddFacade(IPushNotificationFacade facade) { m_facades.Add(facade); }
-
-		public void Broadcast(IPushNotification notification) {
+		public void Broadcast(PushNotification notification) {
 
 			m_isSending = true;
 
 			m_sendTask = Task.Factory.StartNew( () => {
-			
-				m_facades.AsParallel().ForAll(facade => {
 
-					SendNotifictation(notification, facade);
+                foreach(PushNotificationRegistryItem item in m_storage.Get(new PushNotificationRegistryItem { Group = notification.Group, IdentityName = notification.IdentityName })) {
 
-				});
+                    m_facades[item.ClientType].Send(notification, item.Token);
+
+                }
 
 				m_isSending = false;
 
@@ -115,38 +73,6 @@ namespace R2Core.PushNotifications
 		
 			return new Dictionary<string,Task> { { ToString(), m_sendTask } };
 		
-		}
-
-		private void SendNotifictation(IPushNotification notification, IPushNotificationFacade facade) {
-
-			if (facade.AcceptsNotification(notification)) {
-
-				List<string> tokens = new List<string>();
-
-				foreach (IMemory type in m_memory.All(PUSH_CLIENT_TYPE)) {
-
-					if ((notification.ClientTypeMask & Convert.ToInt32 (type.Value)) > 0) {
-
-						IMemory token = type.GetAssociation(PUSH_CLIENT_TOKEN);
-
-						if (token != null) {
-
-							tokens.Add(token.Value);
-
-						} else {
-
-							Log.e($"PushNotification Broadcast error: A device of type '{PUSH_CLIENT_TYPE}' has no token.");
-
-						}
-
-					}
-
-				}
-
-				facade.QueuePushNotification(notification, tokens);
-
-			}
-
 		}
 
 	}

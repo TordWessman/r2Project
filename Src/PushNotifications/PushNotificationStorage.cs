@@ -15,13 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
-using System;
 using System.Collections.Generic;
 using R2Core.Device;
 
 namespace R2Core.PushNotifications {
 
-    public class PushNotificationStorage : DeviceBase {
+    /// <summary>
+    /// Default IPushNotificationStorage implementation.
+    /// </summary>
+    public class PushNotificationStorage : DeviceBase, IPushNotificationStorage {
 
         private IPushNotificationDBAdapter m_adapter;
 
@@ -32,31 +34,18 @@ namespace R2Core.PushNotifications {
 
         }
 
-        /// <summary>
-        /// Register a device for push notifications.
-        /// </summary>
-        /// <param name="request">Request.</param>
         public void Register(PushNotificationRegistryItem request) {
 
             m_adapter.Save(request);
 
         }
 
-        /// <summary>
-        /// Remove device token(s) from push notifications. Will be constrained by Group if specified.
-        /// </summary>
-        /// <param name="request">Request.</param>
         public void Remove(PushNotificationRegistryItem request) {
 
             m_adapter.Remove(request.Token, request.Group);
 
         }
 
-        /// <summary>
-        /// Return all devices matching the request's Identity and ´Group´ if specified.
-        /// </summary>
-        /// <returns>The get.</returns>
-        /// <param name="request">Request.</param>
         public IEnumerable<PushNotificationRegistryItem>Get(PushNotificationRegistryItem request) {
 
             return m_adapter.Get(request.IdentityName, request.Group);
