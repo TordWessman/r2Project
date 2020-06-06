@@ -39,7 +39,7 @@ namespace R2Core.GPIO
         /// <summary>
         /// Devides the value after reading. Provides an optional "normailzation" option for the returned value. 
         /// </summary>
-        public double Denomiator{ get; set; }
+        public virtual double Denomiator{ get; set; }
 	
 	}
 
@@ -57,6 +57,8 @@ namespace R2Core.GPIO
         }
 
 		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.SimpleMoist; } }
+
+        public override double Denomiator { get => base.Denomiator; set => base.Denomiator = value; }
 
         public override double Value { 
 
