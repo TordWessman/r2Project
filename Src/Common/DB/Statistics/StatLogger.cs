@@ -29,7 +29,7 @@ namespace R2Core.Common {
     /// </summary>
     public class StatLogger : DeviceBase {
 
-        private IStatLoggerDBAdapter m_adapter;
+        public IStatLoggerDBAdapter Adapter { get; private set; }
         private IDictionary<string, IDevice> m_processes;
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace R2Core.Common {
 
         public StatLogger(string id, IStatLoggerDBAdapter adapter) : base (id) {
 
-            m_adapter = adapter;
+            Adapter = adapter;
             m_processes = new Dictionary<string, IDevice>();
             DeviceNames = new Dictionary<string, string>();
 
@@ -92,9 +92,9 @@ namespace R2Core.Common {
 
                 }
 
-                lock(m_adapter) {
+                lock(Adapter) {
 
-                    foreach (StatLogEntry<T> entry in m_adapter.GetEntries<T>(identifier)) {
+                    foreach (StatLogEntry<T> entry in Adapter.GetEntries<T>(identifier)) {
 
                         if (startTime != null && startTime > entry.Timestamp) { continue; }
                         if (endTime != null && endTime < entry.Timestamp) { continue; }
@@ -188,7 +188,7 @@ namespace R2Core.Common {
 
         public void SetDescription(IDevice device, string description) {
 
-            m_adapter.SetDescription(device.Identifier, description);
+            Adapter.SetDescription(device.Identifier, description);
 
         }
 
@@ -196,9 +196,9 @@ namespace R2Core.Common {
 
             double.TryParse(value, out double result);
 
-            lock (m_adapter) {
+            lock (Adapter) {
 
-                m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = result, Timestamp = DateTime.Now, Description = value });
+                Adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = result, Timestamp = DateTime.Now, Description = value });
 
             }
 
@@ -206,9 +206,9 @@ namespace R2Core.Common {
 
         private void LogEntry(string identifier, double value, string description = null) {
 
-            lock (m_adapter) {
+            lock (Adapter) {
 
-                m_adapter.SaveEntry(new StatLogEntry<double> { 
+                Adapter.SaveEntry(new StatLogEntry<double> { 
                     Identifier = identifier, 
                     Value = value, 
                     Timestamp = DateTime.Now, 

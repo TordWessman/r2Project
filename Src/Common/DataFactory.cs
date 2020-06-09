@@ -95,6 +95,17 @@ namespace R2Core.Common {
 
         }
 
+        public StatLogEntry<double> CreateEntry(string name, double value, string description) {
+
+            return new StatLogEntry<double> {
+                Identifier = name,
+                Value = value,
+                Description = description,
+                Timestamp = DateTime.Now
+            };
+
+        }
+
         /// <summary>
         /// Tries to evaluate the full path of the file using the search paths.
         /// If file was not found and ´create´ is ´true´, the file will be created if posible.
