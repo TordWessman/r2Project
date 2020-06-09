@@ -18,12 +18,10 @@
 
 ﻿using System;
 using R2Core.Device;
-using PushSharp;
 using PushSharp.Apple;
 using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-
 
 namespace R2Core.PushNotifications
 {
@@ -35,7 +33,7 @@ namespace R2Core.PushNotifications
         public PushNotificationClientType ClientType => PushNotificationClientType.Apple;
 
         public ApplePushNotificationFacade(string id,  string certFileName, string password) : base(id) {
-			
+                
 			if (!File.Exists(certFileName)) {
 			
 				throw new IOException($"A push notification certificate with name '{certFileName}' could not be found.");
@@ -88,7 +86,7 @@ namespace R2Core.PushNotifications
 			payload += "}}";
 			var pl = JObject.Parse(payload);
 
-			Log.t(payload);
+			//Log.i($"Sending Push: '{payload}'");
 
 			m_push.QueueNotification(new ApnsNotification {
 
@@ -105,7 +103,7 @@ namespace R2Core.PushNotifications
 		
 			m_push = new ApnsServiceBroker(m_configuration);
 
-			m_push.OnNotificationFailed += (notification, aggregateEx) => {
+            m_push.OnNotificationFailed += (notification, aggregateEx) => {
 
 				aggregateEx.Handle(ex => {
 

@@ -16,15 +16,58 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 using NUnit.Framework;
+using R2Core.Tests;
 
 namespace R2Core.PushNotifications.Tests {
 
     [TestFixture]
-    public class PushNotificationHandlerTests {
+    public class PushNotificationHandlerTests : TestBase {
        
         [Test]
         public void TestHandler() {
+            PrintName();
 
+            var storage = new DummyPushNotificationStorage();
+            var factory = new PushNotificationFactory("factory", m_dataFactory);
+            var handler = factory.CreateProxy("handler", storage);
+
+            var appleFacade = new DummyPushNotificationFacade(PushNotificationClientType.Apple);
+            var androidFacade = new DummyPushNotificationFacade(PushNotificationClientType.Android);
+
+            var items = new PushNotificationRegistryItem[] {
+                new PushNotificationRegistryItem { Token = "t1", Group = "g1", IdentityName = "i1", ClientType = PushNotificationClientType.Apple },
+                new PushNotificationRegistryItem { Token = "t2", Group = "g1", IdentityName = "i1", ClientType = PushNotificationClientType.Apple },
+                new PushNotificationRegistryItem { Token = "t1", Group = "g2", IdentityName = "i1", ClientType = PushNotificationClientType.Apple },
+                new PushNotificationRegistryItem { Token = "t3", Group = "g1", IdentityName = "i1", ClientType = PushNotificationClientType.Android },
+                new PushNotificationRegistryItem { Token = "t1", Group = "g1", IdentityName = "i2", ClientType = PushNotificationClientType.Apple },
+                new PushNotificationRegistryItem { Token = "t3", Group = "g2", IdentityName = "i2", ClientType = PushNotificationClientType.Android },
+            };
+
+            handler.AddFacade(appleFacade);
+            handler.AddFacade(androidFacade);
+
+            foreach(var item in items) { storage.Register(item); }
+
+            handler.Broadcast(new PushNotification { Group = "g1", IdentityName = "i1", Message = "foo" });
+
+            handler.WaitFor();
+            Assert.AreEqual(1, appleFacade.SentNotifications["t1"].Count);
+            Assert.AreEqual(1, appleFacade.SentNotifications["t2"].Count);
+            Assert.AreEqual(1, androidFacade.SentNotifications["t3"].Count);
+            //Assert.False(appleFacade.SentNotifications.ContainsKey("t3"));
+
+            handler.Broadcast(new PushNotification { IdentityName = "i2", Message = "foo" });
+            handler.WaitFor();
+            Assert.AreEqual(2, appleFacade.SentNotifications["t1"].Count);
+            Assert.AreEqual(1, appleFacade.SentNotifications["t2"].Count);
+            Assert.AreEqual(2, androidFacade.SentNotifications["t3"].Count);
+
+            handler.Broadcast(new PushNotification { IdentityName = "i2", Group = "g2", Message = "foo" });
+            handler.WaitFor();
+
+            Assert.AreEqual(2, appleFacade.SentNotifications["t1"].Count);
+            Assert.AreEqual(1, appleFacade.SentNotifications["t2"].Count);
+            Assert.AreEqual(3, androidFacade.SentNotifications["t3"].Count);
         }
 
     }

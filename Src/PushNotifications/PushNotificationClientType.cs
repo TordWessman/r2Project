@@ -16,13 +16,14 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
-
 namespace R2Core.PushNotifications
 {
 	public enum PushNotificationClientType : int {
-		None = 0,
-		Apple = 1
-	}
-}
 
+		None = 0,
+		Apple = 1,
+        Android = 2
+	
+    }
+
+}

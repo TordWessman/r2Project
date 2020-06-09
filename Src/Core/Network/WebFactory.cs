@@ -175,7 +175,6 @@ namespace R2Core.Network
 		/// <returns>The host manager.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="port">Port.</param>
-		/// <param name="destination">Destination.</param>
 		public HostSynchronizer CreateHostSynchronizer(string id, int port, IDeviceManager deviceManager) {
 		
 			return new HostSynchronizer(id, port, deviceManager, this);

@@ -36,9 +36,10 @@ namespace R2Core
         public FileLogger(string id, string path) : base(id) {
 
 			m_fs = File.Open(path, FileMode.Create, FileAccess.ReadWrite);
-			m_outputStream = new StreamWriter(m_fs);
-			m_outputStream.AutoFlush = true;
-			m_fileName = path;
+            m_outputStream = new StreamWriter(m_fs) {
+                AutoFlush = true
+            };
+            m_fileName = path;
 
 		}
 

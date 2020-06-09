@@ -39,7 +39,10 @@ namespace R2Core.PushNotifications
 		/// <param name="certPath">Cert path.</param>
 		public PushNotificationFactory(string id, DataFactory dataFactory, string certPath = null) : base(id) {
 
-			m_certPath = certPath;
+            // Set log handling:
+            PushSharp.Core.Log.ClearLoggers();
+
+            m_certPath = certPath;
             m_dataFactory = dataFactory;
 
 			if (certPath != null && !m_certPath.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal)) {
@@ -50,7 +53,13 @@ namespace R2Core.PushNotifications
 		
 		}
 
-		public PushNotification CreateApple(string message, string identityName, string group = null) {
+        public void SetPushSharpLogger(IMessageLogger logger) {
+
+            PushSharp.Core.Log.AddLogger(new R2PushSharpLogger(logger));
+
+        }
+
+        public PushNotification CreateSimple(string message, string identityName, string group = null) {
 
             PushNotification note = new PushNotification { 
                 Message = message,
@@ -74,9 +83,9 @@ namespace R2Core.PushNotifications
 
 		}
 
-		public IPushNotificationProxy CreateHandler(string id, IPushNotificationStorage storage = null) {
+		public IPushNotificationProxy CreateProxy(string id, IPushNotificationStorage storage = null) {
 		
-			return new PushNotificationHandler(id, storage ?? CreateStorage($"{id}_storage"));
+			return new PushNotificationProxy(id, storage ?? CreateStorage($"{id}_storage"));
 
 		}
 

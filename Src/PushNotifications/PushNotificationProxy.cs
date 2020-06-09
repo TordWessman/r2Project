@@ -16,19 +16,17 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
 using R2Core.Device;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using R2Core.Common;
 
 namespace R2Core.PushNotifications
 {
 	/// <summary>
 	/// Uses the IMemorySource to keep track of and send push notifications.
 	/// </summary>
-	public class PushNotificationHandler : DeviceBase, IPushNotificationProxy, ITaskMonitored {
+	public class PushNotificationProxy : DeviceBase, IPushNotificationProxy, ITaskMonitored {
 
         private readonly IPushNotificationStorage m_storage;
 		private readonly IDictionary<PushNotificationClientType, IPushNotificationFacade> m_facades;
@@ -36,7 +34,7 @@ namespace R2Core.PushNotifications
 		private bool m_isSending;
 		private Task m_sendTask;
 
-		public PushNotificationHandler(string id, IPushNotificationStorage storage) : base(id) {
+		public PushNotificationProxy(string id, IPushNotificationStorage storage) : base(id) {
 
             m_storage = storage;
 			m_facades = new Dictionary<PushNotificationClientType, IPushNotificationFacade>();
@@ -59,7 +57,15 @@ namespace R2Core.PushNotifications
 
                 foreach(PushNotificationRegistryItem item in m_storage.Get(new PushNotificationRegistryItem { Group = notification.Group, IdentityName = notification.IdentityName })) {
 
-                    m_facades[item.ClientType].Send(notification, item.Token);
+                    try {
+
+                        m_facades[item.ClientType].Send(notification, item.Token);
+
+                    } catch (Exception ex) {
+    
+                        Log.e(ex.Message, "Push");
+
+                    }
 
                 }
 

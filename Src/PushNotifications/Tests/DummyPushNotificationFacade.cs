@@ -17,33 +17,33 @@
 //
 using System.Collections.Generic;
 using R2Core.Device;
-using System.Linq;
 
 namespace R2Core.PushNotifications.Tests {
 
-    internal class DummyPushNotificationStorage : DeviceBase, IPushNotificationStorage {
+    public class DummyPushNotificationFacade : DeviceBase, IPushNotificationFacade {
 
-        public List<PushNotificationRegistryItem> Items = new List<PushNotificationRegistryItem>();
+        public Dictionary<string, List<PushNotification>> SentNotifications = new Dictionary<string, List<PushNotification>>();
 
-        public DummyPushNotificationStorage() : base ("dummy_push_storage") { }
+        public DummyPushNotificationFacade(PushNotificationClientType type) : base($"facade_{type}") {
 
-        public IEnumerable<PushNotificationRegistryItem> Get(PushNotificationRegistryItem request) {
-
-            return Items.Where(i => (request.Group == null || i.Group == request.Group) && i.IdentityName == request.IdentityName);
+            ClientType = type;
 
         }
 
-        public void Register(PushNotificationRegistryItem request) {
+        public PushNotificationClientType ClientType { get; private set; }
 
-            Items.Add(request);
-        }
+        public void Send(PushNotification notification, string deviceToken) {
 
-        public void Remove(PushNotificationRegistryItem request) {
+            if (!SentNotifications.ContainsKey(deviceToken)) {
 
-            Items.Remove(i => { return i.Token == request.Token && i.IdentityName == request.IdentityName && i.Group == request.Group; });
+                SentNotifications[deviceToken] = new List<PushNotification>();
+
+            }
+
+            SentNotifications[deviceToken].Add(notification);
         
         }
-    
+
     }
 
 }

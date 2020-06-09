@@ -86,7 +86,7 @@
 	///
 	public string GetPathsForDoc(string name, XmlDocument doc, string baseDir, bool isExtension = false) {
 
-		string returnString = "\t\t" + (isExtension ? "internal static" : "public") + " class Paths"  + (isExtension ? name + "Extensions" : "Class") + " {\n\n" ;
+		string returnString = "\t\t" + (isExtension ? "public static" : "public") + " class Paths"  + (isExtension ? name + "Extensions" : "Class") + " {\n\n" ;
 
 		foreach (XmlNode pathsNode in doc.SelectNodes("/Configuration/Paths")) {
 
@@ -188,7 +188,7 @@
 	// Creates Const loading segment
 	public string GetConstsForDoc(string name, string confFileName, XmlDocument doc, bool isExtension = false) {
 
-		string returnString = "\t\t" + (isExtension ? "internal static" : "public") + " class Consts"  + (isExtension ? name + "Extensions" : "Class") + " {\n\n" ;
+		string returnString = "\t\t" + (isExtension ? "public static" : "public")  + " class Consts"  + (isExtension ? name + "Extensions" : "Class") + " {\n\n" ;
 
 		foreach (XmlNode pathsNode in doc.SelectNodes("/Configuration/Consts")) {
 	
@@ -199,7 +199,7 @@
 
 					returnString += GetCommentsSection(node);
 
-					returnString += "\t\t\t" + (isExtension ? "internal static " : "public ") + typeName +  " " + node.Name + "(" + (isExtension ? "this Settings.ConstsClass self, " : "") + typeName + " setValue = default(" + typeName + ")) {\n" +
+					returnString += "\t\t\t" + (isExtension ? "public static " : "public ")  + typeName +  " " + node.Name + "(" + (isExtension ? "this Settings.ConstsClass self, " : "") + typeName + " setValue = default(" + typeName + ")) {\n" +
 					"				if (setValue != default(" + typeName + ")) {\n" +
 					"					Settings.Instance.SetValue<" + typeName + ">(\"" + node.Name + "\", setValue);\n" +
 					"				}\n\n" +
