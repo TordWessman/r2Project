@@ -28,6 +28,69 @@
 // Counter for messages. For debuging purposes only.
 byte messageId = 0;
 
+void setup() {
+
+//saveNodeId(5);
+/*
+pinMode(R2_RESET_LED1, OUTPUT);
+pinMode(R2_RESET_LED2, INPUT);
+delay(500);
+
+if(digitalRead(R2_RESET_LED2)) {
+  R2_LOG(F("Resetting node to master"));
+  saveNodeId(0);
+  EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, 0x00);
+}
+
+pinMode(R2_RESET_LED1, INPUT);
+*/
+
+// Reset all pins. Just in case...
+for (int i = 0; i < 9; i++) {
+  pinMode(i, OUTPUT);
+  digitalWrite(i, LOW);
+  pinMode(i, INPUT);
+}
+
+#ifdef R2_STATUS_LED
+//I'm alive...
+pinMode(R2_STATUS_LED, OUTPUT);
+for (int i = 0; i < 5; i++) {
+  digitalWrite(R2_STATUS_LED, 1);
+  delay(500 / LED_TIME_DENOMIATOR);
+  digitalWrite(R2_STATUS_LED, 0);
+  delay(500 / LED_TIME_DENOMIATOR);
+}
+reservePort(R2_STATUS_LED);
+#endif
+
+#ifdef R2_ERROR_LED
+pinMode(R2_ERROR_LED, OUTPUT);
+reservePort(R2_ERROR_LED);
+#endif
+
+  Serial.begin(SERIAL_BAUD_RATE);
+  clearError();
+  
+#ifdef USE_I2C
+
+#ifdef USE_RH24
+if (isMaster())
+#endif
+{
+  R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
+  R2_LOG(F("Initialized I2C."));
+}
+
+#endif
+
+#ifdef USE_RH24
+  rh24Setup();
+  
+  //sleep(false, 255);
+#endif
+   
+}
 #ifdef USE_I2C
 
 // Delegate method for I2C event communication.
@@ -47,9 +110,11 @@ void i2cReceive(byte* data, size_t data_size) {
     
   }
   
+#ifdef R2_PRINT_DEBUG
   R2_LOG(F("Will write response with action/size:"));
   Serial.println(out.action);
   Serial.println(RESPONSE_PACKAGE_SIZE(out));
+#endif
   byte *response = (byte *)&out;
   R2I2C.setResponse(response, RESPONSE_PACKAGE_SIZE(out));
   
@@ -341,69 +406,6 @@ ResponsePackage execute(RequestPackage *request) {
   response.checksum = createResponseChecksum(&response);
   return response;
   
-}
-
-
-void setup() {
-
-//saveNodeId(4);
-/*
-pinMode(R2_RESET_LED1, OUTPUT);
-pinMode(R2_RESET_LED2, INPUT);
-delay(500);
-
-if(digitalRead(R2_RESET_LED2)) {
-  R2_LOG(F("Resetting node to master"));
-  saveNodeId(0);
-  EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, 0x00);
-}
-
-pinMode(R2_RESET_LED1, INPUT);
-*/
-
-// Reset all pins. Just in case...
-for (int i = 0; i < 9; i++) {
-  pinMode(i, OUTPUT);
-  digitalWrite(i, LOW);
-  pinMode(i, INPUT);
-}
-
-#ifdef R2_STATUS_LED
-//I'm alive...
-pinMode(R2_STATUS_LED, OUTPUT);
-for (int i = 0; i < 5; i++) {
-  digitalWrite(R2_STATUS_LED, 1);
-  delay(500 / LED_TIME_DENOMIATOR);
-  digitalWrite(R2_STATUS_LED, 0);
-  delay(500 / LED_TIME_DENOMIATOR);
-}
-reservePort(R2_STATUS_LED);
-#endif
-
-#ifdef R2_ERROR_LED
-pinMode(R2_ERROR_LED, OUTPUT);
-reservePort(R2_ERROR_LED);
-#endif
-
-  Serial.begin(SERIAL_BAUD_RATE);
-  clearError();
-  
-#ifdef USE_I2C
-
-#ifdef USE_RH24
-if (isMaster())
-#endif
-{
-  R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
-  R2_LOG(F("Initialized I2C."));
-}
-
-#endif
-
-#ifdef USE_RH24
-  rh24Setup();
-#endif
-   
 }
 
 #ifdef R2_STATUS_LED
