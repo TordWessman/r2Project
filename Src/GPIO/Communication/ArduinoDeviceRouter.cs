@@ -201,7 +201,7 @@ namespace R2Core.GPIO
 					// The connection has been closed. Probably manually:
 					ex.ErrorType != SerialErrorType.ERROR_SERIAL_CONNECTION_CLOSED) {
 			
-					Log.t($"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
+					Log.i($"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
 					return _Send<T>(request, retryCount + 2);
 

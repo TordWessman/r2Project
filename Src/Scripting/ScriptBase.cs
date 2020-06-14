@@ -77,7 +77,6 @@ namespace R2Core.Scripting
 		protected Guid m_guid;
 		private IList<IDeviceObserver> m_deviceObservers;
 		private IList<IScriptObserver> m_scriptObservers;
-		private bool m_isRunning;
 		// The task running the loop
 		private Task m_processTask;
 
@@ -91,16 +90,16 @@ namespace R2Core.Scripting
 
 		}
 
-		[Newtonsoft.Json.JsonProperty]
-		public string Identifier { get { return m_id; } }
-		[Newtonsoft.Json.JsonProperty]
-		public Guid Guid { get { return m_guid; } }
+        [Newtonsoft.Json.JsonProperty]
+        public string Identifier => m_id;
+        [Newtonsoft.Json.JsonProperty]
+        public Guid Guid => m_guid;
 		[Newtonsoft.Json.JsonProperty]
 		public virtual bool Ready { get { return true; } }
-		[Newtonsoft.Json.JsonProperty]
-		public bool IsRunning { get { return m_isRunning; } }
+        [Newtonsoft.Json.JsonProperty]
+        public bool IsRunning { get; private set; }
 
-		public abstract void Set(string handle, dynamic value);
+        public abstract void Set(string handle, dynamic value);
 		public abstract dynamic Get(string handle);
 		public abstract dynamic Invoke(string handle, params dynamic[] args);
 		public abstract void Reload();
@@ -115,7 +114,7 @@ namespace R2Core.Scripting
 
 				try {
 
-					while(m_isRunning && (false != Get(HANDLE_SHOULD_RUN)) && (true == Invoke(HANDLE_LOOP))) {
+					while(IsRunning && (false != Get(HANDLE_SHOULD_RUN)) && (true == Invoke(HANDLE_LOOP))) {
 
 						// In the class' loop function
 
@@ -131,7 +130,7 @@ namespace R2Core.Scripting
 
 				}
 
-				m_isRunning = false;
+                IsRunning = false;
 
 				foreach (IScriptObserver observer in m_scriptObservers) {
 
@@ -155,7 +154,7 @@ namespace R2Core.Scripting
 
 			try {
 
-				m_isRunning = true;
+                IsRunning = true;
 
 				m_processTask = GetProcessTask();
 
@@ -174,7 +173,7 @@ namespace R2Core.Scripting
 
 			} catch (Exception ex) {
 
-				m_isRunning = false;
+                IsRunning = false;
 
 				foreach (IScriptObserver observer in m_scriptObservers) { observer?.OnScriptErrors(this); }
 				ScriptException exception = new ScriptException(ex);
@@ -188,7 +187,7 @@ namespace R2Core.Scripting
 
 		public void Stop() {
 
-			m_isRunning = false;
+            IsRunning = false;
 
 			if (null != Get(HANDLE_STOP)) { Invoke(HANDLE_STOP); }
 

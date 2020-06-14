@@ -29,8 +29,11 @@ namespace R2Core.PushNotifications
 		
 		private ApnsServiceBroker m_push;
 		private ApnsConfiguration m_configuration;
+        private bool m_sending;
 
         public PushNotificationClientType ClientType => PushNotificationClientType.Apple;
+
+        public override bool Ready => !m_sending;
 
         public ApplePushNotificationFacade(string id,  string certFileName, string password) : base(id) {
                 
@@ -67,7 +70,9 @@ namespace R2Core.PushNotifications
 
 		public void Send(PushNotification notification, string deviceToken) {
 
-			SetupBroker();
+            m_sending = true;
+
+            SetupBroker();
 
 			m_push.Start();
 
@@ -128,11 +133,14 @@ namespace R2Core.PushNotifications
 
 				});
 
+                m_sending = false;
+
 			};
 
 			m_push.OnNotificationSucceeded += (ApnsNotification notification) =>  {
 
-				Log.t($"Did send notification: {notification.DeviceToken}. ");
+                m_sending = false;
+				Log.i($"Did send notification: {notification.DeviceToken}. ");
 
 			};
 
