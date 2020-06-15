@@ -22,6 +22,7 @@ using System.Collections.Generic;
 
 namespace R2Core.Tests
 {
+
 	[TestFixture]
 	public class DataTests: TestBase {
 		

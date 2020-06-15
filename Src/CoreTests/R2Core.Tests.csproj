@@ -97,6 +97,7 @@
     <Compile Include="Extensions\DeviceExtensions.cs" />
     <Compile Include="MemoryChecker.cs" />
     <Compile Include="DummyClasses\DummyDeviceContainer.cs" />
+    <Compile Include="CoreTests\ExtensionTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
