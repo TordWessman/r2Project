@@ -36,8 +36,8 @@ namespace R2Core.Network
 		public string Destination { get; set; }
 		public IDictionary<string, object> Headers { get; set; }
 
-		public string Method;
-		public string ContentType;
+		public string Method { get; set; }
+		public string ContentType { get; set; }
 
         public HttpMessage(INetworkMessage message) {
 
@@ -62,7 +62,8 @@ namespace R2Core.Network
 
 		public override string ToString() {
 
-			return string.Format("[HttpMessage: Code={0}, Destination={1}, Payload={2}]", Code, Destination, Payload);
+			return string.Format("[HttpMessage: Code={0}, Destination={1}, Payload={2}, Method={3}]", Code, Destination, Payload, Method
+            );
 
 		}
 

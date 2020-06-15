@@ -49,8 +49,12 @@ namespace R2Core.Network
 		public override void Stop() {
 
 			m_pingTimer.Close();
-			
-		}
+            m_pingTimer.Enabled = false;
+            m_pingTimer.Stop();
+            m_pingTimer.Dispose();
+            m_pingTimer = null;
+
+        }
 
 		void PingEvent(object sender, System.Timers.ElapsedEventArgs e) {
 			

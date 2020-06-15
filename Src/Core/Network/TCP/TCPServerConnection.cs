@@ -158,6 +158,7 @@ namespace R2Core.Network {
             Log.i($"{this} disconnected.");
 
             m_connectionPoller.Stop();
+            m_connectionPoller = null;
 
             try {
 
@@ -172,6 +173,7 @@ namespace R2Core.Network {
 
             OnDisconnect?.Invoke(this, ex);
             OnDisconnect = null;
+            OnReceive = null;
 
         }
 
@@ -209,9 +211,13 @@ namespace R2Core.Network {
 
                 if (!clientRequest.IsBroadcastMessage()) { Reply(clientRequest); }
 
-                if (!clientRequest.IsPingOrPong()) {
+                if (!clientRequest.IsPing()) {
 
                     OnReceive?.Invoke(clientRequest, m_client.GetEndPoint());
+
+                } else if (clientRequest.IsPing()){
+
+                    OnReceive?.Invoke(new PongMessage(), m_client.GetEndPoint());
 
                 }
 

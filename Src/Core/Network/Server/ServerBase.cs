@@ -68,7 +68,7 @@ namespace R2Core.Network {
             Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
             Stop();
             try { ServiceTask?.Dispose(); } 
-            catch { }
+            catch (Exception ex) { Log.i($"Server closed with exception: {ex.Message}."); }
 
         }
 

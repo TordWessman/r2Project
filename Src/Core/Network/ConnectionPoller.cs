@@ -33,7 +33,7 @@ namespace R2Core.Network
 
 		private System.Timers.Timer m_connectionCheckTimer;
 		private readonly WeakReference<TcpClient> m_client;
-		private readonly Action m_failDelegate;
+		private Action m_failDelegate;
 
 		/// <summary>
 		/// Initializes a new instance of the <see cref="R2Core.Network.ConnectionPoller"/> class.
@@ -88,7 +88,8 @@ namespace R2Core.Network
 
                 try {
 
-                    m_failDelegate();
+                    m_failDelegate?.Invoke();
+                    m_failDelegate = null;
 
                 } catch (Exception ex) {
 

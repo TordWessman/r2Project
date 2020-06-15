@@ -192,8 +192,6 @@ namespace R2Core.Network
 
                 }
 
-                response.Close();
-
                 return responseObject;
 
             } finally { Busy = false; }
