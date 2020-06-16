@@ -626,8 +626,7 @@ namespace R2Core.Tests
 			Assert.IsFalse(clientServer.Ready);
 			s.Start();
             s.WaitFor();
-			Thread.Sleep(500);
-			Assert.IsTrue(clientServer.Ready);
+            clientServer.WaitFor();
 
 			s.Stop();
 			clientServer.Stop();

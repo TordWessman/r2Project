@@ -356,7 +356,7 @@ namespace R2Core.Tests
 			httpServer.Start();
 
 
-			Thread.Sleep(100);
+            httpServer.WaitFor();
             memoryChecker.Check();
 
             // Server side router that will route traffic to a local servers
