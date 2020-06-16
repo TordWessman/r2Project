@@ -76,7 +76,7 @@ namespace R2Core.Network
 
 		~TCPClient() {
 		
-			Log.i($"Deallocating TCPClient [{{Guid.ToString()}].", Identifier);
+			Log.i($"Deallocating TCPClient [{Guid.ToString()}].", Identifier);
 			Stop();
 			m_receiverTask?.Dispose();
 
