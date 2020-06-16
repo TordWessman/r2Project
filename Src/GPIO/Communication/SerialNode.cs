@@ -112,7 +112,7 @@ namespace R2Core.GPIO
 
 		}
 
-		public override bool Ready { get { return m_host.IsNodeAvailable(NodeId); } }
+		public override bool Ready { get { return m_host.Ready && m_host.IsNodeAvailable(NodeId); } }
 		public override void Start() { StartScheduledSynchronization(); }
 		public override void Stop() { StopScheduledSynchronization(); }
 		public void Synchronize() { m_devices.ForEach(device => device.Synchronize()); }
