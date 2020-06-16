@@ -253,9 +253,9 @@ namespace R2Core
 		/// Used for temporary testing outprint
 		/// </summary>
 		/// <param name="msg">Message.</param>
-		public static void t(object msg) {
+		public static void t(object msg, string tag = null) {
 			
-			Instance?.temp(msg);
+			Instance?.temp(msg, tag);
 
 		}
 
@@ -264,7 +264,7 @@ namespace R2Core
 		/// </summary>
 		/// <param name="ex">Ex.</param>
 		/// <param name="recursionCount">Recursion count.</param>
-		public static void x(Exception ex, int recursionCount = 0) {
+		public static void x(Exception ex, string tag = null, int recursionCount = 0) {
 
 			if (!string.IsNullOrEmpty(ex.Message)) {
 
@@ -284,14 +284,14 @@ namespace R2Core
 					new string('-', recursionCount * 2) + ex.Message + Environment.NewLine +
 					new string('-', recursionCount * 2) + stackTraceString + Environment.NewLine;
 
-				Instance.Write(new LogMessage(exString, LogLevel.Error, null));
+				Instance.Write(new LogMessage(exString, LogLevel.Error, tag));
 
 			}
 			
 			if (ex.InnerException != null && recursionCount < 10) {
 
 				Instance.Write(new LogMessage("==== Inner Exception ====", LogLevel.Error));
-				x(ex.InnerException, recursionCount + 1);
+				x(ex.InnerException, tag, recursionCount + 1);
 			
 			}
 		
