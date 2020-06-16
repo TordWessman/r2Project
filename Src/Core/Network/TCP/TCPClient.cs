@@ -76,7 +76,7 @@ namespace R2Core.Network
 
 		~TCPClient() {
 		
-			Log.i($"Deallocating TCPClient [{Identifier}:{Guid.ToString()}].");
+			Log.i($"Deallocating TCPClient [{{Guid.ToString()}].", Identifier);
 			Stop();
 			m_receiverTask?.Dispose();
 
@@ -89,7 +89,7 @@ namespace R2Core.Network
 
         public override void Start() {
 		
-			Log.i($"TCPClient will connect to {Address}:{Port}");
+			Log.i($"Will connect to {Address}:{Port}", Identifier);
 
 			m_readError = null;
 			m_shouldRun = true;
@@ -115,7 +115,7 @@ namespace R2Core.Network
 
 			if (!m_shouldRun) { return; }
 
-			Log.i($"{this} will Stop.");
+			Log.i($"Will Stop ({this}).", Identifier);
 
 			m_shouldRun = false;
 
@@ -231,7 +231,7 @@ namespace R2Core.Network
 
     						if (m_latestResponse.IsEmpty()) {
     						
-    							Log.w("TCPClient: Got empty message.");
+    							Log.w("Got empty message.", Identifier);
 
     						}
 
@@ -257,7 +257,7 @@ namespace R2Core.Network
 
     				} catch (Exception ex) {
 
-    					Log.x(ex);
+    					Log.x(ex, Identifier);
     					m_observers.InParallell((observer) => observer.OnResponse(null, ex));
     					if (m_shouldRun && !Ready) { Stop(); }
     					throw ex;
@@ -332,14 +332,14 @@ namespace R2Core.Network
 						if (!m_shouldRun) { /* ignore errors */ }
 						else if (ex.IsClosingNetwork()) {
 
-							Log.d($"{this} closed.");
+							Log.d($"{this} closed.", Identifier);
 							Stop();
 
 						} else {
 						
 							m_readError = ex;
 
-							Log.w($"{this} disconnected. Error: {ex.GetType()}. Message: `{ex.Message}`.");
+							Log.w($"{this} disconnected. Error: {ex.GetType()}. Message: `{ex.Message}`.", Identifier);
 
 							Stop();
 

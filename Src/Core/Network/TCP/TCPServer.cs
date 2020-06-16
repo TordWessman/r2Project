@@ -103,7 +103,7 @@ namespace R2Core.Network
 
 					TCPServerConnection connection = 
 						new TCPServerConnection(
-							client.Client.RemoteEndPoint.ToString(), 
+							$"TCPServerConnection: {client.Client.RemoteEndPoint.ToString()}", 
 							m_packageFactory,
 							client, 
 							Interpret);
@@ -121,11 +121,11 @@ namespace R2Core.Network
 
 					if (ex.IsClosingNetwork()) {
 
-						Log.i("Closing TCPServer connection.");
+						Log.i("Closing a connection.", Identifier);
 
 					} else {
 					
-						Log.x(ex);
+						Log.x(ex, Identifier);
 
 					}
 					 
@@ -137,7 +137,7 @@ namespace R2Core.Network
 
 		private void OnDisconnect(IClientConnection connection, Exception ex) {
 		
-			if (ex != null) { Log.x(ex); }
+			if (ex != null) { Log.x(ex, Identifier); }
 
 			lock(m_connectionsLock) {
 
@@ -145,7 +145,7 @@ namespace R2Core.Network
 
                     foreach (IClientConnection removed in m_connections.Remove(c => c.Address == connection.Address && c.Port == connection.Port)) {
 
-                        Log.i($"TCPServer removed client connection: {removed}");
+                        Log.i($"TCPServer removed client connection: {removed}", Identifier);
 
                     }
 

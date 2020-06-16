@@ -111,7 +111,7 @@ namespace R2Core.Network
 
 			if (endpoint == null) {
 				
-				Log.w($"No TCPClientServer IWebEndpoint accepts: {request}");
+				Log.w($"No TCPClientServer IWebEndpoint accepts: {request}", Identifier);
 
 				return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request); 
 	
@@ -123,7 +123,7 @@ namespace R2Core.Network
 
 			} catch (Exception ex) {
 
-				Log.x(ex);
+				Log.x(ex, Identifier);
 
 				return new NetworkErrorMessage(NetworkStatusCode.ServerError, $"EXCEPTION: {ex.Message}", request); 
 
@@ -139,13 +139,6 @@ namespace R2Core.Network
 				INetworkMessage response = default(TCPMessage);
 
 				try {
-
-					if (m_client.Available < 1) {
-						
-						Thread.Yield();
-						continue;
-
-					} 
 
 					request = m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
 
@@ -195,9 +188,13 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-                    if (ex is ThreadAbortException) { return; }
+                    if (ex.IsClosingNetwork()) {
 
-                    Log.x(ex);
+                        Log.i($"Closing network: '{ex.Message}'", Identifier);
+
+                    }
+
+                    Log.x(ex, Identifier);
 
                     response = new NetworkErrorMessage(ex);
 
@@ -236,7 +233,8 @@ namespace R2Core.Network
 		private void Connect() {
 
             m_client = new TcpClient {
-                SendTimeout = Timeout
+                SendTimeout = Timeout,
+                ReceiveTimeout = 0
             };
 
             m_client.Client.Blocking = true;
@@ -245,7 +243,7 @@ namespace R2Core.Network
 
 				if (ShouldRun) {
 
-                    Log.t("TCPClientServer lost connection. Will reconnect.");
+                    Log.t("TCPClientServer lost connection. Will reconnect.", Identifier);
                     Connect(); 
 
                 }
@@ -264,12 +262,12 @@ namespace R2Core.Network
 
 			} else {
 
-				Log.e($"TCPClientServer got bad reply [{response.Code}]: {response.Payload}");
+				Log.e($"TCPClientServer got bad reply [{response.Code}]: {response.Payload}", Identifier);
 				m_client.Close();
 
 			}
 
-            Log.i($"TCPClientServer did connect to: {Address}:{Port}.");
+            Log.i($"TCPClientServer did connect to: {Address}:{Port}.", Identifier);
 
         }
 

@@ -139,7 +139,7 @@ namespace R2Core.Network
 
                 } catch (WebException ex) {
 
-                    Log.w($"Connection failed: {httpRequest.RequestUri.ToString()} exception: '{ex.Message}'");
+                    Log.w($"Connection failed: {httpRequest.RequestUri.ToString()} exception: '{ex.Message}'", Identifier);
 
                     responseObject.Payload = new NetworkErrorDescription() { Message = ex.Message };
 

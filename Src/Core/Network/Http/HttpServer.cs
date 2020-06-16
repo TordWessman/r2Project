@@ -52,7 +52,7 @@ namespace R2Core.Network
 
             } catch (Exception ex) {
 
-                Log.x(ex);
+                Log.x(ex, Identifier);
 
             }
 
@@ -136,12 +136,12 @@ namespace R2Core.Network
 
 			if (endpoint == null) {
 			
-				Log.w($"No HTTP IWebEndpoint accepts {request.Destination}");
+				Log.w($"No HTTP IWebEndpoint accepts {request.Destination}", Identifier);
 
-				HttpMessage response = new HttpMessage(new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request));
-
-				response.ContentType = HttpMessage.DefaultContentType;
-				return response;
+                HttpMessage response = new HttpMessage(new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request)) {
+                    ContentType = HttpMessage.DefaultContentType
+                };
+                return response;
 
 			}
 
@@ -154,7 +154,7 @@ namespace R2Core.Network
             HttpListenerRequest request = context.Request;
             HttpListenerResponse response = context.Response;
 
-            Log.i($"HttpServer: Got request from {request.RemoteEndPoint.Address}. Path: {request.Url.AbsolutePath}");
+            Log.i($"Got request from {request.RemoteEndPoint.Address}. Path: {request.Url.AbsolutePath}", Identifier);
 
             Dictionary<string, object> requestHeaders = new Dictionary<string, object>();
 			byte[] responseBody = new byte[0];
@@ -213,7 +213,7 @@ namespace R2Core.Network
 
 			} catch (Exception ex) {
 
-				Log.x(ex);
+				Log.x(ex, Identifier);
 
 				response.StatusCode = NetworkStatusCode.ServerError.Raw();
 
@@ -222,7 +222,7 @@ namespace R2Core.Network
 			}
 
 			Write(response, responseBody);
-            Log.i($"HttpServer: Did reply to {request.RemoteEndPoint.Address}. Length: {responseBody.Length}. StatusCode: {response.StatusCode}");
+            Log.i($"Did reply to {request.RemoteEndPoint.Address}. Length: {responseBody.Length}. StatusCode: {response.StatusCode}", Identifier);
         }
 
 		private void ClearInactiveWriteTasks() {
@@ -251,19 +251,19 @@ namespace R2Core.Network
 
 			ClearInactiveWriteTasks();
 
-            Log.i($"HttpServer: Will write. Current task count: {m_writeTasks.Count}. ");
+            Log.i($"Will write. Current task count: {m_writeTasks.Count}. ", Identifier);
             Task writeTask = new Task(() => {
 
                 try {
 
                     output.Write(data, 0, data.Length);
 
-                } catch (Exception ex) { Log.x(ex); } 
+                } catch (Exception ex) { Log.x(ex, Identifier); } 
                 finally {
 
                     output.Close();
                     response.Close();
-                    Log.i($"HttpServer: did close stream. ");
+                    Log.i($"Did close stream.", Identifier);
                 }
             });
 

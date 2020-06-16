@@ -82,7 +82,7 @@ namespace R2Core.Network {
 
         }
 
-        ~TCPServerConnection() { Log.i($"Deallocating {this}."); }
+        ~TCPServerConnection() { Log.i($"Deallocating.", Identifier); }
 
         public string LocalAddress { get { return m_client.GetLocalEndPoint()?.GetAddress(); } }
 
@@ -102,7 +102,7 @@ namespace R2Core.Network {
 
             m_shouldRun = true;
 
-            Log.i($"Server accepted connection from {m_client.GetDescription()}.");
+            Log.i($"Accepted connection from {m_client.GetDescription()}.", Identifier);
 
             m_listener = Task.Factory.StartNew(() => {
 
@@ -155,7 +155,7 @@ namespace R2Core.Network {
 
             m_shouldRun = false;
 
-            Log.i($"{this} disconnected.");
+            Log.i($"Disconnected.", Identifier);
 
             m_connectionPoller.Stop();
             m_connectionPoller = null;
@@ -166,8 +166,8 @@ namespace R2Core.Network {
 
             } catch (Exception exception) {
 
-                Log.e($"Client disconnection [{this}] crashed:");
-                Log.x(exception);
+                Log.e($"Crashed:", Identifier);
+                Log.x(exception, Identifier);
 
             }
 
@@ -229,12 +229,12 @@ namespace R2Core.Network {
 
                     if (!ex.IsClosingNetwork()) {
 
-                        Log.x(ex);
+                        Log.x(ex, Identifier);
                         Disconnect(ex);
 
                     } else {
 
-                        Log.i($"TCPServerConnection read failed: '{ex.Message}'. Disconnecting.");
+                        Log.i($"Read failed: '{ex.Message}'. Disconnecting.", Identifier);
                         Disconnect();
 
                     }
