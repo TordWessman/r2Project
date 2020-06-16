@@ -34,13 +34,15 @@ namespace R2Core.Scripting
 
 		private readonly string m_stacktrace;
 
-		public ScriptException(Exception exception) : base($"{Environment.NewLine}[{exception.GetType()}]{ Environment.NewLine}" + exception.Message, exception.InnerException) {
+        public ScriptException(string message) : base(message) { }
+
+        public ScriptException(Exception exception) : base($"{Environment.NewLine}[{exception.GetType()}]{ Environment.NewLine}" + exception.Message, exception.InnerException) {
 			
 			m_stacktrace = string.Join(Environment.NewLine, exception.StackTrace.Split(new string[1] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToArray().Where(line => !(new List<string> { "Microsoft.Scripting.", "System.Dynamic.UpdateDelegates", ".Runtime.Calls.", "Microsoft.Scripting.Hosting", "(wrapper dynamic-method)", "(wrapper delegate-invoke)", "(wrapper remoting-invoke-with-check)" }).Any(l => line.Contains(l))).ToArray().Where(line => line != Environment.NewLine));
 
 		}
 
-		public override string StackTrace  { get { return m_stacktrace; } }
+		public override string StackTrace  { get { return m_stacktrace ?? base.StackTrace; } }
 
 	}
 	
