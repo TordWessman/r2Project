@@ -62,7 +62,7 @@ namespace R2Core
 
 				try {
 
-					m_outputStream?.WriteLine($"[{id}][{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
+					m_outputStream?.WriteLine($"[{id}]{(message.Tag == null ? "" : $"[{message.Tag}]")}[{message.Type}] [{message.TimeStamp} {message.TimeStamp.Millisecond}] : {message.Message} ");
 
 				} catch (ObjectDisposedException) { /* The stream has bet shut down due to application exit. */ }
 
