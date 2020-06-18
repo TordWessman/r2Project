@@ -56,28 +56,19 @@ namespace R2Core.GPIO
 
 		}
 
-		public override bool Ready { get { return m_connection?.Ready == true; } }
+		public override bool Ready { get { return m_connection.ShouldRun && m_connection?.Ready == true; } }
 
 		public DeviceData<T>GetValue<T>(byte deviceId, int nodeId) {
 
-			DeviceResponsePackage<T>response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId));
+            DeviceResponsePackage<T> response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId));
 
-			return new DeviceData<T> { Id = response.Id, Value = response.Value };
+            return new DeviceData<T> { Id = response.Id, Value = response.Value };
 
-		}
+        }
 
 		public void Set(byte deviceId, int nodeId, int value) {
-
-            if (m_connection?.ShouldRun == true) {
-
-                DeviceResponsePackage<int> response = Send<int>(m_packageFactory.SetDevice(deviceId, (byte)nodeId, value));
-
-            } else {
-
-                Log.w(Identifier, $"Stopped! Unable to set device no {deviceId} on nodeId: {nodeId} to value: {value}.");
-
-            }
-
+    
+            DeviceResponsePackage<int> response = Send<int>(m_packageFactory.SetDevice(deviceId, (byte)nodeId, value));
 
         }
 
@@ -229,7 +220,14 @@ namespace R2Core.GPIO
 
 			lock(m_lock) {
 
-				if (!Ready) { throw new SerialConnectionException("Communication busy/not started.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE); }
+                if (m_connection?.ShouldRun != true) {
+
+                    Log.w(Identifier, $"'{m_connection.Identifier}' has been Stopped! Unable to send request: '{request}'");
+                    return default(DeviceResponsePackage<T>);
+
+                }
+
+                if (!Ready) { throw new SerialConnectionException("Communication busy/not started.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE); }
 
 				DeviceResponsePackage<T> response = _Send<T>(request);
 
