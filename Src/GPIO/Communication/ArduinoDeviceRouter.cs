@@ -68,9 +68,18 @@ namespace R2Core.GPIO
 
 		public void Set(byte deviceId, int nodeId, int value) {
 
-			DeviceResponsePackage<int> response = Send<int> (m_packageFactory.SetDevice(deviceId, (byte)nodeId, value));
+            if (m_connection?.ShouldRun == true) {
 
-		}
+                DeviceResponsePackage<int> response = Send<int>(m_packageFactory.SetDevice(deviceId, (byte)nodeId, value));
+
+            } else {
+
+                Log.w(Identifier, $"Stopped! Unable to set device no {deviceId} on nodeId: {nodeId} to value: {value}.");
+
+            }
+
+
+        }
 
 		public DeviceData<T> Create<T>(int nodeId, SerialDeviceType type, byte[] parameters) {
 
@@ -148,7 +157,7 @@ namespace R2Core.GPIO
 
 			if (!response.IsError && response.NodeId != 0) {
 			
-				Log.w($"Node has changed id to {response.NodeId}. I2C connection might fail.");
+				Log.w(Identifier, $"Node has changed id to {response.NodeId}. I2C connection might fail.");
 
 			}
 
@@ -181,7 +190,7 @@ namespace R2Core.GPIO
 					
 					if (retryCount == 3) {
 						
-						Log.i($"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...");
+						Log.i(Identifier, $"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...");
 					
 					}
 
@@ -190,7 +199,6 @@ namespace R2Core.GPIO
 
 				}
 
-                //Log.i($"ArduinoDevice: Got response: {response}");
                 return response;
 
 			} catch (SerialConnectionException ex) {
@@ -201,7 +209,7 @@ namespace R2Core.GPIO
 					// The connection has been closed. Probably manually:
 					ex.ErrorType != SerialErrorType.ERROR_SERIAL_CONNECTION_CLOSED) {
 			
-					Log.i($"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
+					Log.i(Identifier, $"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
 					return _Send<T>(request, retryCount + 2);
 

@@ -164,7 +164,7 @@ namespace R2Core.GPIO
 
 			} catch (Exception ex) {
 				
-				Log.w($"Node({NodeId}) update error: {ex.Message}.");
+				Log.w(Identifier, $"Node({NodeId}) update error: {ex.Message}.");
 				FailCount++;
 
 			} finally { IsUpdating = false; } 
@@ -177,7 +177,7 @@ namespace R2Core.GPIO
 
 			if ((checksum[0] & 63) != m_devices.Count) {
 			
-				Log.e($"Checksum failed for device count(was {(checksum[0] & 63)}).");
+				Log.e(Identifier, $"Checksum failed for device count(was {(checksum[0] & 63)}).");
 				return false;
 			}
 
@@ -185,7 +185,7 @@ namespace R2Core.GPIO
 			
 				if (checksum[i + 1] != m_devices[i].Checksum) {
 
-					Log.e($"Checksum failed for serial device '{m_devices[i].Identifier}'.");
+					Log.e(Identifier, $"Checksum failed for serial device '{m_devices[i].Identifier}'.");
 					return false;
 
 				}

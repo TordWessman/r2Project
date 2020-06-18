@@ -8,11 +8,17 @@ namespace R2Core.GPIO {
 	/// </summary>
 	public interface ISerialConnection : IDevice {
 
-		/// <summary>
-		/// Will send the array of bytes to node and return the reply(if any)
-		/// </summary>
-		/// <param name="data">Data.</param>
-		byte[] Send(byte[] data);
+        /// <summary>
+        /// Returns <c>true</c> if the connection should be up and running (<c>Ready</c> returns <c>true</c> only if it's connected, which might be unreliable.
+        /// </summary>
+        /// <value><c>true</c> if should runt; otherwise, <c>false</c>.</value>
+        bool ShouldRun { get; }
+
+        /// <summary>
+        /// Will send the array of bytes to node and return the reply(if any)
+        /// </summary>
+        /// <param name="data">Data.</param>
+        byte[] Send(byte[] data);
 
 		/// <summary>
 		/// Will try to read from the node.

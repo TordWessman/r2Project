@@ -14,13 +14,8 @@ namespace R2Core.GPIO
             set {
 
                 m_value = value;
-
-                if (Host.Ready) {
-
-                    Host.Set(DeviceId, Node.NodeId, value);
-
-                } else { Log.w("Unable to set value. Host not Ready.", Identifier); }
-
+                Host.Set(DeviceId, Node.NodeId, value);
+            
             }
 
         }
