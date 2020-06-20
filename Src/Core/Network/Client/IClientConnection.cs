@@ -18,8 +18,6 @@
 //
 using System;
 using System.Net;
-using R2Core.Device;
-using Newtonsoft.Json;
 using System.Net.NetworkInformation;
 
 namespace R2Core.Network
@@ -58,7 +56,7 @@ namespace R2Core.Network
 	
 		public static bool Ping(this IClientConnection self) {
 		
-			System.Net.NetworkInformation.Ping ping = new System.Net.NetworkInformation.Ping();
+			Ping ping = new Ping();
 			PingReply reply = ping.Send(self.Address);
 			return reply.Status == IPStatus.Success;
 

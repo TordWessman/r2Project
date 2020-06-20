@@ -91,7 +91,7 @@ namespace R2Core.PushNotifications
 			payload += "}}";
 			var pl = JObject.Parse(payload);
 
-			//Log.i($"Sending Push: '{payload}'");
+			Log.i($"Sending Push: '{payload}'");
 
 			m_push.QueueNotification(new ApnsNotification {
 
