@@ -393,7 +393,7 @@ namespace R2Core.Tests
             // Override default behaviour: Set the destination server type. This means that all requests from this client should be directed to the HTTP server (if present)
             client.Headers[Settings.Consts.ConnectionRouterHeaderServerTypeKey()] = Settings.Consts.ConnectionRouterHeaderServerTypeHTTP();
 
-			TCPMessage message = new TCPMessage() { Destination = "test", Payload = "argh" };
+			TCPMessage message = new TCPMessage { Destination = "test", Payload = "argh" };
 
 			INetworkMessage response = client.Send(message);
 

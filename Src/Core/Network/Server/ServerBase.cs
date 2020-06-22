@@ -113,6 +113,7 @@ namespace R2Core.Network {
         public override void Stop() {
 
             ShouldRun = false;
+            ServiceTask = null;
             try { Cleanup(); } catch (Exception ex) { Log.x(ex); }
 
         }

@@ -112,7 +112,7 @@ namespace R2Core.Network
 
 		public TCPMessage CreateTCPMessage(string path, dynamic payload, IDictionary<string, object> headers = null) {
 		
-			TCPMessage message = new TCPMessage() {
+			TCPMessage message = new TCPMessage {
 				Destination = path,
 				Payload = payload,
 				Headers = headers

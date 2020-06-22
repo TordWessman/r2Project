@@ -151,7 +151,7 @@ namespace R2Core.Network
 
 			}
 
-			return new TCPMessage() { 
+			return new TCPMessage { 
 				Destination = m_serialization.Encoding.GetString(destination),
 				Headers = m_serialization.Deserialize(headers),
 				Payload = payload,

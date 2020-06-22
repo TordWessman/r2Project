@@ -76,7 +76,7 @@ namespace R2Core.Tests
 			dynamic payload = new R2Dynamic();
 			payload.Input = 10;
 
-			TCPMessage request = new TCPMessage() {
+			TCPMessage request = new TCPMessage {
 			
 				Payload = payload,
 				Destination = "/dummy"
@@ -87,7 +87,7 @@ namespace R2Core.Tests
 				dynamic returnPayload = new R2Dynamic();
 				returnPayload.PaybackTime = msg.Payload.Input * 42;
 
-				return new TCPMessage() {Code = 4242, Payload = returnPayload};
+				return new TCPMessage {Code = 4242, Payload = returnPayload};
 
 			});
 
@@ -129,7 +129,7 @@ namespace R2Core.Tests
 
 			for (int i = 0; i < 6; i++) {
 			
-				var guid = client.Broadcast(new TCPMessage() { Destination = "should not be found" }, (response, address, error) => {
+				var guid = client.Broadcast(new TCPMessage { Destination = "should not be found" }, (response, address, error) => {
 
 					Assert.IsNull(error);
 					Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), (response.Code));

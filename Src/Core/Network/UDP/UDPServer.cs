@@ -61,7 +61,7 @@ namespace R2Core.Network
 
 			while(ShouldRun) {
 			
-				INetworkMessage response = new TCPMessage();
+				INetworkMessage response = default(TCPMessage);
 				IPEndPoint client = null;
 
 				// Any request should contain this identifier. It will automatically be bundled with the reply.

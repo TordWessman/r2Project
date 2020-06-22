@@ -54,7 +54,7 @@ namespace R2Core.Tests
 
 			// Test dynamic serialization
 
-			TCPMessage p = new TCPMessage() { Destination = "dummy_path", Headers = headers, Payload = d};
+			TCPMessage p = new TCPMessage { Destination = "dummy_path", Headers = headers, Payload = d};
 
 			byte[] raw = packageFactory.SerializeMessage(p);
 
@@ -68,7 +68,7 @@ namespace R2Core.Tests
 
 			// Test string serialization
 
-			p = new TCPMessage() { Destination = "path", Headers = headers, Payload = "StringValue"};
+			p = new TCPMessage { Destination = "path", Headers = headers, Payload = "StringValue"};
 			raw = packageFactory.SerializeMessage(p);
 			punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 
@@ -78,7 +78,7 @@ namespace R2Core.Tests
 			// Test byte array seralization
 
 			byte[] byteArray = { 0, 1, 2, 3, 4, 5, 6, 255 };
-			p = new TCPMessage() { Destination = "path", Payload = byteArray};
+			p = new TCPMessage { Destination = "path", Payload = byteArray};
 			raw = packageFactory.SerializeMessage(p);
 			punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 			Assert.IsTrue(punwrapped.Payload is byte[]);
@@ -88,7 +88,7 @@ namespace R2Core.Tests
 			}
 
 			// Test null-payload
-			p = new TCPMessage() { Destination = "path"};
+			p = new TCPMessage { Destination = "path"};
 
 			raw = packageFactory.SerializeMessage(p);
 			punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
@@ -97,7 +97,7 @@ namespace R2Core.Tests
 
 			// Test null package with code:
 
-			p = new TCPMessage() { Code = 666 };
+			p = new TCPMessage { Code = 666 };
 			raw = packageFactory.SerializeMessage(p);
 			punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 
@@ -126,7 +126,7 @@ namespace R2Core.Tests
 			client.Start();
 			Assert.IsTrue(client.Ready);
 
-			TCPMessage message = new TCPMessage() { Destination = "blah", Payload = "bleh"};
+			TCPMessage message = new TCPMessage { Destination = "blah", Payload = "bleh"};
 			INetworkMessage response = client.Send(message);
 			Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), response.Code);
 
@@ -136,7 +136,7 @@ namespace R2Core.Tests
 				return new HttpMessage() {Code = 242, Payload = "din mamma"};
 			});
 
-			response = s.Interpret(new TCPMessage() { Destination = "/test" }, new System.Net.IPEndPoint(0,0));
+			response = s.Interpret(new TCPMessage { Destination = "/test" }, new System.Net.IPEndPoint(0,0));
 			Assert.AreEqual("din mamma", response.Payload);
 			Assert.AreEqual(242, response.Code);
 
@@ -175,7 +175,7 @@ namespace R2Core.Tests
 			testObject.ob.bar = 42;
 			testObject.text = null;
 
-			TCPMessage  message2 = new TCPMessage() { Destination = "/test", Payload = testObject};
+			TCPMessage  message2 = new TCPMessage { Destination = "/test", Payload = testObject};
 
 			INetworkMessage response2 = client.Send(message2);
 
@@ -184,7 +184,7 @@ namespace R2Core.Tests
 
 			dynamic msg = new R2Dynamic();
 			msg.text = "foo";
-			TCPMessage message = new TCPMessage() { Destination = "/test", Payload = msg};
+			TCPMessage message = new TCPMessage { Destination = "/test", Payload = msg};
 			INetworkMessage response = client.Send(message);
 
 			Assert.AreEqual(NetworkStatusCode.Ok.Raw(), response.Code);
@@ -227,7 +227,7 @@ namespace R2Core.Tests
 				Action = "GiveMeFooAnd42AndAnObject",
 				Identifier = "dummy_device"};
 			
-			TCPMessage  message = new TCPMessage() { Destination = Settings.Consts.DeviceDestination(), Payload = requestPayload};
+			TCPMessage  message = new TCPMessage { Destination = Settings.Consts.DeviceDestination(), Payload = requestPayload};
 			
 			INetworkMessage response = client.Send(message);
 
@@ -249,7 +249,7 @@ namespace R2Core.Tests
 				Params = new object[] { fortytwo }
 			};
 
-			TCPMessage  message2 = new TCPMessage() { Destination = Settings.Consts.DeviceDestination(), Payload = requestPayload2};
+			TCPMessage  message2 = new TCPMessage { Destination = Settings.Consts.DeviceDestination(), Payload = requestPayload2};
 			INetworkMessage response2 = client.Send(message2);
 			Assert.AreEqual(NetworkStatusCode.Ok, (NetworkStatusCode)response2.Code); 
 
@@ -409,7 +409,7 @@ namespace R2Core.Tests
 			
 			};
 
-			TCPMessage message = new TCPMessage() { Destination = "apa", Payload = "bleh"};
+			TCPMessage message = new TCPMessage { Destination = "apa", Payload = "bleh"};
 			client.Send(message);
 
 			Thread.Sleep(200);
@@ -424,7 +424,7 @@ namespace R2Core.Tests
                 ["Bar"] = 42
             };
 
-            s.Broadcast(new TCPMessage() { Destination = "ehh", Payload = tmp }, (response, address, error) => {
+            s.Broadcast(new TCPMessage { Destination = "ehh", Payload = tmp }, (response, address, error) => {
 
 				Assert.Null(error);
 
@@ -603,7 +603,7 @@ namespace R2Core.Tests
 			ep.MessingUp = new Func<INetworkMessage,INetworkMessage>(msg => {
 			
 				Assert.AreEqual(identity.Name, msg.Payload.HostName);
-				return new TCPMessage() { Code = NetworkStatusCode.Ok.Raw() };
+				return new TCPMessage { Code = NetworkStatusCode.Ok.Raw() };
 
 			});
 
@@ -626,9 +626,25 @@ namespace R2Core.Tests
 			Assert.IsFalse(clientServer.Ready);
 			s.Start();
             s.WaitFor();
-            clientServer.WaitFor();
+            clientServer.WaitFor(); // Will not throw if connected within ´timeout´
 
-			s.Stop();
+            clientServer.Stop();
+
+            // Now try the ping thing  (Does not work on connection closed in a regular fashion, )
+   //         clientServer.Timeout = 30000; // reset ConnectionPoller timeout
+   //         clientServer.PingInterval = 500;
+   //         clientServer.Start();
+   //         clientServer.WaitFor();
+
+			//s.Stop();
+            //Thread.Sleep(clientServer.PingInterval + 50);
+            //Assert.IsFalse(clientServer.Ready);
+            //s.Start();
+            //s.WaitFor();
+            //Thread.Sleep(clientServer.PingInterval + 50);
+            //clientServer.WaitFor(); // should not timeout
+
+            s.Stop();
 			clientServer.Stop();
 
 		}

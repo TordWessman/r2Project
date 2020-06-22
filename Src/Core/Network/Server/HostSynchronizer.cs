@@ -343,12 +343,12 @@ namespace R2Core.Network
 		/// <param name="connection">Connection.</param>
 		private void SynchronizeDevices(IClientConnection connection) {
 
-			DeviceRequest deviceManagerRequest = new DeviceRequest() {
+			DeviceRequest deviceManagerRequest = new DeviceRequest {
 				Identifier = Settings.Identifiers.DeviceManager(),
 				ActionType = DeviceRequest.ObjectActionType.Get
 			};
 
-			INetworkMessage message = new TCPMessage() { Destination = Destination, Payload = deviceManagerRequest };
+			INetworkMessage message = new TCPMessage { Destination = Destination, Payload = deviceManagerRequest };
 
 			INetworkMessage response = connection.Send(message);
 

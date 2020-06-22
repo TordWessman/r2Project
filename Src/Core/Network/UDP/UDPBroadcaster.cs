@@ -169,7 +169,7 @@ namespace R2Core.Network
 					continue;
 				}
 
-                Log.t($"responseDelegate.BeginInvoke ... =>");
+                Log.d($"responseDelegate.BeginInvoke ... =>");
 				responseDelegate?.BeginInvoke(
                     new BroadcastMessage(response, m_host.GetAddress(), m_host.GetPort()),
                     remoteHost.GetAddress(), 

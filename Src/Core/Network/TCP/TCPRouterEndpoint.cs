@@ -63,9 +63,9 @@ namespace R2Core.Network {
 
                 }
 
-				return new TCPMessage () {
-					Code = NetworkStatusCode.Ok.Raw (),
-                    Payload = new RoutingRegistrationResponse() {
+				return new TCPMessage {
+					Code = NetworkStatusCode.Ok.Raw(),
+                    Payload = new RoutingRegistrationResponse {
                         Address = source.Address.ToString(),
                         Port = source.Port
                     }
