@@ -34,7 +34,9 @@ namespace R2Core.Network
         private TcpClient m_client;
         private ITCPPackageFactory<TCPMessage> m_serializer;
 
-		private IDictionary<string,IServer> m_servers;
+        private System.Timers.Timer m_pingTimer;
+
+        private IDictionary<string,IServer> m_servers;
 
 		// Keeps track of the connectivity of a socket
 		private ConnectionPoller m_connectionPoller;
@@ -57,7 +59,13 @@ namespace R2Core.Network
         /// <value>The address.</value>
         public string Address { get; private set; }
 
-		public override bool Ready {
+        /// <summary>
+        /// The interval betwent <b>Ping</b> messages.
+        /// </summary>
+        /// <value>The ping interval.</value>
+        public int PingInterval { get; set; } = 30000;
+
+        public override bool Ready {
 			
 			get { return base.Ready && (m_client?.IsConnected() == true); }
 
@@ -95,7 +103,12 @@ namespace R2Core.Network
 
 		protected override void Cleanup() {
 
-			m_client?.Close();
+            m_pingTimer.Close();
+            m_pingTimer.Enabled = false;
+            m_pingTimer.Stop();
+            m_pingTimer.Dispose();
+            m_pingTimer = null;
+            m_client?.Close();
 		
 		}
 
@@ -111,7 +124,7 @@ namespace R2Core.Network
 
 			if (endpoint == null) {
 				
-				Log.w($"No TCPClientServer IWebEndpoint accepts: {request}", Identifier);
+				Log.w($"No IWebEndpoint accepts: {request}", Identifier);
 
 				return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request); 
 	
@@ -192,9 +205,7 @@ namespace R2Core.Network
 
                         Log.i($"Closing network: '{ex.Message}'", Identifier);
 
-                    }
-
-                    Log.x(ex, Identifier);
+                    } else { Log.x(ex, Identifier); }
 
                     response = new NetworkErrorMessage(ex);
 
@@ -215,9 +226,9 @@ namespace R2Core.Network
 
 		private INetworkMessage SendAttachMessage() {
 
-			TCPMessage attachMessage = new TCPMessage () {
+			TCPMessage attachMessage = new TCPMessage {
 				Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
-				Payload = new RoutingRegistrationRequest() { 
+				Payload = new RoutingRegistrationRequest { 
 					HostName = Identity.Name,
 					Address = m_client.GetLocalEndPoint()?.GetAddress(),
 					Port = m_client.GetLocalEndPoint()?.GetPort() ?? 0
@@ -243,14 +254,13 @@ namespace R2Core.Network
 
 				if (ShouldRun) {
 
-                    Log.t("TCPClientServer lost connection. Will reconnect.", Identifier);
-                    Connect(); 
+                    Log.i("Lost connection. Will reconnect.", Identifier);
+                    Stop();
+                    Start();
 
                 }
 
 			});
-
-			m_connectionPoller.Start();
 
 			m_client.Connect(Address, Port);
 
@@ -262,12 +272,41 @@ namespace R2Core.Network
 
 			} else {
 
-				Log.e($"TCPClientServer got bad reply [{response.Code}]: {response.Payload}", Identifier);
+				Log.e($"Got bad reply [{response.Code}]: {response.Payload}", Identifier);
 				m_client.Close();
 
 			}
 
-            Log.i($"TCPClientServer did connect to: {Address}:{Port}.", Identifier);
+            Log.i($"Did connect to: {Address}:{Port}.", Identifier);
+
+            m_connectionPoller.Start();
+
+            m_pingTimer = new System.Timers.Timer(PingInterval);
+            m_pingTimer.Elapsed += PingEvent;
+            m_pingTimer.Start();
+
+        }
+
+        void PingEvent(object sender, System.Timers.ElapsedEventArgs e) {
+
+            if (m_client.IsConnected()) {
+
+                TCPMessage ping = new TCPMessage(new PingMessage());
+                byte[] requestData = m_serializer.SerializeMessage(ping);
+
+                try {
+
+                    new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
+
+                } catch (Exception ex) {
+
+                    Log.e($"Connection failed with message {ex.Message}. Reconnecting...", Identifier);
+                    Stop();
+                    Start();
+
+                }
+
+            }
 
         }
 
