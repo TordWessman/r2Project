@@ -90,7 +90,7 @@ namespace R2Core.Network {
 					request.Headers[Settings.Consts.ConnectionRouterHeaderClientAddressKey()] = connection.Address;
 					request.Headers[Settings.Consts.ConnectionRouterHeaderClientPortKey()] = connection.Port;
 
-					return  connection.Send(request);
+					return connection.Send(request);
 
 				}
 

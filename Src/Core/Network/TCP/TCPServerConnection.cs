@@ -30,7 +30,7 @@ namespace R2Core.Network {
     public class TCPServerConnection : DeviceBase, IClientConnection {
 
         // Delegate called when a message has been received
-        private readonly Func<INetworkMessage, IPEndPoint, INetworkMessage> m_responseDelegate;
+        private Func<INetworkMessage, IPEndPoint, INetworkMessage> m_responseDelegate;
 
         // Accept-client provided by the server
         private readonly TcpClient m_client;
@@ -82,7 +82,7 @@ namespace R2Core.Network {
 
         }
 
-        ~TCPServerConnection() { Log.i($"Deallocating.", Identifier); }
+        ~TCPServerConnection() { Log.i($"Deallocating {this}.", Identifier); }
 
         public string LocalAddress { get { return m_client.GetLocalEndPoint()?.GetAddress(); } }
 
@@ -174,6 +174,7 @@ namespace R2Core.Network {
             OnDisconnect?.Invoke(this, ex);
             OnDisconnect = null;
             OnReceive = null;
+            m_responseDelegate = null;
 
         }
 

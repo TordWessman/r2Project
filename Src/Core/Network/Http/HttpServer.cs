@@ -78,7 +78,7 @@ namespace R2Core.Network
 			
 			try {
 			
-				m_listener.Stop();
+				m_listener?.Stop();
 
 			} catch (System.Net.Sockets.SocketException) {}
 
