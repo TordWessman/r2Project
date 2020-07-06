@@ -60,6 +60,11 @@ namespace R2Core
         /// </summary>
         public int MaxStackTrace = 10;
 
+        /// <summary>
+        /// If ´false´, messages of type Temp will not be printed.
+        /// </summary>
+        public bool PrintoutTempMessages = true;
+
 		// Keeps track of all log levels for specific threads.
 		private IDictionary<int, LogLevel> m_threadLogLevels;
 
@@ -151,7 +156,8 @@ namespace R2Core
 
 			return msg.Type >= 
 						((Task.CurrentId != null && m_threadLogLevels.ContainsKey((int)Task.CurrentId)) ? 
-							m_threadLogLevels[(int)Task.CurrentId] : LogLevel.Info);
+							m_threadLogLevels[(int)Task.CurrentId] : LogLevel.Info)
+                        && (PrintoutTempMessages || (!PrintoutTempMessages && msg.Type != LogLevel.Temp));
 
 		}
 
