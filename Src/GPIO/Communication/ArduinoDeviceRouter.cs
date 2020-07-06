@@ -148,7 +148,7 @@ namespace R2Core.GPIO
 
 			if (!response.IsError && response.NodeId != 0) {
 			
-				Log.w(Identifier, $"Node has changed id to {response.NodeId}. I2C connection might fail.");
+				Log.w($"Node has changed id to {response.NodeId}. I2C connection might fail.", Identifier);
 
 			}
 
@@ -181,7 +181,7 @@ namespace R2Core.GPIO
 					
 					if (retryCount == 3) {
 						
-						Log.i(Identifier, $"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...");
+						Log.i($"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...", Identifier);
 					
 					}
 
@@ -200,7 +200,7 @@ namespace R2Core.GPIO
 					// The connection has been closed. Probably manually:
 					ex.ErrorType != SerialErrorType.ERROR_SERIAL_CONNECTION_CLOSED) {
 			
-					Log.i(Identifier, $"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
+					Log.i($"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}", Identifier);
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
 					return _Send<T>(request, retryCount + 2);
 
@@ -222,7 +222,7 @@ namespace R2Core.GPIO
 
                 if (m_connection?.ShouldRun != true) {
 
-                    Log.w(Identifier, $"'{m_connection.Identifier}' has been Stopped! Unable to send request: '{request}'");
+                    Log.w($"'{m_connection.Identifier}' has been Stopped! Unable to send request: '{request}'", Identifier);
                     return default(DeviceResponsePackage<T>);
 
                 }
