@@ -59,7 +59,7 @@ namespace R2Core.Network
 
 			while(totalBytesReceived < size) {
 
-				int received = this.Socket.Receive(buffer, offset + totalBytesReceived, bytesLeft, SocketFlags.None);
+				int received = Socket.Receive(buffer, offset + totalBytesReceived, bytesLeft, SocketFlags.None);
 				totalBytesReceived += received;
 				bytesLeft -= received;
 

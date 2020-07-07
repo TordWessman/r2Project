@@ -377,11 +377,7 @@ namespace R2Core.Tests
 
 			// Add dummy endpoint functionality
 			ep.MessingUp = new Func<INetworkMessage, INetworkMessage> (msg => {
-
-				return new HttpMessage() {
-					Code = 210,
-					Payload = "din mamma: " + msg.Payload
-				};
+				return new HttpMessage { Code = 210, Payload = "din mamma: " + msg.Payload };
 			});
 
 			httpServer.AddEndpoint(ep);
@@ -395,12 +391,23 @@ namespace R2Core.Tests
 
 			TCPMessage message = new TCPMessage { Destination = "test", Payload = "argh" };
 
+            Thread.Sleep(500);
 			INetworkMessage response = client.Send(message);
 
 			Assert.AreEqual("din mamma: argh", response.Payload);
 			Assert.AreEqual(210, response.Code);
 
-			IMessageClient httpClient = factory.CreateHttpClient("http_client", identity.Name);
+            // Send another message
+            ep.MessingUp = new Func<INetworkMessage, INetworkMessage>(msg => {
+                return new HttpMessage { Code = 220, Payload = "din pappa: " + msg.Payload };
+            });
+
+            response = client.Send(message);
+
+            Assert.AreEqual("din pappa: argh", response.Payload);
+            Assert.AreEqual(220, response.Code);
+
+            IMessageClient httpClient = factory.CreateHttpClient("http_client", identity.Name);
 
 			HttpMessage httpMessage = new HttpMessage () { Destination = $"http://127.0.0.1:{httpPort}/not_found", Payload = "argh" };
 			httpMessage.ContentType = "text/string";
@@ -413,8 +420,8 @@ namespace R2Core.Tests
 			httpMessage.ContentType = "text/string";
 			httpResponse = httpClient.Send(httpMessage);
 
-			Assert.AreEqual(210, httpResponse.Code);
-			Assert.AreEqual("din mamma: ugh", httpResponse.Payload);
+			Assert.AreEqual(220, httpResponse.Code);
+			Assert.AreEqual("din pappa: ugh", httpResponse.Payload);
 
 			routingServer.Stop();
 			clientServer.Stop();

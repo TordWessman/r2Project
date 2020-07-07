@@ -107,9 +107,9 @@ namespace R2Core.Network
 
 			});
 
-			//m_ping.Start();
+            m_connectionPoller.Start();
 
-		}
+        }
 
 		public override void Stop() {
 
@@ -291,12 +291,6 @@ namespace R2Core.Network
 					TCPMessage response = default(TCPMessage);
 
 					try {
-
-						if (Ready && m_shouldRun && m_connectionPoller?.Ready == false) {
-						
-							m_connectionPoller?.Start();
-						
-						}
 							
 						response = m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
 

@@ -22,8 +22,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 
-namespace R2Core.Network
-{
+namespace R2Core.Network {
 
     public class TCPClientServer : ServerBase {
 
@@ -34,17 +33,20 @@ namespace R2Core.Network
         private TcpClient m_client;
         private ITCPPackageFactory<TCPMessage> m_serializer;
 
-        private System.Timers.Timer m_pingTimer;
+        private IDictionary<string, IServer> m_servers;
 
-        private IDictionary<string,IServer> m_servers;
+        // Keeps track of the connectivity of a socket
+        private ConnectionPoller m_connectionPoller;
 
-		// Keeps track of the connectivity of a socket
-		private ConnectionPoller m_connectionPoller;
+        /// <summary>
+        /// Timeout in ms before an operation dies.
+        /// </summary>
+        public int Timeout = 30000;
 
-		/// <summary>
-		/// Timeout in ms before an operation dies.
-		/// </summary>
-		public int Timeout = 30000;
+        /// <summary>
+        /// Timeout before the connection resets (tries to reconnect)
+        /// </summary>
+        public int ResetTimeout = 30 * 60 * 1000;
 
         /// <summary>
         /// The identity used to route requests to this server.
@@ -59,27 +61,17 @@ namespace R2Core.Network
         /// <value>The address.</value>
         public string Address { get; private set; }
 
-        /// <summary>
-        /// The interval betwent <b>Ping</b> messages.
-        /// </summary>
-        /// <value>The ping interval.</value>
-        public int PingInterval { get; set; } = 30000;
+        public override bool Ready => base.Ready && m_client != null && m_client?.IsConnected() == true;
 
-        public override bool Ready {
-			
-			get { return base.Ready && (m_client?.IsConnected() == true); }
+        public TCPClientServer(string id, ITCPPackageFactory<TCPMessage> serializer) : base(id) {
 
-		}
+            m_serializer = serializer;
+            m_servers = new Dictionary<string, IServer>();
+            AddressKey = Settings.Consts.ConnectionRouterHeaderClientAddressKey();
+            PortKey = Settings.Consts.ConnectionRouterHeaderClientPortKey();
+            ServerTypeKey = Settings.Consts.ConnectionRouterHeaderServerTypeKey();
 
-		public TCPClientServer(string id, ITCPPackageFactory<TCPMessage> serializer) : base(id) {
-
-			m_serializer = serializer;
-			m_servers = new Dictionary<string, IServer>();
-			AddressKey = Settings.Consts.ConnectionRouterHeaderClientAddressKey();
-			PortKey = Settings.Consts.ConnectionRouterHeaderClientPortKey();
-			ServerTypeKey = Settings.Consts.ConnectionRouterHeaderServerTypeKey();
-
-		}
+        }
 
         /// <summary>
         /// Set the configuration parameters required for connecting to a remote router.
@@ -87,226 +79,245 @@ namespace R2Core.Network
         /// <param name="identity">Identity of this instance.</param>
         /// <param name="address">Address to the router.</param>
         /// <param name="port">Port to the router.</param>
-		public void Configure(IIdentity identity, string address, int port) {
-			
-			Address = address;
+        public void Configure(IIdentity identity, string address, int port) {
+
+            Address = address;
             Identity = identity;
             SetPort(port);
-		
-		}
 
-		public void AddServer(string headerIdentifier, IServer server) {
-		
-			m_servers[headerIdentifier] = server;
-		
-		}
+        }
 
-		protected override void Cleanup() {
+        public void AddServer(string headerIdentifier, IServer server) {
 
-            m_pingTimer.Close();
-            m_pingTimer.Enabled = false;
-            m_pingTimer.Stop();
-            m_pingTimer.Dispose();
-            m_pingTimer = null;
+            m_servers[headerIdentifier] = server;
+
+        }
+
+        protected override void Cleanup() {
+
+            m_connectionPoller?.Stop();
+            m_connectionPoller = null;
             m_client?.Close();
-		
-		}
 
-		public override void Start() {
+        }
 
-			Connect();
+        public override void Start() {
 
-		}
+            Connect();
 
-		public override INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
+        }
 
-			IWebEndpoint endpoint = GetEndpoint(request.Destination);
+        public override INetworkMessage Interpret(INetworkMessage request, IPEndPoint source) {
 
-			if (endpoint == null) {
-				
-				Log.w($"No IWebEndpoint accepts: {request}", Identifier);
+            IWebEndpoint endpoint = GetEndpoint(request.Destination);
 
-				return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request); 
-	
-			}
+            if (endpoint == null) {
 
-			try {
+                Log.w($"No IWebEndpoint accepts: {request}", Identifier);
 
-				return endpoint.Interpret(request, source);
+                return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request);
 
-			} catch (Exception ex) {
+            }
 
-				Log.x(ex, Identifier);
+            try {
 
-				return new NetworkErrorMessage(NetworkStatusCode.ServerError, $"EXCEPTION: {ex.Message}", request); 
+                return endpoint.Interpret(request, source);
 
-			}
+            } catch (Exception ex) {
 
-		}
+                Log.x(ex, Identifier);
 
-		protected override void Service() {
+                return new NetworkErrorMessage(NetworkStatusCode.ServerError, $"EXCEPTION: {ex.Message}", request);
 
-			while(ShouldRun) {
-			
-				TCPMessage request = default(TCPMessage);
-				INetworkMessage response = default(TCPMessage);
+            }
 
-				try {
+        }
 
-					request = m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
+        protected override void Service() {
 
-					m_client.GetStream().Flush();
+            while (ShouldRun) {
 
-					if (request.Headers?.ContainsKey(ServerTypeKey) == true) {
+                TCPMessage request = default(TCPMessage);
+                INetworkMessage response = default(TCPMessage);
 
-						string serverType = request.Headers[ServerTypeKey] as string;
+                try {
 
-						if (m_servers.ContainsKey(serverType)) {
+                    if (!m_client.IsConnected()) {
 
-							IPEndPoint clientEndpoint = null;
+                        Log.i("TcpClient not connected.", Identifier);
+                        return;
 
-							if (request.Headers.ContainsKey(AddressKey) &&
-								request.Headers.ContainsKey(PortKey)) {
-							
-								IPAddress address = IPAddress.Parse((string)request.Headers[AddressKey]);
+                    }
 
-								long port = (long)request.Headers[PortKey];
-								clientEndpoint = new IPEndPoint(address, (int)port);
+                    request = m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
 
-							} 
+                    if (request.IsPing()) {
 
-							response = m_servers[serverType].Interpret(request, clientEndpoint);
+                        response = new PongMessage();
 
-						} else {
+                    } else if (request.IsPong()) {
 
-							response = new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Missing server type: '{serverType}'.", request); 
+                        return;
 
-						}
+                    } else if (request.Headers?.ContainsKey(ServerTypeKey) == true) {
 
-					} else {
+                        string serverType = request.Headers[ServerTypeKey] as string;
 
-						IWebEndpoint endpoint = GetEndpoint(request.Destination);
+                        if (m_servers.ContainsKey(serverType)) {
 
-						if (endpoint != null) {
+                            IPEndPoint clientEndpoint = null;
 
-							response = new TCPMessage(Interpret(request, m_client.GetEndPoint()));
+                            if (request.Headers.ContainsKey(AddressKey) &&
+                                request.Headers.ContainsKey(PortKey)) {
 
-						} else {
-							
-							response = new NetworkErrorMessage(NetworkStatusCode.UnableToProcess, $"Missing header: '{ServerTypeKey}' and no local endpoint for '{request.Destination}'."); 
+                                IPAddress address = IPAddress.Parse((string)request.Headers[AddressKey]);
 
-						}
+                                long port = (long)request.Headers[PortKey];
+                                clientEndpoint = new IPEndPoint(address, (int)port);
 
-					}
+                            }
 
-				} catch (Exception ex) {
+                            response = m_servers[serverType].Interpret(request, clientEndpoint);
+
+                        } else {
+
+                            response = new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Missing server type: '{serverType}'.", request);
+
+                        }
+
+                    } else {
+
+                        IWebEndpoint endpoint = GetEndpoint(request.Destination);
+
+                        if (endpoint != null) {
+
+                            response = new TCPMessage(Interpret(request, m_client.GetEndPoint()));
+
+                        } else {
+
+                            response = new NetworkErrorMessage(NetworkStatusCode.UnableToProcess, $"Missing header: '{ServerTypeKey}' and no local endpoint for '{request.Destination}'.");
+
+                        }
+
+                    }
+
+                } catch (Exception ex) {
+
+                    response = null;
 
                     if (ex.IsClosingNetwork()) {
 
                         Log.i($"Closing network: '{ex.Message}'", Identifier);
 
-                    } else { Log.x(ex, Identifier); }
+                    } else if (ex is SocketException) {
 
-                    response = new NetworkErrorMessage(ex);
+                        Log.i($"Lost connection to {Address}:{Port}. Will reconnect. ", Identifier);
+                        Reconnect();
+                        return;
 
-				}
+                    } else {
 
-				response.OverrideHeaders(new Dictionary<string, object> { 
-					{ Settings.Consts.ConnectionRouterHeaderHostNameKey(), Identity.Name }
-				});
+                        Log.x(ex, Identifier);
+                        response = new NetworkErrorMessage(ex);
 
-				response.Destination = request.Destination;
-				byte[] requestData = m_serializer.SerializeMessage(new TCPMessage(response));
-
-				new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
-
-			}
-
-		}
-
-		private INetworkMessage SendAttachMessage() {
-
-			TCPMessage attachMessage = new TCPMessage {
-				Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
-				Payload = new RoutingRegistrationRequest { 
-					HostName = Identity.Name,
-					Address = m_client.GetLocalEndPoint()?.GetAddress(),
-					Port = m_client.GetLocalEndPoint()?.GetPort() ?? 0
-				}
-			};
-
-			byte[] requestData = m_serializer.SerializeMessage(attachMessage);
-			new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
-			return m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
-
-		}
-
-		private void Connect() {
-
-            m_client = new TcpClient {
-                SendTimeout = Timeout,
-                ReceiveTimeout = 0
-            };
-
-            m_client.Client.Blocking = true;
-
-			m_connectionPoller = new ConnectionPoller(m_client, () => {
-
-				if (ShouldRun) {
-
-                    Log.i("Lost connection. Will reconnect.", Identifier);
-                    Stop();
-                    Start();
+                    }
 
                 }
 
-			});
+                if (response != null) {
 
-			m_client.Connect(Address, Port);
+                    response.OverrideHeaders(new Dictionary<string, object> {
+                        { Settings.Consts.ConnectionRouterHeaderHostNameKey(), Identity.Name }
+                    });
 
-			INetworkMessage response = SendAttachMessage();
-
-			if (response.Code == NetworkStatusCode.Ok.Raw()) {
-
-				base.Start();
-
-			} else {
-
-				Log.e($"Got bad reply [{response.Code}]: {response.Payload}", Identifier);
-				m_client.Close();
-
-			}
-
-            Log.i($"Did connect to: {Address}:{Port}.", Identifier);
-
-            m_connectionPoller.Start();
-
-            m_pingTimer = new System.Timers.Timer(PingInterval);
-            m_pingTimer.Elapsed += PingEvent;
-            m_pingTimer.Start();
-
-        }
-
-        void PingEvent(object sender, System.Timers.ElapsedEventArgs e) {
-
-            if (m_client.IsConnected()) {
-
-                TCPMessage ping = new TCPMessage(new PingMessage());
-                byte[] requestData = m_serializer.SerializeMessage(ping);
-
-                try {
+                    response.Destination = request.Destination;
+                    byte[] requestData = m_serializer.SerializeMessage(new TCPMessage(response));
 
                     new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
-
-                } catch (Exception ex) {
-
-                    Log.e($"Connection failed with message {ex.Message}. Reconnecting...", Identifier);
-                    Stop();
-                    Start();
 
                 }
 
             }
+
+        }
+
+        private INetworkMessage SendAttachMessage() {
+
+            TCPMessage attachMessage = new TCPMessage {
+                Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
+                Payload = new RoutingRegistrationRequest {
+                    HostName = Identity.Name,
+                    Address = m_client.GetLocalEndPoint()?.GetAddress(),
+                    Port = m_client.GetLocalEndPoint()?.GetPort() ?? 0
+                }
+            };
+
+            byte[] requestData = m_serializer.SerializeMessage(attachMessage);
+            new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
+            return m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
+
+        }
+
+        private bool Reconnect() {
+
+            Stop();
+            return Connect();
+
+        }
+
+        private bool Connect() {
+
+            ShouldRun = true;
+
+            m_client = new TcpClient {
+                SendTimeout = Timeout,
+                ReceiveTimeout = ResetTimeout
+            };
+
+            Log.i($"Connecting to {Address}:{Port}.", Identifier);
+
+            m_connectionPoller = new ConnectionPoller(m_client, () => {
+
+                if (ShouldRun) {
+
+                    Log.i("Lost connection. Will reconnect.", Identifier);
+                    Reconnect();
+
+                }
+
+            });
+
+            INetworkMessage response = default(TCPMessage);
+
+            try {
+
+                m_client.Connect(Address, Port);
+
+                response = SendAttachMessage();
+
+            } catch (Exception ex) {
+
+                Log.x(ex, Identifier);
+                return false;
+
+            }
+
+            if (response.Code == NetworkStatusCode.Ok.Raw()) {
+
+                base.Start();
+                Log.i($"Did connect to: {Address}:{Port}.", Identifier);
+
+            } else {
+
+                Log.e($"Got bad reply [{response.Code}]: {response.Payload}", Identifier);
+                m_client.Close();
+                return false;
+
+            }
+
+            m_connectionPoller.Start();
+
+            return true;
 
         }
 

@@ -19,6 +19,7 @@
 using System;
 using System.IO;
 using System.Runtime;
+using System.Linq;
 
 namespace R2Core.Network
 {
@@ -48,6 +49,11 @@ namespace R2Core.Network
 		}
 
 		private ISerialization m_serialization;
+
+        /// <summary>
+        /// Used to identify TCP packages (and filter out unexpected traffic).
+        /// </summary>
+        public static byte[] Signature = new byte[] { 42, 0, 42, 0 };
 
 		public TCPPackageFactory(ISerialization serialization) {
 
@@ -92,7 +98,7 @@ namespace R2Core.Network
 			byte[] payloadSize = new Int32Converter(payloadData.Length).Bytes;
 			byte[] headerSize = new Int32Converter(headerData.Length).Bytes;
 
-			return CreateRawPackage(code, pathSize, headerSize, payloadSize, path, headerData, payloadDataType, payloadData);
+			return CreateRawPackage(Signature, code, pathSize, headerSize, payloadSize, path, headerData, payloadDataType, payloadData);
 		
 		}
 
@@ -113,15 +119,25 @@ namespace R2Core.Network
 		}
 
 		public TCPMessage DeserializePackage(Stream stream) {
-			
-			int code = stream.ReadInt(2);
+
+            byte[] signature = stream.Read(Signature.Length);
+            for (int i = 0; i < Signature.Length; i++) {
+
+                if (signature[i] != Signature[i]) {
+
+                    return default(TCPMessage);
+
+                }
+
+            }
+
+            int code = stream.ReadInt(2);
 			int destinationSize = stream.ReadInt();
 			int headerSize = stream.ReadInt();
 			int payloadSize = stream.ReadInt();
 			byte[] destination = destinationSize > 0 ? stream.Read(destinationSize) : new byte[0];
 			byte[] headers = headerSize > 0 ? stream.Read(headerSize) : new byte[0];
-			int pt = stream.ReadInt(2);
-			PayloadType payloadType = (PayloadType)pt;
+			PayloadType payloadType = (PayloadType)stream.ReadInt(2);
 			byte[] payloadData = stream.Read(payloadSize);
 
 			dynamic payload;

@@ -32,7 +32,7 @@ namespace R2Core.Network {
 
         private IList<IWebEndpoint> m_endpoints;
 
-        protected bool ShouldRun { get; private set; }
+        protected bool ShouldRun { get; set; }
 
         public string UriPath => ".*";
 

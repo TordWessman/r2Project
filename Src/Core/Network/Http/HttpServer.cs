@@ -47,7 +47,7 @@ namespace R2Core.Network
             try {
 
                 m_listener = new HttpListener();
-                m_listener.Prefixes.Add(String.Format("http://*:{0}/", Port));
+                m_listener.Prefixes.Add(string.Format("http://*:{0}/", Port));
                 m_listener.Start();
 
             } catch (Exception ex) {
@@ -86,9 +86,9 @@ namespace R2Core.Network
 
 		private dynamic GetPayload(HttpListenerRequest request) {
 
-			if (request.HttpMethod.ToLower () == "get") {
+			if (request.HttpMethod.ToLower() == "get") {
 
-				R2Dynamic payload = new R2Dynamic ();
+				R2Dynamic payload = new R2Dynamic();
 
 				foreach (var key in request.QueryString.AllKeys) {
 				
@@ -116,7 +116,9 @@ namespace R2Core.Network
 					// Treaded as complex object.
 					return m_serialization.Deserialize(requestBody);
 
-				} else if (request.ContentType?.Contains("text") == true) {
+				} 
+
+                if (request.ContentType?.Contains("text") == true) {
 
 					// Treated as string.
 					return m_serialization.Encoding.GetString(requestBody);
@@ -132,7 +134,7 @@ namespace R2Core.Network
 
 		public override INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
 		
-			IWebEndpoint endpoint = GetEndpoint (request.Destination);
+			IWebEndpoint endpoint = GetEndpoint(request.Destination);
 
 			if (endpoint == null) {
 			
@@ -141,6 +143,7 @@ namespace R2Core.Network
                 HttpMessage response = new HttpMessage(new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request)) {
                     ContentType = HttpMessage.DefaultContentType
                 };
+
                 return response;
 
 			}

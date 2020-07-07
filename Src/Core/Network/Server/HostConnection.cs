@@ -18,7 +18,6 @@
 //
 using System;
 using R2Core.Device;
-using System.Collections.Generic;
 using System.Net;
 
 namespace R2Core.Network
@@ -83,38 +82,26 @@ namespace R2Core.Network
 		}
 
 		public void OnClose(IMessageClient client, Exception ex) {
-		
-			if (OnDisconnect != null) {
-			
-				OnDisconnect(this, ex);
 
-			}
+            OnDisconnect?.Invoke(this, ex);
 
-		} 
+        }
 
-		public void OnRequest(INetworkMessage request) { }
+        public void OnRequest(INetworkMessage request) { }
 
 		public void OnResponse(INetworkMessage response, Exception ex) {
 
-			if (OnReceive != null) {
+            OnReceive?.Invoke(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
 
-				OnReceive(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
+        }
 
-			}
+        public void OnBroadcast(INetworkMessage response) {
 
-		}
+            OnReceive?.Invoke(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
 
-		public void OnBroadcast(INetworkMessage response) {
+        }
 
-			if (OnReceive != null) {
-
-				OnReceive(response, new IPEndPoint(IPAddress.Parse(m_connection.Address), m_connection.Port));
-
-			}
-
-		}
-
-		public string Destination { get { return null; } }
+        public string Destination { get { return null; } }
 
 	}
 

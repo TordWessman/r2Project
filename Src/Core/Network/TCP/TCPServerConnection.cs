@@ -184,7 +184,6 @@ namespace R2Core.Network {
 
                 INetworkMessage responseToClient = m_responseDelegate(clientRequest, m_client.GetEndPoint());
 
-                // Only write directly back to stream if not a broadcast message. 
                 Write(new TCPMessage(responseToClient));
 
             } catch (Exception ex) {
@@ -192,6 +191,8 @@ namespace R2Core.Network {
                 Write(new NetworkErrorMessage(ex, clientRequest));
 
             }
+
+            OnReceive?.Invoke(clientRequest, m_client.GetEndPoint());
 
         }
 
@@ -210,17 +211,11 @@ namespace R2Core.Network {
 
                 clientRequest = m_packageFactory.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
 
-                if (!clientRequest.IsBroadcastMessage()) { Reply(clientRequest); }
+                if (clientRequest.IsPing()) {
 
-                if (!clientRequest.IsPing()) {
+                    Reply(new TCPMessage(new PongMessage()));
 
-                    OnReceive?.Invoke(clientRequest, m_client.GetEndPoint());
-
-                } else if (clientRequest.IsPing()){
-
-                    OnReceive?.Invoke(new PongMessage(), m_client.GetEndPoint());
-
-                }
+                } else if (!clientRequest.IsBroadcastMessage()) { Reply(clientRequest); }
 
             } catch (Exception ex) {
 

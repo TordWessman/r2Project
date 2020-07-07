@@ -157,13 +157,28 @@ namespace R2Core.Network
 
 		public override INetworkMessage Interpret(INetworkMessage request, IPEndPoint source) {
 
-			IWebEndpoint endpoint = GetEndpoint(request.Destination);
+            if (request.IsPing()) {
+
+                return new PongMessage();
+            
+            }
+
+            IWebEndpoint endpoint = GetEndpoint(request.Destination);
 
 			if (endpoint != null) { 
-				
-				return endpoint.Interpret(request, source);
+				try {
 
-			} 
+                    INetworkMessage response = endpoint.Interpret(request, source);
+                    return response;
+
+                } catch (Exception ex) {
+
+                    Log.x(ex, Identifier);
+                    return new NetworkErrorMessage(NetworkStatusCode.ServerError, $"Interpretation caused an exception: {ex.Message}", request);
+
+                }
+
+			}
 
 			return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request);
 

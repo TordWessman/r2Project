@@ -31,12 +31,12 @@ namespace R2Core.Network
 		/// <returns><c>true</c> if is connected the specified self; otherwise, <c>false</c>.</returns>
 		public static bool IsConnected(this TcpClient self) {
 
-			return self.Connected && self.GetSocket()?.IsConnected() == true;
+			return self.GetSocket() != null && self.Connected && self.GetSocket()?.IsConnected() == true;
 
 		}
 
 		/// <summary>
-		/// Returns the Socket object(or null if it has been disposed).
+		/// Returns the Socket object (or null if it has been disposed).
 		/// </summary>
 		/// <returns>The socket.</returns>
 		public static Socket GetSocket(this TcpClient self) {
@@ -45,13 +45,11 @@ namespace R2Core.Network
 
 				return self.Client;
 
-			} catch (ObjectDisposedException) {
+			} 
+            catch (ObjectDisposedException) { return null; } 
+            catch (NullReferenceException) { return null; }
 
-				return null;
-
-			}
-
-		}
+        }
 
 		/// <summary>
 		/// Returns true if the ´Socket´ is connected to a remote host.

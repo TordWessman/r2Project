@@ -31,7 +31,7 @@ namespace R2Core.Network
 		// Send ping to server.
 		private System.Timers.Timer m_pingTimer;
 
-		public PingService(INetworkConnection client, int timeout) : base(Settings.Identifiers.PingService()) {
+		public PingService(INetworkConnection client, int timeout) : base($"{Settings.Identifiers.PingService()}_{client}") {
 
 			m_client = client;
 
@@ -61,7 +61,22 @@ namespace R2Core.Network
 			if (m_client.Ready) { 
 
 				PingMessage ping = new PingMessage();
-				m_client.Send(ping);
+
+                try {
+
+                    INetworkMessage response = m_client.Send(ping);
+
+                    if (!response.IsPong()) {
+
+                        Log.i($"Expected Pong. Got {response}", Identifier);
+
+                    }
+
+                } catch (Exception ex) {
+
+                    Log.i($"Ping failed with message: {ex.Message}", Identifier);
+                
+                }
 				 
 			}
 
