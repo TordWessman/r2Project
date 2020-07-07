@@ -63,6 +63,7 @@
 		<ConnectionPoller comment="The name of all ConnectionPoller instances.">connection_poller</ConnectionPoller>
 		<ObjectInvoker comment="The name of all ObjectInvoker instances.">object_invoker</ObjectInvoker>
 		<Identity comment="The name of the Identity instance.">identity</Identity>
+		<TCPRouterEndpoint comment="The specialized endpoint handling TCP Routing">tcp_router_endpoint</TCPRouterEndpoint>
 	</Identifiers>
 	<Consts>
 		<FileLoggerDefaultFile comment="The default file logger output file">test_output.txt</FileLoggerDefaultFile>

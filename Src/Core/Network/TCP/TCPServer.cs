@@ -163,9 +163,16 @@ namespace R2Core.Network
             
             }
 
+            if (request.Destination == null) {
+
+                return new NetworkErrorMessage(NetworkStatusCode.BadRequest, "Hehehehehehehe");
+            
+            }
+
             IWebEndpoint endpoint = GetEndpoint(request.Destination);
 
-			if (endpoint != null) { 
+			if (endpoint != null) {
+
 				try {
 
                     INetworkMessage response = endpoint.Interpret(request, source);
