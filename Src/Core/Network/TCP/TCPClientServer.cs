@@ -142,6 +142,13 @@ namespace R2Core.Network {
 
                 try {
 
+                    if (!m_client.IsConnected()) {
+
+                        Log.i("TcpClient not connected.", Identifier);
+                        return;
+
+                    }
+
                     request = m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
 
                     if (request.IsPing()) {

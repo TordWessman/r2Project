@@ -18,6 +18,7 @@
 //
 using System;
 using System.IO;
+using System.Linq;
 
 namespace R2Core.Network
 {
@@ -47,6 +48,11 @@ namespace R2Core.Network
 		}
 
 		private ISerialization m_serialization;
+
+        /// <summary>
+        /// Used to identify TCP packages (and filter out unexpected traffic).
+        /// </summary>
+        public static byte[] Signature = new byte[] { 42, 0, 42, 0 };
 
 		public TCPPackageFactory(ISerialization serialization) {
 
@@ -103,7 +109,7 @@ namespace R2Core.Network
 			byte[] payloadSize = new Int32Converter(payloadData.Length).Bytes;
 			byte[] headerSize = new Int32Converter(headerData.Length).Bytes;
 
-			return CreateRawPackage(code, pathSize, headerSize, payloadSize, path, headerData, payloadDataType, payloadData);
+			return CreateRawPackage(Signature, code, pathSize, headerSize, payloadSize, path, headerData, payloadDataType, payloadData);
 		
 		}
 
@@ -124,6 +130,17 @@ namespace R2Core.Network
 		}
 
 		public TCPMessage DeserializePackage(Stream stream) {
+
+            byte[] signature = stream.Read(Signature.Length);
+            for (int i = 0; i < Signature.Length; i++) {
+
+                if (signature[i] != Signature[i]) {
+
+                    return default(TCPMessage);
+
+                }
+
+            }
 
             int code = stream.ReadInt(2);
 			int destinationSize = stream.ReadInt();

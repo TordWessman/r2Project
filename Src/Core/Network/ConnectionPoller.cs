@@ -42,7 +42,7 @@ namespace R2Core.Network
 		/// </summary>
 		/// <param name="client">Client.</param>
 		/// <param name="failDelegate">Fail delegate.</param>
-		public ConnectionPoller(TcpClient client, Action failDelegate) : base(Settings.Identifiers.ConnectionPoller()) {
+		public ConnectionPoller(TcpClient client, Action failDelegate) : base($"{Settings.Identifiers.ConnectionPoller()}_{client.GetDescription()}") {
 			
 			m_client = new WeakReference<TcpClient>(client);
 			m_failDelegate = failDelegate;
@@ -60,7 +60,8 @@ namespace R2Core.Network
             }
 
             m_previousPollSuccess = true;
-            m_connectionCheckTimer = new System.Timers.Timer(m_client.GetTarget().SendTimeout);
+            int sto = m_client.GetTarget().SendTimeout;
+            m_connectionCheckTimer = new System.Timers.Timer(sto);
             m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
             m_connectionCheckTimer.Enabled = true;
             m_connectionCheckTimer.Start ();
@@ -81,7 +82,7 @@ namespace R2Core.Network
 
 			bool pollSuccessful = m_client.GetTarget()?.IsConnected() ?? false;
 
-			if (!m_previousPollSuccess && !pollSuccessful) {
+            if (!m_previousPollSuccess && !pollSuccessful) {
 				
 				Log.i($"Polling failed to: {m_client.GetTarget()?.GetDescription() ?? "null"}. Will call fail delegate and stop polling.", Identifier);
 				Stop();

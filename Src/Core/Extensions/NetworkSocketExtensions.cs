@@ -31,7 +31,7 @@ namespace R2Core.Network
 		/// <returns><c>true</c> if is connected the specified self; otherwise, <c>false</c>.</returns>
 		public static bool IsConnected(this TcpClient self) {
 
-			return self.Connected && self.GetSocket()?.IsConnected() == true;
+			return self.GetSocket() != null && self.Connected && self.GetSocket()?.IsConnected() == true;
 
 		}
 

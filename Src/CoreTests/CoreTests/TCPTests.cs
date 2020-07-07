@@ -337,21 +337,20 @@ namespace R2Core.Tests
 
 			};
 
-			var client1 = (TCPClient) factory.CreateTcpClient("c", "localhost", tcp_port);
+			var client1 = factory.CreateTcpClient("c", "localhost", tcp_port);
 			client1.Timeout = 1000;
 			client1.AddClientObserver(observer1);
 			client1.Start();
 		
 			Thread.Sleep(200);
-			var client2 = (TCPClient) factory.CreateTcpClient("c2", "localhost", tcp_port);
+			var client2 = factory.CreateTcpClient("c2", "localhost", tcp_port);
 			client2.AddClientObserver(observer2);
 			client2.Timeout = 1000;
 			client2.Start();
 
 			Thread.Sleep(200);
 
-			// Network polling does only start after the first Send.
-			client2.Send (new OkMessage ());
+			client2.Send(new OkMessage());
 
 			foreach (IClientConnection connection in s.Connections) {
 			
@@ -548,11 +547,13 @@ namespace R2Core.Tests
 
 			DummyClientObserver observer = new DummyClientObserver();
 
-			observer.OnCloseAsserter = (c, exception) => { 
+			observer.OnCloseAsserter = (c, exception) => {
 
+                Log.i("OnClose called!");
 				// Wait until the server status has been asserted before continuing
 				while(m_ClientReconnect_ServerCheck) { Thread.Sleep(100); }
-				c.Start();
+                Log.i("Client will start!");
+                c.Start();
 			
 			};
 
@@ -595,7 +596,7 @@ namespace R2Core.Tests
 		[Test]
 		public void TestTCP_ClientServer() {
 			PrintName();
-			var port = tcp_port + 913;
+			var port = tcp_port + 1913;
 			TCPServer s = factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
             s.Timeout = 200;
 			DummyEndpoint ep = new DummyEndpoint(Settings.Consts.ConnectionRouterAddHostDestination());
@@ -631,11 +632,8 @@ namespace R2Core.Tests
             s.WaitFor();
             clientServer.WaitFor(); // Will not throw if connected within ´timeout´
 
-
-            Thread.Sleep(clientServer.ResetTimeout * 10); // It should reconnect a few times
-
-            Assert.IsTrue(clientServer.Ready);
-
+            Log.t("-------------- END -----------------");
+            Thread.Sleep(5000);
             clientServer.Stop();
 
             s.Stop();

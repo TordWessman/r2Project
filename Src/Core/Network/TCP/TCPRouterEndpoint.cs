@@ -41,7 +41,7 @@ namespace R2Core.Network {
 
         public int PingInterval = 30000;
 
-		public TCPRouterEndpoint(TCPServer tcpServer) : base ("tcp_router") {
+		public TCPRouterEndpoint(TCPServer tcpServer) : base(Settings.Identifiers.TCPRouterEndpoint()) {
 			
 			m_tcpServer = tcpServer;
 			Connections = new Dictionary<string, WeakReference<IClientConnection>>();
@@ -65,7 +65,7 @@ namespace R2Core.Network {
 
                     Connections[hostName] = new WeakReference<IClientConnection>(connection);
 
-                    Log.t($"Setting host '{hostName}' to connection: {connection}", Identifier);
+                    Log.i($"Setting host '{hostName}' to connection: {connection}", Identifier);
 					connection.StopListening();
 
                     Connections = Connections.Where(c => c.Value.GetTarget().Ready).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
