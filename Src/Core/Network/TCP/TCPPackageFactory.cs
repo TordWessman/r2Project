@@ -61,7 +61,7 @@ namespace R2Core.Network
 		/// <param name="message">Message.</param>
 		public static PayloadType GetPayloadType(INetworkMessage message) {
 		
-			if (!Object.ReferenceEquals(message.Payload, null)) {
+			if (!object.ReferenceEquals(message.Payload, null)) {
 			
 				if (message.Payload is byte[]) {
 
@@ -124,15 +124,14 @@ namespace R2Core.Network
 		}
 
 		public TCPMessage DeserializePackage(Stream stream) {
-			
-			int code = stream.ReadInt(2);
+
+            int code = stream.ReadInt(2);
 			int destinationSize = stream.ReadInt();
 			int headerSize = stream.ReadInt();
 			int payloadSize = stream.ReadInt();
 			byte[] destination = destinationSize > 0 ? stream.Read(destinationSize) : new byte[0];
 			byte[] headers = headerSize > 0 ? stream.Read(headerSize) : new byte[0];
-			int pt = stream.ReadInt(2);
-			PayloadType payloadType = (PayloadType)pt;
+			PayloadType payloadType = (PayloadType)stream.ReadInt(2);
 			byte[] payloadData = stream.Read(payloadSize);
 
 			dynamic payload;

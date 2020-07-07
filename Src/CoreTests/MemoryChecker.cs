@@ -26,7 +26,7 @@ namespace MainFrame {
     public class MemoryChecker : DeviceBase {
 
         private System.Timers.Timer m_timer;
-        public int Frequency = 1000 * 60 * 5;
+        public int Frequency = 1000 * 60 * 60 * 6;
 
         public MemoryChecker(int frequency = -1) : base("memory_checker") {
 

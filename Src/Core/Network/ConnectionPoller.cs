@@ -83,7 +83,7 @@ namespace R2Core.Network
 
 			if (!m_previousPollSuccess && !pollSuccessful) {
 				
-				Log.i($"Polling failed to: {m_client.GetTarget()?.GetDescription() ?? "null"}. Will call fail delegate and stop polling.");
+				Log.i($"Polling failed to: {m_client.GetTarget()?.GetDescription() ?? "null"}. Will call fail delegate and stop polling.", Identifier);
 				Stop();
 
                 try {
@@ -93,7 +93,7 @@ namespace R2Core.Network
 
                 } catch (Exception ex) {
 
-                    Log.w($"Exception when calling fail delegate: {ex.Message}.");
+                    Log.w($"Exception when calling fail delegate: {ex.Message}.", Identifier);
                     Log.x(ex);
 
                 }

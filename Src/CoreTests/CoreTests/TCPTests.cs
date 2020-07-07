@@ -399,7 +399,7 @@ namespace R2Core.Tests
 
 			DummyClientObserver observer = new DummyClientObserver("ehh");
 
-			var client = (TCPClient) factory.CreateTcpClient("c", "localhost", tcp_port);
+			var client = factory.CreateTcpClient("c", "localhost", tcp_port);
 			client.AddClientObserver(observer);
 			client.Start();
 
@@ -575,7 +575,7 @@ namespace R2Core.Tests
             s.WaitFor();
 			m_ClientReconnect_ServerCheck = false;
 
-            Thread.Sleep(client.Timeout * 2);
+            Thread.Sleep(client.Timeout * 5);
 
             // After this, the DummyClientObservers OnCloseAsserter should have started the client again.
             client.WaitFor();
@@ -596,7 +596,8 @@ namespace R2Core.Tests
 		public void TestTCP_ClientServer() {
 			PrintName();
 			var port = tcp_port + 913;
-			TCPServer s = (TCPServer)factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
+			TCPServer s = factory.CreateTcpServer(Settings.Identifiers.TcpServer(), port);
+            s.Timeout = 200;
 			DummyEndpoint ep = new DummyEndpoint(Settings.Consts.ConnectionRouterAddHostDestination());
 
 			IIdentity identity = new DummyIdentity();
@@ -613,7 +614,9 @@ namespace R2Core.Tests
 
 			TCPClientServer clientServer = factory.CreateTcpClientServer("client_server");
 			clientServer.Timeout = 250;
-			clientServer.Configure(identity, "127.0.0.1", port);
+            clientServer.ResetTimeout = 200; // Make sure the client server reconnects each 200 ms without activity
+
+            clientServer.Configure(identity, "127.0.0.1", port);
 			clientServer.Start();
 
             clientServer.WaitFor();
@@ -622,30 +625,23 @@ namespace R2Core.Tests
 
 			// Try reconnection if remote router is down
 			s.Stop();
-			Thread.Sleep(50);
+			Thread.Sleep(300);
 			Assert.IsFalse(clientServer.Ready);
 			s.Start();
             s.WaitFor();
             clientServer.WaitFor(); // Will not throw if connected within ´timeout´
 
+
+            Thread.Sleep(clientServer.ResetTimeout * 10); // It should reconnect a few times
+
+            Assert.IsTrue(clientServer.Ready);
+
             clientServer.Stop();
 
-            // Now try the ping thing  (Does not work on connection closed in a regular fashion, )
-   //         clientServer.Timeout = 30000; // reset ConnectionPoller timeout
-   //         clientServer.PingInterval = 500;
-   //         clientServer.Start();
-   //         clientServer.WaitFor();
-
-			//s.Stop();
-            //Thread.Sleep(clientServer.PingInterval + 50);
-            //Assert.IsFalse(clientServer.Ready);
-            //s.Start();
-            //s.WaitFor();
-            //Thread.Sleep(clientServer.PingInterval + 50);
-            //clientServer.WaitFor(); // should not timeout
-
             s.Stop();
+            s = null;
 			clientServer.Stop();
+
 
 		}
 

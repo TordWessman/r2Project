@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using R2Core.Device;
 
 namespace R2Core.Network {
 
@@ -28,20 +29,25 @@ namespace R2Core.Network {
 	/// ´TCPServer´. This includes the handleing of a ´RegistrationRequest´ in order to keep track of
 	/// the registered ´IClientConnection´s..
 	/// </summary>
-	public class TCPRouterEndpoint : IWebEndpoint {
+	public class TCPRouterEndpoint : DeviceBase, IWebEndpoint {
 
 		private readonly TCPServer m_tcpServer;
-		private IDictionary<string, WeakReference<IClientConnection>> m_connections;
+		public IDictionary<string, WeakReference<IClientConnection>> Connections { get; private set; }
 		private static readonly string HeaderHostName = Settings.Consts.ConnectionRouterHeaderHostNameKey();
+
+        private IDictionary<string, PingService> m_pingServices;
 
 		private readonly object m_lock = new object();
 
-		public TCPRouterEndpoint(TCPServer tcpServer) {
+        public int PingInterval = 30000;
+
+		public TCPRouterEndpoint(TCPServer tcpServer) : base ("tcp_router") {
 			
 			m_tcpServer = tcpServer;
-			m_connections = new Dictionary<string, WeakReference<IClientConnection>>();
+			Connections = new Dictionary<string, WeakReference<IClientConnection>>();
+            m_pingServices = new Dictionary<string, PingService>();
 
-		}
+        }
 
 		public INetworkMessage Interpret(INetworkMessage request, System.Net.IPEndPoint source) {
 
@@ -53,18 +59,31 @@ namespace R2Core.Network {
 
                 System.Diagnostics.Debug.Assert(connection != null);
 
+                string hostName = request.Payload.HostName;
+
                 lock (m_lock) {
 
-                    m_connections[request.Payload.HostName] = new WeakReference<IClientConnection>(connection);
+                    Connections[hostName] = new WeakReference<IClientConnection>(connection);
 
+                    Log.t($"Setting host '{hostName}' to connection: {connection}", Identifier);
 					connection.StopListening();
 
-                    m_connections = m_connections.Where(c => c.Value.GetTarget().Ready).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    Connections = Connections.Where(c => c.Value.GetTarget().Ready).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+
+                    if (m_pingServices.ContainsKey(hostName)) {
+
+                        m_pingServices[hostName].Stop();
+
+                    }
+
+                    m_pingServices[hostName] = new PingService(connection, PingInterval);
+                    m_pingServices[hostName].Start();
 
                 }
 
 				return new TCPMessage {
 					Code = NetworkStatusCode.Ok.Raw(),
+                    Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
                     Payload = new RoutingRegistrationResponse {
                         Address = source.Address.ToString(),
                         Port = source.Port
@@ -81,7 +100,7 @@ namespace R2Core.Network {
 
 				lock(m_lock) {
 					
-					connection = m_connections.ContainsKey(hostName) ? m_connections[hostName].GetTarget() : null;
+					connection = Connections.ContainsKey(hostName) ? Connections[hostName].GetTarget() : null;
 
 				}
 				 
@@ -103,9 +122,33 @@ namespace R2Core.Network {
 
 		}
 
-		public string UriPath { get { return ".*"; } }
+        public override void Stop() {
 
-	}
+            foreach(PingService ping in m_pingServices.Values) {
+
+                ping.Stop();
+
+            }
+
+        }
+
+        public string UriPath { get { return ".*"; } }
+
+        public override string ToString() {
+
+            string description = $"{Identifier}: \n";
+
+            foreach (var kvp in Connections) {
+
+                description += $"\t[{kvp.Key}:{kvp.Value.GetTarget()}]";
+            
+            }
+
+            return description;
+
+        }
+
+    }
 
 }
 

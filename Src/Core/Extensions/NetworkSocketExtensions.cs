@@ -36,7 +36,7 @@ namespace R2Core.Network
 		}
 
 		/// <summary>
-		/// Returns the Socket object(or null if it has been disposed).
+		/// Returns the Socket object (or null if it has been disposed).
 		/// </summary>
 		/// <returns>The socket.</returns>
 		public static Socket GetSocket(this TcpClient self) {
@@ -45,13 +45,11 @@ namespace R2Core.Network
 
 				return self.Client;
 
-			} catch (ObjectDisposedException) {
+			} 
+            catch (ObjectDisposedException) { return null; } 
+            catch (NullReferenceException) { return null; }
 
-				return null;
-
-			}
-
-		}
+        }
 
 		/// <summary>
 		/// Returns true if the ´Socket´ is connected to a remote host.
