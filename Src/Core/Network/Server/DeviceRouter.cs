@@ -73,12 +73,11 @@ namespace R2Core.Network
 
 		public string DefaultPath { get { return Settings.Consts.DeviceDestination(); } }
 
-		/// <summary>
-		/// The token is used as a very simple mean of authentication...
-		/// </summary>
-		/// <param name="deviceManager">Device manager.</param>
-		/// <param name="token">Token.</param>
-		public DeviceRouter(IDeviceContainer deviceContainer = null) {
+        /// <summary>
+        /// The token is used as a very simple mean of authentication...
+        /// </summary>
+        /// <param name="deviceContainer">Device manager.</param>
+        public DeviceRouter(IDeviceContainer deviceContainer = null) {
 
 			m_devices = new Dictionary<string, IDevice>();
 			m_invoker = new ObjectInvoker();
@@ -119,18 +118,18 @@ namespace R2Core.Network
 				
 			response.Action = message.Payload.Action;
 
-			if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Invoke) {
+			if (Convert.ToInt32(message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Invoke) {
 
 				response.ActionResponse = m_invoker.Invoke(device, message.Payload.Action, message.Payload.Params);
 
-			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Set) {
+			} else if (Convert.ToInt32(message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Set) {
 				
 				m_invoker.Set(device, message.Payload.Action, message.Payload.Params?[0]);
 				response.ActionResponse = m_invoker.Get(device, message.Payload.Action);
 
-			} else if (Convert.ToInt32 (message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Get) { 
+			} else if (Convert.ToInt32(message.Payload.ActionType) == (int)DeviceRequest.ObjectActionType.Get) { 
 
-				if (m_invoker.ContainsPropertyOrMember(message.Payload, "Action")) {
+				if (m_invoker.ContainsMember(message.Payload, "Action")) {
 
 					// Include the value of the invoked property
 					response.ActionResponse = m_invoker.Get(device, message.Payload.Action);

@@ -19,247 +19,238 @@
 using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using System.Net;
-using System.IO;
 using R2Core.Device;
-using System.Threading;
 
-namespace R2Core.Network
-{
+namespace R2Core.Network {
 
-	/// <summary>
-	/// Represents the TCPServer's connection to a TCPClient 
-	/// </summary>
-	public class TCPServerConnection : DeviceBase, IClientConnection {
+    /// <summary>
+    /// Represents the TCPServer's connection to a TCPClient 
+    /// </summary>
+    public class TCPServerConnection : DeviceBase, IClientConnection {
 
-		// Delegate called when a message has been received
-		private Func<INetworkMessage,IPEndPoint,INetworkMessage> m_responseDelegate;
+        // Delegate called when a message has been received
+        private Func<INetworkMessage, IPEndPoint, INetworkMessage> m_responseDelegate;
 
-		// Accept-client provided by the server
-		private TcpClient m_client;
+        // Accept-client provided by the server
+        private readonly TcpClient m_client;
 
-		// Used to serialize/deserialize packages
-		private ITCPPackageFactory<TCPMessage> m_packageFactory;
+        // Used to serialize/deserialize packages
+        private readonly ITCPPackageFactory<TCPMessage> m_packageFactory;
 
-		// Thread listening on incomming data
-		private Task m_listener;
+        // Thread listening on incomming data
+        private Task m_listener;
 
-		// Lock for network writes
-		private readonly object m_writeLock = new object();
+        // Lock for network writes
+        private readonly object m_writeLock = new object();
 
-		// Keeps track of weither this instance has been stopped or nor
-		private bool m_shouldRun = false;
+        // Keeps track of weither this instance has been stopped or nor
+        private bool m_shouldRun = false;
 
-		// Contains an Exception from the Received if thrown there.
-		private Exception m_readError;
+        // Contains an Exception from the Received if thrown there.
+        private Exception m_readError;
 
-		// Responsible for making sure the connection has not been lost
-		PingService m_ping;
+        // Keeps track of the connectivity of a socket
+        private ConnectionPoller m_connectionPoller;
 
-		// Keeps track of the connectivity of a socket
-		private ConnectionPoller m_connectionPoller;
+        // Used to retain the client Description, even after disconnection.
+        private readonly string m_description;
 
-		// Used to retain the client Description, even after disconnection.
-		private string m_description;
+        // if false, the blocking read operation will cease.
+        private bool m_shouldListen = true;
 
-		// if false, the blocking read operation will cease.
-		private bool m_shouldListen = true;
-
-        // True if sending or receiving data.
-        private bool m_sending = false;
-
-        public bool Busy => m_sending;
+        public bool Busy { get; private set; }
         public event OnReceiveHandler OnReceive;
-		public event OnDisconnectHandler OnDisconnect;
+        public event OnDisconnectHandler OnDisconnect;
 
-		public TCPServerConnection(
-			string id, 
-			ITCPPackageFactory<TCPMessage> factory, 
-			TcpClient client,
-			Func<INetworkMessage,IPEndPoint,INetworkMessage> responseDelegate) : base(id) {
+        public TCPServerConnection(
+            string id,
+            ITCPPackageFactory<TCPMessage> factory,
+            TcpClient client,
+            Func<INetworkMessage, IPEndPoint, INetworkMessage> responseDelegate) : base(id) {
 
-			m_responseDelegate = responseDelegate;
-			m_client = client;
-			m_packageFactory = factory;
-			m_ping = new PingService(this, m_client.SendTimeout);
-			m_description = m_client.GetDescription();
+            m_responseDelegate = responseDelegate;
+            m_client = client;
+            m_packageFactory = factory;
+            m_description = m_client.GetDescription();
 
-			m_connectionPoller = new ConnectionPoller(m_client, () => {
+            m_connectionPoller = new ConnectionPoller(m_client, () => {
 
-				if (m_shouldRun) { Disconnect(); }
+                if (m_shouldRun) { Disconnect(); }
 
-			});
-		
-		}
+            });
 
-		~TCPServerConnection() { Log.i($"Deallocating {this}."); }
+        }
+
+        ~TCPServerConnection() { Log.i($"Deallocating {this}.", Identifier); }
 
         public string LocalAddress { get { return m_client.GetLocalEndPoint()?.GetAddress(); } }
 
         public string Address { get { return m_client.GetEndPoint()?.GetAddress(); } }
 
-		public int Port { get { return m_client.GetEndPoint()?.GetPort() ?? 0; } }
+        public int Port { get { return m_client.GetEndPoint()?.GetPort() ?? 0; } }
 
-		public override bool Ready { get { return m_shouldRun && m_client?.IsConnected() == true; } }
+        public override bool Ready { get { return m_shouldRun && m_client?.IsConnected() == true; } }
 
-		public override void Start() {
+        public override void Start() {
 
-			if (!m_client.IsConnected()) {
-			
-				throw new NetworkException("TCPServerConnection can't be manually started, since it requires a disposable and connected TcpClient in it's constructor.");
-			
-			}
+            if (!m_client.IsConnected()) {
 
-			m_shouldRun = true;
+                throw new NetworkException("TCPServerConnection can't be manually started, since it requires a disposable and connected TcpClient in it's constructor.");
 
-			Log.i($"Server accepted connection from {m_client.GetDescription()}.");
+            }
 
-			m_listener = Task.Factory.StartNew(() => {
+            m_shouldRun = true;
 
-				while(Ready && m_shouldListen) { Connection(); }
+            Log.i($"Accepted connection from {m_client.GetDescription()}.", Identifier);
 
-			});
+            m_listener = Task.Factory.StartNew(() => {
 
-			m_connectionPoller.Start();
-			//m_ping.Start();
+                while (Ready && m_shouldListen) { Connection(); }
 
-		}
+            });
 
-		public override void Stop() { Disconnect(); }
+            m_connectionPoller.Start();
 
-		public void StopListening() {
-		
-			m_shouldListen = false;
+        }
 
-		}
+        public override void Stop() { Disconnect(); }
 
-		/// <summary>
-		/// Sends a BroadcastMessage
-		/// </summary>
-		/// <param name="request">Message.</param>
-		public INetworkMessage Send(INetworkMessage request) {
-			
-			if (!Ready) {
+        public void StopListening() {
 
-				throw new InvalidOperationException($"Unable to send ´{request}´. TCPServerConnection ´{this} is´ not running.");
+            m_shouldListen = false;
 
-			}
+        }
 
-			if (request.IsBroadcastMessage()) {
+        /// <summary>
+        /// Sends a BroadcastMessage
+        /// </summary>
+        /// <param name="request">Message.</param>
+        public INetworkMessage Send(INetworkMessage request) {
 
-				Write(request);
-				return new OkMessage();
+            if (!Ready) {
 
-			}
+                throw new InvalidOperationException($"Unable to send ´{request}´. TCPServerConnection ´{this} is´ not running.");
 
-			return Write(request, true);
+            }
 
-		}
+            if (request.IsBroadcastMessage()) {
 
-		public override string ToString() {
-			
-			return $"TCPServerConnection [`{m_description}`. Ready: {Ready}]";
+                Write(request);
+                return new OkMessage();
 
-		}
+            }
 
-		private void Disconnect(Exception ex = null) {
+            return Write(request, true);
 
-			m_shouldRun = false;
+        }
 
-			Log.i($"{this} disconnected.");
+        public override string ToString() {
 
-			m_connectionPoller.Stop();
+            return $"TCPServerConnection [`{m_description}`. Ready: {Ready}]";
 
-			//m_ping.Stop();
+        }
 
-			try {
+        private void Disconnect(Exception ex = null) {
 
-				if (m_client.IsConnected()) { m_client.Close(); }
+            m_shouldRun = false;
 
-			} catch (Exception exception) { 
+            Log.i($"Disconnected.", Identifier);
 
-				Log.e($"Client disconnection [{this}] crashed:");
-				Log.x(exception); 
-			
-			}
+            m_connectionPoller.Stop();
+            m_connectionPoller = null;
+
+            try {
+
+                if (m_client.IsConnected()) { m_client.Close(); }
+
+            } catch (Exception exception) {
+
+                Log.e($"Crashed:", Identifier);
+                Log.x(exception, Identifier);
+
+            }
 
             OnDisconnect?.Invoke(this, ex);
+            OnDisconnect = null;
+            OnReceive = null;
+            m_responseDelegate = null;
 
         }
 
         private void Reply(TCPMessage clientRequest) {
-		
-			try {
-
-				INetworkMessage responseToClient = m_responseDelegate(clientRequest, (IPEndPoint)m_client.GetEndPoint());
-
-				// Only write directly back to stream if not a broadcast message. 
-				Write(new TCPMessage(responseToClient));
-
-			} catch (Exception ex) {
-
-				Write(new NetworkErrorMessage(ex, clientRequest));
-
-			}
-
-		}
-
-		private void Connection() {
-
-			TCPMessage clientRequest = default(TCPMessage);
-
-			try {
-				
-				clientRequest = m_packageFactory.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
-
-				if (!m_client.IsConnected()) {
-
-					if (m_shouldRun) { Stop(); }
-					return;
-
-				} else if (clientRequest.IsPong()) { return; }
-
-				else if (clientRequest.IsPing()) {
-
-					m_ping.Pong();
-
-				} else if (!clientRequest.IsBroadcastMessage()) {
-					
-					Reply(clientRequest);
-
-				}
-
-				if (!clientRequest.IsPingOrPong()) {
-				
-					if (OnReceive != null) { OnReceive(clientRequest, m_client.GetEndPoint()); }
-
-				}
-
-			} catch (Exception ex) {
-
-				m_readError = ex;
-
-				if (m_shouldRun) {
-
-					if (!ex.IsClosingNetwork()) {
-					
-						Log.x(ex);
-						Disconnect(ex);
-
-					} else { Disconnect(); }
-
-				}
-			
-			} 
-
-		}
-
-		private INetworkMessage Write(INetworkMessage message, bool readReply = false) {
 
             try {
 
-                m_sending = true;
+                INetworkMessage responseToClient = m_responseDelegate(clientRequest, m_client.GetEndPoint());
+
+                // Only write directly back to stream if not a broadcast message. 
+                Write(new TCPMessage(responseToClient));
+
+            } catch (Exception ex) {
+
+                Write(new NetworkErrorMessage(ex, clientRequest));
+
+            }
+
+        }
+
+        private void Connection() {
+
+            TCPMessage clientRequest = default(TCPMessage);
+
+            try {
+
+                if (!m_client.IsConnected()) {
+
+                    if (m_shouldRun) { Stop(); }
+                    return;
+
+                }
+
+                clientRequest = m_packageFactory.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
+
+                if (!clientRequest.IsBroadcastMessage()) { Reply(clientRequest); }
+
+                if (!clientRequest.IsPing()) {
+
+                    OnReceive?.Invoke(clientRequest, m_client.GetEndPoint());
+
+                } else if (clientRequest.IsPing()){
+
+                    OnReceive?.Invoke(new PongMessage(), m_client.GetEndPoint());
+
+                }
+
+            } catch (Exception ex) {
+
+                m_readError = ex;
+
+                if (m_shouldRun) {
+
+                    if (!ex.IsClosingNetwork()) {
+
+                        Log.x(ex, Identifier);
+                        Disconnect(ex);
+
+                    } else {
+
+                        Log.i($"Read failed: '{ex.Message}'. Disconnecting.", Identifier);
+                        Disconnect();
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        private INetworkMessage Write(INetworkMessage message, bool readReply = false) {
+
+            try {
+
+                Busy = true;
 
                 lock (m_writeLock) {
 
@@ -287,13 +278,13 @@ namespace R2Core.Network
 
             } finally {
 
-                m_sending = false;
-            
+                Busy = false;
+
             }
 
-		}
+        }
 
-	}
+    }
 
 }
 

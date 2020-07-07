@@ -13,6 +13,7 @@
 				<Python comment="Here be all Python script files.">
 					<PythonSetup comment="Here be python setup files."/>
 				</Python>
+				<PythonImport />
 				<Shell/>
 				<Sphinx ignore="true">
 					<lib/>
@@ -21,7 +22,6 @@
 			</Scripts>
 			<Databases comment="contains all database files for the clients"/>
 			<Audio/>
-			<Cert comment="contains ceritificates used for push notifications."/>
 			<Language include="false">
 				<hub4wsj_sc_8k include="haha"/>
 				<chomskyAIML/>
@@ -62,6 +62,7 @@
 		<PingService comment="The name of all PingService instances.">ping_service</PingService>
 		<ConnectionPoller comment="The name of all ConnectionPoller instances.">connection_poller</ConnectionPoller>
 		<ObjectInvoker comment="The name of all ObjectInvoker instances.">object_invoker</ObjectInvoker>
+		<Identity comment="The name of the Identity instance.">identity</Identity>
 	</Identifiers>
 	<Consts>
 		<FileLoggerDefaultFile comment="The default file logger output file">test_output.txt</FileLoggerDefaultFile>

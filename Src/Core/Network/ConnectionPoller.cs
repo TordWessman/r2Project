@@ -32,7 +32,7 @@ namespace R2Core.Network
 		private bool m_previousPollSuccess = true;
 
 		private System.Timers.Timer m_connectionCheckTimer;
-		private TcpClient m_client;
+		private readonly WeakReference<TcpClient> m_client;
 		private Action m_failDelegate;
 
 		/// <summary>
@@ -44,56 +44,59 @@ namespace R2Core.Network
 		/// <param name="failDelegate">Fail delegate.</param>
 		public ConnectionPoller(TcpClient client, Action failDelegate) : base(Settings.Identifiers.ConnectionPoller()) {
 			
-			m_client = client;
+			m_client = new WeakReference<TcpClient>(client);
 			m_failDelegate = failDelegate;
-			m_connectionCheckTimer = new System.Timers.Timer(m_client.SendTimeout);
-			m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
 
 		}
 
-		public override bool Ready {
-			
-			get {
-				
-				return m_connectionCheckTimer.Enabled;
-			
-			}
-		
-		}
+        public override bool Ready => m_connectionCheckTimer?.Enabled == true;
 
-		public override void Start() {
+        public override void Start() {
 
-			m_previousPollSuccess = true;
-			m_connectionCheckTimer?.Start ();
+            if (m_client.GetTarget() == null) {
+
+                throw new NetworkException("TcpClient was null.");
+
+            }
+
+            m_previousPollSuccess = true;
+            m_connectionCheckTimer = new System.Timers.Timer(m_client.GetTarget().SendTimeout);
+            m_connectionCheckTimer.Elapsed += ConnectionCheckEvent;
+            m_connectionCheckTimer.Enabled = true;
+            m_connectionCheckTimer.Start ();
 
 		}
 
 		public override void Stop() {
 
-			m_connectionCheckTimer?.Stop();
+            m_connectionCheckTimer?.Stop();
+            m_connectionCheckTimer?.Dispose();
+            m_connectionCheckTimer = null;
 
-		}
+        }
 
 		private void ConnectionCheckEvent(object sender, System.Timers.ElapsedEventArgs e) {
 
-			if (!Ready || m_client.GetSocket() == null) { return; }
+			if (!Ready || m_client.GetTarget()?.GetSocket() == null) { return; }
 
-			bool pollSuccessful = m_client.IsConnected();
+			bool pollSuccessful = m_client.GetTarget()?.IsConnected() ?? false;
 
 			if (!m_previousPollSuccess && !pollSuccessful) {
 				
-				Log.i($"Polling failed to: {m_client.GetDescription()}. Will call fail delegate and stop polling.");
+				Log.i($"Polling failed to: {m_client.GetTarget()?.GetDescription() ?? "null"}. Will call fail delegate and stop polling.");
 				Stop();
 
-				try {
+                try {
 
-					m_failDelegate();
+                    m_failDelegate?.Invoke();
+                    m_failDelegate = null;
 
-				} catch (Exception ex) {
+                } catch (Exception ex) {
 
-					Log.w($"ConnectionPoller failed to call delegate: {ex.Message}.");
+                    Log.w($"Exception when calling fail delegate: {ex.Message}.");
+                    Log.x(ex);
 
-				}
+                }
 
 			}
 

@@ -27,10 +27,10 @@
 #define SERIAL_BAUD_RATE 9600
 
 // Maximum number of devices
-#define MAX_DEVICES 8
+#define MAX_DEVICES 10
 
 // Use with caution. If defined, serial communication (USE_SERIAL) will not work and issues with I2C has also been observed.
-#define R2_PRINT_DEBUG
+//#define R2_PRINT_DEBUG
 
 // The address position used to store the node id 
 #define NODE_ID_EEPROM_ADDRESS 0x00

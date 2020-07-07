@@ -112,7 +112,7 @@ namespace R2Core.Network
 
 		public TCPMessage CreateTCPMessage(string path, dynamic payload, IDictionary<string, object> headers = null) {
 		
-			TCPMessage message = new TCPMessage() {
+			TCPMessage message = new TCPMessage {
 				Destination = path,
 				Payload = payload,
 				Headers = headers
@@ -175,7 +175,6 @@ namespace R2Core.Network
 		/// <returns>The host manager.</returns>
 		/// <param name="id">Identifier.</param>
 		/// <param name="port">Port.</param>
-		/// <param name="destination">Destination.</param>
 		public HostSynchronizer CreateHostSynchronizer(string id, int port, IDeviceManager deviceManager) {
 		
 			return new HostSynchronizer(id, port, deviceManager, this);

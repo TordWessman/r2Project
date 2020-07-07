@@ -16,28 +16,52 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
 //
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using R2Core.Device;
 
 namespace R2Core.Tests
 {
-	class InvokableDummy {
+    struct InvokableNestedStruct {
+
+        public string AString;
+    
+    }
+
+    struct InvokableDecodableDummy {
+
+        public int AnInt;
+        public IEnumerable<string> SomeStrings;
+
+        public InvokableNestedStruct Nested;
+
+    }
+
+    class InvokableDummy : DeviceBase {
 
 		public int Member = 0;
 
-		private string m_propertyMember;
-		public string Property { get { return m_propertyMember; } set { m_propertyMember = value;} }
+		public string Property { get; set; }
 
-		public IEnumerable<int> EnumerableInts = null;
+        public InvokableDecodableDummy Decodable { get; set; }
+        public IEnumerable<int> EnumerableInts = null;
 
-		public string AddBar(string value) {
+        public InvokableDummy(string id = null) : base (id ?? "invokable_dummy") { }
+
+        public string AddBar(string value) {
 
 			return value + "bar";
 
 		}
 
-		public int GiveMeAnArray(IEnumerable<string> array) {
+        public void SetDecodable(InvokableDecodableDummy obj) {
+
+            Decodable = obj;
+
+        }
+
+
+        public int GiveMeAnArray(IEnumerable<string> array) {
 
 			return array.Count();
 

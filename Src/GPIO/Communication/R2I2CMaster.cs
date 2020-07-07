@@ -63,8 +63,9 @@ namespace R2Core.GPIO
 		}
 
 		public override bool Ready { get { return r2I2C_is_ready(); } }
+        public bool ShouldRun { get; private set; }
 
-		public override void Start() {
+        public override void Start() {
 
 			int status = r2I2C_init(m_bus, m_port);
 
@@ -77,14 +78,16 @@ namespace R2Core.GPIO
 			}
 
 			r2I2C_should_run(true);
+            ShouldRun = true;
 
-		}
+        }
 
 		public override void Stop() {
 
 			r2I2C_should_run(false);
+            ShouldRun = false;
 
-		}
+        }
 
 		private byte[] Response {
 		

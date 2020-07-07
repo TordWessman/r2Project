@@ -28,18 +28,37 @@ namespace R2Core
 	
 	public class Log : DeviceBase, IMessageLogger {
 		
-		private List<IMessageLogger> loggers;
-		protected static Log instance;
+		private List<IMessageLogger> m_loggers;
+
+		private static Log m_instance;
+
+        private LogLevel m_logLevel = LogLevel.Message;
 
         /// <summary>
         /// The minimum visible log level.
         /// </summary>
-		public LogLevel LogLevel = LogLevel.Message;
+		public LogLevel LogLevel {
 
-		/// <summary>
-		/// Define how many rows to print of the stacktrace.
-		/// </summary>
-		public int MaxStackTrace = 10;
+            set {
+
+                m_logLevel = value;
+
+                foreach(IMessageLogger logger in m_loggers) {
+
+                    logger.LogLevel = value;
+
+                }
+
+            }
+
+            get { return m_logLevel;  }
+        
+        }
+
+        /// <summary>
+        /// Define how many rows to print of the stacktrace.
+        /// </summary>
+        public int MaxStackTrace = 10;
 
 		// Keeps track of all log levels for specific threads.
 		private IDictionary<int, LogLevel> m_threadLogLevels;
@@ -48,7 +67,7 @@ namespace R2Core
 
 			get {
 
-				return loggers.SelectMany(t => t.History);
+				return m_loggers.SelectMany(t => t.History);
 
 			}
 
@@ -71,8 +90,8 @@ namespace R2Core
 
 		public static Log Instantiate(string id) {
 		
-			instance = new Log(id);
-			return instance;
+			m_instance = new Log(id);
+			return m_instance;
 
 		}
 		
@@ -80,7 +99,7 @@ namespace R2Core
 
 			get {
 
-				return instance; 
+				return m_instance; 
 				
 			}
 
@@ -88,20 +107,20 @@ namespace R2Core
 		
 		public Log(string id) : base(id) {
 
-			loggers = new List<IMessageLogger>();
+			m_loggers = new List<IMessageLogger>();
 			m_threadLogLevels = new Dictionary<int, LogLevel>();
 
 		}
 		
 		public void AddLogger(IMessageLogger logger) {
 			
-			loggers.Add(logger);
+			m_loggers.Add(logger);
 		
 		}
 	
 		public void Write(ILogMessage message) {
 			
-			if (loggers.Count == 0) {
+			if (m_loggers.Count == 0) {
 
 				throw new InvalidOperationException($"No logger attached for message '{message.Message}' and type '{message.Type}'.");
 			
@@ -109,10 +128,14 @@ namespace R2Core
 
 			if (CanWrite(message)) {
 
-				foreach (IMessageLogger logger in loggers) {
+				foreach (IMessageLogger logger in m_loggers) {
 
-					logger.Write(message);
+                    if (message.Type >= logger.LogLevel) {
 
+                        logger.Write(message);
+                    
+                    }
+                   
 				}
 
 			}
@@ -126,8 +149,7 @@ namespace R2Core
 		/// <param name="msg">Message.</param>
 		private bool CanWrite(ILogMessage msg) {
 
-			return msg.Type >= LogLevel && 
-					msg.Type >= 
+			return msg.Type >= 
 						((Task.CurrentId != null && m_threadLogLevels.ContainsKey((int)Task.CurrentId)) ? 
 							m_threadLogLevels[(int)Task.CurrentId] : LogLevel.Info);
 
@@ -231,9 +253,9 @@ namespace R2Core
 		/// Used for temporary testing outprint
 		/// </summary>
 		/// <param name="msg">Message.</param>
-		public static void t(object msg) {
+		public static void t(object msg, string tag = null) {
 			
-			Instance?.temp(msg);
+			Instance?.temp(msg, tag);
 
 		}
 
@@ -242,7 +264,7 @@ namespace R2Core
 		/// </summary>
 		/// <param name="ex">Ex.</param>
 		/// <param name="recursionCount">Recursion count.</param>
-		public static void x(Exception ex, int recursionCount = 0) {
+		public static void x(Exception ex, string tag = null, int recursionCount = 0) {
 
 			if (!string.IsNullOrEmpty(ex.Message)) {
 
@@ -250,7 +272,7 @@ namespace R2Core
 
 				if (stackTrace.Count > (Instance?.MaxStackTrace ?? 0)) {
 
-					stackTrace = stackTrace.Take(instance.MaxStackTrace).ToList();
+					stackTrace = stackTrace.Take(Instance?.MaxStackTrace ?? 10).ToList();
 					stackTrace.Add("... (Ignoring the rest) ...");
 
 				}
@@ -262,20 +284,20 @@ namespace R2Core
 					new string('-', recursionCount * 2) + ex.Message + Environment.NewLine +
 					new string('-', recursionCount * 2) + stackTraceString + Environment.NewLine;
 
-				Instance.Write(new LogMessage(exString, LogLevel.Error, null));
+				Instance.Write(new LogMessage(exString, LogLevel.Error, tag));
 
 			}
 			
 			if (ex.InnerException != null && recursionCount < 10) {
 
 				Instance.Write(new LogMessage("==== Inner Exception ====", LogLevel.Error));
-				x(ex.InnerException, recursionCount + 1);
+				x(ex.InnerException, tag, recursionCount + 1);
 			
 			}
 		
 		}
 
-		~Log() { instance = null; }
+		~Log() { m_instance = null; }
 
 	}
 

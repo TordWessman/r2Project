@@ -26,32 +26,16 @@ namespace R2Core.PushNotifications {
 	public interface IPushNotificationProxy : IDevice {
 
 		/// <summary>
-		/// Stores a client(phone) and makes it available for receiving push notifications
-		/// </summary>
-		/// <param name="deviceId">Device identifier.</param>
-		/// <param name="deviceToken">Device token.</param>
-		/// <param name="type">Type.</param>
-		void RegisterClient(string deviceId, string deviceToken, PushNotificationClientType type = PushNotificationClientType.Apple);
-
-		/// <summary>
-		/// As above but takes the int value of PushNotificationClientType as parameter instead.
-		/// </summary>
-		/// <param name="deviceId">Device identifier.</param>
-		/// <param name="deviceToken">Device token.</param>
-		/// <param name="rawType">Raw type.</param>
-		void Register(string deviceId, string deviceToken, int rawType);
-
-		/// <summary>
 		/// Adds a push notification sender for receiving push notification messages
 		/// </summary>
 		/// <param name="facade">Facade.</param>
 		void AddFacade(IPushNotificationFacade facade);
 
 		/// <summary>
-		/// Sends a notification to its designated clients through its available facades(using PushNotificationClientTypes in the IPushNotification.ClientTypeMask)
+		/// Sends a notification to its designated clients through its available facades.
 		/// </summary>
 		/// <param name="notification">Notification.</param>
-		void Broadcast(IPushNotification notification);
+		void Broadcast(PushNotification notification);
 
 	}
 

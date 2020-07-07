@@ -20,6 +20,7 @@ using System;
 using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 
 namespace R2Core.Network
 {
@@ -33,7 +34,9 @@ namespace R2Core.Network
         private TcpClient m_client;
         private ITCPPackageFactory<TCPMessage> m_serializer;
 
-		private IDictionary<string,IServer> m_servers;
+        private System.Timers.Timer m_pingTimer;
+
+        private IDictionary<string,IServer> m_servers;
 
 		// Keeps track of the connectivity of a socket
 		private ConnectionPoller m_connectionPoller;
@@ -56,7 +59,13 @@ namespace R2Core.Network
         /// <value>The address.</value>
         public string Address { get; private set; }
 
-		public override bool Ready {
+        /// <summary>
+        /// The interval betwent <b>Ping</b> messages.
+        /// </summary>
+        /// <value>The ping interval.</value>
+        public int PingInterval { get; set; } = 30000;
+
+        public override bool Ready {
 			
 			get { return base.Ready && (m_client?.IsConnected() == true); }
 
@@ -94,7 +103,12 @@ namespace R2Core.Network
 
 		protected override void Cleanup() {
 
-			m_client.Close();
+            m_pingTimer.Close();
+            m_pingTimer.Enabled = false;
+            m_pingTimer.Stop();
+            m_pingTimer.Dispose();
+            m_pingTimer = null;
+            m_client?.Close();
 		
 		}
 
@@ -110,7 +124,7 @@ namespace R2Core.Network
 
 			if (endpoint == null) {
 				
-				Log.w($"No TCPClientServer IWebEndpoint accepts: {request}");
+				Log.w($"No IWebEndpoint accepts: {request}", Identifier);
 
 				return new NetworkErrorMessage(NetworkStatusCode.NotFound, $"Path not found: {request.Destination}", request); 
 	
@@ -122,7 +136,7 @@ namespace R2Core.Network
 
 			} catch (Exception ex) {
 
-				Log.x(ex);
+				Log.x(ex, Identifier);
 
 				return new NetworkErrorMessage(NetworkStatusCode.ServerError, $"EXCEPTION: {ex.Message}", request); 
 
@@ -138,13 +152,6 @@ namespace R2Core.Network
 				INetworkMessage response = default(TCPMessage);
 
 				try {
-
-					if (m_client.Available < 1) {
-						
-						System.Threading.Thread.Yield();
-						continue;
-
-					} 
 
 					request = m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
 
@@ -194,8 +201,13 @@ namespace R2Core.Network
 
 				} catch (Exception ex) {
 
-					Log.x (ex);
-					response = new NetworkErrorMessage(ex);
+                    if (ex.IsClosingNetwork()) {
+
+                        Log.i($"Closing network: '{ex.Message}'", Identifier);
+
+                    } else { Log.x(ex, Identifier); }
+
+                    response = new NetworkErrorMessage(ex);
 
 				}
 
@@ -214,9 +226,9 @@ namespace R2Core.Network
 
 		private INetworkMessage SendAttachMessage() {
 
-			TCPMessage attachMessage = new TCPMessage () {
+			TCPMessage attachMessage = new TCPMessage {
 				Destination = Settings.Consts.ConnectionRouterAddHostDestination(),
-				Payload = new RoutingRegistrationRequest() { 
+				Payload = new RoutingRegistrationRequest { 
 					HostName = Identity.Name,
 					Address = m_client.GetLocalEndPoint()?.GetAddress(),
 					Port = m_client.GetLocalEndPoint()?.GetPort() ?? 0
@@ -231,17 +243,24 @@ namespace R2Core.Network
 
 		private void Connect() {
 
-			m_client = new TcpClient();
-			m_client.SendTimeout = Timeout;
-			m_client.Client.Blocking = true;
+            m_client = new TcpClient {
+                SendTimeout = Timeout,
+                ReceiveTimeout = 0
+            };
+
+            m_client.Client.Blocking = true;
 
 			m_connectionPoller = new ConnectionPoller(m_client, () => {
 
-				if (ShouldRun) { Connect(); }
+				if (ShouldRun) {
+
+                    Log.i("Lost connection. Will reconnect.", Identifier);
+                    Stop();
+                    Start();
+
+                }
 
 			});
-
-			m_connectionPoller.Start();
 
 			m_client.Connect(Address, Port);
 
@@ -253,14 +272,47 @@ namespace R2Core.Network
 
 			} else {
 
-				Log.e($"TCPClientServer got bad reply [{response.Code}]: {response.Payload}");
+				Log.e($"Got bad reply [{response.Code}]: {response.Payload}", Identifier);
 				m_client.Close();
 
 			}
 
-		}
+            Log.i($"Did connect to: {Address}:{Port}.", Identifier);
 
-	}
+            m_connectionPoller.Start();
+
+            m_pingTimer = new System.Timers.Timer(PingInterval);
+            m_pingTimer.Elapsed += PingEvent;
+            m_pingTimer.Start();
+
+        }
+
+        void PingEvent(object sender, System.Timers.ElapsedEventArgs e) {
+
+            if (m_client.IsConnected()) {
+
+                TCPMessage ping = new TCPMessage(new PingMessage());
+                byte[] requestData = m_serializer.SerializeMessage(ping);
+
+                try {
+
+                    new BlockingNetworkStream(m_client.GetSocket()).Write(requestData, 0, requestData.Length);
+
+                } catch (Exception ex) {
+
+                    Log.e($"Connection failed with message {ex.Message}. Reconnecting...", Identifier);
+                    Stop();
+                    Start();
+
+                }
+
+            }
+
+        }
+
+        public override string ToString() => $"TCPClientServer [Connected: {Ready}. Local port: {m_client?.GetLocalEndPoint()?.Port}]";
+
+    }
 
 }
 

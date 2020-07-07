@@ -64,5 +64,11 @@ namespace R2Core.Tests {
         }
 
         public void SetUp() { }
+
+        public void SetDescription(string identifier, string description) {
+
+            throw new NotImplementedException();
+
+        }
     }
 }

@@ -23,10 +23,27 @@ using System.Threading;
 using R2Core.Device;
 using System.Threading.Tasks;
 using R2Core.Scripting;
+using System.Linq;
+using System.Collections.Generic;
+
 namespace R2Core.Tests
 {
-	
-	[TestFixture]
+
+
+    /// <summary>
+    /// Only to test enum transcriptions.
+    /// </summary>
+    class DummyEnumClass : DeviceBase {
+
+        public DummyEnumClass() : base("dummy_enum") { }
+
+        public LogLevel LogLevel = LogLevel.Info;
+
+        public void SetLogLevel(LogLevel logLevel) { LogLevel = logLevel; }
+
+    }
+
+    [TestFixture]
 	public class DeviceTests: NetworkTests, IDeviceObserver {
 
 		const int tcp_port = 4444;
@@ -36,7 +53,7 @@ namespace R2Core.Tests
 
 			IServer s = factory.CreateTcpServer("s", tcp_port + 9998);
 			s.Start();
-			Thread.Sleep(500);
+            s.WaitFor();
 			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter(m_deviceManager);
 
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
@@ -77,7 +94,7 @@ namespace R2Core.Tests
 			Thread.Sleep(500);
 		}
 
-		[Test]
+        [Test]
 		public void TestRemoteDevice_UsingServers() {
 
 			IServer s = factory.CreateTcpServer("s", tcp_port + 9990);
@@ -88,14 +105,15 @@ namespace R2Core.Tests
 			rec.AddDevice(dummyObject);
 			IWebEndpoint ep = factory.CreateJsonEndpoint(rec);
 			s.AddEndpoint(ep);
-			Thread.Sleep(200);
+            s.WaitFor();
 
-			var client = factory.CreateTcpClient("c", "localhost", tcp_port + 9990);
+            var client = factory.CreateTcpClient("c", "localhost", tcp_port + 9990);
 			client.Start();
 
-			Thread.Sleep(200);
-			//Client should be connected
-			Assert.IsTrue(client.Ready);
+            client.WaitFor();
+
+            //Client should be connected
+            Assert.IsTrue(client.Ready);
 
 			IClientConnection connection = new HostConnection("hc", client);
 
@@ -153,9 +171,55 @@ namespace R2Core.Tests
 		
 			failTask.Wait();
 
-			s.Stop();
+            // Test that enumerations can be changed remotely
+            DummyEnumClass dummyEnum = new DummyEnumClass();
+            rec.AddDevice(dummyEnum);
+
+            dynamic remoteDummyEnum = new RemoteDevice(dummyEnum.Identifier, Guid.Empty, connection);
+
+            Assert.AreEqual(LogLevel.Info, dummyEnum.LogLevel);
+            remoteDummyEnum.SetLogLevel(LogLevel.Message);
+            Assert.AreEqual(LogLevel.Message, dummyEnum.LogLevel);
+            remoteDummyEnum.SetLogLevel(2);
+            Assert.AreEqual(LogLevel.Warning, dummyEnum.LogLevel);
+            remoteDummyEnum.LogLevel = LogLevel.Error;
+            Assert.AreEqual(LogLevel.Error, dummyEnum.LogLevel);
+            remoteDummyEnum.LogLevel = 4;
+            Assert.AreEqual(LogLevel.Temp, dummyEnum.LogLevel);
+
+            /// -- Test struct invocation
+            InvokableDummy dummyInvokable = new InvokableDummy();
+            rec.AddDevice(dummyInvokable);
+
+            dynamic remoteInvokable = new RemoteDevice(dummyInvokable.Identifier, Guid.Empty, connection);
+
+            Assert.AreEqual(0, remoteInvokable.Decodable.AnInt);
+            Assert.IsNull(remoteInvokable.Decodable.SomeStrings);
+
+            InvokableDecodableDummy decodable = new InvokableDecodableDummy { AnInt = 43, SomeStrings = new string[] { "Katt", "Hund" } };
+
+            remoteInvokable.SetDecodable(decodable);
+
+            Assert.AreEqual(43, dummyInvokable.Decodable.AnInt);
+            Assert.AreEqual(2, dummyInvokable.Decodable.SomeStrings.Count());
+            Assert.AreEqual("Hund", dummyInvokable.Decodable.SomeStrings.Last());
+
+            remoteInvokable.Decodable = new InvokableDecodableDummy { AnInt = 44, SomeStrings = new string[] { "Din", "Mammas", "Ost" } };
+            Assert.AreEqual(44, dummyInvokable.Decodable.AnInt);
+            Assert.AreEqual(3, dummyInvokable.Decodable.SomeStrings.Count());
+            Assert.AreEqual("Ost", dummyInvokable.Decodable.SomeStrings.Last());
+
+            remoteInvokable.Decodable = new InvokableDecodableDummy { Nested = new InvokableNestedStruct { AString = "Foo" } };
+
+            Assert.AreEqual(0, dummyInvokable.Decodable.AnInt);
+            Assert.IsNull(dummyInvokable.Decodable.SomeStrings);
+            Assert.AreEqual("Foo", dummyInvokable.Decodable.Nested.AString);
+
+            // Stop everything
+            s.Stop();
 			client.Stop();
 			Thread.Sleep(500);
+
 		}
 
 
@@ -235,7 +299,6 @@ namespace R2Core.Tests
             Thread.Sleep(100); // They should be done by now... (but maybe not)
 
             Assert.AreEqual(10, receiveCount); // .. and all 3 should have been executed.
-
 
             // Shoul lose requests before the last one.
             remoteDevice.LossyRequests = true;

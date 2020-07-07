@@ -23,16 +23,18 @@ using System.Linq;
 
 namespace R2Core
 {
-	/// <summary>
-	/// Simplified version of ´ConsoleLogger´. It just writes stuff to stdio
-	/// </summary>
-	public class SimpleConsoleLogger : DeviceBase, IMessageLogger {
-		
-		private readonly ConsoleColor m_defaultColor;
-		private readonly Stack<ILogMessage> m_history;
-		private readonly int m_maxHistory;
+    /// <summary>
+    /// Simplified version of ´ConsoleLogger´. It just writes stuff to stdio
+    /// </summary>
+    public class SimpleConsoleLogger : DeviceBase, IMessageLogger {
 
-		public const int DefaultMaxHistory = 100;
+        private readonly ConsoleColor m_defaultColor;
+        private readonly Stack<ILogMessage> m_history;
+        private readonly int m_maxHistory;
+
+        public LogLevel LogLevel { get; set; } = LogLevel.Message;
+
+        public const int DefaultMaxHistory = 100;
 
 		/// <summary>
 		/// Use the maxHistory to define how many messages that can be contain in the message history.

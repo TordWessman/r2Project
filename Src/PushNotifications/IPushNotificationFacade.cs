@@ -16,7 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
 using R2Core.Device;
 
 namespace R2Core.PushNotifications
@@ -30,15 +29,15 @@ namespace R2Core.PushNotifications
 		/// Adds the notification to the host type specific message queue
 		/// </summary>
 		/// <param name="notification">Notification.</param>
-		void QueuePushNotification(IPushNotification notification , System.Collections.Generic.IEnumerable<string> deviceIds);
+		void Send(PushNotification notification, string deviceToken);
 
-		/// <summary>
-		/// Returns true if the facade accepts the notification
-		/// </summary>
-		/// <returns><c>true</c>, if notification was acceptsed, <c>false</c> otherwise.</returns>
-		/// <param name="type">Type.</param>
-		bool AcceptsNotification(IPushNotification notification);
+        /// <summary>
+        /// Return the type of clients this facade can send to.
+        /// </summary>
+        /// <value>The type of the client.</value>
+        PushNotificationClientType ClientType { get; }
 
 	}
+
 }
 

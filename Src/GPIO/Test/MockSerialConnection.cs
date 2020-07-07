@@ -82,12 +82,15 @@ namespace R2Core.GPIO.Tests
 
 		public IList<byte> nodes;
 
-		private readonly object m_lock = new object(); 
+		private readonly object m_lock = new object();
 
-		public MockSerialConnection(string id, ISerialPackageFactory factory) : base(id) {
+        public bool ShouldRun { get; set; }
+
+        public MockSerialConnection(string id, ISerialPackageFactory factory) : base(id) {
 			CreatedId = 0;
 			m_factory = factory;
-			nodes = new List<byte>();
+            ShouldRun = true;
+            nodes = new List<byte>();
 		}
 
 		public MockSlaveDevice GetMockDevice(byte id) {

@@ -5,7 +5,7 @@ namespace R2Core.GPIO
 {
     internal class SerialAnalogOutput : SerialDeviceBase<byte[]>, IOutputPort<byte> {
 
-        private byte m_port;
+        private readonly byte m_port;
         private byte m_value;
 
         public byte Value {
@@ -15,7 +15,7 @@ namespace R2Core.GPIO
 
                 m_value = value;
                 Host.Set(DeviceId, Node.NodeId, value);
-
+            
             }
 
         }

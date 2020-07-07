@@ -22,6 +22,7 @@ using R2Core.Network;
 using System.Threading;
 using R2Core.Scripting;
 using System.Collections.Generic;
+using MainFrame;
 
 namespace R2Core.Tests
 {
@@ -328,13 +329,13 @@ namespace R2Core.Tests
 		[Test]
 		public void TestHTTP_TCPClientServerRouter() {
 			PrintName();
-
-			// Router side port
-			var tcpPort = 1119;
+            MemoryChecker memoryChecker = new MemoryChecker();
+            // Router side port
+            var tcpPort = 1119;
 			var httpPort = 1118;
-
-			// Server name
-			IIdentity identity = new DummyIdentity();
+            memoryChecker.Check();
+            // Server name
+            IIdentity identity = new DummyIdentity();
 
 			// Create the routing server that will route incomming tcp requests
 			TCPServer routingServer = factory.CreateTcpServer("tcp_router", tcpPort);
@@ -348,25 +349,28 @@ namespace R2Core.Tests
 			routingServer.AddEndpoint(routingEndpoint);
 			routingHttpServer.Start();
 			routingHttpServer.AddEndpoint(routingEndpoint);
+            memoryChecker.Check();
 
-			// Server side server. The final destination of the request
-			HttpServer httpServer = factory.CreateHttpServer("http_server", tcpPort + 1);
+            // Server side server. The final destination of the request
+            HttpServer httpServer = factory.CreateHttpServer("http_server", tcpPort + 1);
 			httpServer.Start();
 
-			Thread.Sleep(100);
 
-			// Server side router that will route traffic to a local servers
-			TCPClientServer clientServer = factory.CreateTcpClientServer("client_server");
+            httpServer.WaitFor();
+            memoryChecker.Check();
+
+            // Server side router that will route traffic to a local servers
+            TCPClientServer clientServer = factory.CreateTcpClientServer("client_server");
 			clientServer.Configure(identity, "127.0.0.1", tcpPort);
 			clientServer.Start();
 
-			Thread.Sleep(100);
+            clientServer.WaitFor();
 
 			Assert.IsTrue(clientServer.Ready);
+            memoryChecker.Check();
 
-
-			// Allow the router to access the destination http server
-			clientServer.AddServer(Settings.Consts.ConnectionRouterHeaderServerTypeHTTP(), httpServer);
+            // Allow the router to access the destination http server
+            clientServer.AddServer(Settings.Consts.ConnectionRouterHeaderServerTypeHTTP(), httpServer);
 
 			// Create a dummy endpoint to test requests
 			DummyEndpoint ep = new DummyEndpoint("test");
@@ -385,11 +389,11 @@ namespace R2Core.Tests
 			// Create the remote TCP client (imitate being a HTTP client)
 			IMessageClient client = factory.CreateTcpClient("client", "127.0.0.1", tcpPort, identity.Name);
 			client.Start();
+            memoryChecker.Check();
+            // Override default behaviour: Set the destination server type. This means that all requests from this client should be directed to the HTTP server (if present)
+            client.Headers[Settings.Consts.ConnectionRouterHeaderServerTypeKey()] = Settings.Consts.ConnectionRouterHeaderServerTypeHTTP();
 
-			// Override default behaviour: Set the destination server type. This means that all requests from this client should be directed to the HTTP server (if present)
-			client.Headers[Settings.Consts.ConnectionRouterHeaderServerTypeKey()] = Settings.Consts.ConnectionRouterHeaderServerTypeHTTP();
-
-			TCPMessage message = new TCPMessage() { Destination = "test", Payload = "argh" };
+			TCPMessage message = new TCPMessage { Destination = "test", Payload = "argh" };
 
 			INetworkMessage response = client.Send(message);
 

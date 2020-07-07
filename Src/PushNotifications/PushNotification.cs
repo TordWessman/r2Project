@@ -17,34 +17,21 @@
 // 
 
 ﻿using System;
+using System.Collections.Generic;
 
 namespace R2Core.PushNotifications
 {
 	/// <summary>
 	/// Generic Push notification message
 	/// </summary>
-	public class PushNotification : IPushNotification {
+	public struct PushNotification {
 
-		public PushNotification(string message) {
+        public string Group { get; set; }
+        public string IdentityName { get; set; }
+        public string Message { get; set; }
+        public IDictionary<string,object> Metadata { get; set; }
 
-			Message = message;
-			Metadata = new System.Collections.Generic.Dictionary<string, object>();
+    }
 
-		}
-
-		internal void AddClientType(PushNotificationClientType type) { ClientTypeMask |= (int)type; }
-
-		public void AddMetadata(string key, object value) { Metadata [key] = value; }
-
-		#region IPushNotification implementation
-
-		public int ClientTypeMask  { get; private set;}
-
-		public string Message { get; private set;}
-
-		public System.Collections.Generic.Dictionary<string, object> Metadata  { get; private set;}
-
-		#endregion
-	}
 }
 

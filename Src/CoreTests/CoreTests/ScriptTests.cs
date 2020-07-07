@@ -65,7 +65,7 @@ namespace R2Core.Tests
 
 		}
 
-		[Test]
+        [Test]
 		public void PythonTests() {
 			PrintName();
 
@@ -85,12 +85,11 @@ namespace R2Core.Tests
 		
 		}
 
-		[Test]
+        [Test]
 		public void PythonRemoteScriptTests() {
 			PrintName();
 
 			dynamic python = m_pythonScriptFactory.CreateScript("python_test");
-
 
             m_deviceManager.Add(python);
 			var factory = new WebFactory("wf", new JsonSerialization("ser"));
@@ -100,11 +99,11 @@ namespace R2Core.Tests
 
 			server.AddEndpoint(endpont);
 			server.Start();
-			Thread.Sleep(200);
+            server.WaitFor();
 
 			var client = factory.CreateTcpClient("client", "localhost", 11111);
 			client.Start();
-			Thread.Sleep(200);
+            client.WaitFor();
 
 			var host = new HostConnection("hc", client);
 			dynamic remoteScript = new RemoteDevice("python_test", Guid.Empty, host);
@@ -115,7 +114,6 @@ namespace R2Core.Tests
 
 			dynamic device_list = m_pythonScriptFactory.CreateScript("device_list");
 			m_deviceManager.Add(device_list);
-
 
 			// Test device_list script:
 			DummyDevice dummy = new DummyDevice("dummy");

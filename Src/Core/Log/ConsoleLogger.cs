@@ -33,7 +33,9 @@ namespace R2Core
 		private bool m_isPrinting;
 		private Stack<ILogMessage> m_history;
 
-		public bool Paused;
+        public LogLevel LogLevel { get; set; } = LogLevel.Message;
+
+        public bool Paused;
 
 		public ConsoleLogger(string id) : base(id) {
 

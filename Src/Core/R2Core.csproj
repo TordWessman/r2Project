@@ -136,6 +136,8 @@
     <Compile Include="Shared\IIdentity.cs" />
     <Compile Include="Network\Messages\RoutingRegistrationRequest.cs" />
     <Compile Include="Network\TCP\TCPRouterEndpoint.cs" />
+    <Compile Include="Shared\ConversionsExtensions.cs" />
+    <Compile Include="Extensions\DateTimeExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

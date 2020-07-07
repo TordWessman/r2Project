@@ -56,21 +56,21 @@ namespace R2Core.GPIO
 
 		}
 
-		public override bool Ready { get { return m_connection?.Ready == true; } }
+		public override bool Ready { get { return m_connection.ShouldRun && m_connection?.Ready == true; } }
 
 		public DeviceData<T>GetValue<T>(byte deviceId, int nodeId) {
 
-			DeviceResponsePackage<T>response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId));
+            DeviceResponsePackage<T> response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId));
 
-			return new DeviceData<T> { Id = response.Id, Value = response.Value };
+            return new DeviceData<T> { Id = response.Id, Value = response.Value };
 
-		}
+        }
 
 		public void Set(byte deviceId, int nodeId, int value) {
+    
+            DeviceResponsePackage<int> response = Send<int>(m_packageFactory.SetDevice(deviceId, (byte)nodeId, value));
 
-			DeviceResponsePackage<int> response = Send<int> (m_packageFactory.SetDevice(deviceId, (byte)nodeId, value));
-
-		}
+        }
 
 		public DeviceData<T> Create<T>(int nodeId, SerialDeviceType type, byte[] parameters) {
 
@@ -148,7 +148,7 @@ namespace R2Core.GPIO
 
 			if (!response.IsError && response.NodeId != 0) {
 			
-				Log.w($"Node has changed id to {response.NodeId}. I2C connection might fail.");
+				Log.w(Identifier, $"Node has changed id to {response.NodeId}. I2C connection might fail.");
 
 			}
 
@@ -172,19 +172,16 @@ namespace R2Core.GPIO
 		
 			byte[] requestData = m_packageFactory.SerializeRequest(request);
 
-			bool retry = request.Action != SerialActionType.Initialization;
-            Log.i($"ArduinoDevice: Sending: {request}");
-
 			try {
 			
 				byte[] responseData = m_connection.Send(requestData);
 				DeviceResponsePackage<T> response = m_packageFactory.ParseResponse<T>(responseData);
 
-				if (retry && response.CanRetry() && retryCount < RetryCount) {
+				if (response.CanRetry() && retryCount < RetryCount) {
 					
 					if (retryCount == 3) {
 						
-						Log.w($"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...");
+						Log.i(Identifier, $"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...");
 					
 					}
 
@@ -193,7 +190,6 @@ namespace R2Core.GPIO
 
 				}
 
-                Log.i($"ArduinoDevice: Got response: {response}");
                 return response;
 
 			} catch (SerialConnectionException ex) {
@@ -204,7 +200,7 @@ namespace R2Core.GPIO
 					// The connection has been closed. Probably manually:
 					ex.ErrorType != SerialErrorType.ERROR_SERIAL_CONNECTION_CLOSED) {
 			
-					Log.t($"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
+					Log.i(Identifier, $"Retry: {retryCount}. Exception: {ex.Message}. {request.Description()}");
 					System.Threading.Tasks.Task.Delay(RetryDelay * (retryCount * 2 + 1)).Wait();
 					return _Send<T>(request, retryCount + 2);
 
@@ -224,7 +220,14 @@ namespace R2Core.GPIO
 
 			lock(m_lock) {
 
-				if (!Ready) { throw new SerialConnectionException("Communication busy/not started.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE); }
+                if (m_connection?.ShouldRun != true) {
+
+                    Log.w(Identifier, $"'{m_connection.Identifier}' has been Stopped! Unable to send request: '{request}'");
+                    return default(DeviceResponsePackage<T>);
+
+                }
+
+                if (!Ready) { throw new SerialConnectionException("Communication busy/not started.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE); }
 
 				DeviceResponsePackage<T> response = _Send<T>(request);
 
@@ -232,15 +235,15 @@ namespace R2Core.GPIO
 
 					throw new SerialConnectionException($"Response checksum is bad({response.Checksum}): Node: '{request.NodeId}'. Action: '{request.Action}'. ", SerialErrorType.ERROR_BAD_CHECKSUM);
 
-				} else if (response.Action == SerialActionType.Initialization) {
+				} if (response.Action == SerialActionType.Initialization) {
 
 					// The node needs to be reset. Reset the node and notify delegate, allowing it to re-create and/or re-send
 					ResetNode(response.NodeId);
 
-					if (HostDidReset != null) { HostDidReset(response.NodeId); }
+                    HostDidReset?.Invoke(response.NodeId);
 
-					// Resend the current request
-					response = _Send<T>(request);
+                    // Resend the current request
+                    response = _Send<T>(request);
 
 				} else if (response.IsError) { 
 
@@ -267,7 +270,6 @@ namespace R2Core.GPIO
 		/// <summary>
 		/// Will send the Initialize request to the node and clear it's data.
 		/// </summary>
-		/// <param name="host">Host.</param>
 		private void ResetNode(byte nodeId) {
 
 			Send<byte[]> (new DeviceRequestPackage() {Action = SerialActionType.Initialization, NodeId = nodeId});

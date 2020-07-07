@@ -18,12 +18,10 @@
 
 ﻿using System;
 using R2Core.Device;
-using PushSharp;
 using PushSharp.Apple;
 using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
-
 
 namespace R2Core.PushNotifications
 {
@@ -31,9 +29,14 @@ namespace R2Core.PushNotifications
 		
 		private ApnsServiceBroker m_push;
 		private ApnsConfiguration m_configuration;
+        private bool m_sending;
 
-		public ApplePushNotificationFacade(string id,  string certFileName, string password) : base(id) {
-			
+        public PushNotificationClientType ClientType => PushNotificationClientType.Apple;
+
+        public override bool Ready => !m_sending;
+
+        public ApplePushNotificationFacade(string id,  string certFileName, string password) : base(id) {
+                
 			if (!File.Exists(certFileName)) {
 			
 				throw new IOException($"A push notification certificate with name '{certFileName}' could not be found.");
@@ -65,41 +68,37 @@ namespace R2Core.PushNotifications
 
 		}
 
-		public void QueuePushNotification(IPushNotification notification, IEnumerable<string> deviceIds) {
+		public void Send(PushNotification notification, string deviceToken) {
 
-			if (!AcceptsNotification(notification)) {
-				
-				throw new ArgumentException($"Cannot push notification with mask: '{notification.ClientTypeMask}' to Apple.");
-			
-			}
+            m_sending = true;
 
-			SetupBroker();
+            SetupBroker();
 
 			m_push.Start();
 
-			foreach (string deviceId in deviceIds) {
+			string payload = "{\"aps\":{\"alert\": \"" + notification.Message + "\""; 
 
-				string payload = "{\"aps\":{\"alert\": \"" + notification.Message + "\""; 
+            if (notification.Metadata != null) {
 
-				foreach (KeyValuePair<string, object> kvp in notification.Metadata) {
+                foreach (KeyValuePair<string, object> kvp in notification.Metadata) {
 
-					payload += ", \"" + kvp.Key + "\":\"" + kvp.Value.ToString() + "\"";
+                    payload += ", \"" + kvp.Key + "\":\"" + kvp.Value + "\"";
 
-				}
+                }
 
-				payload += "}}";
-				var pl = JObject.Parse(payload);
+            }
 
-				Log.t(payload);
+			payload += "}}";
+			var pl = JObject.Parse(payload);
 
-				m_push.QueueNotification(new ApnsNotification {
+			Log.i($"Sending Push: '{payload}'");
 
-					DeviceToken = deviceId,
-					Payload = pl
-				
-				});
+			m_push.QueueNotification(new ApnsNotification {
 
-			}
+				DeviceToken = deviceToken,
+				Payload = pl
+			
+			});
 
 			m_push.Stop();
 
@@ -109,7 +108,7 @@ namespace R2Core.PushNotifications
 		
 			m_push = new ApnsServiceBroker(m_configuration);
 
-			m_push.OnNotificationFailed += (notification, aggregateEx) => {
+            m_push.OnNotificationFailed += (notification, aggregateEx) => {
 
 				aggregateEx.Handle(ex => {
 
@@ -134,20 +133,17 @@ namespace R2Core.PushNotifications
 
 				});
 
+                m_sending = false;
+
 			};
 
 			m_push.OnNotificationSucceeded += (ApnsNotification notification) =>  {
 
-				Log.t($"Did send notification: {notification.DeviceToken}. ");
+                m_sending = false;
+				Log.i($"Did send notification: {notification.DeviceToken}. ");
 
 			};
 
-
-		}
-
-		public bool AcceptsNotification(IPushNotification notification) {
-
-			return(notification.ClientTypeMask & (int)PushNotificationClientType.Apple) > 0;
 
 		}
 

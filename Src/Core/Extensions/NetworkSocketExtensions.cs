@@ -62,7 +62,7 @@ namespace R2Core.Network
 			
 			try {
 				
-				return !(client.Available == 0 && client.Poll(1, SelectMode.SelectRead));
+				return !(client.Poll(1, SelectMode.SelectRead) && client.Available == 0);
 			
 			} catch (SocketException) { return false; }
 

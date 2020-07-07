@@ -22,7 +22,6 @@ using System.Threading;
 using R2Core.Network;
 using R2Core.Device;
 using R2Core.Scripting;
-using R2Core.Common;
 using System.Linq;
 
 namespace R2Core.Tests

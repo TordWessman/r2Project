@@ -54,6 +54,7 @@ namespace R2Core.Scripting
 			m_params = parameters ?? new Dictionary<string,dynamic>();
 		
 			Reload();
+
 		}
 
 		public void AddSearchPath(string searchPath) {
@@ -68,13 +69,11 @@ namespace R2Core.Scripting
 
 			if (!File.Exists(m_fileName)) {
 
-				throw new IOException($"Python file does not exist: {m_fileName}");
-
-			} else {
-
-				Log.d($"Loading script: {m_fileName}");
+				throw new ScriptException($"Python file does not exist: {m_fileName}");
 
 			}
+
+            Log.i($"Loading script: {m_fileName}");
 
             m_source = m_engine.CreateScriptSourceFromFile(m_fileName);
 
@@ -90,15 +89,14 @@ namespace R2Core.Scripting
 
 			}
 
-			System.Runtime.Remoting.ObjectHandle tmp;
 
-			if (!m_scope.TryGetVariableHandle(HANDLE_MAIN_CLASS, out tmp)) {
-				
-				throw new ArgumentNullException($"Unable to get main class: '{HANDLE_MAIN_CLASS}' from script: '{m_fileName}'" );
+            if (!m_scope.TryGetVariableHandle(HANDLE_MAIN_CLASS, out System.Runtime.Remoting.ObjectHandle mainClassHandle)) {
 
-			}
+                throw new ScriptException($"Unable to get main class: '{HANDLE_MAIN_CLASS}' from script: '{m_fileName}'");
 
-			m_mainClass =  tmp?.Unwrap();
+            }
+
+            m_mainClass =  mainClassHandle?.Unwrap();
 
 			foreach (KeyValuePair<string, dynamic> kvp in m_params) {
 
@@ -106,7 +104,11 @@ namespace R2Core.Scripting
 
 			}
 
-			Invoke(HANDLE_INIT_FUNCTION);
+            if (m_engine.Operations.ContainsMember(m_mainClass, HANDLE_INIT_FUNCTION)) {
+
+                Invoke(HANDLE_INIT_FUNCTION);
+
+            }
 
 		}
 
@@ -134,7 +136,7 @@ namespace R2Core.Scripting
 			
 			if (!m_engine.Operations.ContainsMember(m_mainClass, handle)) {
 
-				throw new ArgumentException($"Error in script: {m_fileName}. Handle '{handle}' was not declared in {HANDLE_MAIN_CLASS}.");
+				throw new ScriptException($"Error in script: {m_fileName}. Handle '{handle}' was not declared in {HANDLE_MAIN_CLASS}.");
 
 			}
 

@@ -38,7 +38,7 @@ namespace R2Core.Common {
         /// <returns>The columns.</returns>
         protected abstract IDictionary<string, string> GetColumns();
 
-        protected abstract IEnumerable<string> GetPrimaryKeys();
+        protected virtual IEnumerable<string> GetPrimaryKeys() => new List<string>();
 
         /// <summary>
         /// Return true if the autoincremented id parameter should be used.
@@ -56,8 +56,8 @@ namespace R2Core.Common {
             Database = database;
 
         }
-
-        public bool Ready => Database.Ready;
+        
+        public virtual bool Ready => Database.Ready;
 
         public virtual void SetUp() {
 

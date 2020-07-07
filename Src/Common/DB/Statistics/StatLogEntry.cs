@@ -51,8 +51,13 @@ namespace R2Core.Common {
         /// </summary>
         public string Description;
 
+        /// <summary>
+        /// A user friendly name of the device related to the entry. This value will not be persisted.
+        /// </summary>
+        public string Name;
+
         public override string ToString() {
-            return $"StatLogEntry<{typeof(T)}>: [Identifier: {Identifier}, Value: {Value}, Timestamp: {Timestamp}" + 
+            return $"StatLogEntry<{typeof(T)}>: [Identifier: {Identifier}, Name: {Name ?? Identifier}, Value: {Value}, Timestamp: {Timestamp}" + 
             (Description != null ? $", Description: {Description}]>" : "]");
         }
     }

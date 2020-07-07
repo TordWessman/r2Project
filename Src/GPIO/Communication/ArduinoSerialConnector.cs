@@ -93,7 +93,7 @@ namespace R2Core.GPIO
 
 		public override void Start() {
 
-			Log.d($"Connectiing to {m_serialPort.PortName}");
+			Log.d(Identifier, $"Connectiing to {m_serialPort.PortName}");
 
 			try {
 				
@@ -108,13 +108,18 @@ namespace R2Core.GPIO
 
 			m_serialPort.DiscardOutBuffer();
 			m_serialPort.DiscardInBuffer();
-			System.Threading.Thread.Sleep(m_timeout);
 
-		}
+            System.Threading.Thread.Sleep(m_timeout);
+            ShouldRun = true;
+
+
+        }
 
 		public override bool Ready { get { return m_serialPort.IsOpen; } }
 
-		public byte[] Send(byte[] request) {
+        public bool ShouldRun { get; private set; }
+
+        public byte[] Send(byte[] request) {
 
 			lock(m_lock) {
 
@@ -171,6 +176,7 @@ namespace R2Core.GPIO
 
 		public override void Stop() {
 
+            ShouldRun = false;
 			m_serialPort.Close();
 
 		}
@@ -180,7 +186,7 @@ namespace R2Core.GPIO
 		/// </summary>
 		private void ClearPipe() {
 
-			if (m_serialPort.BytesToRead > 0) { Log.w("ArduinoSerial: ClearPipe: There was apparently some data in the pipe."); }
+			if (m_serialPort.BytesToRead > 0) { Log.w(Identifier, "ClearPipe: There was apparently some data in the pipe."); }
 			m_serialPort.DiscardInBuffer();
 
 		}

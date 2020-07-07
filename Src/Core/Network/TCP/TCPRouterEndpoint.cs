@@ -17,6 +17,7 @@
 //
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -30,15 +31,15 @@ namespace R2Core.Network {
 	public class TCPRouterEndpoint : IWebEndpoint {
 
 		private readonly TCPServer m_tcpServer;
-		private IDictionary<string, IClientConnection> m_connections;
-		private static string HeaderHostName = Settings.Consts.ConnectionRouterHeaderHostNameKey();
+		private IDictionary<string, WeakReference<IClientConnection>> m_connections;
+		private static readonly string HeaderHostName = Settings.Consts.ConnectionRouterHeaderHostNameKey();
 
 		private readonly object m_lock = new object();
 
 		public TCPRouterEndpoint(TCPServer tcpServer) {
 			
 			m_tcpServer = tcpServer;
-			m_connections = new Dictionary<string, IClientConnection>();
+			m_connections = new Dictionary<string, WeakReference<IClientConnection>>();
 
 		}
 
@@ -54,24 +55,25 @@ namespace R2Core.Network {
 
                 lock (m_lock) {
 
-                    m_connections[request.Payload.HostName] = connection;
+                    m_connections[request.Payload.HostName] = new WeakReference<IClientConnection>(connection);
 
 					connection.StopListening();
 
-                    m_connections = m_connections.Where(c => c.Value.Ready).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+                    m_connections = m_connections.Where(c => c.Value.GetTarget().Ready).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
                 }
 
-				return new TCPMessage () {
-					Code = NetworkStatusCode.Ok.Raw (),
-                    Payload = new RoutingRegistrationResponse() {
+				return new TCPMessage {
+					Code = NetworkStatusCode.Ok.Raw(),
+                    Payload = new RoutingRegistrationResponse {
                         Address = source.Address.ToString(),
                         Port = source.Port
                     }
-
                 };
 
-			} else if (request.Headers.ContainsKey(HeaderHostName)) {
+			} 
+
+            if (request.Headers.ContainsKey(HeaderHostName)) {
 
 				string hostName = request.Headers[HeaderHostName] as string;
 
@@ -79,7 +81,7 @@ namespace R2Core.Network {
 
 				lock(m_lock) {
 					
-					connection = m_connections.ContainsKey(hostName) ? m_connections[hostName] : null;
+					connection = m_connections.ContainsKey(hostName) ? m_connections[hostName].GetTarget() : null;
 
 				}
 				 
@@ -88,19 +90,16 @@ namespace R2Core.Network {
 					request.Headers[Settings.Consts.ConnectionRouterHeaderClientAddressKey()] = connection.Address;
 					request.Headers[Settings.Consts.ConnectionRouterHeaderClientPortKey()] = connection.Port;
 
-					return  connection.Send(request);
-
-				} else if (connection?.Ready == false) {
-
-					return new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Host with name '{hostName}' has been disconnected.");
+					return connection.Send(request);
 
 				}
 
-				return new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Host with name '{hostName}' was not found.");
+                return connection?.Ready == false
+                    ? new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Host with name '{hostName}' has been disconnected.")
+                    : new NetworkErrorMessage(NetworkStatusCode.ResourceUnavailable, $"Host with name '{hostName}' was not found.");
+            }
 
-			}
-
-			return new NetworkErrorMessage(NetworkStatusCode.BadRequest, $"Missing '{HeaderHostName}' parameter.");
+            return new NetworkErrorMessage(NetworkStatusCode.BadRequest, $"Missing '{HeaderHostName}' parameter.");
 
 		}
 

@@ -43,7 +43,7 @@ unsigned long pauseSleepTimer = 0;
 uint32_t pauseSleepInterval = 0;
 
 // Keeps track of the slave's address renewal timeout 
-uint32_t renewalTimer = 0;
+unsigned long renewalTimer = 0;
 
 // Keeps track of the failures to renew address. 
 uint32_t slaveRenewalFailures = 0;
@@ -133,14 +133,19 @@ void rh24Setup() {
 
   mesh.setNodeID(id);
   mesh.setChild(isMaster());
-  
+
   //radio.setPALevel(RF24_PA_HIGH);
   
   if (mesh.begin()) { R2_LOG(F("Did start mesh network")); } 
-  else { return err("E: mesh.begin()", ERROR_RH24_TIMEOUT); }
-  
+  else {
+    delay(1000);
+    err("E: mesh.begin()", ERROR_RH24_TIMEOUT); 
+    arghhhh();
+    return;
+    }
+
   network.setup_watchdog(RH24_SLEEP_CYCLES);
-    
+
   if (!isMaster()) { R2_LOG(F("Slave started")); } 
   else { R2_LOG(F("Master started ")); }
   

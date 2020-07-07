@@ -29,8 +29,14 @@ namespace R2Core.Common {
     /// </summary>
     public class StatLogger : DeviceBase {
 
-        private IStatLoggerDBAdapter m_adapter;
+        public IStatLoggerDBAdapter Adapter { get; private set; }
         private IDictionary<string, IDevice> m_processes;
+
+        /// <summary>
+        /// Userfriendly name added to Description parameter of the StatLogEntry.
+        /// </summary>
+        /// <value>The device names.</value>
+        public IDictionary<string, string> DeviceNames { get; private set; }
 
         /// <summary>
         /// The types of IStatLoggable that has logging supported.
@@ -39,8 +45,9 @@ namespace R2Core.Common {
 
         public StatLogger(string id, IStatLoggerDBAdapter adapter) : base (id) {
 
-            m_adapter = adapter;
+            Adapter = adapter;
             m_processes = new Dictionary<string, IDevice>();
+            DeviceNames = new Dictionary<string, string>();
 
         }
 
@@ -85,14 +92,21 @@ namespace R2Core.Common {
 
                 }
 
-                lock(m_adapter) {
+                lock(Adapter) {
 
-                    foreach (StatLogEntry<T> entry in m_adapter.GetEntries<T>(identifier)) {
+                    foreach (StatLogEntry<T> entry in Adapter.GetEntries<T>(identifier)) {
 
                         if (startTime != null && startTime > entry.Timestamp) { continue; }
                         if (endTime != null && endTime < entry.Timestamp) { continue; }
 
-                        (entries[identifier] as List<StatLogEntry<T>>).Add(entry);
+                        (entries[identifier] as List<StatLogEntry<T>>).Add(new StatLogEntry<T> { 
+                            Value = entry.Value,
+                            Timestamp = entry.Timestamp,
+                            Description = entry.Description,
+                            Identifier = entry.Identifier,
+                            Id = entry.Id,
+                            Name = DeviceNames.ContainsKey(entry.Identifier) ? DeviceNames[entry.Identifier] : entry.Identifier
+                        });
 
                     }
 
@@ -105,7 +119,7 @@ namespace R2Core.Common {
         }
 
         /// <summary>
-        /// Starts tracking a device using ´frequency´ in milliseconds. 
+        /// Starts tracking a device using ´frequency´ in minutes. 
         /// ´startTime´ defines which time of the day the tracking will commence on.
         /// </summary>
         /// <returns>The tracking process.</returns>
@@ -123,9 +137,9 @@ namespace R2Core.Common {
 
                 }
 
-                R2Core.Log.i($"StatLogger starting to track: '{device.Identifier}' using frequency: {frequency}. Start time: {startTime?.ToString() ?? "now" }");
+                R2Core.Log.i($"StatLogger starting to track: '{device.Identifier}' using frequency: {frequency} minutes. Start time: {startTime?.ToString() ?? "now" }");
 
-                StatLogProcess<T> process = new StatLogProcess<T>(device, this, frequency, startTime);
+                StatLogProcess<T> process = new StatLogProcess<T>(device, this, frequency * 60 * 1000, startTime);
                 process.Start();
                 m_processes[device.Identifier] = process;
                 return process;
@@ -172,24 +186,34 @@ namespace R2Core.Common {
 
         }
 
+        public void SetDescription(IDevice device, string description) {
+
+            Adapter.SetDescription(device.Identifier, description);
+
+        }
+
         private void LogEntry(string identifier, string value) {
 
-            double result = 0;
-            double.TryParse(value, out result);
+            double.TryParse(value, out double result);
 
-            lock (m_adapter) {
+            lock (Adapter) {
 
-                m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = result, Timestamp = DateTime.Now, Description = value });
+                Adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = result, Timestamp = DateTime.Now, Description = value });
 
             }
 
         }
 
-        private void LogEntry(string identifier, double value) {
+        private void LogEntry(string identifier, double value, string description = null) {
 
-            lock (m_adapter) {
+            lock (Adapter) {
 
-                m_adapter.SaveEntry(new StatLogEntry<double> { Identifier = identifier, Value = value, Timestamp = DateTime.Now });
+                Adapter.SaveEntry(new StatLogEntry<double> { 
+                    Identifier = identifier, 
+                    Value = value, 
+                    Timestamp = DateTime.Now, 
+                    Description = description 
+               });
 
             }
 

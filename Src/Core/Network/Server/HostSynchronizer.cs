@@ -159,14 +159,14 @@ namespace R2Core.Network
 
 				} else if (exception != null) {
 					
-					Log.w($"Broadcast message to `{message.Destination}` resulted in exception({exception}), message: `{exception.Message}` (response code '{response?.Code}'). ");
-					Log.x(exception); 
+					Log.w($"Broadcast message to `{message.Destination}` resulted in exception({exception}), message: `{exception.Message}` (response code '{response?.Code}').", Identifier);
+					Log.x(exception, Identifier); 
 
 				} else {
 
 					if (response?.Code != NetworkStatusCode.SameOrigin.Raw()) {
 							
-						Log.w($"Broadcast received from {response?.Destination} got response code '{response?.Code}'.");
+						Log.w($"Broadcast received from {response?.Destination} got response code '{response?.Code}'.", Identifier);
 				
 					}
 
@@ -238,7 +238,7 @@ namespace R2Core.Network
 			
 				dynamic remoteHostSynchronizer = new RemoteDevice(Settings.Identifiers.HostSynchronizer(), Guid.Empty, host);
 				bool s = remoteHostSynchronizer.RequestSynchronization(deviceServer.Addresses, deviceServer.Port) ?? false;
-				Log.d($"Synchronization for {host.Address} succeeded: {s}"); 
+				Log.d($"Synchronization for {host.Address} succeeded: {s}", Identifier); 
 				success &= s;
 
 			}
@@ -263,7 +263,7 @@ namespace R2Core.Network
 			if (address == null) {
 			
 				string addressList = String.Join(",", addresses);
-				Log.e($"Unable to retrieve address from address list: {addressList}. (Requested port: {port}).");
+				Log.e($"Unable to retrieve address from address list: {addressList}. (Requested port: {port}).", Identifier);
 				return false;
 
 			} else {
@@ -315,7 +315,7 @@ namespace R2Core.Network
 
 						if (m_retries[host.Identifier] > MaxRetryCount) {
 
-							Log.w($"Unable to establish connection to '{host}'. Will remove from list.");
+							Log.w($"Unable to establish connection to '{host}'. Will remove from list.", Identifier);
 							failedConnections.Add(host); 
 
 						}
@@ -343,18 +343,18 @@ namespace R2Core.Network
 		/// <param name="connection">Connection.</param>
 		private void SynchronizeDevices(IClientConnection connection) {
 
-			DeviceRequest deviceManagerRequest = new DeviceRequest() {
+			DeviceRequest deviceManagerRequest = new DeviceRequest {
 				Identifier = Settings.Identifiers.DeviceManager(),
 				ActionType = DeviceRequest.ObjectActionType.Get
 			};
 
-			INetworkMessage message = new TCPMessage() { Destination = Destination, Payload = deviceManagerRequest };
+			INetworkMessage message = new TCPMessage { Destination = Destination, Payload = deviceManagerRequest };
 
 			INetworkMessage response = connection.Send(message);
 
 			if (!NetworkStatusCode.Ok.Is(response.Code)) {
 			
-				Log.e($"HostSynchronizer unable to synchronize. Error from client: {response}.");
+				Log.e($"Unable to synchronize. Error from client: {response}.", Identifier);
 
 			} else {
 			
@@ -410,7 +410,7 @@ namespace R2Core.Network
 
 			if (endpoint == null) {
 
-				Log.e($"Did not receive an Endpoint in response from ´{response.GetBroadcastAddress()}´. Payload: {response?.Payload}");
+				Log.e($"Did not receive an Endpoint in response from ´{response.GetBroadcastAddress()}´. Payload: {response?.Payload}", Identifier);
 
 			} else {
 
@@ -423,7 +423,7 @@ namespace R2Core.Network
 				} else {
 
 					string addressList = String.Join(",", endpoint.Addresses);
-					Log.e($"HostSynchronizer was unable to connect to host(port {port}). No address in list ´{addressList}´replied on ping.");
+					Log.e($"Unable to connect to host(port {port}). No address in list ´{addressList}´replied on ping.", Identifier);
 
 				}
 
@@ -448,7 +448,7 @@ namespace R2Core.Network
 
 				if (m_retries.ContainsKey(connection.Identifier)) {
 
-					Log.w($"HostSynchronizer connection failed ({ex.Message}).");
+					Log.w($"Connection failed ({ex.Message}).", Identifier);
 					m_retries[connection.Identifier]++;
 
 				}
