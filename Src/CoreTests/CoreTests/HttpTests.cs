@@ -22,7 +22,6 @@ using R2Core.Network;
 using System.Threading;
 using R2Core.Scripting;
 using System.Collections.Generic;
-using MainFrame;
 
 namespace R2Core.Tests
 {

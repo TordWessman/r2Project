@@ -17,11 +17,9 @@
 //
 using System;
 using System.Threading;
-using System.Timers;
-using R2Core;
 using R2Core.Device;
 
-namespace MainFrame {
+namespace R2Core.Tests {
 
     public class MemoryChecker : DeviceBase {
 
@@ -82,6 +80,15 @@ namespace MainFrame {
             Tuple<int, int> threads = Threads;
 
             Log.d("Number of available worker threads: " + threads.Item1 + " I/O threads: " + threads.Item2 + " ");
+
+        }
+
+        /// <summary>
+        /// Call garbage collector.
+        /// </summary>
+        public void Collect() {
+
+            GC.Collect();
 
         }
 

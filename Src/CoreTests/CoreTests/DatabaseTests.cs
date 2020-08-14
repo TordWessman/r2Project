@@ -255,14 +255,14 @@ namespace R2Core.Tests {
             logger.Untrack(d1);
 
             int count = 5;      // number of records expected
-            int interval = 200; // interval in ms between records
+            int interval = 200 ; // interval in ms between records
 
             // timer to stop the tracking
             System.Timers.Timer stopTimer = new System.Timers.Timer(count * interval - interval / 2);
 
             stopTimer.Elapsed += delegate { logger.Untrack(d1); };
 
-            logger.Track(d1, interval);
+            logger.Track(d1, interval * (1.0f / (60.0f * 1000f)));
             stopTimer.Enabled = true;
             stopTimer.Start();
 
@@ -299,7 +299,7 @@ namespace R2Core.Tests {
             entries = logger.GetEntries(new string[] { "d1", "d2" });
 
             // d1 should have added ´count´ + 1 for the first recording
-            Assert.AreEqual(count * 2 + 1, entries["d1"].Count());
+            Assert.AreEqual(count + 1, entries["d1"].Count());
             // d2 should have started later and only have ´count - 2´ entries.
             Assert.AreEqual(count - 2, entries["d2"].Count());
 

@@ -81,7 +81,7 @@ namespace R2Core.Tests
 
 			}
 
-			Log.d($"--- TEST `{TestContext.CurrentContext.Test.FullName}` STARTED ---");
+			Log.d($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine} --- TEST `{TestContext.CurrentContext.Test.FullName}` STARTED ---");
 
 		}
 
