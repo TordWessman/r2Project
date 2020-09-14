@@ -51,16 +51,16 @@
       <HintPath>$(Solutiondir)\packages\NLua.1.5.1\lib\net45\NLua.dll</HintPath>
     </Reference>
     <Reference Include="IronPython">
-      <HintPath>..\..\..\Implementations\R2Car\packages\IronPython.2.7.10\lib\net45\IronPython.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\IronPython.2.7.10\lib\net45\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Modules">
-      <HintPath>..\..\..\Implementations\R2Car\packages\IronPython.2.7.10\lib\net45\IronPython.Modules.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\IronPython.2.7.10\lib\net45\IronPython.Modules.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.SQLite">
-      <HintPath>..\..\..\Implementations\R2Car\packages\IronPython.2.7.10\lib\net45\IronPython.SQLite.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\IronPython.2.7.10\lib\net45\IronPython.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Wpf">
-      <HintPath>..\..\..\Implementations\R2Car\packages\IronPython.2.7.10\lib\net45\IronPython.Wpf.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\IronPython.2.7.10\lib\net45\IronPython.Wpf.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
