@@ -21,12 +21,13 @@ using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using R2Core.Device;
 using System.Linq;
+using IronPython.Modules;
 
 namespace R2Core.Scripting
 {
+
     public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
 
-        private ICollection<string> m_paths;
         private ScriptEngine m_engine;
         private IDeviceManager m_deviceManager;
 
@@ -36,12 +37,12 @@ namespace R2Core.Scripting
 
             m_deviceManager = deviceManager;
             m_engine = Python.CreateEngine();
+
             ClearHooks();
             m_engine.SetSearchPaths(paths);
-            m_paths = paths;
 
             foreach (string path in paths) { AddSourcePath(path); }
-
+           
         }
 
         /// <summary>
@@ -60,7 +61,7 @@ namespace R2Core.Scripting
             IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
 
             // Add the factorys source paths to the engines search paths.
-            m_engine.SetSearchPaths(m_paths.Concat(ScriptSourcePaths).ToList());
+            m_engine.SetSearchPaths(ScriptSourcePaths);
 
             // Scripts must know about the device manager. It's how they get access to the rest of the system..
             inputParams.Add(m_deviceManager.Identifier, m_deviceManager);

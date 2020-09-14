@@ -23,6 +23,8 @@ video_configuration_template="$cwd/Src/Video/VideoConfigurationTemplate.tt"
 video_configuration_output="$cwd/Src/Video/VideoConfigurationTemplate.cs"
 gpio_configuration_template="$cwd/Src/GPIO/GPIOConfigurationTemplate.tt"
 gpio_configuration_output="$cwd/Src/GPIO/GPIOConfigurationTemplate.cs"
+script_configuration_template="$cwd/Src/Scripting/ScriptingConfigurationTemplate.tt"
+script_configuration_output="$cwd/Src/Scripting/ScriptingConfigurationTemplate.cs"
 push_configuration_template="$cwd/Src/PushNotifications/PushNotificationsConfigurationTemplate.tt"
 push_configuration_output="$cwd/Src/PushNotifications/PushNotificationsConfigurationTemplate.cs"
 
@@ -70,6 +72,7 @@ do
 		compileT4 $video_configuration_template $video_configuration_output
 		compileT4 $gpio_configuration_template $gpio_configuration_output
 		compileT4 $push_configuration_template $push_configuration_output
+		compileT4 $script_configuration_template $script_configuration_output
 	fi
 
 	if [ $var == "-p" ]; then

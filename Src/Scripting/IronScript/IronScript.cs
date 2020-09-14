@@ -52,7 +52,7 @@ namespace R2Core.Scripting
             m_scope =  m_engine.CreateScope();
 			m_fileName = fileName;
 			m_params = parameters ?? new Dictionary<string,dynamic>();
-		
+
 			Reload();
 
 		}
@@ -88,7 +88,6 @@ namespace R2Core.Scripting
 				throw ex;
 
 			}
-
 
             if (!m_scope.TryGetVariableHandle(HANDLE_MAIN_CLASS, out System.Runtime.Remoting.ObjectHandle mainClassHandle)) {
 
@@ -145,7 +144,8 @@ namespace R2Core.Scripting
 			if (member is IronPython.Runtime.Method) {
 			
 				// Invoke as method
-				return m_engine.Operations.InvokeMember(m_mainClass, handle, args);
+
+                return m_engine.Operations.InvokeMember(m_mainClass, handle, args);
 
 			}
 
