@@ -76,8 +76,5 @@ Shared.cs
 *dumpcode.txt
 .vs
 
-# binary directories
-Src/Core/bin/Debug/*
-Src/GPIO/bin/Debug/*
-Src/Video/bin/Debug/*
-Src/Audio/bin/Debug/*
+# custom folders
+r2I2C_config.h
