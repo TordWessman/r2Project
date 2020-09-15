@@ -29,13 +29,23 @@ namespace R2Core.Common {
     public class StatLogProcess<T> : DeviceBase {
 
         public DateTime? StartTime { get; private set; }
-        public int Frequency { get; private set; }
+        public float Frequency { get; private set; }
         private Timer m_timer;
         private Timer m_startTimer;
         private readonly StatLogger m_logger;
         private readonly IStatLoggable<T> m_device;
 
-        public StatLogProcess(IStatLoggable<T> device, StatLogger logger, int frequency, DateTime? startTime = null) : base($"log_process_{device.Identifier}") {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:R2Core.Common.StatLogProcess`1"/> class.
+        /// ´device´ is the object to track. ´logger´ is the StatLogger handling the tracking, 
+        /// ´fequency´ is the frequency (in ms) of the tracking and the optional ´startTime´ defines when
+        /// the tracking will start.
+        /// </summary>
+        /// <param name="device">Device.</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="frequency">Frequency.</param>
+        /// <param name="startTime">Start time.</param>
+        public StatLogProcess(IStatLoggable<T> device, StatLogger logger, float frequency, DateTime? startTime = null) : base($"log_process_{device.Identifier}") {
 
             m_device = device;
             m_logger = logger;
@@ -71,6 +81,7 @@ namespace R2Core.Common {
                 m_startTimer = new Timer(startTime.TotalMilliseconds);
                 m_startTimer.Elapsed += delegate { StartLogging(); };
                 m_startTimer.Enabled = true;
+                m_startTimer.AutoReset = false;
                 m_startTimer.Start();
 
             }
@@ -127,7 +138,7 @@ namespace R2Core.Common {
             if (m_timer?.Enabled == true) {
 
                 try { m_logger.Log(m_device); }
-                catch (Exception ex) { Log.e(ex.Message); }
+                catch (Exception ex) { Log.e(ex.Message, Identifier); }
 
             }
 
