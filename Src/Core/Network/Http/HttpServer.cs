@@ -225,7 +225,7 @@ namespace R2Core.Network
 			}
 
 			Write(response, responseBody);
-            Log.i($"Did reply to {request.RemoteEndPoint.Address}. Length: {responseBody.Length}. StatusCode: {response.StatusCode}", Identifier);
+
         }
 
 		private void ClearInactiveWriteTasks() {
@@ -254,7 +254,6 @@ namespace R2Core.Network
 
 			ClearInactiveWriteTasks();
 
-            Log.i($"Will write. Current task count: {m_writeTasks.Count}. ", Identifier);
             Task writeTask = new Task(() => {
 
                 try {
@@ -266,7 +265,7 @@ namespace R2Core.Network
 
                     output.Close();
                     response.Close();
-                    Log.i($"Did close stream.", Identifier);
+
                 }
             });
 

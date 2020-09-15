@@ -43,11 +43,17 @@ namespace R2Core.Network
 		/// <param name="client">Client.</param>
 		/// <param name="failDelegate">Fail delegate.</param>
 		public ConnectionPoller(TcpClient client, Action failDelegate) : base($"{Settings.Identifiers.ConnectionPoller()}_{client.GetDescription()}") {
-			
+
 			m_client = new WeakReference<TcpClient>(client);
 			m_failDelegate = failDelegate;
 
-		}
+        }
+
+        ~ConnectionPoller() {
+
+            Log.i($"Deallocating", Identifier);
+
+        }
 
         public override bool Ready => m_connectionCheckTimer?.Enabled == true;
 
@@ -70,8 +76,10 @@ namespace R2Core.Network
 
 		public override void Stop() {
 
+            m_failDelegate = null;
             m_connectionCheckTimer?.Stop();
             m_connectionCheckTimer?.Dispose();
+            m_connectionCheckTimer.Enabled = false;
             m_connectionCheckTimer = null;
 
         }
@@ -85,12 +93,10 @@ namespace R2Core.Network
             if (!m_previousPollSuccess && !pollSuccessful) {
 				
 				Log.i($"Polling failed to: {m_client.GetTarget()?.GetDescription() ?? "null"}. Will call fail delegate and stop polling.", Identifier);
-				Stop();
-
+				
                 try {
 
                     m_failDelegate?.Invoke();
-                    m_failDelegate = null;
 
                 } catch (Exception ex) {
 
@@ -99,7 +105,9 @@ namespace R2Core.Network
 
                 }
 
-			}
+                Stop();
+
+            }
 
 			m_previousPollSuccess = pollSuccessful;
 

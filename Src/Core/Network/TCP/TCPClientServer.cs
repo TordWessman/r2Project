@@ -41,7 +41,7 @@ namespace R2Core.Network {
         /// <summary>
         /// Timeout in ms before an operation dies.
         /// </summary>
-        public int Timeout = 30000;
+        public int Timeout = 2 * 60 * 1000;
 
         /// <summary>
         /// Timeout before the connection resets (tries to reconnect)
@@ -97,7 +97,15 @@ namespace R2Core.Network {
 
             m_connectionPoller?.Stop();
             m_connectionPoller = null;
-            m_client?.Close();
+
+            try {
+
+                m_client?.Close();
+                m_client?.GetStream()?.Close();
+
+            } catch (Exception ex) { Log.e($"Cleanup failed with message: {ex.Message}", Identifier); }
+
+            m_client = null;
 
         }
 
@@ -274,7 +282,11 @@ namespace R2Core.Network {
                 ReceiveTimeout = ResetTimeout
             };
 
+            m_client.Client.Blocking = true;
+
             Log.i($"Connecting to {Address}:{Port}.", Identifier);
+
+            m_connectionPoller?.Stop();
 
             m_connectionPoller = new ConnectionPoller(m_client, () => {
 
@@ -287,6 +299,8 @@ namespace R2Core.Network {
 
             });
 
+            m_connectionPoller.Start();
+
             INetworkMessage response = default(TCPMessage);
 
             try {
@@ -297,7 +311,7 @@ namespace R2Core.Network {
 
             } catch (Exception ex) {
 
-                Log.x(ex, Identifier);
+                Log.i($"Unable to connect: '{ex.Message}'", Identifier);
                 return false;
 
             }
@@ -314,8 +328,6 @@ namespace R2Core.Network {
                 return false;
 
             }
-
-            m_connectionPoller.Start();
 
             return true;
 

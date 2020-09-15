@@ -641,13 +641,12 @@ namespace R2Core.Tests {
             memoryChecker.PrintThreads();
 
             clientServer.Stop();
-            Log.t("----------------------------------------");
 
             Thread.Sleep(2000);
             System.GC.Collect();
             memoryChecker.PrintThreads();
 
-            //s.Stop();
+            s.Stop();
 
             //Thread.Sleep(2000);
             //System.GC.Collect();

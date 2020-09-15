@@ -110,8 +110,6 @@ namespace R2Core.Network
 
 					TcpClient client = m_inListener.WaitForConnection(Timeout);
 
-					Log.t($"Server connected: {client}");
-
 					lock (m_clientsLock) { 
 
 						m_clients.Remove(c => !c.IsConnected());
@@ -135,8 +133,6 @@ namespace R2Core.Network
 				try {
 
 					TcpClient client = m_outListener.WaitForConnection(Timeout);
-
-					Log.t($"Client connected: {client}");
 
 					lock (m_clientsLock) { 
 
