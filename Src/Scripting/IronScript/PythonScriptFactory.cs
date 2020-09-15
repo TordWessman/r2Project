@@ -20,13 +20,14 @@ using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using R2Core.Device;
-using System.Linq;
-using IronPython.Modules;
 
 namespace R2Core.Scripting
 {
 
     public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
+
+        /// Make sure the IronPython StdLib is included in the compiled binary.
+        private class MakeSureIronPythonModulesAreIncluded : IronPython.Modules.EncodingMap { }
 
         private ScriptEngine m_engine;
         private IDeviceManager m_deviceManager;
