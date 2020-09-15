@@ -21,6 +21,7 @@ using NUnit.Framework;
 using R2Core.Device;
 using R2Core.Network;
 using R2Core.Scripting;
+using R2Core.Common;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
@@ -157,7 +158,7 @@ namespace R2Core.Tests
 			m_deviceManager.Add(new ObjectInvoker());
 
 			// Imitate the run loop script
-			var dummyRunloop = new DummyDevice(Settings.Identifiers.RunLoop ());
+			var dummyRunloop = new DummyDevice(Settings.Identifiers.RunLoop());
 			dummyRunloop.Start();
 			m_deviceManager.Add(dummyRunloop);
 

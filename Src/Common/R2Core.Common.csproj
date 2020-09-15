@@ -73,6 +73,9 @@
     <Compile Include="DB\Statistics\StatLogProcess.cs" />
     <Compile Include="DB\Statistics\StatLoggerExtensions.cs" />
     <Compile Include="DB\SQLDBAdapter.cs" />
+    <Compile Include="CommonConfigurationTemplate.cs">
+      <DependentUpon>CommonConfigurationTemplate.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -89,5 +92,12 @@
     <Folder Include="DB\" />
     <Folder Include="DB\Memory\" />
     <Folder Include="DB\Statistics\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CommonConfigurationTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>CommonConfigurationTemplate.cs</LastGenOutput>
+    </None>
+    <None Include="Common.config" />
   </ItemGroup>
 </Project>
