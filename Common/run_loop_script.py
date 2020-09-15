@@ -6,6 +6,10 @@ from System import MemberAccessException
 import System
 from System.Collections.Generic import List
 import os
+import clr
+clr.AddReferenceToFileAndPath(r"R2Core.Scripting.dll")
+import R2Core.Scripting
+clr.ImportExtensions(R2Core.Scripting)
 
 class MainClass:
 

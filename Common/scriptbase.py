@@ -1,3 +1,7 @@
+import clr
+clr.AddReferenceToFileAndPath(r"R2Core.Scripting.dll")
+import R2Core.Scripting
+clr.ImportExtensions(R2Core.Scripting)
 
 class ScriptBase:
 

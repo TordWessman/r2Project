@@ -9,8 +9,32 @@
 
 cwd=$(pwd)
 
+if [ "$#" -eq 0 ]; then
+    echo "Illegal parameters. Usage: ./compile.sh <project name> [-a] [-p <project path>]"
+    exit 1
+fi
+
 # The directory where implementations are locaded
-implementation_path="$cwd/../Implementations"
+
+implementation_path="$cwd/.."
+
+for (( i=2; i <= "$#"; i++ )); do
+	if [ ${!i} == "-p" ]; then
+		implementations_index=$((i+1)) 
+		if [ -z ${!implementations_index} ]; then
+			echo "No implementation path for parameter -p specified"
+			exit 1
+		fi
+		implementation_path="$cwd/../${!implementations_index}"
+	fi
+done
+
+if [ ! -d $implementation_path ]; then
+    echo "Project path '$implementation_path' not found."
+    exit 1
+fi
+
+echo "Using implementation base path: $implementation_path"
 
 T4_compiler_path="/usr/lib/monodevelop/AddIns/MonoDevelop.TextTemplating/TextTransform.exe"
 core_configuration_path="Src/Core/Settings"
@@ -23,16 +47,15 @@ video_configuration_template="$cwd/Src/Video/VideoConfigurationTemplate.tt"
 video_configuration_output="$cwd/Src/Video/VideoConfigurationTemplate.cs"
 gpio_configuration_template="$cwd/Src/GPIO/GPIOConfigurationTemplate.tt"
 gpio_configuration_output="$cwd/Src/GPIO/GPIOConfigurationTemplate.cs"
+common_configuration_template="$cwd/Src/Common/CommonConfigurationTemplate.tt"
+common_configuration_output="$cwd/Src/Common/CommonConfigurationTemplate.cs"
+script_configuration_template="$cwd/Src/Scripting/ScriptingConfigurationTemplate.tt"
+script_configuration_output="$cwd/Src/Scripting/ScriptingConfigurationTemplate.cs"
 push_configuration_template="$cwd/Src/PushNotifications/PushNotificationsConfigurationTemplate.tt"
 push_configuration_output="$cwd/Src/PushNotifications/PushNotificationsConfigurationTemplate.cs"
 
 template_file="$implementation_path/$1/$1/$1ConfigurationTemplate.tt"
 project_file="$implementation_path/$1/$1.sln"
-
-if [ "$#" -eq 0 ]; then
-    echo "Illegal parameters. Usage: ./compile.sh <project name> [-a] [-p <project path>]"
-    exit 1
-fi
 
 if [ ! -f $T4_compiler_path ]; then
     echo "T4 compiler not found at '$T4_compiler_path'. Install monodevelop. (apt-get install monodevelop in Debian/Ubuntu)."
@@ -66,16 +89,12 @@ for var in "$@"
 do
 	if [ $var == "-a" ]; then
 		compileT4 $core_configuration_template $core_configuration_output
+		compileT4 $common_configuration_template $common_configuration_output
+		compileT4 $script_configuration_template $script_configuration_output
 		compileT4 $audio_configuration_template $audio_configuration_output
 		compileT4 $video_configuration_template $video_configuration_output
 		compileT4 $gpio_configuration_template $gpio_configuration_output
 		compileT4 $push_configuration_template $push_configuration_output
-	fi
-
-	if [ $var == "-p" ]; then
-
-		echo "-p Not implemented yet"
-    		exit 1
 	fi
 done
 

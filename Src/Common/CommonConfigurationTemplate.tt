@@ -1,0 +1,35 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ include file="../../Src/Core/Settings/Shared.tt" #>
+<#
+
+string configFileName = "Common";
+
+string baseDir = GetConfig(baseConfigFileName)[CPATH];
+
+string[] config = GetConfig(configFileName);
+
+if (config.Length == 2) {
+
+XmlDocument doc = GetConfigXml(config[CFILE]); #>
+
+namespace R2Core.Common {
+
+<#= GetPathsForDoc(configFileName, doc, baseDir, true) #>
+
+<#= GetIdentifiersForDoc(configFileName, doc, true) #>
+
+<#= GetConstsForDoc(configFileName, StripBasePath(baseDir, config[CFILE]), doc, true) #>
+
+}
+<#
+    } else {
+#>
+    // <#= GetCurrentDirectory() #>
+    // UNABLE TO LOCATE CONFIG!
+    <# } #>
+
+
