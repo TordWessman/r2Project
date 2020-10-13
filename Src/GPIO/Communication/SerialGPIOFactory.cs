@@ -21,7 +21,10 @@ using System.Linq;
 
 namespace R2Core.GPIO
 {
-
+    /// <summary>
+    /// GPIO factory that requires an Arduino running i2CDeviceRouter.
+    /// The Arduino is used as a hardware interface.
+    /// </summary>
 	public class SerialGPIOFactory : DeviceBase {
 
 		// Interface to the host(s)

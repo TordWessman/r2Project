@@ -39,7 +39,7 @@ namespace R2Core.GPIO
 		private static readonly object m_lock = new object();
 
 		/// <summary>
-		/// portIdentifier is either an explicit name of the port(i.e. /dev/ttyACM0) or a regexp pattern(i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
+		/// portIdentifier is either an explicit name of the port (i.e. /dev/ttyACM0) or a regexp pattern (i.e. /dev/ttyACM). In the latter case, the first matching available port is used. 
 		/// </summary>
 		/// <param name="portIdentifier">Port identifier.</param>
 		/// <param name="baudRate">Baud rate.</param>
