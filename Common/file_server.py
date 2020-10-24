@@ -14,6 +14,7 @@ import mime_types
 # Experimental file server implementation.
 class MainClass:
 
+
 	def list(self):
 		files = []
 		for filePath in Directory.GetFiles(self.path):
@@ -26,7 +27,7 @@ class MainClass:
 
 	def r2_init(self):
 		self.l = self.device_manager.Get("log")
-		self.path = self.device_manager.Get("settings").P.Spy()
+		self.path = "_define_file_path_here_"
 		self.stream = None
 
 	def read(self, start, end):

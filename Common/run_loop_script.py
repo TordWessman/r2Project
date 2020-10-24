@@ -7,8 +7,11 @@ import System
 from System.Collections.Generic import List
 import os
 import clr
+clr.AddReferenceToFileAndPath(r"Common.dll")
 clr.AddReferenceToFileAndPath(r"R2Core.Scripting.dll")
 import R2Core.Scripting
+import R2Core.Common
+clr.ImportExtensions(R2Core.Common)
 clr.ImportExtensions(R2Core.Scripting)
 
 class MainClass:

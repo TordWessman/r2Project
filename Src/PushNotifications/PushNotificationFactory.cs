@@ -23,6 +23,7 @@ using R2Core.Device;
 
 namespace R2Core.PushNotifications
 {
+
 	/// <summary>
 	/// Factory methods for creating push notification messages as well as facades
 	/// </summary>
@@ -83,7 +84,13 @@ namespace R2Core.PushNotifications
 
 		}
 
-		public IPushNotificationProxy CreateProxy(string id, IPushNotificationStorage storage = null) {
+        public IPushNotificationFacade CreateAndroidFacade(string id, string senderId, string authToken) {
+
+            throw new NotImplementedException();
+        
+        }
+
+        public IPushNotificationProxy CreateProxy(string id, IPushNotificationStorage storage = null) {
 		
 			return new PushNotificationProxy(id, storage ?? CreateStorage($"{id}_storage"));
 

@@ -4,7 +4,7 @@ class MainClass:
 
 	def r2_init(self):
 		self.settings = self.device_manager.Get("settings")
-		self.l = self.device_manager.Get("log")
+		self.l = self.device_manager.Get(self.settings.I.Logger())
 
 	def add_42(self, aNumber):
 		return aNumber + 42

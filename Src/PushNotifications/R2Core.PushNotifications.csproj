@@ -86,6 +86,8 @@
       <DependentUpon>PushNotificationsConfigurationTemplate.tt</DependentUpon>
     </Compile>
     <Compile Include="R2PushSharpLogger.cs" />
+    <Compile Include="IPushNotificationFactory.cs" />
+    <Compile Include="Tests\DummyPushNotificationFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
