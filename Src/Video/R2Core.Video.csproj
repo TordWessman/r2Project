@@ -6,7 +6,7 @@
     <ProjectGuid>{B9224242-E789-4497-B80C-CF3C94D0094A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>R2Core.Video</RootNamespace>
-    <AssemblyName>Video</AssemblyName>
+    <AssemblyName>R2Core.Video</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>

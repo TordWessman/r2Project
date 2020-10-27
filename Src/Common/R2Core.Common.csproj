@@ -8,7 +8,7 @@
     <ProjectGuid>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>R2Core.Common</RootNamespace>
-    <AssemblyName>Common</AssemblyName>
+    <AssemblyName>R2Core.Common</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
