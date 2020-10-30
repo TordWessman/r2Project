@@ -36,33 +36,35 @@ namespace R2Core.Audio
 		protected static extern int _ext_init_mp3_file();
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_play_file_mp3(string fileName);
+		protected static extern void _ext_play_file_mp3(int id, string fileName);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_stop_mp3();
+		protected static extern void _ext_stop_mp3(int id);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_pause_mp3();
+		protected static extern void _ext_pause_mp3(int id);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_is_playing_mp3();
+		protected static extern int _ext_is_playing_mp3(int id);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern void _ext_stop_playback_mp3();
+		protected static extern void _ext_stop_playback_mp3(int id);
 
 		[DllImport(dllPath, CharSet = CharSet.Auto)]
-		protected static extern int _ext_is_initialized_mp3();
+		protected static extern int _ext_is_initialized_mp3(int id);
 
+        private const int ID_NOT_INITIALIZED = -1;
 		private string m_basePath;
 		private Task m_playTaks;
+        private int mp3_id = ID_NOT_INITIALIZED;
 
-		public Mp3Player(string id, string basePath) : base(id) {
+        public Mp3Player(string id, string basePath) : base(id) {
 			m_basePath = basePath;
 		}
 
 		public void Play(string fileName) {
 
-			if (_ext_is_initialized_mp3() != 1) {
+			if (_ext_is_initialized_mp3(mp3_id) != 1) {
 
 				throw new DeviceException("Unable to play: not initialized!");
 			
@@ -78,13 +80,13 @@ namespace R2Core.Audio
 
 			if (m_playTaks != null && m_playTaks.Status == TaskStatus.Running) {
 			
-				_ext_stop_playback_mp3();
+				_ext_stop_playback_mp3(mp3_id);
 
 			}
 
 			m_playTaks = Task.Factory.StartNew(() => {
 			
-				_ext_play_file_mp3(fileName);
+				_ext_play_file_mp3(mp3_id, fileName);
 			
 			});
 
@@ -94,7 +96,7 @@ namespace R2Core.Audio
 
 			get {
 			
-				return _ext_is_playing_mp3 () == 1;
+				return _ext_is_playing_mp3(mp3_id) == 1;
 			
 			}
 		
@@ -103,13 +105,17 @@ namespace R2Core.Audio
 
 		public override void Start() {
 		
-			if (_ext_is_initialized_mp3 () != 1) {
+			if (mp3_id == ID_NOT_INITIALIZED || _ext_is_initialized_mp3(mp3_id) != 1) {
 
-				if (_ext_init_mp3_file() != 1) {
+                int result = _ext_init_mp3_file();
+
+                if (result < 0) {
 			
-					throw new DeviceException("Unable to initialize mp3 player.");
+					throw new DeviceException($"Unable to initialize mp3 player. Code: {result}");
 				
 				}
+
+                mp3_id = result;
 
 			}
 
@@ -119,7 +125,7 @@ namespace R2Core.Audio
 
 			if (IsPlaying) {
 			
-				_ext_stop_playback_mp3();
+				_ext_stop_playback_mp3(mp3_id);
 
 			}
 
@@ -129,8 +135,8 @@ namespace R2Core.Audio
 
 			get {
 
-				return _ext_is_playing_mp3() != 1 && 
-					_ext_is_initialized_mp3() != 0;
+				return _ext_is_playing_mp3(mp3_id) != 1 && 
+					_ext_is_initialized_mp3(mp3_id) != 0;
 			
 			}
 		
