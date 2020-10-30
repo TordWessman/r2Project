@@ -37,25 +37,51 @@ fi
 echo "Using implementation base path: $implementation_path"
 
 T4_compiler_path="/usr/lib/monodevelop/AddIns/MonoDevelop.TextTemplating/TextTransform.exe"
+nuget_path="/usr/local/bin/nuget.exe"
 core_configuration_path="Src/Core/Settings"
 T4_compiler_command="$T4_compiler_path -I $core_configuration_path"
+dir_core="$cwd/Src/Core"
+dir_audio="$cwd/Src/Audio"
+dir_video="$cwd/Src/Video"
+dir_scripting="$cwd/Src/Scripting"
+dir_push="$cwd/Src/PushNotifications"
+dir_gpio="$cwd/Src/GPIO"
+dir_common="$cwd/Src/Common"
+
 core_configuration_template="$cwd/$core_configuration_path/CoreConfigurationTemplate.tt"
 core_configuration_output="$cwd/$core_configuration_path/CoreConfigurationTemplate.cs"
-audio_configuration_template="$cwd/Src/Audio/AudioConfigurationTemplate.tt"
-audio_configuration_output="$cwd/Src/Audio/AudioConfigurationTemplate.cs"
-video_configuration_template="$cwd/Src/Video/VideoConfigurationTemplate.tt"
-video_configuration_output="$cwd/Src/Video/VideoConfigurationTemplate.cs"
-gpio_configuration_template="$cwd/Src/GPIO/GPIOConfigurationTemplate.tt"
-gpio_configuration_output="$cwd/Src/GPIO/GPIOConfigurationTemplate.cs"
-common_configuration_template="$cwd/Src/Common/CommonConfigurationTemplate.tt"
-common_configuration_output="$cwd/Src/Common/CommonConfigurationTemplate.cs"
-script_configuration_template="$cwd/Src/Scripting/ScriptingConfigurationTemplate.tt"
-script_configuration_output="$cwd/Src/Scripting/ScriptingConfigurationTemplate.cs"
-push_configuration_template="$cwd/Src/PushNotifications/PushNotificationsConfigurationTemplate.tt"
-push_configuration_output="$cwd/Src/PushNotifications/PushNotificationsConfigurationTemplate.cs"
+audio_configuration_template="$dir_audio/AudioConfigurationTemplate.tt"
+audio_configuration_output="$dir_audio/AudioConfigurationTemplate.cs"
+video_configuration_template="$dir_video/VideoConfigurationTemplate.tt"
+video_configuration_output="$dir_video/VideoConfigurationTemplate.cs"
+gpio_configuration_template="$dir_gpio/GPIOConfigurationTemplate.tt"
+gpio_configuration_output="$dir_gpio/GPIOConfigurationTemplate.cs"
+common_configuration_template="$dir_common/CommonConfigurationTemplate.tt"
+common_configuration_output="$dir_common/CommonConfigurationTemplate.cs"
+script_configuration_template="$dir_scripting/ScriptingConfigurationTemplate.tt"
+script_configuration_output="$dir_scripting/ScriptingConfigurationTemplate.cs"
+push_configuration_template="$dir_push/PushNotificationsConfigurationTemplate.tt"
+push_configuration_output="$dir_push/PushNotificationsConfigurationTemplate.cs"
 
 template_file="$implementation_path/$1/$1/$1ConfigurationTemplate.tt"
 project_file="$implementation_path/$1/$1.sln"
+
+if [ ! -f $nuget_path ]; then
+	echo "Nuget package manager not found at: $nuget_path."
+    exit 1
+fi
+
+package_paths=($dir_core $dir_audio $dir_video $dir_scripting $dir_common $dir_gpio $dir_push)
+
+echo "$(tput bold)--Installing packages--$(tput sgr 0)"
+
+for i in "${!package_paths[@]}"; do
+	package_path=${package_paths[$i]}
+	package_dir="$package_path/packages.config"
+	if [ -f $package_dir ]; then
+		mono "$nuget_path" install "$package_dir" -OutputDirectory "$implementation_path/$1/packages" | exit 1
+	fi
+done
 
 if [ ! -f $T4_compiler_path ]; then
     echo "T4 compiler not found at '$T4_compiler_path'. Install monodevelop. (apt-get install monodevelop in Debian/Ubuntu)."
@@ -84,6 +110,8 @@ function compileT4 {
 	fi
 
 }
+
+echo "$(tput bold)--Compiling T4 templates--$(tput sgr 0)"
 
 for var in "$@"
 do
