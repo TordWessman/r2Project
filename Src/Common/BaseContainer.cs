@@ -70,6 +70,7 @@ namespace R2Core.Common
 			m_devices.Add(new ObjectInvoker());
 
             var psf = new PythonScriptFactory(Settings.Identifiers.PythonScriptFactory(), Settings.Instance.GetPythonPaths(), m_devices);
+            psf.PrependR2Imports = true;
 
 			// Point to the defauult python script files resides.
 			psf.AddSourcePath(Settings.Paths.Python());

@@ -127,7 +127,7 @@ namespace R2Core.Common {
         /// <param name="frequency">Frequency.</param>
         /// <param name="startTime">Start time.</param>
         /// <typeparam name="T">The 1st type parameter.</typeparam>
-        public StatLogProcess<T> Track<T>(IStatLoggable<T> device, int frequency, DateTime? startTime = null) {
+        public StatLogProcess<T> Track<T>(IStatLoggable<T> device, float frequency, DateTime? startTime = null) {
 
             lock (m_processes) {
 
@@ -139,7 +139,7 @@ namespace R2Core.Common {
 
                 R2Core.Log.i($"StatLogger starting to track: '{device.Identifier}' using frequency: {frequency} minutes. Start time: {startTime?.ToString() ?? "now" }");
 
-                StatLogProcess<T> process = new StatLogProcess<T>(device, this, frequency * 60 * 1000, startTime);
+                StatLogProcess<T> process = new StatLogProcess<T>(device, this, (float)(frequency * 60.0 * 1000.0), startTime);
                 process.Start();
                 m_processes[device.Identifier] = process;
                 return process;

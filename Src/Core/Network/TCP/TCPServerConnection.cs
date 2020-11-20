@@ -33,7 +33,7 @@ namespace R2Core.Network {
         private Func<INetworkMessage, IPEndPoint, INetworkMessage> m_responseDelegate;
 
         // Accept-client provided by the server
-        private readonly TcpClient m_client;
+        private TcpClient m_client;
 
         // Used to serialize/deserialize packages
         private readonly ITCPPackageFactory<TCPMessage> m_packageFactory;
@@ -82,7 +82,7 @@ namespace R2Core.Network {
 
         }
 
-        ~TCPServerConnection() { Log.i($"Deallocating {this}.", Identifier); }
+        ~TCPServerConnection() { Log.i($"Deallocating", Identifier); }
 
         public string LocalAddress { get { return m_client.GetLocalEndPoint()?.GetAddress(); } }
 
@@ -155,19 +155,18 @@ namespace R2Core.Network {
 
             m_shouldRun = false;
 
-            Log.i($"Disconnected.", Identifier);
+            Log.i($"Disconnecting.", Identifier);
 
             m_connectionPoller.Stop();
             m_connectionPoller = null;
 
             try {
 
-                if (m_client.IsConnected()) { m_client.Close(); }
+                m_client.Close();
 
             } catch (Exception exception) {
 
-                Log.e($"Crashed:", Identifier);
-                Log.x(exception, Identifier);
+                Log.i($"Unable to close TcpSocket: {exception.Message}", Identifier);
 
             }
 
@@ -175,6 +174,12 @@ namespace R2Core.Network {
             OnDisconnect = null;
             OnReceive = null;
             m_responseDelegate = null;
+            try { m_listener?.Dispose(); } 
+            catch (Exception exception) { Log.i($"Closed with exception: {exception.Message}.", Identifier); }
+            m_listener = null;
+            m_client = null;
+
+            Log.i($"Did disconnect sucessfully.", Identifier);
 
         }
 

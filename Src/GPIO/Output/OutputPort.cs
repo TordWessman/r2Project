@@ -64,7 +64,14 @@ namespace R2Core.GPIO
 
 		}
 
-	}
+        public override void Stop() {
+            base.Stop();
+
+            if (!m_gpi.IsDisposed) { Value = false; }
+
+        }
+
+    }
 
 }
 

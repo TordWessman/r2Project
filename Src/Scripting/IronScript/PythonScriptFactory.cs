@@ -20,27 +20,42 @@ using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using R2Core.Device;
-using System.Linq;
+using System.IO;
 
 namespace R2Core.Scripting
 {
+
     public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
 
-        private ICollection<string> m_paths;
+        /// Make sure the IronPython StdLib is included in the compiled binary.
+        private class MakeSureIronPythonModulesAreIncluded : IronPython.Modules.EncodingMap { }
+
         private ScriptEngine m_engine;
         private IDeviceManager m_deviceManager;
+
+        /// <summary>
+        /// If set to `true`, the "standard import headers defined by `ScriptR2ImportFile` will be prepended
+        /// to all scripts. Set this flag to `false` if not all project are included in the binary.
+        /// </summary>
+        public bool PrependR2Imports = false;
 
         public PythonScriptFactory(string id,    
             ICollection<string> paths,
             IDeviceManager deviceManager) : base(id) {
 
             m_deviceManager = deviceManager;
-            m_engine = Python.CreateEngine();
-            ClearHooks();
-            m_engine.SetSearchPaths(paths);
-            m_paths = paths;
 
             foreach (string path in paths) { AddSourcePath(path); }
+
+            Reload();
+        
+        }
+
+        public void Reload() {
+
+            m_engine = Python.CreateEngine();
+            ClearHooks();
+            m_engine.SetSearchPaths(ScriptSourcePaths);
 
         }
 
@@ -57,15 +72,23 @@ namespace R2Core.Scripting
 
         public override IronScript CreateScript(string name, string id = null) {
         
-            IDictionary<string, dynamic> inputParams = new Dictionary<string, dynamic>();
-
             // Add the factorys source paths to the engines search paths.
-            m_engine.SetSearchPaths(m_paths.Concat(ScriptSourcePaths).ToList());
+            m_engine.SetSearchPaths(ScriptSourcePaths);
 
             // Scripts must know about the device manager. It's how they get access to the rest of the system..
-            inputParams.Add(m_deviceManager.Identifier, m_deviceManager);
+            IronScript script = new IronScript(id ?? name, GetScriptFilePath(name), 
+                m_engine, 
+                new Dictionary<string, dynamic> { { m_deviceManager.Identifier, m_deviceManager } });
 
-            return new IronScript(id ?? name, GetScriptFilePath(name), m_engine, inputParams);
+            if (PrependR2Imports) {
+
+                script.PrependedCode.Add(File.ReadAllText(GetScriptFilePath(Settings.Consts.ScriptR2ImportFile())));
+
+            }
+
+            script.Reload();
+
+            return script;
 
         }
 

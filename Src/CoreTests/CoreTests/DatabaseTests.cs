@@ -254,16 +254,18 @@ namespace R2Core.Tests {
             // test untracking a device not tracked
             logger.Untrack(d1);
 
-            int count = 5;      // number of records expected
-            int interval = 200; // interval in ms between records
+            int count = 7;      // number of records expected
+            int interval = 200 ; // interval in ms between records
+            float interval_in_minutes = interval * (1.0f / (60.0f * 1000f)); // Tracker frequency is counted in minutes, which is unsuitable for tests.
 
             // timer to stop the tracking
             System.Timers.Timer stopTimer = new System.Timers.Timer(count * interval - interval / 2);
 
             stopTimer.Elapsed += delegate { logger.Untrack(d1); };
 
-            logger.Track(d1, interval);
+            logger.Track(d1, interval_in_minutes);
             stopTimer.Enabled = true;
+            stopTimer.AutoReset = false;
             stopTimer.Start();
 
             // wait until after the count + 1 tracking could have occured.
@@ -273,7 +275,7 @@ namespace R2Core.Tests {
 
             Assert.AreEqual(count, entries["d1"].Count());
 
-            // Try with start time:
+            // -- Try with start time:
 
             stopTimer.Dispose();
             DummyDevice d2 = new DummyDevice("d2");
@@ -288,29 +290,38 @@ namespace R2Core.Tests {
             };
 
             // Track d1 as before
-            logger.Track(d1, interval);
-            // d2 should start after 2 "ticks"
-            logger.Track(d2, interval, DateTime.Now.AddMilliseconds(interval * (count - 2)));
+            logger.Track(d1, interval_in_minutes);
+
+            // d2 should start after count / 2 "ticks"
+            int d2_lost_counts = count / 2;
+            logger.Track(d2, interval_in_minutes, DateTime.Now.AddMilliseconds(interval * d2_lost_counts));
             stopTimer.Enabled = true;
+            stopTimer.AutoReset = false;
             stopTimer.Start();
 
             Thread.Sleep((count + 3) * interval);
-
             entries = logger.GetEntries(new string[] { "d1", "d2" });
 
             // d1 should have added ´count´ + 1 for the first recording
             Assert.AreEqual(count * 2 + 1, entries["d1"].Count());
             // d2 should have started later and only have ´count - 2´ entries.
-            Assert.AreEqual(count - 2, entries["d2"].Count());
+            Assert.AreEqual(count - d2_lost_counts + 1, entries["d2"].Count());
 
-            // Test parsing string as start time:
+            // -- Test parsing string as start time:
             stopTimer.Dispose();
 
             stopTimer = new System.Timers.Timer(count * interval);
             stopTimer.Elapsed += delegate { logger.Untrack(d1); };
-            string startTime = DateTime.Now.AddMilliseconds(interval).ToString("HH:mm:ss fff");
-            logger.TrackFrom(d1, interval, startTime);
+
+            // Fetch the current number of entries in d1
+            int d1_count = logger.GetEntries(new string[] { "d1" })["d1"].Count();
+
+            // Wait lost_d1_ticks 'ticks' before d1 tracking
+            int lost_d1_ticks = count / 3;
+            string startTime = DateTime.Now.AddMilliseconds(interval * lost_d1_ticks).ToString("HH:mm:ss fff");
+            logger.TrackFrom(d1, interval_in_minutes, startTime);
             stopTimer.Enabled = true;
+            stopTimer.AutoReset = false;
             stopTimer.Start();
 
             // wait until after the count + 1 tracking could have occured.
@@ -318,31 +329,35 @@ namespace R2Core.Tests {
 
             stopTimer.Enabled = false;
             stopTimer.Dispose();
-            // d1 should have added ´count´ new entries
+            // d1 should have added ´count´ - lost_d1_ticks new entries (+1)
             entries = logger.GetEntries(new string[] { "d1" });
-            Assert.AreEqual(count * 3 + 1, entries["d1"].Count());
+            Assert.AreEqual(d1_count + count - lost_d1_ticks + 1, entries["d1"].Count());
 
             // Test logger.Stop()
             stopTimer = new System.Timers.Timer(count * interval);
 
+            entries = logger.GetEntries(new string[] { "d1", "d2" });
+            d1_count = entries["d1"].Count();
+            int d2_count = entries["d2"].Count();
+
             stopTimer.Elapsed += delegate { logger.Stop(); };
-            logger.Track(d1, interval);
-            logger.Track(d2, interval);
+            logger.Track(d1, interval_in_minutes);
+            logger.Track(d2, interval_in_minutes);
             stopTimer.Enabled = true;
             stopTimer.Start();
+            stopTimer.AutoReset = false;
 
             // wait until after the count + 1 tracking could have occured.
             Thread.Sleep((count + 1) * interval);
 
             // d1 should have added ´count´ + 1 new entries.
             entries = logger.GetEntries(new string[] { "d1", "d2" });
-            Assert.AreEqual(count * 4 + 1 + 1, entries["d1"].Count());
+            Assert.AreEqual(d1_count + count + 1, entries["d1"].Count());
 
             // d2 should have added ´count´ + 1 new entries.
-            Assert.AreEqual(count * 2 - 2 + 1, entries["d2"].Count());
+            Assert.AreEqual(d2_count + count + 1, entries["d2"].Count());
 
             stopTimer.Dispose();
-
 
         }
 
@@ -436,7 +451,6 @@ namespace R2Core.Tests {
 
             IEnumerable<StatLogEntry<double>> entries = logger.GetValues(new string[] { "d1" }, null, null)["d1"];
 
-            Log.t(entries.Count());
             Assert.AreEqual(0, entries.Count());
 
             DummyDevice d1 = new DummyDevice("d1");

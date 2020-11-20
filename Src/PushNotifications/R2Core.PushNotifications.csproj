@@ -6,7 +6,7 @@
     <ProjectGuid>{E6DED973-A7AE-40AB-85B4-4E06BE4A0135}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>R2Core.PushNotifications</RootNamespace>
-    <AssemblyName>PushNotifications</AssemblyName>
+    <AssemblyName>R2Core.PushNotifications</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
@@ -32,35 +32,35 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="PushSharp.Apple">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Apple.dll</HintPath>
-    </Reference>
-    <Reference Include="PushSharp.Core">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="PushSharp.Amazon">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Amazon.dll</HintPath>
-    </Reference>
-    <Reference Include="PushSharp.Blackberry">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Blackberry.dll</HintPath>
-    </Reference>
-    <Reference Include="PushSharp.Firefox">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Firefox.dll</HintPath>
-    </Reference>
-    <Reference Include="PushSharp.Google">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Google.dll</HintPath>
-    </Reference>
-    <Reference Include="PushSharp.Windows">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\PushSharp.4.0.10\lib\net45\PushSharp.Windows.dll</HintPath>
-    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="nunit.framework">
       <HintPath>..\..\3rdParty\nunit\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(Solutiondir)\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Amazon">
+      <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Amazon.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Apple">
+      <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Apple.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Blackberry">
+      <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Blackberry.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Core">
+      <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Firefox">
+      <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Firefox.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Google">
+      <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Google.dll</HintPath>
+    </Reference>
+    <Reference Include="PushSharp.Windows">
+      <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Windows.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -86,6 +86,8 @@
       <DependentUpon>PushNotificationsConfigurationTemplate.tt</DependentUpon>
     </Compile>
     <Compile Include="R2PushSharpLogger.cs" />
+    <Compile Include="IPushNotificationFactory.cs" />
+    <Compile Include="Tests\DummyPushNotificationFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -103,11 +105,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="PushNotificationsConfigurationTemplate.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>PushNotificationsConfigurationTemplate.cs</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tests\" />

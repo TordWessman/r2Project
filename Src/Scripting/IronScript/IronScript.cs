@@ -33,10 +33,22 @@ namespace R2Core.Scripting
 		protected ScriptScope m_scope;
 		protected ScriptSource m_source;
 
-		/// <summary>
-		/// The required name of the main class in each python script
-		/// </summary>
-		public const string HANDLE_MAIN_CLASS = "main_class";
+        /// <summary>
+        /// Contains code segments to be prepended to the actual script source.
+        /// </summary>
+        /// <value>The prepended code.</value>
+        public IList<string> PrependedCode { get; private set; }
+
+        /// <summary>
+        /// Contains code segments to be appended to the actual script source.
+        /// </summary>
+        /// <value>The prepended code.</value>
+        public IList<string> AppendedCode { get; private set; }
+
+        /// <summary>
+        /// The required name of the main class in each python script
+        /// </summary>
+        public const string HANDLE_MAIN_CLASS = "main_class";
 
 		protected string m_fileName;
 
@@ -52,10 +64,10 @@ namespace R2Core.Scripting
             m_scope =  m_engine.CreateScope();
 			m_fileName = fileName;
 			m_params = parameters ?? new Dictionary<string,dynamic>();
-		
-			Reload();
+            PrependedCode = new List<string>();
+            AppendedCode = new List<string>();
 
-		}
+        }
 
 		public void AddSearchPath(string searchPath) {
 
@@ -75,7 +87,12 @@ namespace R2Core.Scripting
 
             Log.i($"Loading script: {m_fileName}");
 
-            m_source = m_engine.CreateScriptSourceFromFile(m_fileName);
+            string scriptString = string.Join(Environment.NewLine, new string[] {
+                string.Join(Environment.NewLine, PrependedCode),
+                File.ReadAllText(m_fileName),
+                string.Join(Environment.NewLine, PrependedCode) });
+
+            m_source = m_engine.CreateScriptSourceFromString(scriptString);
 
             try {
 
@@ -88,7 +105,6 @@ namespace R2Core.Scripting
 				throw ex;
 
 			}
-
 
             if (!m_scope.TryGetVariableHandle(HANDLE_MAIN_CLASS, out System.Runtime.Remoting.ObjectHandle mainClassHandle)) {
 
@@ -145,7 +161,8 @@ namespace R2Core.Scripting
 			if (member is IronPython.Runtime.Method) {
 			
 				// Invoke as method
-				return m_engine.Operations.InvokeMember(m_mainClass, handle, args);
+
+                return m_engine.Operations.InvokeMember(m_mainClass, handle, args);
 
 			}
 

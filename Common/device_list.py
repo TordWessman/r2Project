@@ -1,7 +1,7 @@
 import scriptbase
 import time
 import clr
-clr.AddReferenceToFileAndPath(r"Core.dll")
+clr.AddReferenceToFileAndPath(r"R2Core.dll")
 from System.Collections.Generic import List
 from R2Core.Device import IDevice
 

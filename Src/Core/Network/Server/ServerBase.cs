@@ -65,10 +65,8 @@ namespace R2Core.Network {
 
         ~ServerBase() {
 
-            Log.i($"Deallocating {this} [{Identifier}:{Guid.ToString()}].");
+            Log.i($"Deallocating", Identifier);
             Stop();
-            try { ServiceTask?.Dispose(); } 
-            catch (Exception ex) { Log.i($"Server closed with exception: {ex.Message}."); }
 
         }
 
@@ -113,8 +111,8 @@ namespace R2Core.Network {
         public override void Stop() {
 
             ShouldRun = false;
-            ServiceTask = null;
             try { Cleanup(); } catch (Exception ex) { Log.x(ex); }
+            ServiceTask = null;
 
         }
 

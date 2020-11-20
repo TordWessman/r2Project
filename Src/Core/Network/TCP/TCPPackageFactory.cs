@@ -53,7 +53,7 @@ namespace R2Core.Network
         /// <summary>
         /// Used to identify TCP packages (and filter out unexpected traffic).
         /// </summary>
-        public static byte[] Signature = new byte[] { 42, 0, 42, 0 };
+        public static byte[] Signature = { 42, 0, 42, 0 };
 
 		public TCPPackageFactory(ISerialization serialization) {
 

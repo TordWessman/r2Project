@@ -83,7 +83,7 @@ namespace R2Core.Common {
         /// <summary>
         /// Track using ´startTime´ as an input string. Usable by callers that can't provide DateTime parameters.
         /// </summary>
-        public static StatLogProcess<T> TrackFrom<T>(this StatLogger self, IStatLoggable<T> device, int frequency, string startTime) {
+        public static StatLogProcess<T> TrackFrom<T>(this StatLogger self, IStatLoggable<T> device, float frequency, string startTime) {
 
             return self.Track(device, frequency, startTime.ParseTime());
 

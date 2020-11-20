@@ -294,11 +294,9 @@ namespace R2Core.Network
 							
 						response = m_serializer.DeserializePackage(new BlockingNetworkStream(m_client.GetSocket()));
 
-						if (response.IsPong()) { 
-							
-							continue;  
-						
-						} else if (response.IsPing()) {
+						if (response.IsPong()) { continue; } 
+
+                        if (response.IsPing()) {
 
 							m_ping.Pong();
 

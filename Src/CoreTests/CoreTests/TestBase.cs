@@ -55,7 +55,7 @@ namespace R2Core.Tests
 
 					console = new ConsoleLogger(Settings.Identifiers.ConsoleLogger());
 
-					Log.Instance.AddLogger(new FileLogger("file_logger", "test_output.txt"));
+					Log.Instance.AddLogger(new FileLogger(Settings.Identifiers.FileLogger(), "test_output.txt"));
 
 					Log.Instance.AddLogger(console);
 					Log.Instance.MaxStackTrace = 100;
@@ -66,22 +66,22 @@ namespace R2Core.Tests
 				m_dummyTaskMonitor = new DummyTaskMonitor();
 
 				m_deviceManager = new DeviceManager(Settings.Identifiers.DeviceManager());
+                m_dataFactory = new DataFactory(Settings.Identifiers.DataFactory(), new System.Collections.Generic.List<string> { Settings.Paths.TestData() });
+                m_deviceFactory = new DeviceFactory(Settings.Identifiers.DeviceFactory(), m_deviceManager);
 
-				m_deviceManager.Add(Settings.Instance);
+                m_deviceManager.Add(Settings.Instance);
 				m_deviceManager.Add(Log.Instance);
 				m_deviceManager.Add(m_dummyTaskMonitor);
-
-				m_deviceFactory = new DeviceFactory("device_factory", m_deviceManager);
-
-				m_dataFactory = new DataFactory("f", new System.Collections.Generic.List<string> {Settings.Paths.TestData()});
-
+                m_deviceManager.Add(m_dataFactory);
+                m_deviceManager.Add(m_deviceFactory);
+				
 			} catch (Exception ex) {
 			
 				Console.WriteLine(ex.Message);
 
 			}
 
-			Log.d($"--- TEST `{TestContext.CurrentContext.Test.FullName}` STARTED ---");
+			Log.d($"{Environment.NewLine}{Environment.NewLine}{Environment.NewLine} --- TEST `{TestContext.CurrentContext.Test.FullName}` STARTED ---");
 
 		}
 

@@ -22,7 +22,6 @@ using R2Core.Network;
 using System.Threading;
 using R2Core.Scripting;
 using System.Collections.Generic;
-using MainFrame;
 
 namespace R2Core.Tests
 {
@@ -161,8 +160,10 @@ namespace R2Core.Tests
 
 			scriptFactory.AddSourcePath(Settings.Paths.TestData());
             scriptFactory.AddSourcePath(Settings.Paths.Common());
-            var file_server_script = scriptFactory.CreateScript("file_server");
-			var file_server_endpoint = scriptFactory.CreateEndpoint(file_server_script, @"/test2");
+            dynamic file_server_script = scriptFactory.CreateScript("file_server");
+            file_server_script.path = Settings.Paths.TestData() + System.IO.Path.DirectorySeparatorChar + "Video";
+
+            var file_server_endpoint = scriptFactory.CreateEndpoint(file_server_script, @"/test2");
 
 			webServer.AddEndpoint(file_server_endpoint);
 			webServer.Start();

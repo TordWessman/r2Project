@@ -98,7 +98,7 @@ namespace R2Core.Network
 			while(ShouldRun) {
 
 				try {
-						
+
 					TcpClient client = m_listener.WaitForConnection(Timeout);
 
 					TCPServerConnection connection = 
@@ -145,7 +145,7 @@ namespace R2Core.Network
 
                     foreach (IClientConnection removed in m_connections.Remove(c => c.Address == connection.Address && c.Port == connection.Port)) {
 
-                        Log.i($"TCPServer removed client connection: {removed}", Identifier);
+                        Log.i($"Removed client connection: {removed}", Identifier);
 
                     }
 
@@ -163,9 +163,16 @@ namespace R2Core.Network
             
             }
 
+            if (request.Destination == null) {
+
+                return new NetworkErrorMessage(NetworkStatusCode.BadRequest, "Hehehehehehehe");
+            
+            }
+
             IWebEndpoint endpoint = GetEndpoint(request.Destination);
 
-			if (endpoint != null) { 
+			if (endpoint != null) {
+
 				try {
 
                     INetworkMessage response = endpoint.Interpret(request, source);

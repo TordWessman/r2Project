@@ -36,31 +36,31 @@
       <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\DynamicLanguageRuntime.1.2.2\lib\net45\Microsoft.Dynamic.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\DynamicLanguageRuntime.1.2.3\lib\net45\Microsoft.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\DynamicLanguageRuntime.1.2.2\lib\net45\Microsoft.Scripting.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\DynamicLanguageRuntime.1.2.3\lib\net45\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\DynamicLanguageRuntime.1.2.2\lib\net45\Microsoft.Scripting.Metadata.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\IronPython.2.7.9\lib\net45\IronPython.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Modules">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\IronPython.2.7.9\lib\net45\IronPython.Modules.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.SQLite">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\IronPython.2.7.9\lib\net45\IronPython.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Wpf">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\IronPython.2.7.9\lib\net45\IronPython.Wpf.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\DynamicLanguageRuntime.1.2.3\lib\net45\Microsoft.Scripting.Metadata.dll</HintPath>
     </Reference>
     <Reference Include="KeraLua">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\lib\net45\KeraLua.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\KeraLua.1.2.6\lib\net45\KeraLua.dll</HintPath>
     </Reference>
     <Reference Include="NLua">
-      <HintPath>..\..\..\Implementations\MainFramePi\packages\NLua.1.4.30\lib\net45\NLua.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\NLua.1.5.1\lib\net45\NLua.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython">
+      <HintPath>$(Solutiondir)\packages\IronPython.2.7.10\lib\net45\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Modules">
+      <HintPath>$(Solutiondir)\packages\IronPython.2.7.10\lib\net45\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.SQLite">
+      <HintPath>$(Solutiondir)\packages\IronPython.2.7.10\lib\net45\IronPython.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Wpf">
+      <HintPath>$(Solutiondir)\packages\IronPython.2.7.10\lib\net45\IronPython.Wpf.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +83,9 @@
     <Compile Include="Network\ScriptEndpoint.cs" />
     <Compile Include="Network\ScriptNetworkMessage.cs" />
     <Compile Include="IronScript\SettingsScriptExtensions.cs" />
+    <Compile Include="ScriptingConfigurationTemplate.cs">
+      <DependentUpon>ScriptingConfigurationTemplate.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -105,7 +108,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Lib\__phello__.foo.py" />
     <None Include="Lib\__future__.py" />
     <None Include="Lib\_weakrefset.py" />
@@ -624,6 +626,14 @@
     <None Include="Lib\antigravity.py" />
     <None Include="Lib\aifc.py" />
     <None Include="Lib\abc.py" />
+    <None Include="packages.config" />
+    <None Include="Lib\ensurepip\_bundled\setuptools-40.6.2-py2.py3-none-any.whl" />
+    <None Include="Lib\ensurepip\_bundled\pip-18.1-py2.py3-none-any.whl" />
+    <None Include="ScriptingConfigurationTemplate.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ScriptingConfigurationTemplate.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\build\net45\KeraLua.targets" Condition="Exists('..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\build\net45\KeraLua.targets')" />
+  <Import Project="$(Solutiondir)\packages\KeraLua.1.2.6\build\net45\KeraLua.targets" Condition="Exists('$(Solutiondir)\packages\KeraLua.1.2.6\build\net45\KeraLua.targets')" />
 </Project>
