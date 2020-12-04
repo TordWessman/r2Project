@@ -10,7 +10,7 @@
 cwd=$(pwd)
 usage_message="./compile.sh <project name> [[--t4] [--project-dir <path>] [--packages] | [--clean] | [--help]]"
 
-T4_compiler_path="/usr/lib/monodevelop/AddIns/MonoDevelop.TextTemplating/TextTransform.exe"
+T4_compiler_path="/usr/local/bin/Mono.TextTransform.1.0.0/tools/TextTransform.exe"
 nuget_path="/usr/local/bin/nuget.exe"
 
 if [ "$#" -eq 0 ]; then

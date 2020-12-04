@@ -14,15 +14,13 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
-// 
-using System;
-using R2Core.Device;
+//
 
 namespace R2Core.GPIO
 {
 	internal class SerialServo: SerialDeviceBase<byte[]>, IServo {
 		
-		private byte m_port;
+		private readonly byte m_port;
 		private float m_value;
 
 		internal SerialServo  (string id, ISerialNode node, IArduinoDeviceRouter host, int port): base(id, node, host) {

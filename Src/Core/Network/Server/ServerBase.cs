@@ -17,7 +17,6 @@
 //
 //
 using System;
-using R2Core.Network;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using R2Core.Device;
