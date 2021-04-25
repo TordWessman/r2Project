@@ -2,10 +2,13 @@
 #define R2I2C_CONFIG_H
 
 // If defined, I2C communication will be enabled
-#define USE_I2C
+//#define USE_I2C
+
+// If defined, the device will be treated as a ESP8266 WiFi access point. Should not be used with any other "USE" definitions.
+//#define USE_ESP8266_WIFI_AP
 
 // If defined, serial communication will be enabled 
-//#define USE_SERIAL
+#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
 //#define USE_RH24
@@ -18,6 +21,12 @@
   // If this value is set, the node should stay in sleep mode
   #define SLEEP_MODE_EEPROM_ADDRESS 0x01
   
+#endif
+
+#ifdef USE_ESP8266_WIFI_AP
+  #define USE_ESP8266 
+  #define WIFI_SSID "mamma"
+  #define WIFI_PASSWORD"pappa666"
 #endif
 
 // The timing scale factor for led output. The higher the denomiator, the faster the LED blink rate.
@@ -36,7 +45,12 @@
 #define NODE_ID_EEPROM_ADDRESS 0x00
 
 // If defined, these leds will be used to communicate status and error 
-#define R2_STATUS_LED 0x2
+#ifdef USE_ESP8266
+  #define R2_STATUS_LED LED_BUILTIN
+#else
+  #define R2_STATUS_LED 0x2
+#endif
+
 //#define R2_ERROR_LED 0x4
 
 // Not used

@@ -1,15 +1,15 @@
 #include "r2I2C_config.h"
 #include "r2I2CDeviceRouter.h"
 #include "r2Common.h"
-#include <string.h>
-#include "Dht11.h"
-#include <Servo.h>
-#include <EEPROM.h>
+
 #ifdef RH24
-#include "RF24.h"
-#include "RF24Network.h"
-#include "RF24Mesh.h"
-#include <SPI.h>
+  #include "RF24.h"
+  #include "RF24Network.h"
+  #include "RF24Mesh.h"
+#endif
+
+#ifdef USE_ESP8266_WIFI_AP
+  #include "r2ESP8266.h"
 #endif
 
 #ifdef USE_SERIAL
@@ -17,8 +17,7 @@
 #endif
 
 #ifdef USE_I2C
-  #include <Wire.h> // Must be included
-  #include <r2I2C.h>
+  #include "r2I2CSerial.h"
 #endif
 
 #ifdef USE_RH24
@@ -30,97 +29,35 @@ byte messageId = 0;
 
 void setup() {
 
-//saveNodeId(5);
-/*
-pinMode(R2_RESET_LED1, OUTPUT);
-pinMode(R2_RESET_LED2, INPUT);
-delay(500);
-
-if(digitalRead(R2_RESET_LED2)) {
-  R2_LOG(F("Resetting node to master"));
-  saveNodeId(0);
-  EEPROM.write(SLEEP_MODE_EEPROM_ADDRESS, 0x00);
-}
-
-pinMode(R2_RESET_LED1, INPUT);
-*/
-
-// Reset all pins. Just in case...
-for (int i = 0; i < 9; i++) {
-  pinMode(i, OUTPUT);
-  digitalWrite(i, LOW);
-  pinMode(i, INPUT);
-}
-
-#ifdef R2_STATUS_LED
-//I'm alive...
-pinMode(R2_STATUS_LED, OUTPUT);
-for (int i = 0; i < 5; i++) {
-  digitalWrite(R2_STATUS_LED, 1);
-  delay(500 / LED_TIME_DENOMIATOR);
-  digitalWrite(R2_STATUS_LED, 0);
-  delay(500 / LED_TIME_DENOMIATOR);
-}
-reservePort(R2_STATUS_LED);
-#endif
-
-#ifdef R2_ERROR_LED
-pinMode(R2_ERROR_LED, OUTPUT);
-reservePort(R2_ERROR_LED);
-#endif
+  //saveNodeId(5);
 
   Serial.begin(SERIAL_BAUD_RATE);
   clearError();
   
-#ifdef USE_I2C
-
-#ifdef USE_RH24
-if (isMaster())
-#endif
-{
-  R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
-  R2_LOG(F("Initialized I2C."));
-}
-
-#endif
-
-#ifdef USE_RH24
-  rh24Setup();
+  #ifdef R2_USE_LED
+    setupLeds();
+  #endif
   
-  //sleep(false, 255);
-#endif
+  #ifdef USE_ESP8266_WIFI_AP
+    void wifiApSetup();
+  #endif
+  
+  #ifdef USE_I2C
+  
+    #ifdef USE_RH24
+      if (isMaster())
+    #endif
+    {
+      i2cSetup();
+    }
+  
+  #endif
+  
+  #ifdef USE_RH24
+    rh24Setup();
+  #endif
    
 }
-#ifdef USE_I2C
-
-// Delegate method for I2C event communication.
-void i2cReceive(byte* data, size_t data_size) {
-
-  R2_LOG(F("Receiving i2cdata"));
-  ResponsePackage out;
-  
-  if (data == NULL || data_size < MIN_REQUEST_SIZE) {
-    
-    err("E: size", ERROR_INVALID_REQUEST_PACKAGE_SIZE, data_size);
-    out = createErrorPackage(0x0);
-    
-  } else {
-   
-    out = execute((RequestPackage *)data);
-    
-  }
-  
-#ifdef R2_PRINT_DEBUG
-  R2_LOG(F("Will write response with action/size:"));
-  Serial.println(out.action);
-  Serial.println(RESPONSE_PACKAGE_SIZE(out));
-#endif
-  byte *response = (byte *)&out;
-  R2I2C.setResponse(response, RESPONSE_PACKAGE_SIZE(out));
-  
-}
-
-#endif
 
 // Handles the interpretation of the RequestPackage. This includes error detection and RH24.
 ResponsePackage execute(RequestPackage *request) {
@@ -408,34 +345,22 @@ ResponsePackage execute(RequestPackage *request) {
   
 }
 
-#ifdef R2_STATUS_LED
-unsigned long blinkTimer = 0;
-bool blinkOn = false;
-#define blinkTime (1000/LED_TIME_DENOMIATOR)
-#endif
-
 void loop() {
-  
-  loop_common();
-  
+
+  #ifdef R2_STATUS_LED
+    statusIndicator();
+  #endif
+
   #ifdef USE_SERIAL
     loop_serial();
   #endif
   
-  #ifdef R2_STATUS_LED
-  
-  if (millis() - blinkTimer >= blinkTime) {
-
-    blinkTimer = millis();
-    setStatus(blinkOn);
-    blinkOn = !blinkOn;
-    
-  }
-  
+  #ifdef USE_ESP8266_WIFI_AP
+    loop_wifi();
   #endif
-
+  
   #ifdef USE_RH24
-  loop_rh24();
+    loop_rh24();
   #endif
  
  #ifdef USE_RH24
@@ -443,7 +368,7 @@ void loop() {
  #endif
  {
   #ifdef USE_I2C
-    R2I2C.loop();
+    loop_i2c();
   #endif
  }
 }

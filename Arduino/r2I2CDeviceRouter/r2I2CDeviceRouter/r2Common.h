@@ -1,6 +1,7 @@
 #ifndef R2I2C_COMMON_H
 #define R2I2C_COMMON_H
 
+#include <string.h>
 #include "Arduino.h"
 
 // -- Debuging
@@ -24,10 +25,6 @@ void setStatus(bool on);
 // Set the error led if defined by R2_ERROR_LED
 void setError(bool on);
 
-// -- Runloop methods
-
-void loop_common();
-
 // -- Various "helper" methods --
 
 // Returns the node id used (will default to DEVICE_HOST_LOCAL if not stored). 
@@ -49,10 +46,10 @@ int toInt16(byte *bytes);
 byte *asInt16(int value);
 
 // Set error state with a message.
-void err (const char* msg, byte code);
+void err(const char* msg, byte code);
 
 // Attach additional error information to a response.
-void err (const char* msg, byte code, byte info);
+void err(const char* msg, byte code, byte info);
 
 // Uses the previously stored error information to create an error package.
 ResponsePackage createErrorPackage(HOST_ADDRESS host);
@@ -77,5 +74,28 @@ byte createRequestChecksum(RequestPackage *package);
 
 // Creates a checksum using the specified response package;
 byte createResponseChecksum(ResponsePackage *package);
+
+#endif
+
+// ------ Led configuration
+
+#ifdef R2_STATUS_LED
+  
+  #define R2_USE_LED
+  
+  // Blink the status led.
+  void statusIndicator();
+
+#endif
+
+#ifdef R2_ERROR_LED
+
+  #define R2_USE_LED
+
+#endif
+
+#ifdef R2_USE_LED
+
+  void setupLeds();
 
 #endif

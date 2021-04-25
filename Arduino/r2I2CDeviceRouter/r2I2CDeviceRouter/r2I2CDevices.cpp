@@ -1,10 +1,15 @@
 #include "Dht11.h"
 #include <Servo.h>
 
+#ifdef ESP8266
+  #include <NewPingESP8266.h>
+#else
+  #include <NewPing.h>
+#endif
+
 #include "r2I2CDeviceRouter.h"
 #include "r2I2C_config.h"
 #include "r2Common.h"
-//xxx #include <Arduino.h>
 
 // A device that has this port reserved is lying.
 #define DEVICE_PORT_NOT_IN_USE 0xFF
@@ -133,15 +138,31 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         pinMode(device.IOPorts[0], OUTPUT);
       
     } break;
-   
+  case DEVICE_TYPE_SONAR: {
+    
+      if (reservePort(input[SONAR_TRIG_PORT]) && reservePort(input[SONAR_ECHO_PORT])) {
+
+        #ifdef ESP8266
+          NewPingESP8266 *sonar = new NewPingESP8266(SONAR_TRIG_PORT, SONAR_ECHO_PORT, input[SONAR_MAX_DISTANCE]);
+        #else
+          NewPing *sonar = new NewPing(SONAR_TRIG_PORT, SONAR_ECHO_PORT, input[SONAR_MAX_DISTANCE]);
+        #endif
+        
+        device.IOPorts[SONAR_TRIG_PORT] = input[SONAR_TRIG_PORT];
+        device.IOPorts[SONAR_ECHO_PORT] = input[SONAR_ECHO_PORT];
+        device.object = (void *)sonar;
+      
+      }
+  
+    } break;
+  
   case DEVICE_TYPE_HCSR04_SONAR:
   
-      if (reservePort(input[HCSR04_SONAR_TRIG_PORT]) && reservePort(input[HCSR04_SONAR_ECHO_PORT])) {
+      if (reservePort(input[SONAR_TRIG_PORT]) && reservePort(input[SONAR_ECHO_PORT])) {
         
-        device.IOPorts[HCSR04_SONAR_TRIG_PORT] = input[HCSR04_SONAR_TRIG_PORT];
-        device.IOPorts[HCSR04_SONAR_ECHO_PORT] = input[HCSR04_SONAR_ECHO_PORT];
-        pinMode(device.IOPorts[HCSR04_SONAR_TRIG_PORT], OUTPUT);
-        pinMode(device.IOPorts[HCSR04_SONAR_ECHO_PORT], INPUT);
+        device.IOPorts[SONAR_TRIG_PORT] = input[SONAR_TRIG_PORT];
+        device.IOPorts[SONAR_ECHO_PORT] = input[SONAR_ECHO_PORT];
+        
         
       } break;
       
@@ -219,13 +240,25 @@ int* getValue(Device* device) {
    
      values[0] = analogRead(device->IOPorts[0]);
      break;
+   
+   case DEVICE_TYPE_SONAR: {
      
+     #ifdef ESP8266
+       NewPingESP8266 *sonar = ((NewPingESP8266 *) device->object);
+     #else
+       NewPing *sonar = ((NewPing *) device->object);
+     #endif
+     int value = sonar->ping_cm();
+     if (value > 255) { value = 255; }
+     values[0] = value;
+     break;
+   }
    case DEVICE_TYPE_HCSR04_SONAR:
    
-     digitalWrite(device->IOPorts[HCSR04_SONAR_TRIG_PORT], HIGH); //Trigger ultrasonic detection 
+     digitalWrite(device->IOPorts[SONAR_TRIG_PORT], HIGH); //Trigger ultrasonic detection 
      delayMicroseconds(10); 
-     digitalWrite(device->IOPorts[HCSR04_SONAR_TRIG_PORT], LOW); 
-     values[0] = pulseIn(device->IOPorts[HCSR04_SONAR_ECHO_PORT], HIGH) / HCSR04_SONAR_DISTANCE_DENOMIATOR; //Read ultrasonic reflection
+     digitalWrite(device->IOPorts[SONAR_TRIG_PORT], LOW); 
+     values[0] = pulseIn(device->IOPorts[SONAR_ECHO_PORT], HIGH) / HCSR04_SONAR_DISTANCE_DENOMIATOR; //Read ultrasonic reflection
      break;
      
    case DEVICE_TYPE_DHT11: {

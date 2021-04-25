@@ -100,6 +100,7 @@ typedef struct RequestPackage RequestPackage;
 #define DEVICE_TYPE_DHT11 6
 #define DEVICE_TYPE_SIMPLE_MOIST 7
 #define DEVICE_TYPE_ANALOGE_OUTPUT 8
+#define DEVICE_TYPE_SONAR 9
 // -- Error codes --
 
 // No device with the specified id was found.
@@ -211,8 +212,9 @@ typedef struct RequestPackage RequestPackage;
 #define REQUEST_ARG_CREATE_PORT_POSITION 0x1 // Position of port information.
 
 // Telling which position in the argument byte array for REQUEST_ARG_CREATE_PORT_POSITION the HC-SR04 will use as trigger port/echo port.
-#define HCSR04_SONAR_TRIG_PORT 0x0
-#define HCSR04_SONAR_ECHO_PORT 0x1
+#define SONAR_TRIG_PORT 0x0
+#define SONAR_ECHO_PORT 0x1
+#define SONAR_MAX_DISTANCE 0x3 // The maximum distance for a "regular" sonar
 #define HCSR04_SONAR_DISTANCE_DENOMIATOR 58 // I found this number somewhere
 
 // Port positions for simple moisture sensors

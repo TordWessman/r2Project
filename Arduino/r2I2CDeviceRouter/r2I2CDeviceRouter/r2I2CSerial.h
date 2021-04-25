@@ -1,12 +1,26 @@
 #ifndef R2I2C_SERIAL_H
 #define R2I2C_SERIAL_H
 
-// Package "checksum" headers. Shuld initially be sent in the beginning of every serial transaction. 
-#define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
-
 #include "r2I2CDeviceRouter.h"
 
-// Handles the serial read/write operations. Prefarbly used in run loop.
-void loop_serial();
+#ifdef USE_SERIAL
+
+  // Package "checksum" headers. Shuld initially be sent in the beginning of every serial transaction. 
+  #define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
+  
+  // Handles the serial read/write operations.
+  void loop_serial();
+  
+#endif
+
+#ifdef USE_I2C
+
+  // Configure the device for i2c.
+  void i2cSetup();
+
+  // Handle i2c traffic.
+  void loop_i2c();
+  
+#endif
 
 #endif

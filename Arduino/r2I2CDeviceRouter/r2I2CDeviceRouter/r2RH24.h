@@ -1,5 +1,6 @@
 #ifndef R2I2C_RH24_H
 #define R2I2C_RH24_H
+#include <SPI.h>
 
 #include "r2I2CDeviceRouter.h"
 

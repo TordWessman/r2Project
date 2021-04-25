@@ -4,25 +4,26 @@
 #include "r2Common.h"
 #include "r2I2C_config.h"
 
+#ifdef R2_PRINT_DEBUG
+  #ifdef USE_SERIAL
+     #error USE_SERIAL is not compatible with the R2_PRINT_DEBUG flag. Check r2I2C_config.h.
+  #endif
+#endif
 // If true, the host is ready for operation. This flag is set after ACTION_INITIALIZE has been received.
 bool initialized = false;
 
 void reset(bool isInitialized) {
           
-          R2_LOG(F("Initializing"));
+    R2_LOG(F("Initializing"));
 
-          initialized = isInitialized;
-          clearError();
-          
-          for (byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
-          
-}
-
-bool isInitialized() {
-
-    return initialized;
+    initialized = isInitialized;
+    clearError();
     
+    for(byte i = 0; i < MAX_DEVICES; i++) { deleteDevice(i); }
+          
 }
+
+bool isInitialized() { return initialized; }
 
 // -- Conversions --
 
@@ -34,7 +35,7 @@ byte* asInt16(int value) { byte* bytes = (byte *) malloc(2 * sizeof(byte)); byte
 byte errCode = 0;
 byte errInfo = 0;
 
-byte getErrorCode() {  return errCode; }
+byte getErrorCode() { return errCode; }
 
 bool isError() { return errCode != 0; }
 
@@ -46,20 +47,20 @@ void clearError() {
   
 }
 
-void err (const char* msg, byte code) { err(msg, code, 0); }
+void err(const char* msg, byte code) { err(msg, code, 0); }
 
-void err (const char* msg, byte code, byte info) {
+void err(const char* msg, byte code, byte info) {
 
   errInfo = info;  
   errCode = code;
   setError(true);
   
 #ifdef R2_PRINT_DEBUG
-    if (Serial && msg) { 
+    if(Serial && msg) { 
       
       R2_LOG(msg);
       
-      if (info != 0) {
+      if(info != 0) {
       
           R2_LOG(F("Info:"));
           R2_LOG(info);
@@ -111,10 +112,6 @@ void setError(bool on) {
 
 }
 
-void loop_common() {
-  // Currently: Nothing!
-}
-
 HOST_ADDRESS getNodeId() { return EEPROM.read(NODE_ID_EEPROM_ADDRESS); }
 
 void saveNodeId(HOST_ADDRESS id) { EEPROM.write(NODE_ID_EEPROM_ADDRESS, id); }
@@ -147,3 +144,43 @@ byte createResponseChecksum(ResponsePackage *package) {
   return checksum;
   
 }
+
+#ifdef R2_STATUS_LED
+unsigned long blinkTimer = 0;
+bool blinkOn = false;
+#define blinkTime (1000/LED_TIME_DENOMIATOR)
+
+void statusIndicator() {
+  if(millis() - blinkTimer >= blinkTime) {
+    blinkTimer = millis();
+    setStatus(blinkOn);
+    blinkOn = !blinkOn;
+    
+  }
+}
+
+#endif
+
+
+#ifdef R2_USE_LED
+void setupLeds() {
+
+  #ifdef R2_ERROR_LED
+    pinMode(R2_ERROR_LED, OUTPUT);
+    reservePort(R2_ERROR_LED);
+  #endif
+
+  #ifdef R2_STATUS_LED
+    pinMode(R2_STATUS_LED, OUTPUT);
+    for(int i = 0; i < 5; i++) {
+      digitalWrite(R2_STATUS_LED, 1);
+      delay(500 / LED_TIME_DENOMIATOR);
+      digitalWrite(R2_STATUS_LED, 0);
+      delay(500 / LED_TIME_DENOMIATOR);
+    }
+    reservePort(R2_STATUS_LED);
+  #endif
+  
+}
+
+#endif

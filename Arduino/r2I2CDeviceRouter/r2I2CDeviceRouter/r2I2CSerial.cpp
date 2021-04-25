@@ -104,3 +104,47 @@ void writeResponse(ResponsePackage out) {
 
 }
 #endif
+
+#ifdef USE_I2C
+ 
+#include <Wire.h> // Must be included
+#include <r2I2C.h>
+
+void i2cReceive(byte* data, size_t data_size);
+
+void i2cSetup() {
+  R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
+  R2_LOG(F("Initialized I2C."));
+}  
+
+void loop_i2c() {
+  R2I2C.loop();
+}
+
+// Delegate method for I2C event communication.
+void i2cReceive(byte* data, size_t data_size) {
+
+  R2_LOG(F("Receiving i2cdata"));
+  ResponsePackage out;
+  
+  if (data == NULL || data_size < MIN_REQUEST_SIZE) {
+    
+    err("E: size", ERROR_INVALID_REQUEST_PACKAGE_SIZE, data_size);
+    out = createErrorPackage(0x0);
+    
+  } else {
+   
+    out = execute((RequestPackage *)data);
+    
+  }
+  
+#ifdef R2_PRINT_DEBUG
+  R2_LOG(F("Will write response with action/size:"));
+  Serial.println(out.action);
+  Serial.println(RESPONSE_PACKAGE_SIZE(out));
+#endif
+  byte *response = (byte *)&out;
+  R2I2C.setResponse(response, RESPONSE_PACKAGE_SIZE(out));
+  
+}
+#endif
