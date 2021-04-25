@@ -37,7 +37,7 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\MainFramePi\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -55,7 +55,6 @@
     <Compile Include="ASR\ScriptASRObserver.cs" />
     <Compile Include="Experiments\AimlToSphinxConverter.cs" />
     <Compile Include="Experiments\ASRController.cs" />
-    <Compile Include="Experiments\ASRInterpreter.cs" />
     <Compile Include="Experiments\CommandInterpreter.cs" />
     <Compile Include="Experiments\ConversationLock.cs" />
     <Compile Include="Experiments\FlacConverter.cs" />
@@ -96,5 +95,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AudioConfigurationTemplate.cs</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

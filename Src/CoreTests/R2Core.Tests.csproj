@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\MainFramePi\packages\NUnit.3.13.1\build\NUnit.props" Condition="Exists('..\..\..\MainFramePi\packages\NUnit.3.13.1\build\NUnit.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -32,7 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="nunit.framework">
-      <HintPath>..\..\3rdParty\nunit\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\MainFramePi\packages\NUnit.3.13.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System.Dynamic" />
     <Reference Include="Microsoft.CSharp" />
@@ -92,6 +93,9 @@
       <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
       <Name>R2Core.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\build\net45\KeraLua.targets" Condition="Exists('..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\build\net45\KeraLua.targets')" />
 </Project>

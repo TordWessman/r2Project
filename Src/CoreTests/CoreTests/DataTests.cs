@@ -28,7 +28,7 @@ namespace R2Core.Tests
 		
 		private ISerialization serializer;
 
-		[TestFixtureSetUp]
+		[SetUp]
 		public override void Setup() {
 		
 			base.Setup();

@@ -35,7 +35,7 @@ namespace R2Core.Tests
 		private IScriptFactory<IronScript> m_pythonScriptFactory;
 		private IScriptFactory<LuaScript> m_luaScriptFactory;
 
-		[TestFixtureSetUp]
+		[SetUp]
 		public override void Setup() {
 
 			base.Setup();

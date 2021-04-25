@@ -32,7 +32,7 @@ namespace R2Core.Tests {
 
         const int tcp_port = 4444;
 
-        [TestFixtureSetUp]
+        [SetUp]
         public override void Setup() {
 
             base.Setup();

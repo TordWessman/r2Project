@@ -37,7 +37,7 @@
     <Reference Include="System.Dynamic" />
     <Reference Include="System.Web" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\MainFramePi\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
@@ -164,5 +164,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CoreConfigurationTemplate.cs</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

@@ -28,7 +28,7 @@ namespace R2Core.Tests
 	[TestFixture]
 	public class HttpTests: NetworkTests {
 		
-		[TestFixtureSetUp]
+		[SetUp]
 		public override void Setup() {
 
 			base.Setup();

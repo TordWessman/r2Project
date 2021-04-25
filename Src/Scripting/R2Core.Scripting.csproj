@@ -33,7 +33,7 @@
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\3rdParty\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\MainFramePi\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic">
       <HintPath>$(Solutiondir)\packages\DynamicLanguageRuntime.1.2.3\lib\net45\Microsoft.Dynamic.dll</HintPath>

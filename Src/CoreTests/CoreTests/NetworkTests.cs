@@ -29,7 +29,7 @@ namespace R2Core.Tests
 
 		protected WebFactory factory;
 
-		[TestFixtureSetUp]
+		[SetUp]
 		public override void Setup() {
 		
 			base.Setup();
@@ -41,7 +41,7 @@ namespace R2Core.Tests
 
 		}
 
-		[TestFixtureTearDown]
+		[TearDown]
 		public override void Teardown() {
 			base.Teardown();
 		

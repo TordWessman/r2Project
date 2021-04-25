@@ -32,7 +32,7 @@ namespace R2Core.Tests {
     [TestFixture]
     public class DatabaseTests : TestBase {
 
-        [TestFixtureSetUp]
+        [SetUp]
         public override void Setup() {
 
             base.Setup();

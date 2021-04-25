@@ -34,7 +34,7 @@ namespace R2Core.Tests
 		protected DeviceFactory m_deviceFactory;
 		protected DataFactory m_dataFactory;
 
-		[TestFixtureTearDown]
+		[TearDown]
 		public virtual void Teardown() {
 
 			Thread.Sleep(200);
@@ -44,7 +44,7 @@ namespace R2Core.Tests
 
 		}
 
-		[TestFixtureSetUp]
+		[SetUp]
 		public virtual void Setup() {
 			
 			try {
