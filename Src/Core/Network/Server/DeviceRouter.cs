@@ -17,7 +17,6 @@
 //
 //
 using System;
-using System.Collections.Specialized;
 using System.Collections.Generic;
 using R2Core.Device;
 using Newtonsoft.Json;

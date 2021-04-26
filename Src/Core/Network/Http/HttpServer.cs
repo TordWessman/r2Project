@@ -111,14 +111,14 @@ namespace R2Core.Network
 
 				}
 
-				if (request.ContentType?.Contains("json") == true) {
+				if (request.ContentType?.ToLower().Contains("json") == true) {
 
 					// Treaded as complex object.
 					return m_serialization.Deserialize(requestBody);
 
 				} 
 
-                if (request.ContentType?.Contains("text") == true) {
+                if (request.ContentType?.ToLower().Contains("text") == true) {
 
 					// Treated as string.
 					return m_serialization.Encoding.GetString(requestBody);
@@ -258,7 +258,11 @@ namespace R2Core.Network
 
                 try {
 
-                    output.Write(data, 0, data.Length);
+                    if (output.CanWrite) {
+
+                        output.Write(data, 0, data.Length);
+
+                    }
 
                 } catch (Exception ex) { Log.x(ex, Identifier); } 
                 finally {
