@@ -97,15 +97,22 @@ namespace R2Core.GPIO
 
 			return InstantiateDevice(new SerialServo(id, m_devices.GetNode(nodeId), m_connection, port));
 
-		}
+        }
 
-		public IInputMeter<int> CreateSonar(string id, int triggerPort, int echoPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+        public IInputMeter<int> CreateHCSR04Sonar(string id, int triggerPort, int echoPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
 			return InstantiateDevice(new SerialHCSR04Sonar(id, m_devices.GetNode(nodeId), m_connection, triggerPort, echoPort)); 
 
-		}
+        }
 
-		public IDHT11 CreateDht11(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+        public IInputMeter<int> CreateSonar(string id, int triggerPort, int echoPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+            return InstantiateDevice(new SerialSonar(id, m_devices.GetNode(nodeId), m_connection, triggerPort, echoPort));
+
+        }
+
+
+        public IDHT11 CreateDht11(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
 			return InstantiateDevice(new SerialDHT11(id, m_devices.GetNode(nodeId), m_connection, port)); 
 
@@ -129,6 +136,7 @@ namespace R2Core.GPIO
 			return device;
 
 		}
+
 	}
 
 }

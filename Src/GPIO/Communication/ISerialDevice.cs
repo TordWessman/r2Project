@@ -22,7 +22,8 @@ using R2Core.Device;
 namespace R2Core.GPIO
 {
 	/// <summary>
-	/// Represents a device available through the serial bus(i.e. I2C or Serial)
+	/// Represents a device available through the serial bus(i.e. I2C or Serial). A ISerialNod implementation contain
+    /// references to all connected ISerialDevices.
 	/// </summary>
 	public interface ISerialDevice : IDevice {
 

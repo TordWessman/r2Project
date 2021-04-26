@@ -21,10 +21,12 @@ using R2Core.Device;
 namespace R2Core.GPIO
 {
 
-	/// <summary>
-	/// A representation of a remote node
-	/// </summary>
-	public interface ISerialNode : IDevice {
+    /// <summary>
+    /// A representation of a "remote node". A remote node is a hardware device with it's own set of periphials. 
+    /// Implementations of this interface, like `SerialNode` will contain a list of ISerialDevice object that 
+    /// represent each i/o periphial connected to that node and it should act as a gateway for the connected devices.
+    /// </summary>
+    public interface ISerialNode : IDevice {
 
 		/// <summary>
 		/// Will synchronize(re-create) each device tracked by this node.
@@ -37,11 +39,12 @@ namespace R2Core.GPIO
 		/// <param name="device">Device.</param>
 		void Track(ISerialDevice device);
 
-		/// <summary>
-		/// Sends this node to sleep.
-		/// </summary>
-		/// <value><c>true</c> if sleep; otherwise, <c>false</c>.</value>
-		bool Sleep { get; set; }
+        /// <summary>
+        /// Sends this node to sleep. This is a power saving feature that - if implemented on the remote node - allows it to stay in
+        /// a low-power sleep mode for some time. A node that is sleeping will return the latest cached values of it's devices.
+        /// </summary>
+        /// <value><c>true</c> if sleep; otherwise, <c>false</c>.</value>
+        bool Sleep { get; set; }
 
 		/// <summary>
 		/// The node id of this node representation
@@ -50,7 +53,9 @@ namespace R2Core.GPIO
 		byte NodeId { get; }
 
         /// <summary>
-        /// If the node should perpetually be trying to fetch the values (Update) it's associated devices. Defaults to true.
+        /// If the node should perpetually be trying to fetch the values (Update) it's associated devices. Defaults to true. This
+        /// is usefull if the node is sleeping, since it will require less frequent update. A node that is sleeping will return
+        /// the latest cached values of it's devices.
         /// </summary>
         /// <value><c>true</c> if should update; otherwise, <c>false</c>.</value>
         bool ContinousSynchronization { get; set; }

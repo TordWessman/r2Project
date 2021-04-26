@@ -15,16 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 //
+//
 
 namespace R2Core.GPIO
 {
-    internal class SerialHCSR04Sonar : SerialSonar {
+	internal class SerialSonar: SerialDeviceBase<int[]>, IInputMeter<int> {
+		
+		private byte m_echoPort;
+		private byte m_triggerPort;
 
-        internal SerialHCSR04Sonar(string id, ISerialNode node, IArduinoDeviceRouter host, int triggerPort, int echoPort) : base(id, node, host, triggerPort, echoPort) {
-        }
+		internal SerialSonar(string id, ISerialNode node, IArduinoDeviceRouter host, int triggerPort, int echoPort): base(id, node, host) {
 
-        protected override SerialDeviceType DeviceType { get { return SerialDeviceType.Sonar_HCSR04; } }
+			m_echoPort = (byte)echoPort;
+			m_triggerPort = (byte)triggerPort;
+		
+		}
 
-    }
+		protected override byte[] CreationParameters { get { return new byte[]{ m_triggerPort, m_echoPort }; } }
+
+		protected override SerialDeviceType DeviceType { get { return SerialDeviceType.Sonar; } }
+
+		public int Value { get { return GetValue()[0]; } }
+
+	}
 
 }
+
