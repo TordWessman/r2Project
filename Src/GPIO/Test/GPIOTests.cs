@@ -159,8 +159,46 @@ namespace R2Core.GPIO.Tests
 			Assert.IsTrue(p.IsChecksumValid);
 
 		}
-	
-	}
+
+        [Test]
+        public void TestTcpConnection() {
+
+            DummySerialConnection dummyConnection = new DummySerialConnection();
+            DummyTCPHost host = new DummyTCPHost(dummyConnection, 9612);
+
+            host.Start();
+            host.WaitFor();
+
+            TCPSerialConnection connection = new TCPSerialConnection("con", "localhost", host.Port);
+
+            connection.Start();
+            connection.WaitFor();
+            byte[] request = { 10, 2, 13, 42 };
+            byte[] response = connection.Send(request);
+
+            // Send it once...
+            Assert.AreEqual(request, response);
+
+            // ... send it again...
+            response = connection.Send(request);
+            Assert.AreEqual(request, response);
+
+            dummyConnection.Delay = 500;
+            // ... and once again with a delay.
+            response = connection.Send(request);
+            Assert.AreEqual(request, response);
+
+            //Now test Read
+            byte[] broadcastResponse = new byte[] { 99, 100, 16 };
+            host.Broadcast(broadcastResponse);
+            response = connection.Read();
+            Assert.AreEqual(broadcastResponse, response);
+
+        }
+
+
+
+    }
 
 }
 

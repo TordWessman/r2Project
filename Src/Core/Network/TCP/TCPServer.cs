@@ -95,7 +95,7 @@ namespace R2Core.Network
 			m_listener = new TcpListener(IPAddress.Any, Port);
 			m_listener.Start();
 
-			while(ShouldRun) {
+			while (ShouldRun) {
 
 				try {
 
@@ -110,7 +110,7 @@ namespace R2Core.Network
 					
 					connection.OnDisconnect += OnDisconnect;
 
-					lock(m_connectionsLock) {
+					lock (m_connectionsLock) {
 						
 						m_connections.Add(connection);
 						connection.Start();

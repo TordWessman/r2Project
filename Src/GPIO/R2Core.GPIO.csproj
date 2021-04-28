@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\MainFramePi\packages\NUnit.3.13.2\build\NUnit.props" Condition="Exists('..\..\..\MainFramePi\packages\NUnit.3.13.2\build\NUnit.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -55,14 +56,11 @@
     <Reference Include="Raspberry.System">
       <HintPath>..\..\3rdParty\raspberry-sharp-io-bin\Raspberry.System.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.core">
-      <HintPath>..\..\3rdParty\nunit\nunit.core.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\3rdParty\nunit\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="I18N.Other" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\MainFramePi\packages\NUnit.3.13.2\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -118,6 +116,8 @@
     <Compile Include="Test\GPIOTestExtensions.cs" />
     <Compile Include="Output\SerialAnalogOutput.cs" />
     <Compile Include="Input\SerialHCSR04Sonar.cs" />
+    <Compile Include="Communication\TCPSerialConnection.cs" />
+    <Compile Include="Test\DummyTCPHost.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -131,6 +131,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>GPIOConfigurationTemplate.cs</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\R2Core.csproj">

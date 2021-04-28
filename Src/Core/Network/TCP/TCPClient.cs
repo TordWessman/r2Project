@@ -56,7 +56,11 @@ namespace R2Core.Network
 		// if false, nothing will be read from remote host.
 		private bool m_shouldListen = true;
 
-		public bool Busy { get; private set; }
+        public string LocalAddress => m_client?.GetLocalEndPoint()?.GetAddress();
+        public string Address { get; private set; }
+        public int Port { get; private set; }
+        public override bool Ready { get { return m_shouldRun && m_client?.IsConnected() == true; } }
+        public bool Busy { get; private set; }
 
 		/// <summary>
 		/// Timeout in ms before a send operation dies.
@@ -81,11 +85,6 @@ namespace R2Core.Network
 			m_receiverTask?.Dispose();
 
 		}
-
-        public string LocalAddress => m_client?.GetLocalEndPoint()?.GetAddress();
-        public string Address { get; private set; }
-		public int Port { get; private set; }
-		public override bool Ready { get { return m_shouldRun && m_client?.IsConnected() == true; } }
 
         public override void Start() {
 		
