@@ -1,5 +1,4 @@
-﻿using System;
-using R2Core.Device;
+﻿using R2Core.Device;
 
 namespace R2Core.GPIO {
 
@@ -20,10 +19,10 @@ namespace R2Core.GPIO {
         /// <param name="data">Data.</param>
         byte[] Send(byte[] data);
 
-		/// <summary>
-		/// Will try to read from the node.
-		/// </summary>
-		byte[] Read();
+        /// <summary>
+        /// Will try to read from the node.
+        /// </summary>
+        byte[] Read();
 
 	}
 

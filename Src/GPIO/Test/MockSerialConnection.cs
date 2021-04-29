@@ -19,10 +19,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace R2Core.GPIO.Tests
 {
-	public class MockSlaveDevice {
+    public class MockSlaveDevice {
 	
 		public byte MessageId;
 		public byte Host;
@@ -65,7 +66,36 @@ namespace R2Core.GPIO.Tests
 
 	}
 
-	public class MockSerialConnection: R2Core.Device.DeviceBase, ISerialConnection {
+    /// <summary>
+    /// Returns whatever
+    /// </summary>
+    public class DummySerialConnection : Device.DeviceBase, ISerialConnection {
+
+        public bool ShouldRun { get; private set; } = true;
+
+        public byte[] Response;
+        public int Delay = 0;
+
+        public DummySerialConnection() : base("dummy_serial") { }
+
+        public byte[] Read() { return Response; }
+
+        public byte[] Send(byte[] data) {
+
+            if (Delay > 0) { Thread.Sleep(Delay); }
+            return Response ?? data;
+
+        }
+
+        public override void Stop() { ShouldRun = false; }
+
+    }
+
+
+    /// <summary>
+    /// Mocks the behaviour of a remote device (such an r2DeviceRouter micro controller.
+    /// </summary>
+    public class MockSerialConnection : Device.DeviceBase, ISerialConnection {
 		
 		ISerialPackageFactory m_factory;
 

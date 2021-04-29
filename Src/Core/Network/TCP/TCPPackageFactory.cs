@@ -18,7 +18,6 @@
 //
 using System;
 using System.IO;
-using System.Linq;
 
 namespace R2Core.Network
 {
@@ -31,7 +30,7 @@ namespace R2Core.Network
 		/// <summary>
 		/// Defines the data types which are transmittable
 		/// </summary>
-		public enum PayloadType : int {
+		public enum PayloadType {
 
 			// No payload
 			None = 0,
@@ -119,7 +118,9 @@ namespace R2Core.Network
 			
 				return m_serialization.Deserialize(message.Payload);
 					
-			} else if (message.PayloadType == PayloadType.String) {
+			} 
+
+            if (message.PayloadType == PayloadType.String) {
 			
 				return m_serialization.Encoding.GetString(message.Payload);
 
@@ -132,13 +133,10 @@ namespace R2Core.Network
 		public TCPMessage DeserializePackage(Stream stream) {
 
             byte[] signature = stream.Read(Signature.Length);
+
             for (int i = 0; i < Signature.Length; i++) {
 
-                if (signature[i] != Signature[i]) {
-
-                    return default(TCPMessage);
-
-                }
+                if (signature[i] != Signature[i]) { return default(TCPMessage); }
 
             }
 
@@ -205,6 +203,7 @@ namespace R2Core.Network
 			return data;
 
 		}
+
 	}
 
 }
