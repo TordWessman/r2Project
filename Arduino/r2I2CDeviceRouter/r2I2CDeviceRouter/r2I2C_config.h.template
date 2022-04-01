@@ -11,7 +11,7 @@
 //#define USE_ESP8266_WIFI_AP
 
 // If defined WIFI for TCP communication will be used. Should not be used with any other "USE" definitions.
-//#define USE_ESP8266_WIFI
+#define USE_ESP8266_WIFI
 
 // If defined, serial communication will be enabled 
 //#define USE_SERIAL
@@ -30,12 +30,13 @@
 #endif
 
 #if defined(USE_ESP8266_WIFI_AP) || defined(USE_ESP8266_WIFI)
-  #define WIFI_SSID "mynetwork"
-  #define WIFI_PASSWORD "mypassword"
   // The TCP port which this device will listen on.
   #define TCP_PORT 9696
   // The host name of this node on the WiFi
   #define WIFI_HOST_NAME "ragnar" 
+  #define WIFI_SSID "MyLan"
+  #define WIFI_PASSWORD"MyEasyPassword"
+
 #endif
 
 // The timing scale factor for led output. The higher the denomiator, the faster the LED blink rate.

@@ -90,15 +90,15 @@ void loop_tcp() {
     uint32_t timeout = millis() + R2_TCP_READ_TIMEOUT;
 
     // Read package size
-    if (!(client.read(&packageSize, 1) > 0)) { terminate("TCP",ERROR_TCP_READ,0); }
+    if (!(client.read(&packageSize, 1) > 0)) { return terminate("TCP",ERROR_TCP_READ, 0); }
 
     // Read the message
     for (int i = 0; i < packageSize; i++) {
       
-      if((millis() > timeout)) { terminate("Timeout", ERROR_TCP_TIMEOUT , pos); }
+      if((millis() > timeout)) { return terminate("Timeout", ERROR_TCP_TIMEOUT, i); }
       
       if (client.read(&dx, 1) > 0) { readBuffer[i] = dx; }
-      else { terminate("TCPx", ERROR_TCP_READ, i); }
+      else { return terminate("TCPx", ERROR_TCP_READ, i); }
   
     } 
     
