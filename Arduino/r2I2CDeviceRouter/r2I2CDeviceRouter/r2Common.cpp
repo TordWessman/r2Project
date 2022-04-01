@@ -163,24 +163,25 @@ void statusIndicator() {
 
 
 #ifdef R2_USE_LED
-void setupLeds() {
 
-  #ifdef R2_ERROR_LED
-    pinMode(R2_ERROR_LED, OUTPUT);
-    reservePort(R2_ERROR_LED);
-  #endif
-
-  #ifdef R2_STATUS_LED
-    pinMode(R2_STATUS_LED, OUTPUT);
-    for(int i = 0; i < 5; i++) {
-      digitalWrite(R2_STATUS_LED, 1);
-      delay(500 / LED_TIME_DENOMIATOR);
-      digitalWrite(R2_STATUS_LED, 0);
-      delay(500 / LED_TIME_DENOMIATOR);
-    }
-    reservePort(R2_STATUS_LED);
-  #endif
+  void setupLeds() {
   
-}
+    #ifdef R2_ERROR_LED
+      pinMode(R2_ERROR_LED, OUTPUT);
+      reservePort(R2_ERROR_LED);
+    #endif
+  
+    #ifdef R2_STATUS_LED
+      pinMode(R2_STATUS_LED, OUTPUT);
+      for(int i = 0; i < 5; i++) {
+        digitalWrite(R2_STATUS_LED, 1);
+        delay(500 / LED_TIME_DENOMIATOR);
+        digitalWrite(R2_STATUS_LED, 0);
+        delay(500 / LED_TIME_DENOMIATOR);
+      }
+      reservePort(R2_STATUS_LED);
+    #endif
+    
+  }
 
 #endif

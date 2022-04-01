@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include "Arduino.h"
+#include "r2I2CDeviceRouter.h"
 
 // -- Debuging
 

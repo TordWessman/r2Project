@@ -145,6 +145,10 @@ typedef struct RequestPackage RequestPackage;
 #define ERROR_INVALID_REQUEST_PACKAGE_SIZE 20
 // If the checksum in a request did not match the rest of the request data.
 #define ERROR_BAD_CHECKSUM 21
+// TCP read or write timed out.
+#define ERROR_TCP_TIMEOUT 22
+// TCP read failed.
+#define ERROR_TCP_READ 23
 
 // Error reserved for external purposes
 #define ERROR_RESERVED_1 0xF0

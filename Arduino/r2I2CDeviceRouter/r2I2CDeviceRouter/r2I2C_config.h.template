@@ -2,16 +2,22 @@
 #define R2I2C_CONFIG_H
 
 // If defined, I2C communication will be enabled
-//#define USE_I2C
+#define USE_I2C
+
+// If defined, a ESP8266 is being used
+//#define USE_ESP8266
 
 // If defined, the device will be treated as a ESP8266 WiFi access point. Should not be used with any other "USE" definitions.
 //#define USE_ESP8266_WIFI_AP
 
+// If defined WIFI for TCP communication will be used. Should not be used with any other "USE" definitions.
+//#define USE_ESP8266_WIFI
+
 // If defined, serial communication will be enabled 
-#define USE_SERIAL
+//#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
-//#define USE_RH24
+#define USE_RH24
 
 #ifdef USE_RH24
   
@@ -23,10 +29,13 @@
   
 #endif
 
-#ifdef USE_ESP8266_WIFI_AP
-  #define USE_ESP8266 
-  #define WIFI_SSID "mamma"
-  #define WIFI_PASSWORD"pappa666"
+#if defined(USE_ESP8266_WIFI_AP) || defined(USE_ESP8266_WIFI)
+  #define WIFI_SSID "mynetwork"
+  #define WIFI_PASSWORD "mypassword"
+  // The TCP port which this device will listen on.
+  #define TCP_PORT 9696
+  // The host name of this node on the WiFi
+  #define WIFI_HOST_NAME "ragnar" 
 #endif
 
 // The timing scale factor for led output. The higher the denomiator, the faster the LED blink rate.
@@ -39,7 +48,7 @@
 #define MAX_DEVICES 10
 
 // Use with caution. If defined, serial communication (USE_SERIAL) will not work and issues with I2C has also been observed.
-//#define R2_PRINT_DEBUG
+#define R2_PRINT_DEBUG
 
 // The address position used to store the node id 
 #define NODE_ID_EEPROM_ADDRESS 0x00
@@ -52,9 +61,5 @@
 #endif
 
 //#define R2_ERROR_LED 0x4
-
-// Not used
-#define R2_RESET_LED1 0x7
-#define R2_RESET_LED2 0x8
 
 #endif

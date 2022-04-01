@@ -1,15 +1,11 @@
-#ifdef USE_ESP8266_WIFI_AP
+#ifndef R2_ESP8266L_H
+#define R2_ESP8266L_H
+#include "r2I2CDeviceRouter.h"
 
-#ifndef ESP8266
-
-#error WIFI only available for ESP8266. Check your "USE_" definitions in r2I2C_config.h
-
-#endif
-
-// Configure and initialize the WiFi Access Point.
-void wifiApSetup();
+// Configure and initialize the WiFi (connect or access point).
+void wifiSetup();
 
 // Handle LAN traffic.
-void loop_wifi();
+void loop_tcp();
 
 #endif

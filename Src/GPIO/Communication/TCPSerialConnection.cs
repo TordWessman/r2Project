@@ -17,13 +17,17 @@
 //
 
 using System;
-using System.IO;
 using System.Net.Sockets;
 using R2Core.Device;
 using R2Core.Network;
 
 namespace R2Core.GPIO
 {
+
+    /// <summary>
+    /// As with the ArduinoSerialConnector it's used as a connection to R2I2CDeviceRouter devices, but
+    /// through a TCP connection.
+    /// </summary>
     public class TCPSerialConnection : DeviceBase, ISerialConnection {
 
         private TcpClient m_client;
@@ -43,16 +47,21 @@ namespace R2Core.GPIO
         /// <summary>
         /// Timeout in ms before a send operation dies.
         /// </summary>
-        public int Timeout = 5000;
+        public int Timeout;
+
+        public TCPSerialConnection(string id, string host) : this(id, host, Settings.Consts.TCPSerialConnectionDefaultPort()) { }
 
         public TCPSerialConnection(string id, string host, int port) : base(id) {
 
             Address = host;
             Port = port;
+            Timeout = Settings.Consts.TCPSerialConnectionTimeout();
 
         }
 
         public bool ShouldRun { get; private set; } = true;
+
+        public override bool Ready => m_client != null && m_client.IsConnected();
 
         public byte[] Read() {
 
@@ -61,6 +70,8 @@ namespace R2Core.GPIO
         }
 
         public byte[] Send(byte[] data) {
+
+            if (!Ready) { throw new InvalidOperationException($"Unable to send. {this} is not connected."); }
 
             if (data.Length > 0xFF) { throw new ArgumentException("Can't send packages larger than 255 bytes."); }
 
@@ -78,13 +89,18 @@ namespace R2Core.GPIO
 
         public override void Start() {
 
+            Log.i($"Connecting to {Address}:{Port}");
+
             m_client = new TcpClient {
                 SendTimeout = Timeout,
                 ReceiveTimeout = Timeout,
             };
 
+            m_client.NoDelay = true;
+
             m_client.Client.Blocking = true;
             m_client.Connect(Address, Port);
+            Log.i("Connected");
 
         }
 
@@ -95,7 +111,7 @@ namespace R2Core.GPIO
 
         }
 
-        private byte[] Read(NetworkStream stream) { 
+        private byte[] Read(NetworkStream stream) {
 
             // First byte should contain the size of the rest of the transaction.
             int responseSize = stream.ReadByte();

@@ -1,6 +1,4 @@
-﻿using System;
-using R2Core.Device;
-using R2Core;
+﻿using R2Core.Device;
 
 namespace R2Core.GPIO
 {
@@ -9,16 +7,22 @@ namespace R2Core.GPIO
     /// </summary>
 	public class GPIOFactoryFactory : DeviceBase {
 		
+
 		public GPIOFactoryFactory(string id) : base(id) { }
 
-		/// <summary>
-		/// Creates a connection using the serial port
-		/// </summary>
-		/// <returns>The serial connection.</returns>
-		/// <param name="id">Identifier.</param>
-		/// <param name="portIdentifier">Port identifier.</param>
-		/// <param name="baudRate">Baud rate.</param>
-		public IArduinoDeviceRouter CreateSerialConnection(string id, string portIdentifier, int baudRate = 0) {
+        /// <summary>
+        /// The default package factory used to serialize/deserialize packages.
+        /// </summary>
+        public ISerialPackageFactory PackageFactory = new ArduinoSerialPackageFactory();
+
+        /// <summary>
+        /// Creates a connection using the serial port to a R2I2CDeviceRouter device.
+        /// </summary>
+        /// <returns>The serial connection.</returns>
+        /// <param name="id">Identifier.</param>
+        /// <param name="portIdentifier">Port identifier.</param>
+        /// <param name="baudRate">Baud rate.</param>
+        public IArduinoDeviceRouter CreateSerialConnection(string id, string portIdentifier, int baudRate = 0) {
 		
 			if (baudRate <= 0) {
 			
@@ -27,21 +31,42 @@ namespace R2Core.GPIO
 			}
 
 			ISerialConnection connection = new ArduinoSerialConnector(id, portIdentifier, baudRate);
-			return new ArduinoDeviceRouter(id, connection, new ArduinoSerialPackageFactory());
+			return new ArduinoDeviceRouter(id, connection, PackageFactory);
 
 		}
 
-		/// <summary>
-		/// Creates a connection using the I2C protocol
-		/// </summary>
-		/// <returns>The serial connection.</returns>
-		/// <param name="id">Identifier.</param>
-		/// <param name="bus">Bus.</param>
-		/// <param name="port">Port.</param>
-		public IArduinoDeviceRouter CreateSerialConnection(string id, int? bus = null, int? port = null) {
+        /// <summary>
+        /// Creates a R2I2CDeviceRouter connection using a TCP connection (typically for WiFi enabled devices).
+        /// </summary>
+        /// <returns>The serial TCPC onnection.</returns>
+        /// <param name="id">Identifier.</param>
+        /// <param name="host">Host.</param>
+        /// <param name="port">Port.</param>
+        public IArduinoDeviceRouter CreateSerialTCPConnection(string id, string host, int port = 0) {
+
+            if (port <= 0) {
+
+                port = Settings.Consts.TCPSerialConnectionDefaultPort();
+            
+            }
+
+            ISerialConnection connection = new TCPSerialConnection(id, host, port);
+            return new ArduinoDeviceRouter(id, connection, PackageFactory);
+
+        }
+
+        /// <summary>
+        /// Creates a connection using the I2C protocol to a R2I2CDeviceRouter device. Requires
+        /// a I2C port on this host machine.
+        /// </summary>
+        /// <returns>The serial connection.</returns>
+        /// <param name="id">Identifier.</param>
+        /// <param name="bus">Bus.</param>
+        /// <param name="port">Port.</param>
+        public IArduinoDeviceRouter CreateSerialConnection(string id, int? bus = null, int? port = null) {
 
 			ISerialConnection connection = new R2I2CMaster(id, bus, port);
-			return new ArduinoDeviceRouter(id, connection, new ArduinoSerialPackageFactory());
+			return new ArduinoDeviceRouter(id, connection, PackageFactory);
 
 		}
 

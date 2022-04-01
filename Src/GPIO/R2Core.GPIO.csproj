@@ -132,6 +132,7 @@
       <LastGenOutput>GPIOConfigurationTemplate.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
+    <None Include="GPIO.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\R2Core.csproj">

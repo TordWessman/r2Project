@@ -8,15 +8,11 @@
   #include "RF24Mesh.h"
 #endif
 
-#ifdef USE_ESP8266_WIFI_AP
+#if defined(USE_ESP8266_WIFI_AP) || defined(USE_ESP8266_WIFI)
   #include "r2ESP8266.h"
 #endif
 
-#ifdef USE_SERIAL
-  #include "r2I2CSerial.h"
-#endif
-
-#ifdef USE_I2C
+#if defined(USE_SERIAL) || defined(USE_I2C)
   #include "r2I2CSerial.h"
 #endif
 
@@ -29,7 +25,7 @@ byte messageId = 0;
 
 void setup() {
 
-  //saveNodeId(5);
+  //saveNodeId(0);
 
   Serial.begin(SERIAL_BAUD_RATE);
   clearError();
@@ -38,8 +34,8 @@ void setup() {
     setupLeds();
   #endif
   
-  #ifdef USE_ESP8266_WIFI_AP
-    void wifiApSetup();
+  #ifdef USE_ESP8266
+    wifiSetup();
   #endif
   
   #ifdef USE_I2C
@@ -354,9 +350,9 @@ void loop() {
   #ifdef USE_SERIAL
     loop_serial();
   #endif
-  
-  #ifdef USE_ESP8266_WIFI_AP
-    loop_wifi();
+
+  #ifdef USE_ESP8266
+    loop_tcp();
   #endif
   
   #ifdef USE_RH24
