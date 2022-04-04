@@ -24,6 +24,7 @@ void wifiSetup() {
   for (int i = 0; i < hotspot.length(); i++)
   hotspot_char[i] = hotspot.charAt(i);
   WiFi.softAP(hotspot_char,WIFI_PASSWORD);
+  Serial.println(WiFi.macAddress());
   server.begin();
   
 }
@@ -50,6 +51,7 @@ void wifiSetup() {
   Serial.println("");
   Serial.println(WIFI_SSID);
   Serial.println(WiFi.localIP());
+  Serial.println(WiFi.macAddress());
   server.begin();
   
 }

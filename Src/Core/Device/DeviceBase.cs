@@ -41,8 +41,16 @@ namespace R2Core.Device
 
 		}
 
+        /// <summary>
+        /// An assigned identifier for this device
+        /// </summary>
+        /// <value>The identifier.</value>
 		public string Identifier { get { return m_id; } }
 
+        /// <summary>
+        /// A unique identifier for this instance of a device
+        /// </summary>
+        /// <value>The GUID.</value>
 		public Guid Guid { get { return m_guid; } }
 		
 		public virtual void Start() {}

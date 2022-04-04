@@ -308,7 +308,7 @@ namespace R2Core.GPIO
         }
 
         /// <summary>
-        /// Contains the response. Normally it's an int16 containing some requested response data.
+        /// Contains the response. Typically, it's an int16 containing some requested response data.
         /// </summary>
         /// <value>The value.</value>
         public T Value {
