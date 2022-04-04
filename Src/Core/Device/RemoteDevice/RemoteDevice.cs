@@ -141,12 +141,18 @@ namespace R2Core.Device
 
         }
 
+
         private INetworkMessage Send(DeviceRequest request) {
 
             m_message.Payload = request;
             INetworkMessage response = m_host.Send(m_message);
 
-            m_lastAsyncTask?.Start();
+            if(m_lastAsyncTask?.Status != System.Threading.Tasks.TaskStatus.Running) {
+
+                m_lastAsyncTask?.Start();
+            
+            }
+
             m_lastAsyncTask = null;
 
             if (response.IsError()) {
