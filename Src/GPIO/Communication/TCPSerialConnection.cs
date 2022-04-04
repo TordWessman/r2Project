@@ -61,7 +61,7 @@ namespace R2Core.GPIO
 
         public bool ShouldRun { get; private set; } = true;
 
-        public override bool Ready => m_client != null && m_client.IsConnected();
+        public override bool Ready => m_client != null && m_client.IsConnected() && m_client.Connected;
 
         public byte[] Read() {
 
@@ -89,7 +89,7 @@ namespace R2Core.GPIO
 
         public override void Start() {
 
-            Log.i($"Connecting to {Address}:{Port}");
+            Log.i($"TCPSerial Connecting to {Address}:{Port}", Identifier);
 
             m_client = new TcpClient {
                 SendTimeout = Timeout,
@@ -100,7 +100,7 @@ namespace R2Core.GPIO
 
             m_client.Client.Blocking = true;
             m_client.Connect(Address, Port);
-            Log.i("Connected");
+            Log.i("TCPSerial Connected", Identifier);
 
         }
 
@@ -112,7 +112,7 @@ namespace R2Core.GPIO
         }
 
         private byte[] Read(NetworkStream stream) {
-
+        
             // First byte should contain the size of the rest of the transaction.
             int responseSize = stream.ReadByte();
 

@@ -19,27 +19,44 @@
 using System;
 using System.Net.Sockets;
 using System.Net;
+using System.Net.NetworkInformation;
+using System.Linq;
 
 namespace R2Core.Network
 {
 	public static class NetworkSocketExtensions
 	{
 
-		/// <summary>
-		/// Returns true if the client is connected and has not lost connection(!).
-		/// </summary>
-		/// <returns><c>true</c> if is connected the specified self; otherwise, <c>false</c>.</returns>
-		public static bool IsConnected(this TcpClient self) {
+        static TcpState[] ConnectedTCPStates => new TcpState[] { TcpState.Established };
 
-			return self.GetSocket() != null && self.Connected && self.GetSocket()?.IsConnected() == true;
+        /// <summary>
+        /// Returns true if the client is connected and has not lost connection(!).
+        /// </summary>
+        /// <returns><c>true</c> if is connected the specified self; otherwise, <c>false</c>.</returns>
+        public static bool IsConnected(this TcpClient self) {
+
+			return  self.GetSocket() != null && 
+                    self.Connected && 
+                    self.GetSocket()?.IsConnected() == true &&
+                    ConnectedTCPStates.Contains(self.GetState());
 
 		}
 
-		/// <summary>
-		/// Returns the Socket object (or null if it has been disposed).
-		/// </summary>
-		/// <returns>The socket.</returns>
-		public static Socket GetSocket(this TcpClient self) {
+        public static TcpState GetState(this TcpClient self) {
+
+            var properties = IPGlobalProperties.GetIPGlobalProperties()
+              .GetActiveTcpConnections()
+              .SingleOrDefault(x => x.LocalEndPoint.Equals(self.Client.LocalEndPoint));
+
+            return properties == null ? TcpState.Unknown : properties.State;
+
+        }
+
+        /// <summary>
+        /// Returns the Socket object (or null if it has been disposed).
+        /// </summary>
+        /// <returns>The socket.</returns>
+        public static Socket GetSocket(this TcpClient self) {
 
 			try {
 

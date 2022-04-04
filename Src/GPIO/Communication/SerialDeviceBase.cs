@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
+using System;
 using R2Core.Device;
 
 namespace R2Core.GPIO
@@ -44,7 +45,22 @@ namespace R2Core.GPIO
 
 		public ISerialNode Node { get; private set; }
 		public bool IsSleeping { get { return Node.Sleep; } }
-		public override bool Ready { get { return Node.Ready; } }
+		public override bool Ready { get {
+
+                try {
+
+                    return Node.Ready;
+                    
+                } catch (Exception ex) { 
+
+                    Log.w(ex.Message);
+                    return false;
+
+                }
+
+            }
+
+        }
 
 		internal SerialDeviceBase(string id, ISerialNode node, IArduinoDeviceRouter host): base(id) {
 			
