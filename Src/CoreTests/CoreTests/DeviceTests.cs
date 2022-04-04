@@ -50,8 +50,9 @@ namespace R2Core.Tests
 
 		[Test]
 		public void TestRemotePythonScript() {
+            PrintName();
 
-			IServer s = factory.CreateTcpServer("s", tcp_port + 9998);
+            IServer s = factory.CreateTcpServer("s", tcp_port + 9998);
 			s.Start();
             s.WaitFor();
 			DeviceRouter rec = (DeviceRouter) factory.CreateDeviceRouter(m_deviceManager);
@@ -96,8 +97,9 @@ namespace R2Core.Tests
 
         [Test]
 		public void TestRemoteDevice_UsingServers() {
+            PrintName();
 
-			IServer s = factory.CreateTcpServer("s", tcp_port + 9990);
+            IServer s = factory.CreateTcpServer("s", tcp_port + 9990);
 			s.Start();
 			DummyDevice dummyObject = m_deviceManager.Get("dummy_device");
 			dummyObject.Bar = "XYZ";
@@ -227,8 +229,9 @@ namespace R2Core.Tests
 
 		[Test]
 		public void X_DeviceNotificationTest() {
+            PrintName();
 
-			InvokerDummyDevice invokedDevice = new InvokerDummyDevice("x");
+            InvokerDummyDevice invokedDevice = new InvokerDummyDevice("x");
 			m_deviceManager = new DeviceManager("dm");
 			m_deviceManager.Add(invokedDevice);
 
@@ -249,6 +252,7 @@ namespace R2Core.Tests
 
         [Test]
         public void TestRemoteDevice() {
+            PrintName();
 
             var host = new DummyNetworkConnection();
             RemoteDevice remoteDevice = new RemoteDevice("test", Guid.Empty, host);
@@ -310,7 +314,7 @@ namespace R2Core.Tests
               
                 remoteDevice.Async((response, exception) => {
 
-                    Log.t($" -- {i}");
+                    Log.t($" -x- {i}");
                     Assert.IsNull(exception);
                     receiveCount++;
 
@@ -318,8 +322,8 @@ namespace R2Core.Tests
 
             }
 
-            Thread.Sleep(200); // They should be done by now... (but maybe not)
-            Assert.AreEqual(2, receiveCount); // .. only 2 should have been executed
+            Thread.Sleep(300); // They should be done by now... (but maybe not)
+            Assert.AreEqual(2, receiveCount); // .. only 6 should have been executed
 
             // Test GetValue
 
@@ -346,6 +350,8 @@ namespace R2Core.Tests
 
             });
 
+            Thread.Sleep(400);
+
         }
 
 
@@ -363,7 +369,44 @@ namespace R2Core.Tests
 
 		}
 
-	}
+        class DummyDeviceConnectionManagerTestDevice: DeviceBase {
+
+            private bool m_ready;
+
+            public override bool Ready => m_ready;
+
+            public DummyDeviceConnectionManagerTestDevice(): base("test_device") { }
+
+            public override void Stop() { m_ready = false; }
+
+            public override void Start() { m_ready = true; }
+
+        }
+
+        [Test]
+        public void TestDeviceConnectionManager() {
+            PrintName();
+
+            DeviceConnectionManager deviceConnectionManager = new DeviceConnectionManager("dm", 100, 10);
+
+            DummyDeviceConnectionManagerTestDevice device = new DummyDeviceConnectionManagerTestDevice();
+
+            deviceConnectionManager.Add(device);
+
+            Assert.False(device.Ready);
+            deviceConnectionManager.Start();
+            Assert.False(device.Ready);
+            Thread.Sleep(500);
+            Assert.True(device.Ready);
+            device.Stop();
+            Assert.False(device.Ready);
+            Thread.Sleep(20);
+            Assert.True(device.Ready);
+
+        }
+
+
+    }
 
 }
 

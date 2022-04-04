@@ -138,6 +138,7 @@
     <Compile Include="Network\TCP\TCPRouterEndpoint.cs" />
     <Compile Include="Shared\ConversionsExtensions.cs" />
     <Compile Include="Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Device\DeviceConnectionManager.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

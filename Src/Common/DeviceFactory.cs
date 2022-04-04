@@ -64,6 +64,12 @@ namespace R2Core.Common
 
         }
 
+        public DeviceConnectionManager CreateDeviceConnectionManager(string id) {
+
+            return new DeviceConnectionManager(id);
+
+        }
+
     }
 
 }
