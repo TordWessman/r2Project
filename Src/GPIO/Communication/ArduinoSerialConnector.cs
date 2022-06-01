@@ -93,7 +93,7 @@ namespace R2Core.GPIO
 
 		public override void Start() {
 
-			Log.d(Identifier, $"Connectiing to {m_serialPort.PortName}");
+			Log.d($"Connecting to {m_serialPort.PortName}", Identifier);
 
 			try {
 				
@@ -186,7 +186,7 @@ namespace R2Core.GPIO
 		/// </summary>
 		private void ClearPipe() {
 
-			if (m_serialPort.BytesToRead > 0) { Log.w(Identifier, "ClearPipe: There was apparently some data in the pipe."); }
+			if (m_serialPort.BytesToRead > 0) { Log.w("ClearPipe: There was apparently some data in the pipe.", Identifier); }
 			m_serialPort.DiscardInBuffer();
 
 		}
