@@ -150,7 +150,10 @@ class MainClass:
 							if (len(stringCheckSplit) == 3):
 								paramsArray.Add(stringCheckSplit[1])	#string
 							elif (len(stringCheckSplit) == 1):
-								paramsArray.Add(int(param))	#other
+								if "." in param:
+									paramsArray.Add(float(param))	#float
+								else:
+									paramsArray.Add(int(param))		#not float
 							else:
 								raise Exception("Invokation of '" + device_name + "' failed. Unable to determine parameter type : '" + param + "'")
 	
