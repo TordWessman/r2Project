@@ -76,6 +76,7 @@ Shared.cs
 **/bin
 *dumpcode.txt
 .vs
+dumpcode.txt
 
 # custom folders
 r2I2C_config.h
