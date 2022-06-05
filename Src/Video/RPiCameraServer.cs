@@ -45,8 +45,7 @@ namespace R2Core.Video
 
 		}
 
-		public override bool Ready { get { return _ext_rpi_get_initiated() && !_ext_rpi_get_recording(); } }
-		public bool IsPlaying { get { return _ext_rpi_get_recording(); } }
+		public override bool Ready { get { return _ext_rpi_get_initiated() && _ext_rpi_get_recording(); } }
 
 		public int Width { get { return _ext_rpi_get_width(); } }
 		public int Height { get { return _ext_rpi_get_height(); } }
