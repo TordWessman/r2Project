@@ -151,12 +151,15 @@ bool blinkOn = false;
 #define blinkTime (1000/LED_TIME_DENOMIATOR)
 
 void statusIndicator() {
+  
   if(millis() - blinkTimer >= blinkTime) {
+    
     blinkTimer = millis();
     setStatus(blinkOn);
     blinkOn = !blinkOn;
     
   }
+  
 }
 
 #endif

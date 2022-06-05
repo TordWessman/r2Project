@@ -29,7 +29,7 @@ void setup() {
 
   Serial.begin(SERIAL_BAUD_RATE);
   clearError();
-  
+
   #ifdef R2_USE_LED
     setupLeds();
   #endif

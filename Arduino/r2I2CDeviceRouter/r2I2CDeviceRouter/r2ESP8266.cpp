@@ -63,9 +63,15 @@ WiFiClient client;
 
 // Contains data during serial read.
 byte readBuffer[sizeof(RequestPackage) + 1];
+
+unsigned long broadcastTimer = 0;
+
+#define R2_TCP_BROADCAST_TIME 2000 // UDP broadcast every 2 second
+
 #define R2_TCP_READ_TIMEOUT 1000
 
 void writeResponse(ResponsePackage out);
+void broadcast();
 
 void terminate(const char* message, int code, int data) {
   
@@ -74,6 +80,18 @@ void terminate(const char* message, int code, int data) {
   err(message, code, data);
   writeResponse(createErrorPackage(0x0));
   client.stop();
+  
+}
+
+
+void broadcastTimerCheck() {
+  
+  if(millis() - broadcastTimer >= R2_TCP_BROADCAST_TIME) {
+    
+    broadcastTimer = millis();
+    //broadcast();
+    
+  }
   
 }
 
@@ -108,6 +126,10 @@ void loop_tcp() {
     writeResponse(execute((RequestPackage*)readBuffer));
     R2_LOG(F("Did reply."));
     
+  } else {
+    
+    broadcastTimerCheck();
+    
   }
 
 }
@@ -117,6 +139,80 @@ void writeResponse(ResponsePackage out) {
   byte packageSize = RESPONSE_PACKAGE_SIZE(out);
   client.write(packageSize);
   client.write((const byte*)&out, packageSize);
+
+}
+
+
+#define PACKAGE_SIGNATURE 42,0,42,0 // Defined by TCPPackageFactory.cs
+#define PACKAGE_CODE 200,0 // Not really used, but HTTP-OK seems good
+#define PACKAGE_PATH 47,101,115,112,56,50 // "/esp82"
+#define PACKAGE_PATH_SIZE sizeof(PACKAGE_PATH),0,0,0
+#define PACKAGE_HEADERS_SIZE 0,0,0,0 // No headers
+#define PACKAGE_PAYLOAD_DATA_TYPE 3,0 // Payload type: "Bytes"
+#define PACKAGE_PAYLOAD_SIZE(size) size,0,0,0
+#define IPV4_SIZE 4 // 4 bytes for an IPv4 address
+
+// Create a byte-formatted TCPPackage.
+TCPPackage createTCPPackage(byte* payload, byte payloadSize) {
+  
+  byte components[] = { PACKAGE_SIGNATURE, PACKAGE_CODE,
+                        PACKAGE_PATH_SIZE, PACKAGE_HEADERS_SIZE, PACKAGE_PAYLOAD_SIZE(payloadSize),
+                        PACKAGE_PATH, PACKAGE_PAYLOAD_DATA_TYPE };
+                        
+  int packageSize = sizeof(components) + payloadSize;
+  
+  TCPPackage package;
+  package.size = packageSize;
+  package.data = (byte *)malloc(packageSize);
+  int offset = 0;
+
+  for(int i = 0; i < sizeof(components); i++) {
+    
+    package.data[i] = components[i];
+    offset++;
+  
+  }
+
+  for(int i = 0; i < payloadSize; i++) {
+    
+    package.data[offset + i] = payload[i];
+  
+  }
+
+  return package;
+  
+}
+
+//TODO:
+UnitIdentifier createUnitIdentifier() {
+  UnitIdentifier id;
+  id.size = 4;
+  id.id = (byte *)malloc(4);
+  for(int i = 0; i < 4; i++) { id.id[i] = i; }
+  return id;
+}
+
+UnitIdentifier unitIdentifier = createUnitIdentifier();
+
+// Broadcast the existance of self with local ip and "unit identifier" over UDP
+void broadcast() {
+
+  IPAddress address = WiFi.localIP();
+  int size = IPV4_SIZE + unitIdentifier.size;
+  byte payload[size];
+  
+  for(int i = 0; i < IPV4_SIZE; i++) { payload[i] = address[i]; }
+  for(int i = 0; i < unitIdentifier.size; i++) { payload[i + IPV4_SIZE] = unitIdentifier.id[i]; }
+
+  TCPPackage package = createTCPPackage(payload, size);
+
+  for(int i = 0; i < package.size; i++) {
+    Serial.print((int)package.data[i]); Serial.print("|");
+  }
+
+  Serial.println();
+
+  free(package.data);
 
 }
 
