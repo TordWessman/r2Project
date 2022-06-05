@@ -80,7 +80,7 @@ namespace R2Core.PushNotifications
 
 			}
 
-			return new ApplePushNotificationFacade(id, appleCertFile, password);
+			return new ApplePushNotificationFacade2(id, appleCertFile, password);
 
 		}
 
