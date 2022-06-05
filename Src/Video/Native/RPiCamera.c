@@ -5,7 +5,7 @@
 // r2Project is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+//(at your option) any later version.
 // 
 // r2Project is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -56,66 +56,70 @@ void _ext_rpi_init_extended(int width, int height, int port, int bitrate, int fr
 
 }
 
-static gboolean
-rpi_message_cb (GstBus * bus, GstMessage * message, gpointer user_data)
-{
-  switch (GST_MESSAGE_TYPE (message)) {
+static gboolean rpi_message_cb(GstBus * bus, GstMessage * message, gpointer user_data) {
+
+  switch(GST_MESSAGE_TYPE(message)) {
+
     case GST_MESSAGE_ERROR:{
+
       GError *err = NULL;
       gchar *name, *debug = NULL;
 
-      name = gst_object_get_path_string (message->src);
-      gst_message_parse_error (message, &err, &debug);
+      name = gst_object_get_path_string(message->src);
+      gst_message_parse_error(message, &err, &debug);
 
-      g_printerr ("libr2rpicamera ERROR: from element %s: %s\n", name, err->message);
-      if (debug != NULL)
-        g_printerr ("Additional debug info:\n%s\n", debug);
+      g_printerr("libr2rpicamera ERROR: from element %s: %s\n", name, err->message);
+      if(debug != NULL)
+        g_printerr("Additional debug info:\n%s\n", debug);
 
-      g_error_free (err);
-      g_free (debug);
-      g_free (name);
+      g_error_free(err);
+      g_free(debug);
+      g_free(name);
 
-      g_main_loop_quit (rpi_loop);
+      g_main_loop_quit(rpi_loop);
       break;
-    }
-    case GST_MESSAGE_WARNING:{
-		GError *err = NULL;
-		gchar *name, *debug = NULL;
 
-		name = gst_object_get_path_string (message->src);
-		gst_message_parse_warning (message, &err, &debug);
+    } case GST_MESSAGE_WARNING:{
 
-		g_printerr ("libr2rpicamera WARNING: from element %s: %s\n", name, err->message);
-		if (debug != NULL)
-		g_printerr ("Additional debug info:\n%s\n", debug);
+			GError *err = NULL;
+			gchar *name, *debug = NULL;
 
-		g_error_free (err);
-		g_free (debug);
-		g_free (name);
-		break;
-    }
-    case GST_MESSAGE_EOS:{
-    	rpi_recording = false;
-		rpi_initiated = false;
-		g_print ("libr2rpicamera got EOS\n");
-		g_main_loop_quit (rpi_loop);
-		gst_element_set_state (rpi_pipeline, GST_STATE_NULL);
-		g_main_loop_unref (rpi_loop);
-		gst_object_unref (rpi_pipeline);
-		exit(0);
-		break;
-	}
+			name = gst_object_get_path_string(message->src);
+			gst_message_parse_warning(message, &err, &debug);
+
+			g_printerr("libr2rpicamera WARNING: from element %s: %s\n", name, err->message);
+			if(debug != NULL)
+			g_printerr("Additional debug info:\n%s\n", debug);
+
+			g_error_free(err);
+			g_free(debug);
+			g_free(name);
+			break;
+
+    } case GST_MESSAGE_EOS:{
+
+	    rpi_recording = false;
+			rpi_initiated = false;
+			g_main_loop_quit(rpi_loop);
+			gst_element_set_state(rpi_pipeline, GST_STATE_NULL);
+			g_main_loop_unref(rpi_loop);
+			gst_object_unref(rpi_pipeline);
+			break;
+
+		}
+
     default:
 		break;
+
   }
 
-  return TRUE;
+  return true;
 }
 
 int _ext_rpi_setup() {
 
 	rpi_recording = false;
-	gst_init (NULL, NULL);
+	gst_init(NULL, NULL);
 
 	GstCaps *camera_caps;
 
@@ -124,7 +128,7 @@ int _ext_rpi_setup() {
 	rpi_tcpserversink = gst_element_factory_make("tcpserversink", NULL);
 	rpi_queue_tcp = gst_element_factory_make("queue", "queue_tcp");
 
-	if (!rpi_pipeline || !rpi_src || !rpi_tcpserversink || !rpi_queue_tcp) {
+	if(!rpi_pipeline || !rpi_src || !rpi_tcpserversink || !rpi_queue_tcp) {
 		g_error("Failed to create one or more elements");
 		return -1;
 	}
@@ -154,27 +158,27 @@ int _ext_rpi_setup() {
 
 	gst_bin_add_many(GST_BIN(rpi_pipeline), rpi_src, rpi_queue_tcp, rpi_tcpserversink, NULL);
 
-	if(!gst_element_link_filtered(rpi_src, rpi_queue_tcp, camera_caps))
-	{
-		gst_object_unref (rpi_pipeline);
-		g_critical ("Unable to link rpi_src to queue");
+	if(!gst_element_link_filtered(rpi_src, rpi_queue_tcp, camera_caps)) {
+		gst_object_unref(rpi_pipeline);
+		g_critical("Unable to link rpi_src to queue");
 		return -2;
 	}
 
-	if (!gst_element_link_many(rpi_queue_tcp, rpi_tcpserversink, NULL)) {
+	if(!gst_element_link_many(rpi_queue_tcp, rpi_tcpserversink, NULL)) {
 		g_error("Failed to link to tcpserversink");
 		return -4;
 	}
 
-	rpi_loop = g_main_loop_new(NULL, FALSE);
+	rpi_loop = g_main_loop_new(NULL, false);
 
-	rpi_bus = gst_pipeline_get_bus(GST_PIPELINE (rpi_pipeline));
+	rpi_bus = gst_pipeline_get_bus(GST_PIPELINE(rpi_pipeline));
 	gst_bus_add_signal_watch(rpi_bus);
 	g_signal_connect(G_OBJECT(rpi_bus), "message", G_CALLBACK(rpi_message_cb), NULL);
 	gst_object_unref(GST_OBJECT(rpi_bus));
 
 	rpi_initiated = true;
 	return 0;
+
 }
 
 void _ext_rpi_stop() {
@@ -190,6 +194,7 @@ void _ext_rpi_start() {
 	g_main_loop_run(rpi_loop);
 	rpi_recording = false;
 	rpi_initiated = false;
+
 }
 
 int _ext_rpi_get_framerate() { return rpi_framerate; }
@@ -204,7 +209,7 @@ int main(int argc, char *argv[]) {
 
 	int setupResult = _ext_rpi_setup(); 
 
-	if (setupResult < 0) {
+	if(setupResult < 0) {
 		return -setupResult;
 	} 
 
