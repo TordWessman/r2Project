@@ -24,7 +24,7 @@ static void(* arghhhh) (void) = 0;
 void setStatus(bool on);
 
 // Set the error led if defined by R2_ERROR_LED
-void setError(bool on);
+void setErrorLed(bool on);
 
 // -- Various "helper" methods --
 

@@ -37,6 +37,8 @@ Device* getDevice(byte id) {
 
 void deleteDevice(byte id) {
 
+  R2_LOG(F("Deleting device with id:"));
+  R2_LOG(id);
   if (devices[id].object != NULL) {
 
     if (devices[id].type == DEVICE_TYPE_SERVO) {
@@ -263,7 +265,7 @@ int* getValue(Device* device) {
      
    case DEVICE_TYPE_DHT11: {
      
-       Dht11 *sensor = ((Dht11 *) device->object); 
+       Dht11 *sensor = ((Dht11 *) device->object);
        
        switch (sensor->read()) {
          
@@ -281,6 +283,14 @@ int* getValue(Device* device) {
             values[RESPONSE_POSITION_DHT11_TEMPERATURE] = 0;
             values[RESPONSE_POSITION_DHT11_HUMIDITY] = 0;
             err("DHT Timeout", ERROR_CODE_DHT11_READ_ERROR);
+            
+            break;
+
+           case Dht11::ERROR_CHECKSUM:
+          
+            values[RESPONSE_POSITION_DHT11_TEMPERATURE] = 0;
+            values[RESPONSE_POSITION_DHT11_HUMIDITY] = 0;
+            err("DHT CHCKSM", ERROR_CODE_DHT11_READ_ERROR);
             
             break;
             

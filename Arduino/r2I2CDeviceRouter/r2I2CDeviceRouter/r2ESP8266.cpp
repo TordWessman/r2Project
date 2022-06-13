@@ -104,7 +104,7 @@ void loop_tcp() {
   
     } 
     
-    R2_LOG(F("Got a package! Will reply."));
+    R2_LOG(F("Got a package!"));
     writeResponse(execute((RequestPackage*)readBuffer));
     R2_LOG(F("Did reply."));
     

@@ -65,7 +65,10 @@ ResponsePackage execute(RequestPackage *request) {
   response.host = request->host;
   response.contentSize = 0;
   response.messageId = messageId++;
-  
+
+  // If true, the `action` is ACTION_CREATE_DEVICE.
+  bool createAction = false;
+    
   if (createRequestChecksum(request) != request->checksum) {
   
     err("E: checksum", ERROR_BAD_CHECKSUM, request->checksum);
@@ -123,7 +126,6 @@ ResponsePackage execute(RequestPackage *request) {
     
     if (isError(response)) { setError(response); }
     if (isError()) { response = createErrorPackage(response.host); }
-  
     clearError();
     response.checksum = createResponseChecksum(&response);
     return response;
@@ -156,7 +158,7 @@ ResponsePackage execute(RequestPackage *request) {
   } else {
     
   #else
-  
+    
     //Handle sleep-actions on non-RH24 nodes (implying that it's I2C or Serial only)
     if (request->action == ACTION_CHECK_NODE) {
   
@@ -216,7 +218,8 @@ ResponsePackage execute(RequestPackage *request) {
           break;
         
         }
-        
+
+        createAction = true;
         deviceCount++;
         
       }
@@ -230,7 +233,7 @@ ResponsePackage execute(RequestPackage *request) {
           R2_LOG(request->id);
          
           Device *device = getDevice(request->id);
-         
+
           if (device) {
         
             response.contentSize = RESPONSE_VALUE_CONTENT_SIZE;
@@ -239,6 +242,12 @@ ResponsePackage execute(RequestPackage *request) {
             for (int i = 0; i < response.contentSize; i++) { response.content[i] = result[i]; }
             
             free (result);
+
+            // If getValue generated an error and if this was a "create device action", delete the device.
+            if (getErrorCode() > 0 && createAction) {
+              deleteDevice(request->id);
+              deviceCount--;
+            }
             
           } else {
           
@@ -334,7 +343,6 @@ ResponsePackage execute(RequestPackage *request) {
   }
 #endif
   if (isError()) { response = createErrorPackage(response.host); }
-  
   clearError();
   response.checksum = createResponseChecksum(&response);
   return response;

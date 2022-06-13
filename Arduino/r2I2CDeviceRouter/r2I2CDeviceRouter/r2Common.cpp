@@ -41,7 +41,7 @@ bool isError() { return errCode != 0; }
 
 void clearError() {
   
-  setError(false);
+  setErrorLed(false);
   errCode = 0;
   errInfo = 0;
   
@@ -53,7 +53,7 @@ void err(const char* msg, byte code, byte info) {
 
   errInfo = info;  
   errCode = code;
-  setError(true);
+  setErrorLed(true);
   
 #ifdef R2_PRINT_DEBUG
     if(Serial && msg) { 
@@ -104,7 +104,7 @@ void setStatus(bool on) {
 
 }
 
-void setError(bool on) {
+void setErrorLed(bool on) {
 
 #ifdef R2_ERROR_LED
   digitalWrite(R2_ERROR_LED, on ? 1 : 0); 
