@@ -1,9 +1,10 @@
-#include "Dht11.h"
 #include <Servo.h>
 
 #ifdef ESP8266
+  #include <DHTesp.h>
   #include <NewPingESP8266.h>
 #else
+  #include "Dht11.h"
   #include <NewPing.h>
 #endif
 
@@ -44,6 +45,12 @@ void deleteDevice(byte id) {
     if (devices[id].type == DEVICE_TYPE_SERVO) {
 
         ((Servo *) devices[id].object)->detach();
+        
+        //delete devices[id].object;
+         
+    } else if (devices[id].type == DEVICE_TYPE_DHT11) {
+
+        //delete devices[id].object;
          
     } else if (devices[id].type == DEVICE_TYPE_DIGITAL_OUTPUT) {
     
@@ -184,10 +191,17 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
   case DEVICE_TYPE_DHT11: { 
     
          if (reservePort(input[0])) {
-    
+           
            device.IOPorts[0] = input[0];
-           Dht11 *dht11 =  new Dht11(device.IOPorts[0]);
+           
+    #ifdef ESP8266
+           DHTesp *dht11 = new DHTesp();
+           dht11->setup(device.IOPorts[0], DHTesp::AUTO_DETECT);
            device.object = (void *)dht11;
+    #else
+           Dht11 *dht11 = new Dht11(device.IOPorts[0]);
+           device.object = (void *)dht11;
+    #endif
     
          }
          
@@ -265,7 +279,28 @@ int* getValue(Device* device) {
      
    case DEVICE_TYPE_DHT11: {
 
-       Dht11 *sensor = ((Dht11 *) device->object);
+#ifdef ESP8266
+
+        DHTesp *dht = ((DHTesp *) device->object);
+        delay(dht->getMinimumSamplingPeriod());
+        
+        TempAndHumidity th = dht->getTempAndHumidity();
+        
+        if (dht->getStatus() != DHTesp::ERROR_NONE) {
+          
+            values[RESPONSE_POSITION_DHT11_TEMPERATURE] = 0;
+            values[RESPONSE_POSITION_DHT11_HUMIDITY] = 0;
+            if (dht->getStatus() == DHTesp::ERROR_TIMEOUT) { err("DHT Timeout", ERROR_CODE_DHT11_READ_ERROR); }
+            else if (dht->getStatus() == DHTesp::ERROR_CHECKSUM) { err("DHT ChkSM", ERROR_CODE_DHT11_READ_ERROR); }
+            
+        } else {
+            
+            values[RESPONSE_POSITION_DHT11_TEMPERATURE] = th.temperature;
+            values[RESPONSE_POSITION_DHT11_HUMIDITY] = th.humidity;  
+        }
+        
+#else
+        Dht11 *sensor = ((Dht11 *) device->object);
        
        switch (sensor->read()) {
          
@@ -303,6 +338,7 @@ int* getValue(Device* device) {
             break;
        
        }
+#endif
        // silent error
    } break;
    
