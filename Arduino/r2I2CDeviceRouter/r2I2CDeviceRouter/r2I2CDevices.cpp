@@ -264,7 +264,7 @@ int* getValue(Device* device) {
      break;
      
    case DEVICE_TYPE_DHT11: {
-     
+
        Dht11 *sensor = ((Dht11 *) device->object);
        
        switch (sensor->read()) {

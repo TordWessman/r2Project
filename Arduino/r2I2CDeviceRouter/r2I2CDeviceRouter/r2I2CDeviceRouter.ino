@@ -207,17 +207,17 @@ ResponsePackage execute(RequestPackage *request) {
         // The parameters are everything (mainly port information) that comes after the type parameter.    
         byte *parameters = request->args + REQUEST_ARG_CREATE_PORT_POSITION;
         
-        R2_LOG(F("Creating device of type:"));
-        R2_LOG(type);
-        R2_LOG(F("With id:"));
-        R2_LOG(response.id);
-        
         if (!createDevice(response.id, type, parameters)) {
           
           // Unable to create!
           break;
         
         }
+
+        R2_LOG(F("Creating device of type:"));
+        R2_LOG(type);
+        R2_LOG(F("With id:"));
+        R2_LOG(response.id);
 
         createAction = true;
         deviceCount++;
