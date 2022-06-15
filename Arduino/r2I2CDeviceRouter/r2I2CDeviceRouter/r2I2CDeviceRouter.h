@@ -26,6 +26,9 @@ static byte deviceCount = 0;
 
 // -- Type definitions --
 
+// Return value type for getDevice is always 16-bit int.
+#define r2Int uint16_t
+
 // The type of a device (being created)
 typedef byte DEVICE_TYPE;
 
@@ -266,7 +269,7 @@ Device* getDevice(byte id);
 void setValue(Device* device, int value);
 
 // Returns the value(s) of a device
-int* getValue(Device* device);
+r2Int* getValue(Device* device);
 
 // Performs the actions requested by the RequestPackage.
 ResponsePackage execute(RequestPackage *request);

@@ -239,9 +239,9 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
   
 }
 
-int* getValue(Device* device) {
+r2Int* getValue(Device* device) {
 
-  int *values = (int *)malloc(RESPONSE_VALUE_CONTENT_SIZE);
+  r2Int *values = (r2Int *)malloc(RESPONSE_VALUE_CONTENT_SIZE);
   
   for (int i = 0; i < RESPONSE_VALUE_COUNT; i++) { values [i] = 0; }
   
@@ -296,7 +296,8 @@ int* getValue(Device* device) {
         } else {
             
             values[RESPONSE_POSITION_DHT11_TEMPERATURE] = th.temperature;
-            values[RESPONSE_POSITION_DHT11_HUMIDITY] = th.humidity;  
+            values[RESPONSE_POSITION_DHT11_HUMIDITY] = th.humidity;
+            
         }
         
 #else
@@ -306,8 +307,8 @@ int* getValue(Device* device) {
          
           case Dht11::OK: {
             
-            int temp = sensor->getTemperature();
-            int humid = sensor->getHumidity(); 
+            r2Int temp = sensor->getTemperature();
+            r2Int humid = sensor->getHumidity();
             values[RESPONSE_POSITION_DHT11_TEMPERATURE] = temp;
             values[RESPONSE_POSITION_DHT11_HUMIDITY] = humid;
             
