@@ -18,8 +18,6 @@
 
 using System;
 using R2Core.Device;
-using R2Core;
-
 
 namespace R2Core.GPIO
 {
