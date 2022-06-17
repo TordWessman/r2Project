@@ -266,7 +266,7 @@ bool reservePort(byte IOPort);
 Device* getDevice(byte id);
 
 // Tries to set the value of a device. Returns true if successfull
-void setValue(Device* device, int value);
+void setValue(Device* device, r2Int value);
 
 // Returns the value(s) of a device
 r2Int* getValue(Device* device);

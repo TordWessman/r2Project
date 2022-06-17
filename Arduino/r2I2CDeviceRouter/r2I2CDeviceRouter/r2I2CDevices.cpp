@@ -361,7 +361,7 @@ r2Int* getValue(Device* device) {
   
 }
 
-void setValue(Device* device, int value) {
+void setValue(Device* device, r2Int value) {
 
   switch (device->type) {
   
@@ -376,8 +376,8 @@ void setValue(Device* device, int value) {
         break;
         
     case DEVICE_TYPE_ANALOGE_OUTPUT:
-
-        analogWrite(device->IOPorts[0], value > 255 ? 255 : value);
+    
+        analogWrite(device->IOPorts[0], value > 1023 ? 1023 : value);
         break;
         
     default:

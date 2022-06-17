@@ -3,12 +3,12 @@ using R2Core.Device;
 
 namespace R2Core.GPIO
 {
-    internal class SerialAnalogOutput : SerialDeviceBase<byte[]>, IOutputPort<byte> {
+    internal class SerialAnalogOutput : SerialDeviceBase<byte[]>, IOutputPort<int> {
 
         private readonly byte m_port;
-        private byte m_value;
+        private int m_value;
 
-        public byte Value {
+        public int Value {
 
             get { return m_value; }
             set {
