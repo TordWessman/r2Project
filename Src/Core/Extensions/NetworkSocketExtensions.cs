@@ -35,20 +35,34 @@ namespace R2Core.Network
         /// <returns><c>true</c> if is connected the specified self; otherwise, <c>false</c>.</returns>
         public static bool IsConnected(this TcpClient self) {
 
-			return  self.GetSocket() != null && 
-                    self.Connected && 
-                    self.GetSocket()?.IsConnected() == true &&
-                    ConnectedTCPStates.Contains(self.GetState());
+            return self.GetSocket() != null &&
+                    self.Connected &&
+                    self.GetSocket()?.IsConnected() == true;/* &&
+                    ConnectedTCPStates.Contains(self.GetState());*/
 
 		}
 
         public static TcpState GetState(this TcpClient self) {
 
+            //foreach(var c in IPGlobalProperties.GetIPGlobalProperties()
+            //  .GetActiveTcpConnections()) {
+            //    Log.t($"{c.State} {c.LocalEndPoint}, {c.RemoteEndPoint}");
+            //}
             var properties = IPGlobalProperties.GetIPGlobalProperties()
               .GetActiveTcpConnections()
-              .SingleOrDefault(x => x.LocalEndPoint.Equals(self.Client.LocalEndPoint));
+              .Where(x => x.LocalEndPoint.Equals(self.Client.LocalEndPoint) && x.RemoteEndPoint.Equals(self.Client.RemoteEndPoint));
 
-            return properties == null ? TcpState.Unknown : properties.State;
+            if (properties == null) { return TcpState.Unknown; }
+
+            if (properties.Any(x => x.State == TcpState.Established)) {
+
+                return TcpState.Established; 
+            
+            }
+
+            var property = properties.FirstOrDefault();
+
+            return property == null ? TcpState.Unknown : property.State;
 
         }
 
