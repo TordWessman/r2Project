@@ -58,7 +58,7 @@ In order to install mono on your operating system, please check out https://www.
 ### Install packages
 Core packages for building and developing.
 ```bash
-	$ sudo apt-get install mono-xbuild gstreamer-1.0 bison mono-complete mono-addins-utils mono-devel mono-dmcs python nunit dirmngr build-essential bc cmake
+	$ sudo apt-get install mono-xbuild gstreamer-1.0 bison mono-complete mono-addins-utils mono-devel mono-dmcs python nunit dirmngr build-essential bc cmake autoconf libtool
 ```
 ### Install Nuget Package Manager
 ```bash
@@ -184,7 +184,7 @@ Download and install the latest espeak plugin (http://download.sugarlabs.org/sou
 	$ make
 	$ sudo make install
 ```
-###### If 'make' fails, try to search for and remove this string from conig.status: $wl-version-script $wl$output_objdir/$libname.ver
+###### If 'make' fails, try to search for and remove this string (wherever it's found) from config.status: `$wl-version-script $wl$output_objdir/$libname.ver`
 
 ### GStreamer support for Raspberry Pi camera element
 Used to create the GStreamer element required to fetch video from the raspberry pi camera, i.e. for live streaming.
