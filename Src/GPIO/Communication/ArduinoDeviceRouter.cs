@@ -274,6 +274,11 @@ namespace R2Core.GPIO
 				} else if (!(request.Action == SerialActionType.Initialization && response.Action == SerialActionType.InitializationOk) &&
 					response.Action != request.Action) {
 
+                    Log.w("Closing connection", this.Identifier);
+
+                    // Until there's a way to flush the stream - close the connection.
+                    m_connection.Stop();
+
 					// The .InitializationOk is a response to a successfull .Initialization. Other successfull requests should return the requested Action.
 					throw new SerialConnectionException($"Response action missmatch: Expected '{request.Action}'. Got: '{response.Action}'. NodeId: {request.NodeId}.", SerialErrorType.ERROR_DATA_MISMATCH);
 
