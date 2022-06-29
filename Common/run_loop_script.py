@@ -84,10 +84,10 @@ class MainClass:
 				
 				script = self.device_manager.Get(script_name)
 				
-				if (script.Ready):
+				if (script.IsRunning):
 
 					self.task_monitor.RemoveMonitorable(script)
-					script.Stop
+					script.Stop()
 
 				self.device_manager.Remove(script_name)	
 
