@@ -24,7 +24,7 @@ void wifiSetup() {
   for (int i = 0; i < hotspot.length(); i++)
   hotspot_char[i] = hotspot.charAt(i);
   WiFi.softAP(hotspot_char,WIFI_PASSWORD);
-  Serial.println(WiFi.macAddress());
+  R2_LOG(WiFi.macAddress());
   server.begin();
   
 }
@@ -43,15 +43,15 @@ void wifiSetup() {
   while (WiFi.status() != WL_CONNECTED) {   
     
     delay(500);
-    Serial.print(F("."));
+    R2_LOG(F("."));
     delay(500);
     
   }
 
-  Serial.println("");
-  Serial.println(WIFI_SSID);
-  Serial.println(WiFi.localIP());
-  Serial.println(WiFi.macAddress());
+  R2_LOG("");
+  R2_LOG(WIFI_SSID);
+  R2_LOG(WiFi.localIP());
+  R2_LOG(WiFi.macAddress());
   server.begin();
   
 }
@@ -63,17 +63,18 @@ WiFiClient client;
 
 // Contains data during serial read.
 byte readBuffer[sizeof(RequestPackage) + 1];
+
 #define R2_TCP_READ_TIMEOUT 1000
 
 void writeResponse(ResponsePackage out);
 
 void terminate(const char* message, int code, int data) {
   
-  Serial.println(R2_LOG(F("NETWORK ERROR")));
-  Serial.println(message);
+  R2_LOG(F("NETWORK ERROR"));
+  R2_LOG(message);
   err(message, code, data);
   writeResponse(createErrorPackage(0x0));
-  client.stop();
+  //client.stop();
   
 }
 
@@ -82,7 +83,18 @@ void loop_tcp() {
   byte packageSize;
   byte dx;
 
-  if (!client) { client = server.available(); }
+#ifdef USE_ESP8266_WIFI
+  if (WiFi.status() != WL_CONNECTED) {
+    if (client && client.connected()) {
+      client.stop(); 
+    }
+    wifiSetup();
+  }
+#endif
+
+  if (!client) {
+    client = server.available(); 
+  }
   
   if (client && client.connected() && client.available()) {
     

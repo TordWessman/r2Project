@@ -164,6 +164,11 @@ namespace R2Core.GPIO
         ERROR_INVALID_REQUEST_PACKAGE_SIZE = 20,
         // If the checksum in a request did not match the rest of the request data.
         ERROR_BAD_CHECKSUM = 21,
+        // TCP read or write timed out.
+        ERROR_TCP_TIMEOUT = 22,
+        // Remote device was unable to read all bytes
+        ERROR_TCP_READ = 23,
+
 
         // Internally created error: If the response data mismatched the expected data.
         ERROR_DATA_MISMATCH = 0xF0,
