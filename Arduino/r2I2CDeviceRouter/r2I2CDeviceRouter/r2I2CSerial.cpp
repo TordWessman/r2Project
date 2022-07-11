@@ -113,7 +113,7 @@ void writeResponse(ResponsePackage out) {
 void i2cReceive(byte* data, size_t data_size);
 
 void i2cSetup() {
-  R2I2C.initialize(DEFAULT_I2C_ADDRESS, i2cReceive);
+  R2I2C.initialize(I2C_ADDRESS, i2cReceive);
   R2_LOG(F("Initialized I2C."));
 }  
 

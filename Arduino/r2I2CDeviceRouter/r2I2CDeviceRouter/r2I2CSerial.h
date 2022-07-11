@@ -5,7 +5,7 @@
 
 #ifdef USE_SERIAL
 
-  // Package "checksum" headers. Shuld initially be sent in the beginning of every serial transaction. 
+  // Package headers. Shuld initially be sent in the beginning of every serial transaction (in order to filter out noise).
   #define PACKAGE_HEADER_IDENTIFIER {0xF0, 0x0F, 0xF1}
   
   // Handles the serial read/write operations.

@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 // Default address used by this slave as I2C port.
-#define DEFAULT_I2C_ADDRESS 0x04
+#define DEFAULT_I2C_ADDRESS 0x08
 
 class R2I2CCom {
 

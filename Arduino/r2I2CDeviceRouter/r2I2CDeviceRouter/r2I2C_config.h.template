@@ -11,13 +11,22 @@
 //#define USE_ESP8266_WIFI_AP
 
 // If defined WIFI for TCP communication will be used. Should not be used with any other "USE" definitions.
-#define USE_ESP8266_WIFI
+//#define USE_ESP8266_WIFI
 
 // If defined, serial communication will be enabled 
 //#define USE_SERIAL
 
 // If defined, RF24 mesh networking will be enabled
-#define USE_RH24
+//#define USE_RH24
+
+#ifdef USE_I2C
+
+  #include <r2I2C.h>
+
+  // Set the I2C address used to communicate with slave. Defaults to DEFAULT_I2C_ADDRESS defined in r2I2C.h.
+  #define I2C_ADDRESS DEFAULT_I2C_ADDRESS
+
+#endif
 
 #ifdef USE_RH24
   
@@ -30,17 +39,16 @@
 #endif
 
 #if defined(USE_ESP8266_WIFI_AP) || defined(USE_ESP8266_WIFI)
+  #define WIFI_SSID "my network"
+  #define WIFI_PASSWORD "my password"
   // The TCP port which this device will listen on.
   #define TCP_PORT 9696
   // The host name of this node on the WiFi
-  #define WIFI_HOST_NAME "ragnar" 
-  #define WIFI_SSID "MyLan"
-  #define WIFI_PASSWORD"MyEasyPassword"
-
+  #define WIFI_HOST_NAME "my device id"
 #endif
 
 // The timing scale factor for led output. The higher the denomiator, the faster the LED blink rate.
-#define LED_TIME_DENOMIATOR 1
+#define LED_TIME_DENOMIATOR 4
 
 // Serial communication port
 #define SERIAL_BAUD_RATE 9600
