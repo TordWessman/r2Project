@@ -94,16 +94,16 @@ namespace R2Core.Audio.ASR
 			m_paragraphs = new List<string>();
 			//List<string> unsortedP = new List<string>();
 
-			while(paragraphIterator.MoveNext()) {
+			while (paragraphIterator.MoveNext()) {
 				
 				List<string> answers = new List<string>();
 				
 				XPathNodeIterator answerIterator = (XPathNodeIterator)paragraphIterator.Current.Select("a");
-				while(answerIterator.MoveNext())
+				while (answerIterator.MoveNext())
 					answers.Add(answerIterator.Current.Value);
 				
 				XPathNodeIterator questionIterator = (XPathNodeIterator)paragraphIterator.Current.Select("q");
-				while(questionIterator.MoveNext()) {
+				while (questionIterator.MoveNext()) {
 					m_paragraphsU.Add(questionIterator.Current.Value.ToLower (), answers);
 					//Console.WriteLine(questionIterator.Current.Value);
 				}

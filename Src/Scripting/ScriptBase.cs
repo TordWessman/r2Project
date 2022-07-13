@@ -116,7 +116,7 @@ namespace R2Core.Scripting
 
 				try {
 
-					while(IsRunning && (false != Get(HANDLE_SHOULD_RUN)) && (true == Invoke(HANDLE_LOOP))) {
+					while (IsRunning && (false != Get(HANDLE_SHOULD_RUN)) && (true == Invoke(HANDLE_LOOP))) {
 
 						// In the class' loop function
 

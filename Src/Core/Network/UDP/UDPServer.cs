@@ -59,7 +59,7 @@ namespace R2Core.Network
             m_listener.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
 			m_listener.Client.Bind(m_groupEndpoint);
 
-			while(ShouldRun) {
+			while (ShouldRun) {
 			
 				INetworkMessage response = default(TCPMessage);
 				IPEndPoint client = null;

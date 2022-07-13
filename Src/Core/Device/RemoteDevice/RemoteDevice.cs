@@ -147,7 +147,7 @@ namespace R2Core.Device
             m_message.Payload = request;
             INetworkMessage response = m_host.Send(m_message);
 
-            if(m_lastAsyncTask?.Status != System.Threading.Tasks.TaskStatus.Running) {
+            if (m_lastAsyncTask?.Status != System.Threading.Tasks.TaskStatus.Running) {
 
                 m_lastAsyncTask?.Start();
             

@@ -80,7 +80,7 @@ namespace R2Core.Common {
 
             IDictionary<string, IEnumerable<StatLogEntry<double>>> points = new Dictionary<string, IEnumerable<StatLogEntry<double>>>();
 
-            foreach(string identifier in identifiers) {
+            foreach (string identifier in identifiers) {
 
                 points[identifier] = GetEntries<double>(identifier);
             

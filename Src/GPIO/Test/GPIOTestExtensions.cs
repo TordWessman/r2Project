@@ -25,7 +25,7 @@ namespace R2Core.GPIO
 
 		public static void WaitFor(this IArduinoDeviceRouter self, int nodeId) {
 
-			while(!self.IsNodeAvailable(nodeId)) {
+			while (!self.IsNodeAvailable(nodeId)) {
 				
 				Console.Write("x");
 				System.Threading.Thread.Sleep(1000);

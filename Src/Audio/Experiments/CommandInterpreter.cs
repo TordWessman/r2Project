@@ -47,14 +47,14 @@ namespace R2Core.Audio.ASR
 			
 			m_commands = new List<string>();
 			
-			while(commandIterator.MoveNext()) {
+			while (commandIterator.MoveNext()) {
 				m_commands.Add(commandIterator.Current.Value.ToLower());
 			}
 		}
 		
 		public bool CanInterpretFromXml(string text) {
 
-			if ((from c in m_commands where text.ToLower().StartsWith(c.ToLower()) select c).Any())
+			if ((from c in m_commands where text.ToLower().StartsWith(c.ToLower(), StringComparison.Ordinal) select c).Any())
 				return true;
 			else
 				return false;			

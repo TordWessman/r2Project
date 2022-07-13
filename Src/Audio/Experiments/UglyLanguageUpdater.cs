@@ -81,7 +81,7 @@ namespace R2Core.Audio.ASR
 			
 			XPathNodeIterator inputIterator = source.CreateNavigator ().Select("//q | //command");
 			
-			while(inputIterator.MoveNext()) {
+			while (inputIterator.MoveNext()) {
 				//remove everything that is not letters or spaces
 				string line = new Regex(@"[^a-z\s\']+").Replace(inputIterator.Current.Value.ToLower ().Trim(), "");
 				//adding lines to comprhends(sentences or words);
@@ -110,7 +110,7 @@ namespace R2Core.Audio.ASR
 			foreach (string question in commands) {
 				XPathNodeIterator paragraphIterator = doc.CreateNavigator ().Select("//commands/command");
 				
-				while(paragraphIterator.MoveNext()) {
+				while (paragraphIterator.MoveNext()) {
 					if (HasQuestion(paragraphIterator.Current, question)) {
 						
 						Console.WriteLine("question alrready found: " + question);
@@ -146,7 +146,7 @@ namespace R2Core.Audio.ASR
 			{
 				XPathNodeIterator paragraphIterator = doc.CreateNavigator().Select("//speech/p");
 				
-				while(paragraphIterator.MoveNext())
+				while (paragraphIterator.MoveNext())
 				{
 					if (HasQuestion(paragraphIterator.Current, question)) 
 					{
@@ -189,7 +189,7 @@ namespace R2Core.Audio.ASR
 			question = question.ToLower();
 			
 			XPathNodeIterator questionIterator = (XPathNodeIterator) questionNode.Select("q");
-			while(questionIterator.MoveNext())
+			while (questionIterator.MoveNext())
 				if (((string)questionIterator.Current.Value).ToLower() == question)
 					return true;
 			

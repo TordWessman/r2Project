@@ -56,7 +56,7 @@ namespace R2Core.Network
 
             }
 
-			while(ShouldRun) {
+			while (ShouldRun) {
 
  				HttpListenerContext context = m_listener.GetContext();
 

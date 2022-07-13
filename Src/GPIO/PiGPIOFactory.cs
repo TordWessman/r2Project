@@ -165,13 +165,21 @@ namespace R2Core.GPIO
 		}
 
 		public void PrintPorts() {
+
 			foreach (int portNum in m_pinConfiguration.Keys) {
+
 				if (m_ioPortsUsed[(int)m_pinConfiguration[portNum]]) {
-					Log.e("Used: " + String.Format("%i : %s", portNum, m_pinConfiguration[portNum].ToString()));
+
+					Log.e($"Used: {portNum} : {m_pinConfiguration[portNum]}");
+
 				} else {
-					Log.d("Available: " + String.Format("%i : %s", portNum, m_pinConfiguration[portNum].ToString()));
-				}
+
+                    Log.e($"Available: {portNum} : {m_pinConfiguration[portNum]}");
+
+                }
+
 			}
+
 		}
 
 		/// <summary>
@@ -185,7 +193,7 @@ namespace R2Core.GPIO
 		
 		}
 
-
 	}
+
 }
 

@@ -88,7 +88,7 @@ namespace R2Core
 
 				m_isPrinting = true;
 			
-				while(m_queue.Count > 0 && !Paused) {
+				while (m_queue.Count > 0 && !Paused) {
 
 					try {
 

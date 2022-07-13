@@ -91,18 +91,18 @@ namespace R2Core.Device {
 
                 IList<IDevice> failedDevices = new List<IDevice>();
 
-                while(!m_cancelationToken.Token.IsCancellationRequested) {
+                while (!m_cancelationToken.Token.IsCancellationRequested) {
 
-                    foreach(IDevice device in Devices) {
+                    foreach (IDevice device in Devices) {
 
                         try {
 
-                            if(!device.Ready && !failedDevices.Contains(device)) {
+                            if (!device.Ready && !failedDevices.Contains(device)) {
 
                                 Log.w($"Device {device.Identifier} not ready. Will try to Start.", Identifier);
                                 failedDevices.Add(device);
 
-                            } else if(device.Ready && failedDevices.Contains(device)) {
+                            } else if (device.Ready && failedDevices.Contains(device)) {
 
                                 Log.d($"Device {device.Identifier} started.", Identifier);
                                 failedDevices.Remove(device);
@@ -117,7 +117,7 @@ namespace R2Core.Device {
                     
                     }
 
-                    foreach(IDevice failedDevice in failedDevices) {
+                    foreach (IDevice failedDevice in failedDevices) {
 
                         try {
 

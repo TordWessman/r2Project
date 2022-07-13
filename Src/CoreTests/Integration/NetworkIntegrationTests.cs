@@ -75,7 +75,7 @@ namespace R2Core.IntegrationTests
 
 			}
 
-			while(clientStop != stopMask) { Thread.Sleep(500); Log.t(clientStop); }
+			while (clientStop != stopMask) { Thread.Sleep(500); Log.t(clientStop); }
 
 			server1.Stop();
 

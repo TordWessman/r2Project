@@ -43,7 +43,7 @@ namespace R2Core
 
                 m_logLevel = value;
 
-                foreach(IMessageLogger logger in m_loggers) {
+                foreach (IMessageLogger logger in m_loggers) {
 
                     logger.LogLevel = value;
 

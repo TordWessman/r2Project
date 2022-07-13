@@ -112,7 +112,7 @@ namespace R2Core.Video
 		
 		protected void EOSReceived() {
 			new Thread(() => {
-				while(m_camera == null || !m_camera.Ready) {
+				while (m_camera == null || !m_camera.Ready) {
 					Thread.Sleep(1000);
 					Log.t("Waiting for camera...");
 				}

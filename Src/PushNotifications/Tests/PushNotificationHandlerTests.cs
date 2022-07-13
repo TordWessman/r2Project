@@ -46,7 +46,7 @@ namespace R2Core.PushNotifications.Tests {
             handler.AddFacade(appleFacade);
             handler.AddFacade(androidFacade);
 
-            foreach(var item in items) { storage.Register(item); }
+            foreach (var item in items) { storage.Register(item); }
 
             handler.Broadcast(new PushNotification { Group = "g1", IdentityName = "i1", Message = "foo" });
 

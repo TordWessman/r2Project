@@ -157,7 +157,7 @@ namespace R2Core.Network
 
 			EndPoint remoteHost = m_host;
 
-			while(!m_cancelationToken.Token.IsCancellationRequested) {
+			while (!m_cancelationToken.Token.IsCancellationRequested) {
 				
 				int length = m_socket.ReceiveFrom(buffer, ref remoteHost);
 

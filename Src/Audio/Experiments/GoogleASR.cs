@@ -82,7 +82,7 @@ namespace R2Core.Audio.ASR
 				
 			m_asrTask = new Task(() => {
 				
-				while(m_isRunning) {
+				while (m_isRunning) {
 					if (asr_start() != 0) {
 						throw new ExternalException("Unable to start ASR!");
 					}

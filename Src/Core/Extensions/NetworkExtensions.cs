@@ -98,7 +98,7 @@ namespace R2Core.Network
 		/// <param name="addresses">Addresses.</param>
 		public static string GetAvailableAddress(System.Collections.Generic.IEnumerable<dynamic> addresses) {
 
-			foreach(dynamic address in addresses) {
+			foreach (dynamic address in addresses) {
 
 				Ping ping = new Ping();
 				PingReply reply = ping.Send(address);

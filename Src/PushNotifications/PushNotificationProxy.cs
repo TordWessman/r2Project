@@ -55,7 +55,7 @@ namespace R2Core.PushNotifications
 
 			m_sendTask = Task.Factory.StartNew( () => {
 
-                foreach(PushNotificationRegistryItem item in m_storage.Get(new PushNotificationRegistryItem { Group = notification.Group, IdentityName = notification.IdentityName })) {
+                foreach (PushNotificationRegistryItem item in m_storage.Get(new PushNotificationRegistryItem { Group = notification.Group, IdentityName = notification.IdentityName })) {
 
                     try {
 

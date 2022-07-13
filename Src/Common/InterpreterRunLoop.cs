@@ -153,7 +153,7 @@ namespace R2Core.Common
 
 				}
 
-			} while(m_shouldRun);
+			} while (m_shouldRun);
 
 		}
 

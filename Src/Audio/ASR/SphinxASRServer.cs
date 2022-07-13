@@ -124,7 +124,7 @@ namespace R2Core.Audio.ASR
 			
 			m_asrTask = new Task(() => {
 				
-				while(m_isRunning) {
+				while (m_isRunning) {
 					
 					if (_ext_asr_start() != 0) {
 
@@ -226,7 +226,7 @@ namespace R2Core.Audio.ASR
 		#region IASR implementation
 		private void ReloadLanguageModels() {
 			Stop();
-			while(_ext_asr_get_is_running()) {
+			while (_ext_asr_get_is_running()) {
 				Console.Write("x");
 			}
 			

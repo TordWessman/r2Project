@@ -114,7 +114,7 @@ namespace R2Core.Audio.ASR
 			FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
 			byte[] buffer = new byte[4096];
 			int bytesRead = 0;
-			while((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0) {
+			while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0) {
 				rs.Write(buffer, 0, bytesRead);
 			}
 			fileStream.Close();
@@ -127,7 +127,7 @@ namespace R2Core.Audio.ASR
 			WebResponse wresp = null;
 			try {
 				//Get the response
-				//while(!wr.HaveResponse) {
+				//while (!wr.HaveResponse) {
 					Thread.Sleep(2000);
 					Log.d("waiting...");
 				//}

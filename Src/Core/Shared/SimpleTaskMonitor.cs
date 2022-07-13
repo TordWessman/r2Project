@@ -37,7 +37,7 @@ namespace R2Core
 			m_tasks = new Dictionary<string,Task>();
 			MonitorTask = new Task(() => {
 				
-				while(m_shouldRun) {
+				while (m_shouldRun) {
 					
 					lock(m_assignLock) {
 						

@@ -124,7 +124,7 @@ namespace R2Core.Network {
 
         public override void Stop() {
 
-            foreach(PingService ping in m_pingServices.Values) {
+            foreach (PingService ping in m_pingServices.Values) {
 
                 ping.Stop();
 

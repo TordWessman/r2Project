@@ -33,7 +33,7 @@ namespace R2Core.Tests {
             DateTime startTime = DateTime.Now;
 			while (!self.Ready) {
 
-                if(startTime.AddMilliseconds(timeout) < DateTime.Now) {
+                if (startTime.AddMilliseconds(timeout) < DateTime.Now) {
 
                     throw new TimeoutException($"WaitFor timed out after {timeout} milliseconds.");
 
