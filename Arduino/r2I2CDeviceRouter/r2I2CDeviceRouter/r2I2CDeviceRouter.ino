@@ -20,6 +20,10 @@
   #include "r2RH24.h"
 #endif
 
+#ifdef RPI_POWER_DETECTION_PORT
+  #include "r2PowerReading.h"
+#endif
+
 // Counter for messages. For debuging purposes only.
 byte messageId = 0;
 
@@ -29,7 +33,11 @@ void setup() {
 
   Serial.begin(SERIAL_BAUD_RATE);
   clearError();
-  
+
+  #ifdef RPI_POWER_DETECTION_PORT
+    powerReadingSetup();
+  #endif
+
   #ifdef R2_USE_LED
     setupLeds();
   #endif
@@ -89,7 +97,20 @@ ResponsePackage execute(RequestPackage *request) {
       saveNodeId(request->id);
       return response;
         
-  }  
+  }
+
+  #ifdef RPI_POWER_DETECTION_PORT
+  
+  if (request->action == ACTION_ACTIVATE_RPI_CONTROLLER) {
+
+    enableRPiPowerControll(request->args[0]);
+    response.checksum = createResponseChecksum(&response);
+    
+    return response;
+  
+  }
+  
+  #endif
   
   #ifdef USE_RH24
   
@@ -351,6 +372,10 @@ ResponsePackage execute(RequestPackage *request) {
 
 void loop() {
 
+  #ifdef RPI_POWER_DETECTION_PORT
+    loop_PowerReading();
+  #endif
+  
   #ifdef R2_STATUS_LED
     statusIndicator();
   #endif

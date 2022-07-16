@@ -108,15 +108,15 @@ namespace R2Core.GPIO
 
 		public void Reset(int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 		
-			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.Reset, NodeId = (byte)nodeId };
-			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+			DeviceRequestPackage request = new DeviceRequestPackage { Action = SerialActionType.Reset, NodeId = (byte)nodeId };
+			DeviceResponsePackage<byte[]> response = Send<byte[]>(request);
 
 		}
 
 		public bool IsNodeAvailable(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.IsNodeAvailable, NodeId = (byte)nodeId };
-			DeviceResponsePackage<bool> response = Send<bool> (request);
+			DeviceRequestPackage request = new DeviceRequestPackage { Action = SerialActionType.IsNodeAvailable, NodeId = (byte)nodeId };
+			DeviceResponsePackage<bool> response = Send<bool>(request);
 
 			return response.Value;
 		
@@ -124,16 +124,16 @@ namespace R2Core.GPIO
 
 		public bool IsNodeSleeping(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.CheckSleepState, NodeId = (byte)nodeId };
-			DeviceResponsePackage<bool> response = Send<bool> (request);
+			DeviceRequestPackage request = new DeviceRequestPackage { Action = SerialActionType.CheckSleepState, NodeId = (byte)nodeId };
+			DeviceResponsePackage<bool> response = Send<bool>(request);
 			return response.Value;
 
 		}
 
 		public byte[] GetNodes() {
 		
-			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.GetNodes };
-			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+			DeviceRequestPackage request = new DeviceRequestPackage { Action = SerialActionType.GetNodes };
+			DeviceResponsePackage<byte[]> response = Send<byte[]>(request);
 
 			return response.Value;
 
@@ -142,7 +142,7 @@ namespace R2Core.GPIO
 		public void Sleep(int nodeId, bool toggle, int cycles = ArduinoSerialPackageFactory.RH24_SLEEP_UNTIL_MESSAGE_RECEIVED) {
 
 			DeviceRequestPackage request = m_packageFactory.Sleep((byte)nodeId, toggle, (byte)cycles);
-			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+			DeviceResponsePackage<byte[]> response = Send<byte[]>(request);
 
 		}
 
@@ -154,15 +154,15 @@ namespace R2Core.GPIO
 			
 			}
 
-			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.PauseSleep, NodeId = (byte)nodeId, Content = new byte[1] {(byte)seconds} };
-			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+			DeviceRequestPackage request = new DeviceRequestPackage { Action = SerialActionType.PauseSleep, NodeId = (byte)nodeId, Content = new byte[1] {(byte)seconds} };
+			DeviceResponsePackage<byte[]> response = Send<byte[]>(request);
 
 		}
 
 		public void SetNodeId(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.SetNodeId, Id = (byte)nodeId };
-			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+			DeviceRequestPackage request = new DeviceRequestPackage { Action = SerialActionType.SetNodeId, Id = (byte)nodeId };
+			DeviceResponsePackage<byte[]> response = Send<byte[]>(request);
 
 			if (!response.IsError && response.NodeId != 0) {
 			
@@ -174,19 +174,26 @@ namespace R2Core.GPIO
 
 		public byte[] GetChecksum(int nodeId) {
 
-			DeviceRequestPackage request = new DeviceRequestPackage() { Action = SerialActionType.GetChecksum, NodeId = (byte)nodeId };
-			DeviceResponsePackage<byte[]> response = Send<byte[]> (request);
+			DeviceRequestPackage request = new DeviceRequestPackage { Action = SerialActionType.GetChecksum, NodeId = (byte)nodeId };
+			DeviceResponsePackage<byte[]> response = Send<byte[]>(request);
 
 			return response.Value;
 
 		}
 
-		/// <summary>
-		/// Internal send method containing retry upon timeout
-		/// </summary>
-		/// <param name="request">Request.</param>
-		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		private DeviceResponsePackage<T> _Send<T>(DeviceRequestPackage request, int retryCount = 0) {
+        public void SetRPiPowerController(bool on = true) {
+
+            DeviceRequestPackage request = new DeviceRequestPackage { Action = SerialActionType.ActivateRPIController, Content = new byte[1] { (byte) (on ? 1 : 0) } };
+            DeviceResponsePackage<byte[]> response = Send<byte[]>(request);
+        
+        }
+
+        /// <summary>
+        /// Internal send method containing retry upon timeout
+        /// </summary>
+        /// <param name="request">Request.</param>
+        /// <typeparam name="T">The 1st type parameter.</typeparam>
+        private DeviceResponsePackage<T> _Send<T>(DeviceRequestPackage request, int retryCount = 0) {
 		
 			byte[] requestData = m_packageFactory.SerializeRequest(request);
 
@@ -199,7 +206,7 @@ namespace R2Core.GPIO
 					
 					if (retryCount == 3) {
 						
-						Log.i($"Arduino Device Router failed for '{request.Description()}'. Error: {response.Error}. Retrying...", Identifier);
+						Log.i($"Failed for request '{request.Description()}'. Error: {response.Error}. Retrying...", Identifier);
 					
 					}
 
@@ -295,7 +302,7 @@ namespace R2Core.GPIO
 		/// </summary>
 		private void ResetNode(byte nodeId) {
 
-			Send<byte[]> (new DeviceRequestPackage() {Action = SerialActionType.Initialization, NodeId = nodeId});
+			Send<byte[]> (new DeviceRequestPackage { Action = SerialActionType.Initialization, NodeId = nodeId });
 
 		}
 

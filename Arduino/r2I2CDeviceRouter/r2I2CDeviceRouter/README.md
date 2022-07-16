@@ -57,3 +57,20 @@ It will require a Raspberry Pi and an I2C connection, but it could as well have 
 		self.device_manager.Add(remote_io_port)
 
 ```
+
+#### RPi Power controll
+This is a drastic measure to detect if _host_ (namely a Raspberry Pi) has been shut down and to consequently turn off power to it using a micro _controller_. It's a fairly idiosyncratic way of handling the lack of hyberation logic and should probably never be used.
+
+It's done by letting the logic output port `RPI_POWER_CONTROLLER_PORT` controll the power connection to the _host_ and turn it off once `RPI_POWER_DETECTION_PORT` has fallen bellow a specific treshold.
+There are a few requirements for this to work for:
+* The _controller_ (i.e. an Arduino) needs to boot _before_ the _host_.
+* The output pin, `RPI_POWER_CONTROLLER_PORT` of the _controller_, needs to be connected in such a way that it controlls the current (i.e. using a TIP120) to the micro-USB connection to the _host_.
+* Make sure UART is enabled on the _host_.
+For the Raspbery Pi:
+ - The GPIO14 (TX) port is used to determine wether the Raspberry Pi has been turned off.
+ - `$ sudo nano /boot/config.txt`
+ - Add/Edit the line: `enable_uart=1`
+ - Reboot
+ - Connect the TX port (GPIO14) to `RPI_POWER_DETECTION_PORT`
+
+Before the power controlling functionality is activated, the _controller_ needs to receive an `ACTION_ACTIVATE_RPI_CONTROLLER` action with the parameter `1` in order to enable the functionality.

@@ -201,6 +201,8 @@ typedef struct RequestPackage RequestPackage;
 #define ACTION_RESET 0x0D
 // Returns a checksum of configuration and devices.
 #define ACTION_CHECK_INTEGRITY 0x0E
+// Used to turn the RPI_POWER_DETECTION_PORT check on. See README.md for information.
+#define ACTION_ACTIVATE_RPI_CONTROLLER 0x0F
 
 // -- Internal Actions --
 

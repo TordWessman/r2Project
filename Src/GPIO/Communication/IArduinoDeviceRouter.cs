@@ -124,6 +124,14 @@ namespace R2Core.GPIO
 		/// </summary>
 		Action<byte> HostDidReset { get; set; }
 
-	}
+        /// <summary>
+        /// Turns on or off the microcontrollers ability to power on or off a Raspberry Pi (or similar).
+        /// See the README.md in the arduino device router project for details.
+        /// </summary>
+        /// <param name="on">If set to <c>true</c> on.</param>
+        void SetRPiPowerController(bool on = true);
+
+
+    }
 
 }

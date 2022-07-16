@@ -116,7 +116,13 @@ namespace R2Core.GPIO
         /// <summary>
         /// Returns the checksum of a node.
         /// </summary>
-        GetChecksum = 0x0E
+        GetChecksum = 0x0E,
+
+        /// <summary>
+        /// Used to turn the RPI_POWER_DETECTION_PORT check on, effectively allowing the a micro controller to turn off a Raspberry Pi.
+        /// See README.md for the arduino device router for more details.
+        /// </summary>
+        ActivateRPIController = 0x0F
 
     }
 
@@ -429,7 +435,8 @@ namespace R2Core.GPIO
 
             return (response.IsError || !response.IsChecksumValid) && 
                     response.Error != SerialErrorType.NO_DEVICE_FOUND &&    // This error will cause the caller to recreate the device
-                    response.Error != SerialErrorType.MAX_DEVICES_IN_USE; // Max devices can't be fixed by retrying
+                    response.Error != SerialErrorType.MAX_DEVICES_IN_USE &&
+                    response.Error != SerialErrorType.PORT_IN_USE; // Max devices or if port is in use can't be fixed by retrying
                     
         }
 

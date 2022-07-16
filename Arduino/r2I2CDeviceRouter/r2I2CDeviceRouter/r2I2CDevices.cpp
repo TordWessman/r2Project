@@ -84,6 +84,7 @@ void deleteDevice(byte id) {
 }
 
 bool reservePort(byte IOPort) {
+
 /*
 TODO: fix this...
   if (portsInUse[IOPort] == true) {
