@@ -71,4 +71,13 @@
 
 //#define R2_ERROR_LED 0x4
 
+// Analog port reserved to be used for detecting when a Raspberry Pi has been powerd off. See README.md for information.
+//#define RPI_POWER_DETECTION_PORT A3
+
+#ifdef RPI_POWER_DETECTION_PORT
+
+  // Port used to controlle the power to the Raspberry Pi
+  #define RPI_POWER_CONTROLLER_PORT 3
+#endif
+
 #endif

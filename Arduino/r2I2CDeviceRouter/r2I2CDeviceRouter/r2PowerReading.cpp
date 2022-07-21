@@ -1,6 +1,7 @@
 #include "r2PowerReading.h"
 #include "r2I2C_config.h"
 #include "r2I2CDeviceRouter.h"
+#ifdef RPI_POWER_DETECTION_PORT
 
 #ifdef USE_SERIAL
      #error USE_SERIAL is not compatible with the RPI_POWER_DETECTION_PORT, since establishing a serial connection will reset the Arduino. Check r2I2C_config.h.
@@ -50,3 +51,5 @@ void enableRPiPowerControll(bool enabled) {
     powerCheckActive = enabled;
 
 }
+
+#endif
