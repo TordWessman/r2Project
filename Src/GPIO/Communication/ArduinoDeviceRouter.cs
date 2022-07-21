@@ -281,7 +281,7 @@ namespace R2Core.GPIO
 				} else if (!(request.Action == SerialActionType.Initialization && response.Action == SerialActionType.InitializationOk) &&
 					response.Action != request.Action) {
 
-                    Log.w("Closing connection", this.Identifier);
+                    Log.w("Closing connection", Identifier);
 
                     // Until there's a way to flush the stream - close the connection.
                     m_connection.Stop();

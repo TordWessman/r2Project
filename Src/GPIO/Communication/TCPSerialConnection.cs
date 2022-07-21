@@ -100,6 +100,7 @@ namespace R2Core.GPIO
 
             m_client.Client.Blocking = true;
             m_client.Connect(Address, Port);
+            ShouldRun = true;
             Log.i("TCPSerial Connected", Identifier);
 
         }
