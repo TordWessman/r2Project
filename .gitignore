@@ -77,6 +77,7 @@ Shared.cs
 *dumpcode.txt
 .vs
 dumpcode.txt
+mono_crash.*
 
 # custom folders
 r2I2C_config.h
