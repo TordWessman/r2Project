@@ -54,5 +54,6 @@
 		<ConnectionRouterHeaderServerTypeHTTP comment="Network message header value representing a target HTTP server">HTTP</ConnectionRouterHeaderServerTypeHTTP>
 		<ConnectionRouterHeaderServerTypeTCP comment="Network message header value representing a target TCP server">TCP</ConnectionRouterHeaderServerTypeTCP>
 		<ConnectionRouterHeaderServerTypeUDP comment="Network message header value representing a target UDP server">UDP</ConnectionRouterHeaderServerTypeUDP>
+		<StacktraceOmittions comment="This weird property can contain a list semicolon separated of strings that should be omitted from stacktrace. Usable for setting Log.StacktraceOmittions">Microsoft.Scripting;IronPython.Compiler;IronPython.Runtime;System.Dynamic.UpdateDelegates;(wrapper dynamic-method)</StacktraceOmittions>
 	</Consts>
 </Configuration>

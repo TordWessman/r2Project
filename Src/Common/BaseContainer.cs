@@ -19,6 +19,7 @@ using R2Core.Device;
 using R2Core.Network;
 using System.Collections.Generic;
 using R2Core.Scripting;
+using System;
 
 namespace R2Core.Common
 {
@@ -47,6 +48,7 @@ namespace R2Core.Common
             //Set up logging
 
             Log.Instantiate(Settings.Identifiers.Logger());
+            Log.StacktraceOmittions = Settings.Consts.StacktraceOmittions().Split(new string[] { ";" }, StringSplitOptions.None);
 
             SimpleConsoleLogger consoleLogger = new SimpleConsoleLogger(Settings.Identifiers.ConsoleLogger(), Settings.Consts.MaxConsoleHistory());
 			consoleLogger.Start();

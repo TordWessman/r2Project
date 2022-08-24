@@ -265,6 +265,11 @@ namespace R2Core
 
 		}
 
+        /// <summary>
+        /// This weird variable can contain a list of strings that - if found within a stack trace - will not be printed.
+        /// </summary>
+        public static IList<string> StacktraceOmittions;
+
 		/// <summary>
 		/// Used to print error message using an Exception object as input
 		/// </summary>
@@ -274,20 +279,17 @@ namespace R2Core
 
 			if (!string.IsNullOrEmpty(ex.Message)) {
 
-                IList<string> stackTrace = ex.StackTrace?.Split(new string[] { Environment.NewLine }, StringSplitOptions.None).ToList() ?? new List<string>();
-
-				if (stackTrace.Count > (Instance?.MaxStackTrace ?? 0)) {
-
-					stackTrace = stackTrace.Take(Instance?.MaxStackTrace ?? 10).ToList();
-					stackTrace.Add("... (Ignoring the rest) ...");
-
-				}
+                IList<string> stackTrace = ex.StackTrace?
+                                            .Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+                                            .ToList()
+                                            .Where(line => StacktraceOmittions?.Any(omittion => line.Contains(omittion)) != true)
+                                            .ToList()
+                                             ?? new List<string>();
 
 				string stackTraceString = stackTrace.Aggregate("", (current, next) => current + Environment.NewLine + next);
 				string exString = 
-					new string('-', recursionCount * 2) + $"--{ex}--{Environment.NewLine}" +
-					new string('-', recursionCount * 2) + ex.Source + Environment.NewLine +
-					new string('-', recursionCount * 2) + ex.Message + Environment.NewLine +
+					new string('-', recursionCount * 2) + $"{ex.Message}{Environment.NewLine}" +
+					new string('-', recursionCount * 2) + $"Source: {ex.Source}{Environment.NewLine}" +
 					new string('-', recursionCount * 2) + stackTraceString + Environment.NewLine;
 
 				Instance.Write(new LogMessage(exString, LogLevel.Error, tag));
