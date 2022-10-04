@@ -404,7 +404,7 @@ void rh24MasterLoop() {
   if (millis() - masterDebugTimer >= 5000) {
   
     masterDebugTimer = millis();
-    Serial.print(F("x"));
+    R2_PRINT(F("."));
   }
   
   #endif
@@ -485,8 +485,8 @@ void slave_networkCheck() {
     renewalTimer = millis();
     
     #ifdef R2_PRINT_DEBUG
-    Serial.print("x");
-    if (slaveDebugOutputCount++ > 30) { Serial.println(""); slaveDebugOutputCount = 0; }
+    R2_PRINT(F("."));
+    if (slaveDebugOutputCount++ > 30) { R2_LOG(""); slaveDebugOutputCount = 0; }
     #endif
     
     if (!mesh.checkConnection()) {
