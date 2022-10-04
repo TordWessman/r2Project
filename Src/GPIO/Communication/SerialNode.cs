@@ -118,7 +118,13 @@ namespace R2Core.GPIO
 		public void Synchronize() { m_devices.ForEach(device => device.Synchronize()); }
 		public void Track(ISerialDevice device) { m_devices.Add(device);  }
 
-		private void StopScheduledSynchronization() {
+        public void RemoveDevice(ISerialDevice device) {
+
+            m_devices.Remove(device);
+
+        }
+
+        private void StopScheduledSynchronization() {
 
 			m_release?.Set();
 			m_timer?.Change(0, 0);

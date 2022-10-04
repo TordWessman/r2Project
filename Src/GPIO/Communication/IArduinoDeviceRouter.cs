@@ -62,11 +62,18 @@ namespace R2Core.GPIO
 		/// <param name="parameters">Parameters.</param>
 		DeviceData<T> Create<T>(int nodeId, SerialDeviceType type, byte[] parameters);
 
-		/// <summary>
-		/// Initializes(resets) the specified host.
-		/// </summary>
-		/// <param name="nodeId">Host.</param>
-		void Initialize(int nodeId);
+        /// <summary>
+        /// Deletes a remote  device
+        /// </summary>
+        /// <param name="deviceId">Device identifier.</param>
+        /// <param name="nodeId">Node identifier.</param>
+        void DeleteDevice(byte deviceId, int nodeId);
+
+        /// <summary>
+        /// Initializes(resets) the specified host.
+        /// </summary>
+        /// <param name="nodeId">Host.</param>
+        void Initialize(int nodeId);
 
 		/// <summary>
 		/// Resets the node. Set state to uninitialized and remove all devices.

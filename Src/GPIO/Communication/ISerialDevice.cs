@@ -37,6 +37,11 @@ namespace R2Core.GPIO
 		/// </summary>
 		void Update();
 
+        /// <summary>
+        /// Remove this device from node.
+        /// </summary>
+        void Delete();
+
 		/// <summary>
 		/// The node to which this device belongs
 		/// </summary>

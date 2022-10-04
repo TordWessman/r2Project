@@ -74,7 +74,7 @@ namespace R2Core.GPIO
 
 		}
 
-		public override bool Ready { get { return m_connection.ShouldRun && m_connection?.Ready == true; } }
+		public override bool Ready { get { return m_connection?.ShouldRun == true && m_connection?.Ready == true; } }
 
 		public DeviceData<T>GetValue<T>(byte deviceId, int nodeId) {
 
@@ -100,7 +100,15 @@ namespace R2Core.GPIO
 
 		}
 
-		public void Initialize(int host = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+        public void DeleteDevice(byte deviceId, int nodeId) {
+
+            DeviceRequestPackage request = m_packageFactory.DeleteDevice(deviceId, (byte)nodeId);
+
+            DeviceResponsePackage<byte[]> response = Send<byte[]>(request);
+
+        }
+
+        public void Initialize(int host = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
 			ResetNode((byte)host);
 
@@ -243,16 +251,16 @@ namespace R2Core.GPIO
 		/// <param name="request">Request.</param>
 		private DeviceResponsePackage<T> Send<T>(DeviceRequestPackage request) {
 
-			lock(m_lock) {
+            if (m_connection?.ShouldRun != true) {
 
-                if (m_connection?.ShouldRun != true) {
+                Log.w($"'{m_connection.Identifier}' has been Stopped! Unable to send request: '{request}'", Identifier);
+                return default(DeviceResponsePackage<T>);
 
-                    Log.w($"'{m_connection.Identifier}' has been Stopped! Unable to send request: '{request}'", Identifier);
-                    return default(DeviceResponsePackage<T>);
+            }
 
-                }
+            if (!Ready) { throw new SerialConnectionException("Communication busy/not started.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE); }
 
-                if (!Ready) { throw new SerialConnectionException("Communication busy/not started.", SerialErrorType.ERROR_SERIAL_CONNECTION_FAILURE); }
+            lock (m_lock) {
 
 				DeviceResponsePackage<T> response = _Send<T>(request);
 
@@ -270,7 +278,17 @@ namespace R2Core.GPIO
                     // Resend the current request
                     response = _Send<T>(request);
 
-				} else if (response.IsError) { 
+				} else if (response.IsError && response.Error == SerialErrorType.NO_DEVICE_FOUND) {
+
+                    // Assume that the node needs to be re-configured...
+                    ResetNode(response.NodeId);
+
+                    HostDidReset?.Invoke(response.NodeId);
+
+                    // Resend the current request
+                    response = _Send<T>(request);
+
+                } else if (response.IsError) { 
 
 					throw new SerialConnectionException($"Response contained an error for action '{request.Action}': '{response.Error}'. Info: {response.ErrorInfo}. NodeId: {request.NodeId}.", response.Error);
 
@@ -281,7 +299,7 @@ namespace R2Core.GPIO
 				} else if (!(request.Action == SerialActionType.Initialization && response.Action == SerialActionType.InitializationOk) &&
 					response.Action != request.Action) {
 
-                    Log.w("Closing connection", Identifier);
+                    Log.w($"Closing connection due to action missmatch. Request: {request.Action}. Response {response.Action}.", Identifier);
 
                     // Until there's a way to flush the stream - close the connection.
                     m_connection.Stop();

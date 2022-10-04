@@ -60,6 +60,12 @@ namespace R2Core.GPIO
         /// <value><c>true</c> if should update; otherwise, <c>false</c>.</value>
         bool ContinousSynchronization { get; set; }
 
+        /// <summary>
+        /// Removes a device from the nodes internal list of devices.
+        /// </summary>
+        /// <param name="device">Device.</param>
+        void RemoveDevice(ISerialDevice device);
+
     }
 
 }

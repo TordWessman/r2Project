@@ -122,7 +122,12 @@ namespace R2Core.GPIO
         /// Used to turn the RPI_POWER_DETECTION_PORT check on, effectively allowing the a micro controller to turn off a Raspberry Pi.
         /// See README.md for the arduino device router for more details.
         /// </summary>
-        ActivateRPIController = 0x0F
+        ActivateRPIController = 0x0F,
+
+        /// <summary>
+        /// Delete a remote device
+        /// </summary>
+        DeleteDevice = 0x10
 
     }
 

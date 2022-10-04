@@ -168,7 +168,22 @@ namespace R2Core.GPIO
 
 		}
 
-		public DeviceRequestPackage SetDevice(byte deviceId, byte nodeId, int value) {
+        public DeviceRequestPackage DeleteDevice(byte deviceId, byte nodeId) {
+
+            m_deviceCount[nodeId]--;
+
+            DeviceRequestPackage package = new DeviceRequestPackage {
+                NodeId = nodeId,
+                Action = SerialActionType.DeleteDevice,
+                Id = deviceId,
+                Content = { }
+            };
+
+            return package;
+
+        }
+
+        public DeviceRequestPackage SetDevice(byte deviceId, byte nodeId, int value) {
 
 			byte[] content = { (byte)(value & 0xFF) , (byte)((value >> 8) & 0xFF) };
 

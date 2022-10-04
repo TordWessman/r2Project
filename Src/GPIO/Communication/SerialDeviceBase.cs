@@ -44,12 +44,19 @@ namespace R2Core.GPIO
         protected byte DeviceId { get; private set; }
 
 		public ISerialNode Node { get; private set; }
-		public bool IsSleeping { get { return Node.Sleep; } }
+
+        /// <summary>
+        /// True if this device has been removed from the node.
+        /// </summary>
+        /// <value><c>true</c> if deleted; otherwise, <c>false</c>.</value>
+        public bool Deleted { get; private set; }
+
+        public bool IsSleeping { get { return Node.Sleep; } }
 		public override bool Ready { get {
 
                 try {
 
-                    return Node.Ready;
+                    return !Deleted && Node.Ready;
                     
                 } catch (Exception ex) { 
 
@@ -88,19 +95,29 @@ namespace R2Core.GPIO
 		/// <returns>The value.</returns>
 		protected T GetValue() {
 
-			if (!IsSleeping) { Update(); }
+            if (!Ready) { throw new System.IO.IOException("Unable to get value. Device not Ready." + (Deleted ? " Deleted" : "")); }
+
+            if (!IsSleeping) { Update(); }
 
 			return InternalValue; 
 
 		}
 
-		public void Update() {
+        public void Update() {
 
             InternalValue = Host.GetValue<T>(DeviceId, Node.NodeId).Value;
 
 		}
 
-		public void Synchronize() {
+        public void Delete() {
+
+            Host.DeleteDevice(DeviceId, Node.NodeId);
+            Node.RemoveDevice(this);
+            Deleted = true;
+
+        }
+
+        public void Synchronize() {
 
 			DeviceData<T>info = Host.Create<T>((byte)Node.NodeId, DeviceType, CreationParameters);
             DeviceId = info.Id;

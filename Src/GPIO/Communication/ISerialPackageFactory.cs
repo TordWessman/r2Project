@@ -38,36 +38,47 @@ namespace R2Core.GPIO
 		/// <param name="request">Request.</param>
 		byte[] SerializeRequest(DeviceRequestPackage request);
 
-		/// <summary>
-		/// Creates a "Create device package". ports-requirements must be applicable to the requirements of the device.  
-		/// </summary>
-		/// <returns>The device.</returns>
-		/// <param name="type">Type.</param>
-		/// <param name="port">Port.</param>
+        /// <summary>
+        /// Creates a "Create device package". ports-requirements must be applicable to the requirements of the device. 
+        /// </summary>
+        /// <returns>The device.</returns>
+        /// <param name="nodeId">Node identifier.</param>
+        /// <param name="type">Type.</param>
+        /// <param name="ports">Ports.</param>
 		DeviceRequestPackage CreateDevice(byte nodeId, SerialDeviceType type, byte[] ports);
 
-		/// <summary>
-		/// Creates a "Set device package" used to set the value of a device(previously created through a CreateDevice package call).
-		/// </summary>
-		/// <returns>The device.</returns>
-		/// <param name="remoteDeviceId">Remote device identifier.</param>
-		/// <param name="value">Value.</param>
-		DeviceRequestPackage SetDevice(byte deviceId, byte nodeId, int value);
+        /// <summary>
+        /// Creates a "Set device package" used to set the value of a device(previously created through a CreateDevice package call).
+        /// </summary>
+        /// <returns>The device.</returns>
+        /// <param name="deviceId">Remote device identifier.</param>
+        /// <param name="nodeId">Node identifier.</param>
+        /// <param name="value">Value.</param>
+        DeviceRequestPackage SetDevice(byte deviceId, byte nodeId, int value);
 
-		/// <summary>
-		/// Used for returning the value of a device.
-		/// </summary>
-		/// <returns>The device.</returns>
-		/// <param name="remoteDeviceId">Remote device identifier.</param>
-		DeviceRequestPackage GetDevice(byte deviceId, byte nodeId);
+        /// <summary>
+        /// Used for returning the value of a device.
+        /// </summary>
+        /// <returns>The device.</returns>
+        /// <param name="deviceId">Remote device identifier.</param>
+        /// <param name="nodeId">Node identifier.</param>
+        DeviceRequestPackage GetDevice(byte deviceId, byte nodeId);
 
-		/// <summary>
-		/// Creates a set-to-sleep-package
-		/// </summary>
-		/// <param name="nodeId">Node identifier.</param>
-		/// <param name="toggle">If set to <c>true</c> toggle.</param>
-		/// <param name="cycles">Cycles.</param>
-		DeviceRequestPackage Sleep(byte nodeId, bool toggle, byte cycles);
+        /// <summary>
+        /// Creates a "delete device" package for the specified node.
+        /// </summary>
+        /// <returns>The device.</returns>
+        /// <param name="deviceId">Device identifier.</param>
+        /// <param name="nodeId">Node identifier.</param>
+        DeviceRequestPackage DeleteDevice(byte deviceId, byte nodeId);
+
+        /// <summary>
+        /// Creates a set-to-sleep-package
+        /// </summary>
+        /// <param name="nodeId">Node identifier.</param>
+        /// <param name="toggle">If set to <c>true</c> toggle.</param>
+        /// <param name="cycles">Cycles.</param>
+        DeviceRequestPackage Sleep(byte nodeId, bool toggle, byte cycles);
 
 	}
 
