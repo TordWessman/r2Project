@@ -49,6 +49,27 @@ namespace R2Core.GPIO
         /// </summary>
         public int Timeout;
 
+        /// <summary>
+        /// Will be <see langword="true"/> if a transmission is in progress;
+        /// </summary>
+        /// <value><c>true</c> if is sending; otherwise, <c>false</c>.</value>
+        public bool IsSending { get; private set; }
+
+        /// <summary>
+        /// Returns true if the client is in a process of connecting
+        /// </summary>
+        /// <value><c>true</c> if is connecting; otherwise, <c>false</c>.</value>
+        public bool IsConnecting { get; private set; }
+
+        /// <summary>
+        /// The interval the Start() method waits following a successful connection. This gives the node time to configure before any requests are being made.
+        /// </summary>
+        public int ConnectionWaitInterval = 2000;
+
+        public bool ShouldRun { get; private set; } = true;
+
+        public override bool Ready => m_client != null && m_client.IsConnected() && m_client.Connected && !IsSending;
+
         public TCPSerialConnection(string id, string host) : this(id, host, Settings.Consts.TCPSerialConnectionDefaultPort()) { }
 
         public TCPSerialConnection(string id, string host, int port) : base(id) {
@@ -59,13 +80,15 @@ namespace R2Core.GPIO
 
         }
 
-        public bool ShouldRun { get; private set; } = true;
-
-        public override bool Ready => m_client != null && m_client.IsConnected() && m_client.Connected;
-
         public byte[] Read() {
 
-            return Read(new BlockingNetworkStream(m_client.GetSocket()));
+            if (IsSending) { throw new InvalidOperationException("Unable to Read, due to ongoing transmission."); }
+
+            lock (this) {
+
+                return Read(new BlockingNetworkStream(m_client.GetSocket()));
+
+            }
 
         }
 
@@ -75,13 +98,34 @@ namespace R2Core.GPIO
 
             if (data.Length > 0xFF) { throw new ArgumentException("Can't send packages larger than 255 bytes."); }
 
+            if (IsSending) { throw new InvalidOperationException("Unable to Send, due to ongoing transmission."); }
+
+            if (IsConnecting) { throw new InvalidOperationException("Unable to Send, due to ongoing connection establishment."); }
+
             lock (this) {
 
-                BlockingNetworkStream stream = new BlockingNetworkStream(m_client.GetSocket());
-                stream.Write(new byte[1] { (byte)data.Length }, 0, 1);
-                stream.Write(data, 0, data.Length);
+                try {
 
-                return Read(stream);
+                    BlockingNetworkStream stream = new BlockingNetworkStream(m_client.GetSocket());
+
+                    stream.Write(new byte[1] { (byte)data.Length }, 0, 1);
+                    stream.Write(data, 0, data.Length);
+
+                    var bytes = Read(stream);
+
+                    return bytes;
+
+                } catch (Exception ex) {
+
+                    Log.d(ex.Message);
+
+                    throw ex;
+
+                } finally {
+
+                    IsSending = false;
+
+                }
 
             }
 
@@ -89,19 +133,38 @@ namespace R2Core.GPIO
 
         public override void Start() {
 
-            Log.i($"TCPSerial Connecting to {Address}:{Port}", Identifier);
+            if (IsConnecting) { throw new InvalidOperationException("Unable to Start, due to ongoing connection establishment."); }
 
-            m_client = new TcpClient {
-                SendTimeout = Timeout,
-                ReceiveTimeout = Timeout,
-            };
+            lock (this) {
 
-            m_client.NoDelay = true;
+                IsConnecting = true;
 
-            m_client.Client.Blocking = true;
-            m_client.Connect(Address, Port);
-            ShouldRun = true;
-            Log.i("TCPSerial Connected", Identifier);
+                try {
+
+                    Log.i($"TCPSerial Connecting to {Address}:{Port}", Identifier);
+
+                    m_client = new TcpClient {
+                        SendTimeout = Timeout,
+                        ReceiveTimeout = Timeout,
+                    };
+
+                    m_client.NoDelay = true;
+
+                    m_client.Client.Blocking = true;
+                    m_client.Connect(Address, Port);
+                    ShouldRun = true;
+
+                    System.Threading.Thread.Sleep(ConnectionWaitInterval);
+
+                    Log.i("TCPSerial Connected", Identifier);
+
+                } finally {
+
+                    IsConnecting = false;
+                
+                }
+
+            }
 
         }
 
@@ -109,6 +172,8 @@ namespace R2Core.GPIO
 
             ShouldRun = false;
             if (m_client?.Connected == true) { m_client.Close(); }
+            m_client = null;
+            System.Threading.Thread.Sleep(ConnectionWaitInterval);
 
         }
 
