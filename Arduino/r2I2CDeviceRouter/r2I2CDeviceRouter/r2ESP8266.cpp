@@ -31,8 +31,16 @@ void wifiSetup() {
 
 #else
 
+int wifiConnectionAttempts = 0;
+uint32_t connectionAttemptCounter = 0;
+uint32_t healthStatusCounter = 0;
+uint32_t debugOutputCounter = 0;
+
 void wifiSetup() {
 
+  //R2_LOG(F("Disabling the WDT in order to facilitate poor network communication"));
+  //ESP.wdtDisable();
+  
   R2_LOG(F("Will initiate connection"));
   WiFi.mode(WIFI_STA);
   WiFi.hostname(WIFI_HOST_NAME);
@@ -43,10 +51,16 @@ void wifiSetup() {
   while (WiFi.status() != WL_CONNECTED) {   
     
     delay(500);
-    R2_LOG(F("."));
+    R2_PRINT(F("."));
     delay(500);
+    wifiConnectionAttempts++;
     
+    if (wifiConnectionAttempts == R2_TCP_MAX_WIFI_CONNECTION_ATTEMPTS) {
+      arghhhh();
+    }
   }
+
+  wifiConnectionAttempts = 0;
 
   R2_LOG("");
   R2_LOG(WIFI_SSID);
@@ -64,20 +78,16 @@ WiFiClient client;
 // Contains data during serial read.
 byte readBuffer[sizeof(RequestPackage) + 1];
 
-#define R2_TCP_READ_TIMEOUT 1000
-
 void writeResponse(ResponsePackage out);
 
 void terminate(const char* message, int code, int data) {
   
   R2_LOG(F("NETWORK ERROR"));
-  R2_LOG(message);
   err(message, code, data);
   writeResponse(createErrorPackage(0x0));
-  //client.stop();
   
 }
-
+ 
 void loop_tcp() {
 
   byte packageSize;
@@ -92,14 +102,23 @@ void loop_tcp() {
   }
 #endif
 
-  if (!client) {
-    client = server.available(); 
+  healthStatusCounter++;
+  
+  if (healthStatusCounter % 20000 == 0) { R2_PRINT(client ? (client.connected() ? F("*") : F("x")) : F(".")); healthStatusCounter = 0; debugOutputCounter++; }
+  if (debugOutputCounter % 50 == 0) { R2_PRINT(F("\n")); debugOutputCounter++; }
+  
+  if (!client || !client.connected()) {
+    
+    client = server.available();
+    
+    if (client) { R2_LOG(F("Connected to:")); R2_LOG(client.remoteIP()); connectionAttemptCounter = 0; }
+
   }
   
   if (client && client.connected() && client.available()) {
     
     delay(10);
-    R2_LOG(F("Incoming package data."));
+    R2_LOG(F("Incoming package."));
     
     uint32_t timeout = millis() + R2_TCP_READ_TIMEOUT;
 
@@ -107,17 +126,26 @@ void loop_tcp() {
     if (!(client.read(&packageSize, 1) > 0)) { return terminate("TCP",ERROR_TCP_READ, 0); }
 
     // Read the message
-    for (int i = 0; i < packageSize; i++) {
+    int i = 0;
+    while (i < packageSize) {
+
+      ESP.wdtFeed();
       
-      if((millis() > timeout)) { return terminate("Timeout", ERROR_TCP_TIMEOUT, i); }
+      if((millis() > timeout)) { return terminate("TIMEOUT", ERROR_TCP_TIMEOUT, i); }
       
-      if (client.read(&dx, 1) > 0) { readBuffer[i] = dx; }
-      else { return terminate("TCPx", ERROR_TCP_READ, i); }
+      if (client.read(&dx, 1) > 0) {
+        
+        readBuffer[i] = dx;
+        i++;
+        
+      }
   
     } 
     
-    R2_LOG(F("Got a package!"));
+    R2_LOG(F("Package received."));
+
     writeResponse(execute((RequestPackage*)readBuffer));
+    
     R2_LOG(F("Did reply."));
     
   }
