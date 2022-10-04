@@ -11,9 +11,12 @@
 
 #define R2_LOG(msg) (Serial.println(msg))
 
+#define R2_PRINT(msg) (Serial.print(msg))
+
 #else
 
 #define R2_LOG(msg) ;
+#define R2_PRINT(msg) ;
 
 #endif
 

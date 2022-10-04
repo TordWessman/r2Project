@@ -277,7 +277,12 @@ ResponsePackage execute(RequestPackage *request) {
           }
           
         } break;
-        
+
+        case ACTION_DELETE_DEVICE: {
+
+         deleteDevice(request->id);
+         
+        } break;
       case ACTION_CHECK_INTEGRITY: {
         
         response.contentSize = deviceCount + 1;

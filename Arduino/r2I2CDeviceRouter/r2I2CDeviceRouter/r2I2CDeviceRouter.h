@@ -203,6 +203,8 @@ typedef struct RequestPackage RequestPackage;
 #define ACTION_CHECK_INTEGRITY 0x0E
 // Used to turn the RPI_POWER_DETECTION_PORT check on. See README.md for information.
 #define ACTION_ACTIVATE_RPI_CONTROLLER 0x0F
+// Delete a device with a specified id
+#define ACTION_DELETE_DEVICE 0x10
 
 // -- Internal Actions --
 
