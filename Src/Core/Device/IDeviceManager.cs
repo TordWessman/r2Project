@@ -79,16 +79,22 @@ namespace R2Core.Device
 		bool Has(string identifier);
 
 		/// <summary>
-		/// Removes an IDevice with the specified identifier and notifies other hosts about the removal.
+		/// Removes an IDevice if it exists.
 		/// </summary>
-		/// <param name="identifier">Identifier.</param>
-		void Remove(string identifier);
+		/// <param name="device">Device to be removed.</param>
+		void Remove(IDevice device);
 
-		/// <summary>
-		/// Adds an IDeviceManagerObserver which will be notified if a device is added or removed.
-		/// </summary>
-		/// <param name="observer">Observer.</param>
-		void AddObserver(IDeviceManagerObserver observer);
+        /// <summary>
+        /// Removes any device with the specified Identifier.
+        /// </summary>
+        /// <param name="id">Identifier.</param>
+        void Remove(string id);
+
+        /// <summary>
+        /// Adds an IDeviceManagerObserver which will be notified if a device is added or removed.
+        /// </summary>
+        /// <param name="observer">Observer.</param>
+        void AddObserver(IDeviceManagerObserver observer);
 
 		/// <summary>
 		/// Sends stop signal to all local devices. Use optional ignoreDevice in order to exclude devices from being stopped

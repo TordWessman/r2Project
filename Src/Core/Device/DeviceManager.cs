@@ -194,23 +194,25 @@ namespace R2Core.Device
 
 		}
 
-		public void Remove(string id) {
+        public void Remove(string id) {
+
+            IDevice device = Get<IDevice>(id);
+
+            if (device != null) { Remove(device); }
+
+        }
+
+        public void Remove(IDevice device) {
 
 			lock(m_removelock) {
 
-				IDevice device = Get<IDevice>(id);
+				foreach (IDeviceManagerObserver observer in m_observers) {
 
-				if (device != null) {
-
-					foreach (IDeviceManagerObserver observer in m_observers) {
-
-						observer.DeviceRemoved(device);
-
-					}
-
-					_Remove(device.Guid);
+					observer.DeviceRemoved(device);
 
 				}
+
+				_Remove(device.Guid);
 
 			}
 
