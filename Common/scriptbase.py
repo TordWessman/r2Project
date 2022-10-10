@@ -16,6 +16,3 @@ class ScriptBase:
 
 	def r2_init(self):
 		self.logger = self.device_manager.Get("log")
-
-
-

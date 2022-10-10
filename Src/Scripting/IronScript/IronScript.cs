@@ -99,8 +99,9 @@ namespace R2Core.Scripting
 				m_source.Execute(m_scope);
 
 			} catch (Exception ex) {
-			
-				Log.x(ex);
+
+                Log.e(m_engine.GetService<ExceptionOperations>().FormatException(ex).Replace("File \"\"", $"File \"{m_fileName}\""));
+                Log.x(ex);
 
 				throw ex;
 
@@ -132,7 +133,16 @@ namespace R2Core.Scripting
 
 		public override void Set(string handle, dynamic value) {
 
-			m_engine.Operations.SetMember(m_mainClass, handle, value);
+            try {
+
+                m_engine.Operations.SetMember(m_mainClass, handle, value);
+
+            } catch (Exception ex) {
+
+                Log.e(GetExceptionInfoString(ex));
+                throw ex;
+
+            }
 
 		}
 
@@ -144,7 +154,16 @@ namespace R2Core.Scripting
 
 			}
 
-			return m_engine.Operations.GetMember(m_mainClass, handle);
+            try {
+
+                return m_engine.Operations.GetMember(m_mainClass, handle);
+
+            } catch (Exception ex) {
+
+                Log.e(GetExceptionInfoString(ex));
+                throw ex;
+
+            }
 
 		} 
 
@@ -161,8 +180,17 @@ namespace R2Core.Scripting
 			if (member is IronPython.Runtime.Method) {
 			
 				// Invoke as method
+                try {
 
-                return m_engine.Operations.InvokeMember(m_mainClass, handle, args);
+                    return m_engine.Operations.InvokeMember(m_mainClass, handle, args);
+
+                } catch (Exception ex) {
+
+                    Log.e(GetExceptionInfoString(ex));
+                    throw ex;
+                        
+                }
+
 
 			}
 
@@ -171,6 +199,12 @@ namespace R2Core.Scripting
 
 		}
 
-	}
+        private string GetExceptionInfoString(Exception ex) {
+
+            return m_engine.GetService<ExceptionOperations>().FormatException(ex).Replace("File \"\"", $"File \"{m_fileName}\"").Replace("File \"<string>\"", $"File \"{m_fileName}\"");
+        
+        }
+
+    }
 
 }
