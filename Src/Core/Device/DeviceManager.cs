@@ -154,7 +154,7 @@ namespace R2Core.Device
 
 			lock(m_lock) {
 
-				foreach (IDevice device in m_devices.Values) {
+				foreach (IDevice device in m_devices.Values.Reverse()) {
 
 					if (device.IsLocal() && !ignoreDevices.Any(d => d.Guid == device.Guid )) {
 
