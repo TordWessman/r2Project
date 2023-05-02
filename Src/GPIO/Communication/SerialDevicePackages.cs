@@ -27,15 +27,16 @@ namespace R2Core.GPIO
     /// </summary>
     public enum SerialDeviceType : byte {
         
-        DigitalInput = 0x1,     // Simple digital input
-        DigitalOutput = 0x2,    // Simple digital output
-        AnalogInput = 0x3,      // Uses node's AD converter to read a value
-        Servo = 0x4,            // PWM Servo
-        Sonar_HCSR04 = 0x5,     // HC-SR04 Sonar implementation
-        DHT11 = 0x6,            // DHT11 Temperature/Humidity sensor
-        SimpleMoist = 0x7,      // Moisture sensor using output port + ad port
-        AnalogOutput = 0x8,     // PWM output with 8 bit resolution
-        Sonar= 0x9,             // Generic Sonar implementation
+        DigitalInput = 0x1,             // Simple digital input
+        DigitalOutput = 0x2,            // Simple digital output
+        AnalogInput = 0x3,              // Uses node's AD converter to read a value
+        Servo = 0x4,                    // PWM Servo
+        Sonar_HCSR04 = 0x5,             // HC-SR04 Sonar implementation
+        DHT11 = 0x6,                    // DHT11 Temperature/Humidity sensor
+        SimpleMoist = 0x7,              // Moisture sensor using output port + ad port
+        AnalogOutput = 0x8,             // PWM output with 8 bit resolution
+        Sonar= 0x9,                     // Generic Sonar implementation
+        MultipleDigitalOutput = 0xA,    // As with DigitalOutput, but with multiple ports reserved and set simultaneously
     }
 
     /// <summary>
@@ -179,7 +180,8 @@ namespace R2Core.GPIO
         ERROR_TCP_TIMEOUT = 22,
         // Remote device was unable to read all bytes
         ERROR_TCP_READ = 23,
-
+        // If the number ports created exceeds DEVICE_MAX_PORTS when creating a DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT
+        ERROR_TOO_MANY_MULTIPLE_PORTS = 24,
 
         // Internally created error: If the response data mismatched the expected data.
         ERROR_DATA_MISMATCH = 0xF0,
@@ -441,7 +443,8 @@ namespace R2Core.GPIO
             return (response.IsError || !response.IsChecksumValid) && 
                     response.Error != SerialErrorType.NO_DEVICE_FOUND &&    // This error will cause the caller to recreate the device
                     response.Error != SerialErrorType.MAX_DEVICES_IN_USE &&
-                    response.Error != SerialErrorType.PORT_IN_USE; // Max devices or if port is in use can't be fixed by retrying
+                    response.Error != SerialErrorType.PORT_IN_USE && // Max devices or if port is in use can't be fixed by retrying
+                    response.Error != SerialErrorType.ERROR_TOO_MANY_MULTIPLE_PORTS; // Sorry. Can't resereve this amount of ports.
                     
         }
 

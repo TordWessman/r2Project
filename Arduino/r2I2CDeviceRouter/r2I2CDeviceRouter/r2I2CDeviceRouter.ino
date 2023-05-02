@@ -280,9 +280,11 @@ ResponsePackage execute(RequestPackage *request) {
 
         case ACTION_DELETE_DEVICE: {
 
-         deleteDevice(request->id);
-         
+          deleteDevice(request->id);
+          deviceCount--;
+          
         } break;
+        
       case ACTION_CHECK_INTEGRITY: {
         
         response.contentSize = deviceCount + 1;

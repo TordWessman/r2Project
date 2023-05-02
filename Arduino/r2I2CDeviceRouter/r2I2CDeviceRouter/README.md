@@ -41,7 +41,7 @@ It will require a Raspberry Pi and an I2C connection, but it could as well have 
 		# Create the factory, that allows us to create the connections
 		gpio_factory_factory = self.device_manager.Get(self.settings.I.IoFactory())
 		# This will create an I2C connection on bus 1 and port 4 (default for Raspberry Pi)
-		# Use gpio_factory_factory.CreateSerialConnection("serial_host", "/dev/ttyACM") instead on a linux machine to connect through the serial port instead.
+		# Use gpio_factory_factory.CreateSerialConnection("serial_host", "/dev/ttyACM") on a linux machine to connect through the serial port instead.
 		host = gpio_factory_factory.CreateSerialConnection("serial_host",1,4)
 		# Establish connection to the I2C port
 		host.Start()

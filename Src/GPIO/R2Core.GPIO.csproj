@@ -118,6 +118,7 @@
     <Compile Include="Input\SerialHCSR04Sonar.cs" />
     <Compile Include="Communication\TCPSerialConnection.cs" />
     <Compile Include="Test\DummyTCPHost.cs" />
+    <Compile Include="Output\SerialMultipleDigitalOutput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -13,7 +13,7 @@ static byte deviceCount = 0;
 // -- Configurations
 
 // The maximum number of ports a device can occupy
-#define DEVICE_MAX_PORTS 2
+#define DEVICE_MAX_PORTS 4
 
 // The id for the mastel node.
 #define DEVICE_HOST_LOCAL 0x0
@@ -97,13 +97,14 @@ typedef struct RequestPackage RequestPackage;
 #define DEVICE_TYPE_UNDEFINED 0
 #define DEVICE_TYPE_DIGITAL_INPUT 1
 #define DEVICE_TYPE_DIGITAL_OUTPUT 2
-#define DEVICE_TYPE_ANALOGUE_INPUT 3
+#define DEVICE_TYPE_ANALOG_INPUT 3
 #define DEVICE_TYPE_SERVO 4
 #define DEVICE_TYPE_HCSR04_SONAR 5
 #define DEVICE_TYPE_DHT11 6
 #define DEVICE_TYPE_SIMPLE_MOIST 7
-#define DEVICE_TYPE_ANALOGE_OUTPUT 8
+#define DEVICE_TYPE_ANALOG_OUTPUT 8
 #define DEVICE_TYPE_SONAR 9
+#define DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT 0xA
 // -- Error codes --
 
 // No device with the specified id was found.
@@ -152,6 +153,9 @@ typedef struct RequestPackage RequestPackage;
 #define ERROR_TCP_TIMEOUT 22
 // TCP read failed.
 #define ERROR_TCP_READ 23
+// If the number ports created exceeds DEVICE_MAX_PORTS when creating a DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT
+#define ERROR_TOO_MANY_MULTIPLE_PORTS 24
+ 
 
 // Error reserved for external purposes
 #define ERROR_RESERVED_1 0xF0
@@ -231,6 +235,8 @@ typedef struct RequestPackage RequestPackage;
 // Port positions for simple moisture sensors
 #define SIMPLE_MOIST_ANALOGUE_IN 0x0 // The analogue input port used for the actual reading.
 #define SIMPLE_MOIST_DIGITAL_OUT 0x1 // The digital output port used to enable reading.
+
+#define MULTIPLE_DIGITAL_OUTPUT_PORT_COUNT_POSITION 0x0 //The input position containing the number of ports (and thus the length of the argument)
 
 // -- Response positions for ResponsePackage.content --
 

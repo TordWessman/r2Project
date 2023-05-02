@@ -40,6 +40,7 @@ void deleteDevice(byte id) {
 
   R2_LOG(F("Deleting device with id:"));
   R2_LOG(id);
+  
   if (devices[id].object != NULL) {
 
     if (devices[id].type == DEVICE_TYPE_SERVO) {
@@ -55,6 +56,16 @@ void deleteDevice(byte id) {
     } else if (devices[id].type == DEVICE_TYPE_DIGITAL_OUTPUT) {
     
       digitalWrite(devices[id].IOPorts[0], LOW);
+      
+    } else if (devices[id].type == DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT) {
+
+      byte portCount = *((byte *) devices[id].object);
+      
+      for(int i = 0; i < portCount; i++) {
+      
+          digitalWrite(devices[id].IOPorts[i], LOW);
+      
+      }
       
     }
     
@@ -121,12 +132,14 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
   device.object = NULL;
   
   for (int i = 0; i < DEVICE_MAX_PORTS; i++) {
+    
     device.IOPorts[i] = DEVICE_PORT_NOT_IN_USE;
+    
   }
   
   switch (device.type) {
   
-    case DEVICE_TYPE_ANALOGUE_INPUT:
+    case DEVICE_TYPE_ANALOG_INPUT:
     
       if (reservePort(input[0])) { device.IOPorts[0] = input[0]; }
       break;
@@ -147,7 +160,41 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         device.IOPorts[0] = input[0];
         pinMode(device.IOPorts[0], OUTPUT);
       
+      } break;
+      
+  case DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT: {
+  
+        byte portCount = (byte) input[MULTIPLE_DIGITAL_OUTPUT_PORT_COUNT_POSITION];
+        
+        if (portCount > DEVICE_MAX_PORTS) {
+          
+          err("Too many ports", ERROR_TOO_MANY_MULTIPLE_PORTS, portCount);
+          return false;
+          
+        }
+  
+        device.object = malloc(sizeof(byte));
+  
+        // The `object` property contains the number of ports being used.
+        *(byte *)device.object = portCount;
+        
+        for(int i = 0; i < portCount; i++) {
+          
+           int port = input[1 + MULTIPLE_DIGITAL_OUTPUT_PORT_COUNT_POSITION + i];
+           
+           if (reservePort(port)) {
+              
+              device.IOPorts[i] = port;
+              pinMode(device.IOPorts[i], OUTPUT);
+              Serial.print("*** Creating multiport using: ");
+              Serial.print(" "); Serial.println(device.IOPorts[i]);
+            
+           }
+           
+        } 
+        
     } break;
+      
   case DEVICE_TYPE_SONAR: {
     
       if (reservePort(input[SONAR_TRIG_PORT]) && reservePort(input[SONAR_ECHO_PORT])) {
@@ -172,8 +219,7 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         
         device.IOPorts[SONAR_TRIG_PORT] = input[SONAR_TRIG_PORT];
         device.IOPorts[SONAR_ECHO_PORT] = input[SONAR_ECHO_PORT];
-        
-        
+   
       } break;
       
   case DEVICE_TYPE_SERVO: { 
@@ -218,7 +264,8 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         pinMode(device.IOPorts[SIMPLE_MOIST_DIGITAL_OUT], OUTPUT);
       
     } break;
-    case DEVICE_TYPE_ANALOGE_OUTPUT:
+    
+    case DEVICE_TYPE_ANALOG_OUTPUT:
   
       if (reservePort(input[0])) {
         
@@ -226,7 +273,7 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
     
         pinMode(device.IOPorts[0], OUTPUT);
       
-    } break;
+      } break;
     
   default:
   
@@ -253,7 +300,7 @@ r2Int* getValue(Device* device) {
       values[0] = digitalRead(device->IOPorts[0]);   
       break;
       
-   case DEVICE_TYPE_ANALOGUE_INPUT:
+   case DEVICE_TYPE_ANALOG_INPUT:
    
      values[0] = analogRead(device->IOPorts[0]);
      break;
@@ -371,12 +418,26 @@ void setValue(Device* device, r2Int value) {
         digitalWrite(device->IOPorts[0], value > 0 ? HIGH : LOW);
         break;
         
+    case DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT: {
+      
+          byte portCount = *((byte *) device->object);
+          byte portConfig = (byte) value;
+          
+          for(int i = 0; i < portCount; i++) {
+
+            digitalWrite(device->IOPorts[i], portConfig & 1 ? HIGH : LOW);
+            portConfig = portConfig >> 1;
+          
+          }
+          
+        } break;
+        
     case DEVICE_TYPE_SERVO:
     
         ((Servo *) device->object)->write(value);
         break;
         
-    case DEVICE_TYPE_ANALOGE_OUTPUT:
+    case DEVICE_TYPE_ANALOG_OUTPUT:
     
         analogWrite(device->IOPorts[0], value > 1023 ? 1023 : value);
         break;

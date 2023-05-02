@@ -45,7 +45,8 @@ namespace R2Core.GPIO
 		/// </summary>
 		/// <returns>The node.</returns>
 		/// <param name="nodeId">Node identifier.</param>
-		public ISerialNode GetNode(int nodeId) { return m_devices.Nodes.FirstOrDefault(node => node.NodeId == nodeId); } 
+		public ISerialNode GetNode(int nodeId) { return m_devices.Nodes.FirstOrDefault(node => node.NodeId == nodeId); }
+
 		public ISerialNode this[int key] { get { return GetNode(key); } }
 			
 		//public IDictionary<byte, ISerialNode> Nodes { get { return m_devices.Nodes; } }
@@ -93,7 +94,13 @@ namespace R2Core.GPIO
 
 		}
 
-		public IServo CreateServo(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+        public IOutputPort<bool[]> CreateMultipleOutputPorts(string id, int[] ports, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+            return InstantiateDevice(new SerialMultipleDigitalOutput(id, m_devices.GetNode(nodeId), m_connection, ports));
+
+        }
+
+        public IServo CreateServo(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
 			return InstantiateDevice(new SerialServo(id, m_devices.GetNode(nodeId), m_connection, port));
 
