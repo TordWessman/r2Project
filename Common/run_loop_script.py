@@ -150,7 +150,11 @@ class MainClass:
 							if (len(stringCheckSplit) == 3):
 								paramsArray.Add(stringCheckSplit[1])	#string
 							elif (len(stringCheckSplit) == 1):
-								if "." in param:
+								if "true" in param or "True" in param:
+									paramsArray.Add(True)
+								elif "false" in param or "False" in param:
+									paramsArray.Add(False)
+								elif "." in param:
 									paramsArray.Add(float(param))	#float
 								else:
 									paramsArray.Add(int(param))		#not float
