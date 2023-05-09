@@ -131,7 +131,7 @@ void loop_tcp() {
 
       ESP.wdtFeed();
       
-      if((millis() > timeout)) { return terminate("TIMEOUT", ERROR_TCP_TIMEOUT, i); }
+      if(millis() > timeout) { return terminate("TIMEOUT", ERROR_TCP_TIMEOUT, i); }
       
       if (client.read(&dx, 1) > 0) {
         

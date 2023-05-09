@@ -41,12 +41,11 @@ namespace R2Core.GPIO
 
 			set {
 
-                if (!Ready) { throw new System.IO.IOException("Unable to set Value. Device not Ready." + (Deleted ? " Deleted" : "")); }
-
-                m_value = value;
 				Host.Set(DeviceId, Node.NodeId, value ? 1 : 0);
 
-			}
+                m_value = value;
+
+            }
 
 			get { return m_value; }
 

@@ -422,7 +422,7 @@ void setValue(Device* device, r2Int value) {
       
           byte portCount = *((byte *) device->object);
           byte portConfig = (byte) value;
-          
+
           for(int i = 0; i < portCount; i++) {
 
             digitalWrite(device->IOPorts[i], portConfig & 1 ? HIGH : LOW);

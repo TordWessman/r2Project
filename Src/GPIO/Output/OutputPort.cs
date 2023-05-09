@@ -45,10 +45,11 @@ namespace R2Core.GPIO
 			
 			set {
 				
-				m_value = value;
 				m_gpi.Write(value);
 
-			}
+                m_value = value;
+
+            }
 
 			get { return m_value; }
 

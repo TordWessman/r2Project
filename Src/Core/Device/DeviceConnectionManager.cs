@@ -65,7 +65,6 @@ namespace R2Core.Device {
         public DeviceConnectionManager(string id, int bootDelay = 5000, int updateInterval = 1000) : base(id) {
 
             Devices = new List<IDevice>();
-            m_cancelationToken = new CancellationTokenSource();
             Failures = new Stack<Exception>(10);
             BootDelay = bootDelay;
             UpdateInterval = updateInterval;
@@ -82,6 +81,10 @@ namespace R2Core.Device {
         /// Start the monitoring after <code>BootDelay</code> milliseconds.
         /// </summary>
         public override void Start() {
+
+            if (IsRunning) { throw new ApplicationException($"{Identifier} is already running."); }
+
+            m_cancelationToken = new CancellationTokenSource();
 
             IsRunning = true;
 
@@ -144,7 +147,10 @@ namespace R2Core.Device {
 
         public override void Stop() {
 
-            m_cancelationToken.Cancel();
+            if (m_cancelationToken != null) {
+                m_cancelationToken.Cancel();
+                m_cancelationToken = null;
+            }
 
         }
 

@@ -46,11 +46,8 @@ namespace R2Core.GPIO {
                 
                 }
 
-                foreach(byte p in parameters) {
-                    Log.t($"Portis: {p}");
-                }
-
                 return parameters;
+
             } 
 
         }
@@ -68,18 +65,15 @@ namespace R2Core.GPIO {
 
             set {
 
-                if (!Ready) { throw new System.IO.IOException("Unable to set Value. Device not Ready." + (Deleted ? " Deleted" : "")); }
-
                 if (value.Length != m_ports.Length) {
 
                     throw new ArgumentException($"Invalid number of values ({value.Length}). {m_ports.Length} defined.");
 
                 }
 
-                m_value = value;
                 int bitshifted = 0;
 
-                foreach (bool portValue in m_value.Reverse()) {
+                foreach (bool portValue in value.Reverse()) {
 
                     bitshifted <<= 1;
                     bitshifted |= portValue ? 1 : 0;
@@ -87,6 +81,8 @@ namespace R2Core.GPIO {
                 }
 
                 Host.Set(DeviceId, Node.NodeId, bitshifted);
+
+                m_value = value;
 
             }
 
@@ -98,7 +94,8 @@ namespace R2Core.GPIO {
 
         public override string ToString() {
 
-            return $"[OutputPort: {Identifier} : {Value}]";
+            string value = Value == null ? "" : Value.Aggregate("", (current, v) => current += $"{v} ");
+            return $"[MultiOutputPort: {Identifier} : {value}. Ports: {m_ports.Aggregate("", (current, v) => current += $"{v} ")}]";
 
         }
 

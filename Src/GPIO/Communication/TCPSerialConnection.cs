@@ -108,6 +108,8 @@ namespace R2Core.GPIO
 
                     BlockingNetworkStream stream = new BlockingNetworkStream(m_client.GetSocket());
 
+                    Flush(stream);
+
                     stream.Write(new byte[1] { (byte)data.Length }, 0, 1);
                     stream.Write(data, 0, data.Length);
 
@@ -185,7 +187,29 @@ namespace R2Core.GPIO
             byte[] responseData = new byte[responseSize];
 
             stream.Read(responseData, 0, responseSize);
+            stream.Flush();
             return responseData;
+
+        }
+
+        private void Flush(BlockingNetworkStream stream) {
+
+            if (m_client.GetSocket().Available > 0) {
+
+                int receiveTimeout = m_client.GetSocket().ReceiveTimeout;
+                m_client.GetSocket().ReceiveTimeout = 100;
+
+                int i = 1000;
+
+                try {
+                    while (i != -1) { i = stream.ReadByte(); }
+#pragma warning disable RECS0022 // A catch clause that catches System.Exception and has an empty body
+                } catch { }
+#pragma warning restore RECS0022 // A catch clause that catches System.Exception and has an empty body
+
+                m_client.GetSocket().ReceiveTimeout = receiveTimeout;
+
+            }
 
         }
 

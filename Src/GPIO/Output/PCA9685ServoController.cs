@@ -19,8 +19,6 @@
 using System;
 using R2Core.Device;
 using System.Runtime.InteropServices;
-using R2Core;
-
 
 namespace R2Core.GPIO
 {
@@ -51,6 +49,7 @@ namespace R2Core.GPIO
 			}
 			
 			_ext_set_pwm_pca9685 (channel, value);
+
 		}
 
 		public IServo CreateServo(string id, int channel) {
@@ -61,5 +60,6 @@ namespace R2Core.GPIO
 
 		#endregion
 	}
+
 }
 

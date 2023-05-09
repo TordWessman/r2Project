@@ -111,6 +111,13 @@ namespace R2Core.GPIO
 
         public void Delete() {
 
+            if (Deleted) {
+
+                Log.i($"Will not delete {Identifier}, since it's deleted.");
+                return;
+
+            }
+
             Host.DeleteDevice(DeviceId, Node.NodeId);
             Node.RemoveDevice(this);
             Deleted = true;

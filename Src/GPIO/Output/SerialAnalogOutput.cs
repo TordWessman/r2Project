@@ -18,6 +18,7 @@
 
 namespace R2Core.GPIO
 {
+
     internal class SerialAnalogOutput : SerialDeviceBase<byte[]>, IOutputPort<ushort> {
 
         private readonly byte m_port;
@@ -26,13 +27,13 @@ namespace R2Core.GPIO
         public ushort Value {
 
             get { return m_value; }
+
             set {
 
-                if (!Ready) { throw new System.IO.IOException("Unable to set Value. Device not Ready." + (Deleted ? " Deleted" : "")); }
+                Host.Set(DeviceId, Node.NodeId, value);
 
                 m_value = value;
-                Host.Set(DeviceId, Node.NodeId, value);
-            
+
             }
 
         }

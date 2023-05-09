@@ -13,7 +13,7 @@ static byte deviceCount = 0;
 // -- Configurations
 
 // The maximum number of ports a device can occupy
-#define DEVICE_MAX_PORTS 4
+#define DEVICE_MAX_PORTS 5
 
 // The id for the mastel node.
 #define DEVICE_HOST_LOCAL 0x0
