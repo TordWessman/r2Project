@@ -3,6 +3,7 @@ This project is the bridge between r2Project and Arduino hardware.
 ### Fix dependencies
 * Find your Arduino library folder (i.e. _~/Arduino/libraries/_).
 * Add _../../r2I2C_ to your Arduino library folder. (i.e. `ln -s <path>/r2Project/Arduino/r2I2C ~/Arduino/libraries`)
+* Add _../../r2Moist_ to your Arduino library folder (as with r2I2C).
 * Add the RF24 libraries _(../../3rdParty/RF24-Libraries/*)_ to your Arduino library folder.
 * Add the DHT11 library _(../../3rdParty/DHT11)_ to your Arduino library folder.
 * restart Arduino Studio.
