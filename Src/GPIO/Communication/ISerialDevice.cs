@@ -35,7 +35,7 @@ namespace R2Core.GPIO
 		/// <summary>
 		/// Allows the device to retrieve it's value from the node. 
 		/// </summary>
-		void Update();
+		void Update(byte[] parameters = null);
 
         /// <summary>
         /// Remove this device from node.

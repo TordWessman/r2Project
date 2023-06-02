@@ -39,12 +39,14 @@ namespace R2Core.GPIO
 		/// <value>The retry count.</value>
 		int RetryCount { get; set; }
 
-		/// <summary>
-		/// Returns the value property of a device on node with id `nodeId`. `deviceId` is the id(local on the node) of the device.
-		/// </summary>
-		/// <returns>The value.</returns>
-		/// <param name="nodeId">Node identifier.</param>
-		DeviceData<T> GetValue<T>(byte deviceId, int nodeId);
+        /// <summary>
+        /// Returns the value property of a device on node with id `nodeId`. `deviceId` is the id(local on the node) of the device.
+        /// </summary>
+        /// <returns>The value of the device.</returns>
+        /// <param name="deviceId">The id of the device for the remote node.</param>
+        /// <param name="nodeId">Node identifier.</param>
+        /// <param name="parameters">Optional extra parameters added to the get-request.</param>
+        DeviceData<T> GetValue<T>(byte deviceId, int nodeId, byte[] parameters = null);
 
 		/// <summary>
 		/// Sets the value of an object. `deviceId` is the id of the device located on the node with id `nodeId`. 

@@ -13,7 +13,7 @@ static byte deviceCount = 0;
 // -- Configurations
 
 // The maximum number of ports a device can occupy
-#define DEVICE_MAX_PORTS 5
+#define DEVICE_MAX_PORTS 6
 
 // The id for the mastel node.
 #define DEVICE_HOST_LOCAL 0x0
@@ -105,6 +105,7 @@ typedef struct RequestPackage RequestPackage;
 #define DEVICE_TYPE_ANALOG_OUTPUT 8
 #define DEVICE_TYPE_SONAR 9
 #define DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT 0xA
+#define DEVICE_TYPE_MULTIPLEX_MOIST 0xB
 // -- Error codes --
 
 // No device with the specified id was found.
@@ -238,6 +239,8 @@ typedef struct RequestPackage RequestPackage;
 
 #define MULTIPLE_DIGITAL_OUTPUT_PORT_COUNT_POSITION 0x0 //The input position containing the number of ports (and thus the length of the argument)
 
+#define MULTIPLEX_MOIST_PORT_COUNT_POSITION 0x0 // The input position for the value determining how many channel selection ports required for the multiplexer.
+
 // -- Response positions for ResponsePackage.content --
 
 // Here be response positions for DHT11
@@ -278,8 +281,8 @@ Device* getDevice(byte id);
 // Tries to set the value of a device. Returns true if successfull
 void setValue(Device* device, r2Int value);
 
-// Returns the value(s) of a device
-r2Int* getValue(Device* device);
+// Returns the value(s) of a device. `params` is optional and in most cases not required, since most `Device`'s are mapped to exacly one value.
+r2Int* getValue(Device* device, byte* params);
 
 // Performs the actions requested by the RequestPackage.
 ResponsePackage execute(RequestPackage *request);

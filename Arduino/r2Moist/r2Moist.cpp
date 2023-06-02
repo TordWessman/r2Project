@@ -73,7 +73,7 @@ R2Moist::R2Moist(R2Multiplexer* multiplexer,
 				 DEVICE_PORT analogPort, 
 				 const uint8_t (&controlPorts)[SENSOR_ROD_COUNT],
 				 uint8_t* sensorChannels,
-				 size_t sensorPairCount) {
+				 uint8_t sensorPairCount) {
 
 	_multiplexer = multiplexer;
 	_analogPort = analogPort;

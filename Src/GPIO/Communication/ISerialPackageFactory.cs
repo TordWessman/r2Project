@@ -62,7 +62,8 @@ namespace R2Core.GPIO
         /// <returns>The device.</returns>
         /// <param name="deviceId">Remote device identifier.</param>
         /// <param name="nodeId">Node identifier.</param>
-        DeviceRequestPackage GetDevice(byte deviceId, byte nodeId);
+        /// <param name="parameters">Additional optional parameters.</param>
+        DeviceRequestPackage GetDevice(byte deviceId, byte nodeId, byte[] parameters = null);
 
         /// <summary>
         /// Creates a "delete device" package for the specified node.

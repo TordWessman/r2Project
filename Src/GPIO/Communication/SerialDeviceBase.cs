@@ -22,6 +22,7 @@ namespace R2Core.GPIO
 {
 	/// <summary>
 	/// Base implementation for serial devices. Contains standard functionality including access to the ISerialHost and node management.
+    /// `T` is the data type this object operates.
 	/// </summary>
 	internal abstract class SerialDeviceBase<T>: DeviceBase, ISerialDevice {
 
@@ -52,6 +53,7 @@ namespace R2Core.GPIO
         public bool Deleted { get; private set; }
 
         public bool IsSleeping { get { return Node.Sleep; } }
+
 		public override bool Ready { get {
 
                 try {
@@ -93,19 +95,19 @@ namespace R2Core.GPIO
 		/// Determines the sleep state of the node. Will retrieve an updated value if not sleeping or return the privious value if it is. 
 		/// </summary>
 		/// <returns>The value.</returns>
-		protected T GetValue() {
+		protected T GetValue(byte[] parameters = null) {
 
             if (!Ready) { throw new System.IO.IOException("Unable to get value. Device not Ready." + (Deleted ? " Deleted" : "")); }
 
-            if (!IsSleeping) { Update(); }
+            if (!IsSleeping) { Update(parameters); }
 
 			return InternalValue; 
 
 		}
 
-        public void Update() {
+        public void Update(byte[] parameters = null) {
 
-            InternalValue = Host.GetValue<T>(DeviceId, Node.NodeId).Value;
+            InternalValue = Host.GetValue<T>(DeviceId, Node.NodeId, parameters).Value;
 
 		}
 
@@ -126,7 +128,7 @@ namespace R2Core.GPIO
 
         public void Synchronize() {
 
-			DeviceData<T>info = Host.Create<T>((byte)Node.NodeId, DeviceType, CreationParameters);
+			DeviceData<T> info = Host.Create<T>((byte)Node.NodeId, DeviceType, CreationParameters);
             DeviceId = info.Id;
 			InternalValue = info.Value;
 

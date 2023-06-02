@@ -48,11 +48,14 @@ class R2Moist {
 				 DEVICE_PORT analogPort, 
 				 const uint8_t (&controlPorts)[SENSOR_ROD_COUNT],
 				 uint8_t* sensorChannels,
-				 size_t sensorPairCount);
+				 uint8_t sensorPairCount);
 
 		/// Return the average value read by each of the rods of a sensor.
 		/// `sensorPairIndex` is the index of a sensor pair defined in `sensorPairs`.
 		int read(int sensorPairIndex);
+
+		/// Returns the number of registered sensor pairs. Will match using `read(sensorPairIndex)`.
+		inline uint8_t sensorPairCount() { return _sensorPairCount; }
 
 		/// Return the underlying multiplexer.
 		R2Multiplexer* getMultiplexer();
@@ -67,7 +70,7 @@ class R2Moist {
 		uint8_t _controlPorts[SENSOR_ROD_COUNT];
 		DEVICE_PORT _analogPort;
 		uint8_t** _sensorPairs;
-		int _sensorPairCount;
+		uint8_t _sensorPairCount;
 
 };
 

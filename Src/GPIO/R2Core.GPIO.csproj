@@ -119,6 +119,8 @@
     <Compile Include="Communication\TCPSerialConnection.cs" />
     <Compile Include="Test\DummyTCPHost.cs" />
     <Compile Include="Output\SerialMultipleDigitalOutput.cs" />
+    <Compile Include="Input\SerialMultiplexMoist.cs" />
+    <Compile Include="Input\SerialMultiplexerInput.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

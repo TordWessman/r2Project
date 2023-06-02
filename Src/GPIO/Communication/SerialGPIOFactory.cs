@@ -131,6 +131,12 @@ namespace R2Core.GPIO
 
         }
 
+        public ISerialMultiplexerInput<int> CreateMoistureMultiplexer(string id, int[] channelSelectionPorts, int[] controlPorts, int[] sensorPairs, int analogPort, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+            return InstantiateDevice(new SerialMoistureMultiplexer(id, m_devices.GetNode(nodeId), m_connection, channelSelectionPorts, controlPorts, sensorPairs, analogPort));
+
+        }
+
         /// <summary>
         /// Synchronizes(remotely creates) the device.
         /// </summary>

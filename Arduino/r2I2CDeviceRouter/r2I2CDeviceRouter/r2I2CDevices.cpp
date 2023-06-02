@@ -8,6 +8,7 @@
   #include <NewPing.h>
 #endif
 
+#include <r2Moist.h>
 #include "r2I2CDeviceRouter.h"
 #include "r2I2C_config.h"
 #include "r2Common.h"
@@ -194,7 +195,38 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         } 
         
     } break;
-      
+    
+  case DEVICE_TYPE_MULTIPLEX_MOIST: {
+
+    uint8_t multiplexerPortCount = (uint8_t) input[MULTIPLEX_MOIST_PORT_COUNT_POSITION];
+
+    uint8_t multiplexerPorts[multiplexerPortCount];
+    int pos = MULTIPLEX_MOIST_PORT_COUNT_POSITION + 1;
+    memcpy(multiplexerPorts, input + pos, multiplexerPortCount);
+
+    pos += multiplexerPortCount;
+    uint8_t controlPortCount = (uint8_t) input[pos];
+    uint8_t controlPorts[SENSOR_ROD_COUNT];
+    pos += 1;
+    memcpy(controlPorts, input + pos, controlPortCount);
+
+    pos += SENSOR_ROD_COUNT;
+    uint8_t sensorPairCount = (uint8_t) input[pos];
+    pos += 1;
+    uint8_t sensorPairs[sensorPairCount];
+    memcpy(sensorPairs, input + pos, sensorPairCount);
+    pos += sensorPairCount;
+    uint8_t analogInputPort = input[pos];
+
+    memcpy(device.IOPorts, controlPorts, controlPortCount);
+    memcpy(device.IOPorts + controlPortCount, multiplexerPorts, multiplexerPortCount);
+
+    R2Multiplexer *multiplexer = new R2Multiplexer(multiplexerPorts, multiplexerPortCount);
+    R2Moist* sensor = new R2Moist(multiplexer, analogInputPort, controlPorts, sensorPairs, sensorPairCount);
+    device.object = (void *)sensor;
+    
+  } break;
+  
   case DEVICE_TYPE_SONAR: {
     
       if (reservePort(input[SONAR_TRIG_PORT]) && reservePort(input[SONAR_ECHO_PORT])) {
@@ -287,7 +319,7 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
   
 }
 
-r2Int* getValue(Device* device) {
+r2Int* getValue(Device* device, byte* params) {
 
   r2Int *values = (r2Int *)malloc(RESPONSE_VALUE_CONTENT_SIZE);
   
@@ -312,11 +344,14 @@ r2Int* getValue(Device* device) {
      #else
        NewPing *sonar = ((NewPing *) device->object);
      #endif
+     
      int value = sonar->ping_cm();
      if (value > 255) { value = 255; }
      values[0] = value;
      break;
+     
    }
+   
    case DEVICE_TYPE_HCSR04_SONAR:
    
      digitalWrite(device->IOPorts[SONAR_TRIG_PORT], HIGH); //Trigger ultrasonic detection 
@@ -324,6 +359,19 @@ r2Int* getValue(Device* device) {
      digitalWrite(device->IOPorts[SONAR_TRIG_PORT], LOW); 
      values[0] = pulseIn(device->IOPorts[SONAR_ECHO_PORT], HIGH) / HCSR04_SONAR_DISTANCE_DENOMIATOR; //Read ultrasonic reflection
      break;
+
+   case DEVICE_TYPE_MULTIPLEX_MOIST: {
+
+     if (params == NULL) { values[0] = 0; }
+     else {
+
+        R2Moist *sensor = (R2Moist *) device->object;
+        Serial.print("Reading value for probe with id: "); Serial.println(params[0]);
+        values[0] = sensor->read(params[0]);
+     
+     }
+
+   } break;
      
    case DEVICE_TYPE_DHT11: {
 
@@ -349,7 +397,7 @@ r2Int* getValue(Device* device) {
         }
         
 #else
-        Dht11 *sensor = ((Dht11 *) device->object);
+       Dht11 *sensor = ((Dht11 *) device->object);
        
        switch (sensor->read()) {
          
@@ -394,14 +442,14 @@ r2Int* getValue(Device* device) {
    
   case DEVICE_TYPE_SIMPLE_MOIST: {
     
-    digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], HIGH); // Start measurement cycle
-    delayMicroseconds(2);
-    analogRead(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]); // First reading tends to be invalid
-    delayMicroseconds(2);
-    values[0] = analogRead(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]);
-    digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], LOW); // End measurement
-    
-  } break;
+      digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], HIGH); // Start measurement cycle
+      delayMicroseconds(2);
+      analogRead(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]); // First reading tends to be invalid
+      delayMicroseconds(2);
+      values[0] = analogRead(device->IOPorts[SIMPLE_MOIST_ANALOGUE_IN]);
+      digitalWrite(device->IOPorts[SIMPLE_MOIST_DIGITAL_OUT], LOW); // End measurement
+      
+    } break;
   
   }
   
@@ -428,7 +476,7 @@ void setValue(Device* device, r2Int value) {
             digitalWrite(device->IOPorts[i], portConfig & 1 ? HIGH : LOW);
             portConfig = portConfig >> 1;
           
-          }
+          } 
           
         } break;
         

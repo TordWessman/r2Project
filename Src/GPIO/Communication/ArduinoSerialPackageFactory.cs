@@ -31,9 +31,6 @@ namespace R2Core.GPIO
 		// Max size for content in packages
 		const int MAX_CONTENT_SIZE = 10;
 
-		// ATMEGA 328-specific constraints (A0-A5 in that order). 18 & 19 will not be available if running I2C, since they are used as SDA and SCL on the ATMEGA 328 board.
-		public readonly byte[] VALID_ANALOG_PORTS_ON_ARDUINO = { 14, 15, 16, 17, 18, 19 };
-
 		/// Keeps track of the devcie number for each host. This values does not correspond to the id's of the host.
 		private byte[] m_deviceCount;
 
@@ -144,23 +141,17 @@ namespace R2Core.GPIO
 
 		}
 
-		public DeviceRequestPackage CreateDevice(byte nodeId, SerialDeviceType type, byte[] ports) {
+		public DeviceRequestPackage CreateDevice(byte nodeId, SerialDeviceType type, byte[] parameters) {
 
 			// Node expects <device type><IOPort1><IOPort2> ...
-			byte[] content = new byte[1 + ports.Length];
+			byte[] content = new byte[1 + parameters.Length];
 			content[POSITION_CONTENT_DEVICE_TYPE] = (byte)type;
-			Array.Copy(ports, 0, content, 1, ports.Length);
-
-			if ((type == SerialDeviceType.AnalogInput || type == SerialDeviceType.SimpleMoist) && !VALID_ANALOG_PORTS_ON_ARDUINO.Contains(ports[0])) {
-
-				throw new System.IO.IOException($"Not a valid analogue port: '{ports[0]}'. Use: {string.Concat(VALID_ANALOG_PORTS_ON_ARDUINO.Select(b => b.ToString() + ' '))}");
-
-			}
+			Array.Copy(parameters, 0, content, 1, parameters.Length);
 
 			DeviceRequestPackage package = new DeviceRequestPackage { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Create, 
-				Id = m_deviceCount[nodeId]++, //Actually decided by the node...
+				Id = m_deviceCount[nodeId]++, // Actually decided by the node...
 				Content = content
 			};
 
@@ -196,14 +187,14 @@ namespace R2Core.GPIO
 
 		}
 
-		public DeviceRequestPackage GetDevice(byte deviceId, byte nodeId) {
+        public DeviceRequestPackage GetDevice(byte deviceId, byte nodeId, byte[] parameters = null) {
 
 			return new DeviceRequestPackage { 
 				NodeId = nodeId, 
 				Action = SerialActionType.Get, 
 				Id = deviceId, 
-				Content = {} 
-			};
+				Content = (parameters ?? new byte[0])
+            };
 
 		}
 

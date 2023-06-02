@@ -37,6 +37,7 @@ namespace R2Core.GPIO
         AnalogOutput = 0x8,             // PWM output with 8 bit resolution
         Sonar= 0x9,                     // Generic Sonar implementation
         MultipleDigitalOutput = 0xA,    // As with DigitalOutput, but with multiple ports reserved and set simultaneously
+        MultiplexMoist = 0xB            // Using a multiplexer to measure soil moisture. See the Arduino/R2Moist project for details.
     }
 
     /// <summary>
@@ -272,11 +273,20 @@ namespace R2Core.GPIO
 
         public byte Id { get; set; }
 
-        // Contains the response data(value, error message or null).
+        /// <summary>
+        /// Contains the actual content of a package (value, error message or null).
+        /// </summary>
         public byte[] Content;
 
-        // The number of int16 returned from node upon a ActionType.Get request.
+        /// <summary>
+        /// The number of int(16) returned from node upon a ActionType.Get request.
+        /// </summary>
         public const int NUMBER_OF_RETURN_VALUES = 2;
+
+        /// <summary>
+        /// The default size of an integer.
+        /// </summary>
+        public const int INTEGER_BYTE_SIZE = 2;
 
         public bool IsChecksumValid {
         
@@ -345,15 +355,17 @@ namespace R2Core.GPIO
 
                     return (T)(object)values;
 
-                } if (typeof(T) == typeof(int) || typeof(T) == typeof(byte)) {
+                } if (typeof(T) == typeof(int)) {
 
-                    if (Content.Length > 0) {
+                    if (Content.Length == 0) { return (T)(object)0; }
 
-                        return (T)(object)Content[0];
+                    return (T)(object)Content.ToInt(0, 2);
 
-                    }
+                } if (typeof(T) == typeof(byte)) {
 
-                    return (T)(object)0;
+                    if (Content.Length == 0) { return (T)(object)0; }
+
+                    return (T)(object)Content[0];
 
                 }
 

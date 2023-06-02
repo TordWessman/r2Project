@@ -258,7 +258,12 @@ ResponsePackage execute(RequestPackage *request) {
           if (device) {
         
             response.contentSize = RESPONSE_VALUE_CONTENT_SIZE;
-            byte *result = (byte *)getValue(device);
+
+            byte *result;
+
+            // Only provide "args" to getValue, if it's not a fall-through from ACTION_CREATE_DEVICE.
+            if (request->action == ACTION_CREATE_DEVICE) { result = (byte *)getValue(device, NULL); }
+            else { result = (byte *)getValue(device, request->args); }
             
             for (int i = 0; i < response.contentSize; i++) { response.content[i] = result[i]; }
             
@@ -266,8 +271,10 @@ ResponsePackage execute(RequestPackage *request) {
 
             // If getValue generated an error and if this was a "create device action", delete the device.
             if (getErrorCode() > 0 && createAction) {
-              deleteDevice(request->id);
-              deviceCount--;
+              
+                deleteDevice(request->id);
+                deviceCount--;
+              
             }
             
           } else {

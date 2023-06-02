@@ -76,9 +76,9 @@ namespace R2Core.GPIO
 
 		public override bool Ready { get { return m_connection?.ShouldRun == true && m_connection?.Ready == true; } }
 
-		public DeviceData<T>GetValue<T>(byte deviceId, int nodeId) {
+		public DeviceData<T>GetValue<T>(byte deviceId, int nodeId, byte[] parameters) {
 
-            DeviceResponsePackage<T> response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId));
+            DeviceResponsePackage<T> response = Send<T>(m_packageFactory.GetDevice(deviceId, (byte)nodeId, parameters));
 
             return new DeviceData<T> { Id = response.Id, Value = response.Value };
 
