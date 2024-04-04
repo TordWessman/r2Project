@@ -4,7 +4,7 @@
 #define MEASURE_TIME_MS 50
 
 /// Convenience method. Create a 2-dimensional sensor pair struct using a 1-dimensional array.
-uint8_t** generateSensorPairs(uint8_t *sensorPairs, uint8_t sensorPairCount) {
+uint8_t** GenerateSensorPairs(uint8_t *sensorPairs, uint8_t sensorPairCount) {
 
 	uint8_t** _sensorPairs = (uint8_t**)malloc(sensorPairCount * sizeof(uint8_t*));
 
@@ -39,7 +39,7 @@ R2Multiplexer::R2Multiplexer(DEVICE_PORT* channelSelectionPorts, uint8_t channel
 
 }
 
-void R2Multiplexer::open(uint8_t channel) {
+void R2Multiplexer::Open(uint8_t channel) {
 
 	uint8_t portConfig = channel;
 
@@ -86,13 +86,13 @@ R2Moist::R2Moist(R2Multiplexer* multiplexer,
 
 	}
 	
-	_sensorPairs = generateSensorPairs(sensorChannels, _sensorPairCount);
+	_sensorPairs = GenerateSensorPairs(sensorChannels, _sensorPairCount);
 
 
 }
 
 
-void R2Moist::activateControlPort(int activeControlPort) {
+void R2Moist::ActivateControlPort(int activeControlPort) {
 
 	for(int i = 0; i < SENSOR_ROD_COUNT; i++) {
 	
@@ -103,20 +103,20 @@ void R2Moist::activateControlPort(int activeControlPort) {
 }
 
 
-int R2Moist::read(int sensorPairIndex) {
+int R2Moist::Read(int sensorPairIndex) {
 
 	int readings[SENSOR_ROD_COUNT];
 
 	for(int i = 0; i < SENSOR_ROD_COUNT; i++) {
 
-		_multiplexer->open(_sensorPairs[sensorPairIndex][i]);
-		activateControlPort(i);
+		_multiplexer->Open(_sensorPairs[sensorPairIndex][i]);
+		ActivateControlPort(i);
 		delay(MEASURE_TIME_MS);
 		readings[i] = analogRead(_analogPort);
 
 	}
 
-	activateControlPort(CONTROL_PORTS_OFF);
+	ActivateControlPort(CONTROL_PORTS_OFF);
 
 	int value = 0;
 	
@@ -126,7 +126,7 @@ int R2Moist::read(int sensorPairIndex) {
 
 }
 
-R2Multiplexer* R2Moist::getMultiplexer() {
+R2Multiplexer* R2Moist::GetMultiplexer() {
 
 	return _multiplexer;
 

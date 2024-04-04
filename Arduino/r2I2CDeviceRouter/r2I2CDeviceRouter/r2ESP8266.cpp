@@ -13,6 +13,8 @@
 #include "r2Common.h"
 
 WiFiServer server(TCP_PORT);
+WiFiClient client;
+
 #ifdef USE_ESP8266_WIFI_AP
 
 void wifiSetup() {
@@ -71,9 +73,6 @@ void wifiSetup() {
 }
 
 #endif
-
-//WiFiClient::setDefaultNoDelay(true);
-WiFiClient client;
 
 // Contains data during serial read.
 byte readBuffer[sizeof(RequestPackage) + 1];

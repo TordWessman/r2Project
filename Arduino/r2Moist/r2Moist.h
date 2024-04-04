@@ -14,14 +14,14 @@ class R2Multiplexer {
 	public:
 
 		/// Select the channel of the multiplexer to open (for a multiplexer with 3 channel selection ports (8 channels) it should be a value between 0 and 7).
-		void open(uint8_t channel);
+		void Open(uint8_t channel);
 
 		/// `channelSelectionPorts` is the output pins connected to the multiplexers channel selection ports.
 		/// The order of the `channelSelectionPorts` should correspond to the significance index of the multiplexer's channel selection ports (LSB -> MSB).
 		R2Multiplexer(DEVICE_PORT* channelSelectionPorts, uint8_t channelSelectionPortCount);
 
 		/// Number of available, controllable ports for the multiplexer.
-		inline uint8_t channelCount() { return pow(2, _channelSelectionPortCount); }
+		inline uint8_t ChannelCount() { return pow(2, _channelSelectionPortCount); }
 
 		~R2Multiplexer();
 
@@ -52,19 +52,19 @@ class R2Moist {
 
 		/// Return the average value read by each of the rods of a sensor.
 		/// `sensorPairIndex` is the index of a sensor pair defined in `sensorPairs`.
-		int read(int sensorPairIndex);
+		int Read(int sensorPairIndex);
 
 		/// Returns the number of registered sensor pairs. Will match using `read(sensorPairIndex)`.
-		inline uint8_t sensorPairCount() { return _sensorPairCount; }
+		inline uint8_t SensorPairCount() { return _sensorPairCount; }
 
 		/// Return the underlying multiplexer.
-		R2Multiplexer* getMultiplexer();
+		R2Multiplexer* GetMultiplexer();
 
 		~R2Moist();
 
 	private:
 
-		void activateControlPort(int activeControlPort);
+		void ActivateControlPort(int activeControlPort);
 
 		R2Multiplexer* _multiplexer;
 		uint8_t _controlPorts[SENSOR_ROD_COUNT];
