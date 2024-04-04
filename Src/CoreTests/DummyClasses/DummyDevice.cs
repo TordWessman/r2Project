@@ -63,9 +63,9 @@ namespace R2Core.Tests
 		public float GiveMeFooAnd42AndAnObject(string foo, int _42, dynamic anObject) {
 		
 			Bar = foo;
-			Assert.Equals("Foo", foo);
-			Assert.Equals(42, _42);
-			Assert.Equals("Dog", anObject.Cat);
+			Assert.AreEqual("Foo", foo);
+			Assert.AreEqual(42, _42);
+			Assert.AreEqual("Dog", anObject.Cat);
 			return 12.34f;
 
 		}

@@ -43,17 +43,17 @@ namespace R2Core.Tests
 
 			Int32Converter converter = new Int32Converter(256 * 256 * 20 + 256 * 10 + 42);
 
-			Assert.Equals(42, converter[0]);
-			Assert.Equals(10, converter[1]);
-			Assert.Equals(20, converter[2]);
-			Assert.Equals(3, converter.Length);
+			Assert.AreEqual(42, converter[0]);
+			Assert.AreEqual(10, converter[1]);
+			Assert.AreEqual(20, converter[2]);
+			Assert.AreEqual(3, converter.Length);
 
 			byte[] bytes = { 42, 10, 20 };
 
 			Int32Converter converter2 = new Int32Converter(bytes);
 
-			Assert.Equals(converter2.Value, converter.Value);
-			Assert.Equals(converter2.Length, converter.Length);
+			Assert.AreEqual(converter2.Value, converter.Value);
+			Assert.AreEqual(converter2.Length, converter.Length);
 
 		}
 
@@ -63,17 +63,17 @@ namespace R2Core.Tests
 
 			ILinearDataSet<double> dataSet = m_dataFactory.CreateDataSet("test_device.csv");
 
-			Assert.Equals(dataSet.Points.Keys.ElementAt(0), 1.0d);
-			Assert.Equals(dataSet.Points.Values.ElementAt(0), 10.0d);
+			Assert.AreEqual(dataSet.Points.Keys.ElementAt(0), 1.0d);
+			Assert.AreEqual(dataSet.Points.Values.ElementAt(0), 10.0d);
 
-			Assert.Equals(dataSet.Points.Keys.ElementAt(2), 3.0d);
-			Assert.Equals(dataSet.Points.Values.ElementAt(2), 30.0d);
+			Assert.AreEqual(dataSet.Points.Keys.ElementAt(2), 3.0d);
+			Assert.AreEqual(dataSet.Points.Values.ElementAt(2), 30.0d);
 
-			Assert.Equals(dataSet.Interpolate(0.5), 10.0d);
-			Assert.Equals(dataSet.Interpolate(100), 30.0d);
+			Assert.AreEqual(dataSet.Interpolate(0.5), 10.0d);
+			Assert.AreEqual(dataSet.Interpolate(100), 30.0d);
 
-			Assert.Equals(dataSet.Interpolate(1.5), 15.0d);
-			Assert.Equals(dataSet.Interpolate(2.9), 29.0d);
+			Assert.AreEqual(dataSet.Interpolate(1.5), 15.0d);
+			Assert.AreEqual(dataSet.Interpolate(2.9), 29.0d);
 
 		}
 
@@ -97,8 +97,8 @@ namespace R2Core.Tests
 
 			dynamic r = serializer.Deserialize(serialized);
 
-			Assert.Equals("bar", r.Foo);
-			Assert.Equals(42, r.Bar);
+			Assert.AreEqual("bar", r.Foo);
+			Assert.AreEqual(42, r.Bar);
 
 		}
 
@@ -117,9 +117,9 @@ namespace R2Core.Tests
 
 			dynamic deserialized = serializer.Deserialize(serialized);
 
-			Assert.Equals("dummy_device", deserialized.Identifier);
-			Assert.Equals(deserialized.Action, "MultiplyByTen");
-			Assert.Equals(deserialized.ActionType, 2);
+			Assert.AreEqual("dummy_device", deserialized.Identifier);
+			Assert.AreEqual(deserialized.Action, "MultiplyByTen");
+			Assert.AreEqual(deserialized.ActionType, 2);
 
 
 		}
@@ -134,8 +134,8 @@ namespace R2Core.Tests
 			dynamic res = invoker.Invoke(d, "NoParamsNoNothing", null);
 			dynamic ros = invoker.Invoke(d, "OneParam", new List<dynamic> {9999} );
 
-			Assert.That(res == null);
-			Assert.That(ros == null);
+			Assert.IsNull(res);
+			Assert.IsNull(ros);
 		}
 
 		[Test]
@@ -147,30 +147,30 @@ namespace R2Core.Tests
 
 			var res = invoker.Invoke(o, "AddBar", new List<object> {"foo"});
 
-			Assert.Equals("foobar", res);
+			Assert.AreEqual("foobar", res);
 
 			invoker.Set(o, "Member", 42);
-			Assert.Equals(42, o.Member);
+			Assert.AreEqual(42, o.Member);
 
 			invoker.Set(o, "Property", "42");
 
-			Assert.Equals("42", o.Property);
-			Assert.Equals("42", invoker.Get(o,"Property"));
-			Assert.Equals(42, invoker.Get(o,"Member"));
-			Assert.That(invoker.ContainsMember(o, "Member"));
-			Assert.That(invoker.ContainsMember(o, "NotAMember") == false);
+			Assert.AreEqual("42", o.Property);
+			Assert.AreEqual("42", invoker.Get(o,"Property"));
+			Assert.AreEqual(42, invoker.Get(o,"Member"));
+			Assert.IsTrue(invoker.ContainsMember(o, "Member"));
+			Assert.IsFalse(invoker.ContainsMember(o, "NotAMember"));
 
 			//Test invoking a IEnumerable<>
 			IEnumerable<object> aStringArray = new List<object>{ "foo", "bar" };
 			int count = invoker.Invoke(o, "GiveMeAnArray", new List<object> {aStringArray});
-			Assert.Equals(aStringArray.Count(), count);
+			Assert.AreEqual(aStringArray.Count(), count);
 
 			IEnumerable<object> OneTwoThree = new List<object> { 1, 2, 3 };
 			invoker.Set(o, "EnumerableInts", OneTwoThree);
 
 			for (int i = 0; i < OneTwoThree.Count(); i++) {
 			
-				Assert.Equals(OneTwoThree.ToList()[i], o.EnumerableInts.ToList()[i]);
+				Assert.AreEqual(OneTwoThree.ToList()[i], o.EnumerableInts.ToList()[i]);
 
 			}
 
@@ -185,19 +185,19 @@ namespace R2Core.Tests
 
 			for (int i = 0; i < OneTwoThree.Count(); i++) {
 			
-				Assert.Equals(allValues.ToArray()[i], OneTwoThree.ToArray()[i]);
+				Assert.AreEqual(allValues.ToArray()[i], OneTwoThree.ToArray()[i]);
 
 			}
 
-            Assert.Equals(0, o.Decodable.AnInt);
+            Assert.AreEqual(0, o.Decodable.AnInt);
             IDictionary<string, object> parmsToDecodable = new Dictionary<string, object>();
 
             parmsToDecodable["AnInt"] = 42;
             parmsToDecodable["SomeStrings"] = new List<string> { "Katt", "Hund" };
             invoker.Invoke(o, "SetDecodable", new object[] { parmsToDecodable });
-            Assert.Equals(42, o.Decodable.AnInt);
-            Assert.Equals(2, o.Decodable.SomeStrings.Count());
-            Assert.Equals("Hund", o.Decodable.SomeStrings.Last());
+            Assert.AreEqual(42, o.Decodable.AnInt);
+            Assert.AreEqual(2, o.Decodable.SomeStrings.Count());
+            Assert.AreEqual("Hund", o.Decodable.SomeStrings.Last());
 
         }
 

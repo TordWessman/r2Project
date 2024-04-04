@@ -46,31 +46,31 @@ namespace R2Core.Tests
 
 			s.Start();
 			Thread.Sleep(100);
-			Assert.That(s.Ready);
+			Assert.True(s.Ready);
 			s.Stop();
 			Thread.Sleep(100);
-			Assert.That(s.Ready == false);
+			Assert.False(s.Ready);
 			s.Start();
 			Thread.Sleep(100);
-			Assert.That(s.Ready);
+			Assert.True(s.Ready);
 
 			bool didReceiveResponse = false;
 
 			var guid = client.Broadcast(new TCPMessage { Destination = "should not be found" }, (response, address, error) => {
 				
-				Assert.That(error == null);
-				Assert.Equals(NetworkStatusCode.NotFound.Raw(), response.Code);
+				Assert.IsNull(error);
+				Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), response.Code);
 
                 // Check that the "remote" address parameter seems correct.
-                Assert.That(address != null);
-                Assert.That(s.Addresses.Contains(address));
+                Assert.IsNotNull(address);
+                Assert.True(s.Addresses.Contains(address));
 				didReceiveResponse = true;
 
 			});
 
 			client.BroadcastTask.Wait();
 
-			Assert.That(didReceiveResponse);
+			Assert.True(didReceiveResponse);
 			didReceiveResponse = false;
 
 			dynamic payload = new R2Dynamic();
@@ -93,16 +93,16 @@ namespace R2Core.Tests
 
 			guid = client.Broadcast(request, (response, address, error) => {
 
-				Assert.That(error == null);
-				Assert.Equals(4242, response.Code);
-				Assert.Equals(420, response.Payload.PaybackTime);
+				Assert.IsNull(error);
+				Assert.AreEqual(4242, response.Code);
+				Assert.AreEqual(420, response.Payload.PaybackTime);
 				didReceiveResponse = true;
 			
 			});
 
 			client.BroadcastTask.Wait();
 
-			Assert.That(didReceiveResponse);
+			Assert.True(didReceiveResponse);
 
 			client.Stop();
 			s.Stop();
@@ -123,7 +123,7 @@ namespace R2Core.Tests
 
 			s.Start();
 			Thread.Sleep(100);
-			Assert.That(s.Ready);
+			Assert.True(s.Ready);
 
 			bool didReceiveResponse = false;
 
@@ -131,15 +131,15 @@ namespace R2Core.Tests
 			
 				var guid = client.Broadcast(new TCPMessage { Destination = "should not be found" }, (response, address, error) => {
 
-					Assert.That(error == null);
-					Assert.Equals(NetworkStatusCode.NotFound.Raw(), (response.Code));
+					Assert.IsNull(error);
+					Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), (response.Code));
 					didReceiveResponse = true;
 
 				}, 2000);
 
 				client.BroadcastTask.Wait();
 
-				Assert.That(didReceiveResponse);
+				Assert.True(didReceiveResponse);
 				didReceiveResponse = false;
 
 			}
@@ -177,13 +177,13 @@ namespace R2Core.Tests
 
 			dynamic d = remoteDeviceManager.Get("dummyX");
 
-			Assert.That(d is IRemoteDevice);
+			Assert.IsTrue(d is IRemoteDevice);
 			// TODO: This times out sometimes. Too many other Tasks?
-			Assert.Equals(420, d.MultiplyByTen(42));
+			Assert.AreEqual(420, d.MultiplyByTen(42));
 
 			d.HAHA = 42.42d;
 
-			Assert.Equals(dummy.HAHA, d.HAHA);
+			Assert.AreEqual(dummy.HAHA, d.HAHA);
 
 			h.Stop();
 			devices1.Stop();

@@ -51,23 +51,23 @@ namespace R2Core.PushNotifications.Tests {
             handler.Broadcast(new PushNotification { Group = "g1", IdentityName = "i1", Message = "foo" });
 
             handler.WaitFor();
-            Assert.Equals(1, appleFacade.SentNotifications["t1"].Count);
-            Assert.Equals(1, appleFacade.SentNotifications["t2"].Count);
-            Assert.Equals(1, androidFacade.SentNotifications["t3"].Count);
+            Assert.AreEqual(1, appleFacade.SentNotifications["t1"].Count);
+            Assert.AreEqual(1, appleFacade.SentNotifications["t2"].Count);
+            Assert.AreEqual(1, androidFacade.SentNotifications["t3"].Count);
             //Assert.That(false == appleFacade.SentNotifications.ContainsKey("t3"));
 
             handler.Broadcast(new PushNotification { IdentityName = "i2", Message = "foo" });
             handler.WaitFor();
-            Assert.Equals(2, appleFacade.SentNotifications["t1"].Count);
-            Assert.Equals(1, appleFacade.SentNotifications["t2"].Count);
-            Assert.Equals(2, androidFacade.SentNotifications["t3"].Count);
+            Assert.AreEqual(2, appleFacade.SentNotifications["t1"].Count);
+            Assert.AreEqual(1, appleFacade.SentNotifications["t2"].Count);
+            Assert.AreEqual(2, androidFacade.SentNotifications["t3"].Count);
 
             handler.Broadcast(new PushNotification { IdentityName = "i2", Group = "g2", Message = "foo" });
             handler.WaitFor();
 
-            Assert.Equals(2, appleFacade.SentNotifications["t1"].Count);
-            Assert.Equals(1, appleFacade.SentNotifications["t2"].Count);
-            Assert.Equals(3, androidFacade.SentNotifications["t3"].Count);
+            Assert.AreEqual(2, appleFacade.SentNotifications["t1"].Count);
+            Assert.AreEqual(1, appleFacade.SentNotifications["t2"].Count);
+            Assert.AreEqual(3, androidFacade.SentNotifications["t3"].Count);
         }
 
     }

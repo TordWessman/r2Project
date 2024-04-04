@@ -46,17 +46,17 @@ namespace R2Core.PushNotifications.Tests {
 
             // Item should be saved
             adapter.Save(item1);
-            Assert.Equals(1, adapter.Get("i1").Count());
+            Assert.AreEqual(1, adapter.Get("i1").Count());
 
             // Duplicates should be ignored
             adapter.Save(item1);
-            Assert.Equals(1, adapter.Get("i1").Count());
+            Assert.AreEqual(1, adapter.Get("i1").Count());
 
             // No identity named i2
-            Assert.Equals(0, adapter.Get("i2").Count());
+            Assert.AreEqual(0, adapter.Get("i2").Count());
 
             // No group named g2
-            Assert.Equals(0, adapter.Get("i1", "g2").Count());
+            Assert.AreEqual(0, adapter.Get("i1", "g2").Count());
 
             PushNotificationRegistryItem item2 = new PushNotificationRegistryItem {
                 Token = "t1", Group = "g2", IdentityName = "i1",
@@ -66,21 +66,21 @@ namespace R2Core.PushNotifications.Tests {
             adapter.Save(item2);
 
             // g2 should exist
-            Assert.Equals(1, adapter.Get("i1", "g2").Count());
+            Assert.AreEqual(1, adapter.Get("i1", "g2").Count());
 
             // fetch all from identity i1
-            Assert.Equals(2, adapter.Get("i1").Count());
+            Assert.AreEqual(2, adapter.Get("i1").Count());
 
             adapter.Remove("t1", "g2");
 
             // g2 should have been removed
-            Assert.Equals(0, adapter.Get("i1", "g2").Count());
-            Assert.Equals(1, adapter.Get("i1").Count());
+            Assert.AreEqual(0, adapter.Get("i1", "g2").Count());
+            Assert.AreEqual(1, adapter.Get("i1").Count());
 
             adapter.Save(item2);
 
             // g2 should have been recreated
-            Assert.Equals(1, adapter.Get("i1", "g2").Count());
+            Assert.AreEqual(1, adapter.Get("i1", "g2").Count());
 
             PushNotificationRegistryItem item3 = new PushNotificationRegistryItem {
                 Token = "t2", Group = "g2", IdentityName = "i1",
@@ -91,7 +91,7 @@ namespace R2Core.PushNotifications.Tests {
             adapter.Remove("t1");
 
             // All t1 entries should be removed, but t2 should still be there
-            Assert.Equals(1, adapter.Get("i1", "g2").Count());
+            Assert.AreEqual(1, adapter.Get("i1", "g2").Count());
 
             PushNotificationRegistryItem item4 = new PushNotificationRegistryItem {
                 Token = "t1", Group = "g2", IdentityName = "i2",
@@ -101,8 +101,8 @@ namespace R2Core.PushNotifications.Tests {
             adapter.Save(item4);
 
             // The new identity i2 should have been created without affecting i1
-            Assert.Equals(1, adapter.Get("i1", "g2").Count());
-            Assert.Equals(1, adapter.Get("i2", "g2").Count());
+            Assert.AreEqual(1, adapter.Get("i1", "g2").Count());
+            Assert.AreEqual(1, adapter.Get("i2", "g2").Count());
 
         }
 
@@ -118,9 +118,9 @@ namespace R2Core.PushNotifications.Tests {
                 ClientType = PushNotificationClientType.Apple
             };
 
-            Assert.Equals(0, storage.Get(item1).Count());
+            Assert.AreEqual(0, storage.Get(item1).Count());
             storage.Register(item1);
-            Assert.Equals(1, storage.Get(item1).Count());
+            Assert.AreEqual(1, storage.Get(item1).Count());
 
             WebFactory webFactory = new WebFactory("wf", new JsonSerialization("s"));
 
@@ -156,7 +156,7 @@ namespace R2Core.PushNotifications.Tests {
             IMessageClient httpClient = webFactory.CreateHttpClient("http_c");
 
             INetworkMessage httpResponse = httpClient.Send(httpMessage);
-            Assert.Equals((int)NetworkStatusCode.Ok, httpResponse.Code);
+            Assert.AreEqual((int)NetworkStatusCode.Ok, httpResponse.Code);
 
             TCPClient client = webFactory.CreateTcpClient("tcp_c", "localhost", 2011);
 
@@ -168,7 +168,7 @@ namespace R2Core.PushNotifications.Tests {
 
             IEnumerable<dynamic> item2Array = remoteStorage.Get(item2);
 
-            Assert.Equals(2, item2Array.Count());
+            Assert.AreEqual(2, item2Array.Count());
 
             PushNotificationRegistryItem item3 = new PushNotificationRegistryItem {
                 Token = "t1", Group = "g2", IdentityName = "i1",
@@ -179,7 +179,7 @@ namespace R2Core.PushNotifications.Tests {
 
             IEnumerable<dynamic> item3Array = remoteStorage.Get(item3);
 
-            Assert.Equals(1, item3Array.Count());
+            Assert.AreEqual(1, item3Array.Count());
 
         }
     

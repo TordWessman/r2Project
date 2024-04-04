@@ -55,8 +55,8 @@ namespace R2Core.Tests
 			devices1.HostSynchronizer.Start();
 			devices2.HostSynchronizer.Start();
 
-			Assert.That(dummy1.Guid == devices1.DeviceManager.Get("dummy").Guid);
-			Assert.That(dummy2.Guid == devices2.DeviceManager.Get("dummy").Guid);
+			Assert.True(dummy1.Guid == devices1.DeviceManager.Get("dummy").Guid);
+			Assert.True(dummy2.Guid == devices2.DeviceManager.Get("dummy").Guid);
 
 			// Sleep enough time for both host managers to be synchronized
 			Thread.Sleep(((int)devices1.HostSynchronizer.SynchronizationInterval) * 3);
@@ -98,8 +98,8 @@ namespace R2Core.Tests
 			// Start only local TCPServer. Device synchronization through 2 HostSynchronizer instances is not to test here.
 			local.TCPServer.Start();
 
-			Assert.That(false == local.DeviceManager.Has("remoteDummy"));
-			Assert.That(false == remote.DeviceManager.Has("localDummy"));
+			Assert.IsFalse(local.DeviceManager.Has("remoteDummy"));
+			Assert.IsFalse(remote.DeviceManager.Has("localDummy"));
 
 			Thread.Sleep(200);
 
@@ -108,29 +108,29 @@ namespace R2Core.Tests
 
 			Thread.Sleep(200);
 
-			Assert.That(local.DeviceManager.Has("remoteDummy"));
-			Assert.That(local.DeviceManager.Has("python_test"));
+			Assert.IsTrue(local.DeviceManager.Has("remoteDummy"));
+			Assert.IsTrue(local.DeviceManager.Has("python_test"));
 
 			// Manually create a RemoteDevice representing the remote HostSynchronizer
 			dynamic remoteHostSynchronizer = new RemoteDevice(Settings.Identifiers.HostSynchronizer(), Guid.Empty, remoteHostConnection);
 			bool success = remoteHostSynchronizer.RequestSynchronization(local.TCPServer.Addresses, localTCPPort);
-			Assert.That(success);
+			Assert.IsTrue(success);
 			remoteHostSynchronizer.RequestSynchronization(local.TCPServer.Addresses, localTCPPort);
 
 			Thread.Sleep(200);
 
 			// Remote has connected to ´śelf´ and should have my devices
-			Assert.That(remote.DeviceManager.Has("localDummy"));
+			Assert.IsTrue(remote.DeviceManager.Has("localDummy"));
 
 			var localDummy2 = new DummyDevice("localDummy2");
 			local.DeviceManager.Add(localDummy2);
 
 			success = local.HostSynchronizer.ReversedSynchronization(local.TCPServer);
-			Assert.That(success);
+			Assert.IsTrue(success);
 
 			// Remote has connected to ´śelf´ and should have my devices
-			Assert.That(remote.DeviceManager.Has("localDummy"));
-			Assert.That(remote.DeviceManager.Has("localDummy2"));
+			Assert.IsTrue(remote.DeviceManager.Has("localDummy"));
+			Assert.IsTrue(remote.DeviceManager.Has("localDummy2"));
 
 			local.TCPServer.Stop();
 			remote.Stop();
@@ -166,8 +166,8 @@ namespace R2Core.Tests
 			Thread.Sleep(((int)devices1.HostSynchronizer.SynchronizationInterval) * 3);
 
 			// The device should be available
-			Assert.That(null != devices1.DeviceManager.Get("dummy2"));
-			Assert.That(null != devices2.DeviceManager.Get("dummy1"));
+			Assert.NotNull(devices1.DeviceManager.Get("dummy2"));
+			Assert.NotNull(devices2.DeviceManager.Get("dummy1"));
 
 			// Change the value of a property @ instance 1
 			dummy1.Bar = "KATT";
@@ -180,12 +180,12 @@ namespace R2Core.Tests
 			Thread.Sleep(((int)devices1.HostSynchronizer.SynchronizationInterval) * 3);
 
 			// The new device should be available
-			Assert.That(null != devices1.DeviceManager.Get("dummy3"));
+			Assert.NotNull(devices1.DeviceManager.Get("dummy3"));
 
 			// Check the changed property of dummy1
 			dynamic dummy1_remote = devices2.DeviceManager.Get("dummy1");
 
-			Assert.Equals("KATT", dummy1_remote.Bar);
+			Assert.AreEqual("KATT", dummy1_remote.Bar);
 
 			devices2.Stop();
 			devices1.Stop();
@@ -206,15 +206,15 @@ namespace R2Core.Tests
 			Thread.Sleep(200);
 			devices1.HostSynchronizer.Synchronize("localhost", tcp_port - 152);
 			devices1.HostSynchronizer.MaxRetryCount = 3;
-			Assert.Equals(1, devices1.HostSynchronizer.Connections.Count());
+			Assert.AreEqual(1, devices1.HostSynchronizer.Connections.Count());
 			devices2.Stop();
 			Thread.Sleep(100);
 			devices1.HostSynchronizer.SynchronizationInterval = 250;
 			Thread.Sleep(500);
-			Assert.That(false == devices2.TCPServer.Ready);
-			Assert.Equals(1, devices1.HostSynchronizer.Connections.Count()); // should still be in the retry-list
+			Assert.False(devices2.TCPServer.Ready);
+			Assert.AreEqual(1, devices1.HostSynchronizer.Connections.Count()); // should still be in the retry-list
 			Thread.Sleep(750);
-			Assert.Equals(0, devices1.HostSynchronizer.Connections.Count()); // now it should have been removed
+			Assert.AreEqual(0, devices1.HostSynchronizer.Connections.Count()); // now it should have been removed
 			
 		}
 
@@ -238,12 +238,12 @@ namespace R2Core.Tests
 			Thread.Sleep(5000);
 
 			// By now, the connections should be established.
-			Assert.Equals(1, devices1.HostSynchronizer.Connections.Count());
-			Assert.Equals(1, devices2.HostSynchronizer.Connections.Count());
+			Assert.AreEqual(1, devices1.HostSynchronizer.Connections.Count());
+			Assert.AreEqual(1, devices2.HostSynchronizer.Connections.Count());
 
 			foreach (IClientConnection connection in devices1.HostSynchronizer.Connections) {
 
-				Assert.That(connection.Ready);
+				Assert.True(connection.Ready);
 
 			}
 

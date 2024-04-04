@@ -135,7 +135,7 @@ namespace R2Core.IntegrationTests
 
 			if (func == 0) {
 			
-				Assert.Equals(84, remoteScript.add_42 (42));
+				Assert.AreEqual(84, remoteScript.add_42 (42));
 
 			} else if (func == 1) {
 
@@ -145,7 +145,7 @@ namespace R2Core.IntegrationTests
 
 				int aValue = 65536;
 
-				Assert.Equals(aValue * 2, remoteScript.wait_and_return_value_plus_value(aValue));
+				Assert.AreEqual(aValue * 2, remoteScript.wait_and_return_value_plus_value(aValue));
 
 				//wait_and_return_value_plus_value
 			} else {

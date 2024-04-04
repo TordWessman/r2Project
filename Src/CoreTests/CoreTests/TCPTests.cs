@@ -59,11 +59,11 @@ namespace R2Core.Tests {
 
             TCPMessage punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 
-            Assert.Equals("Mouse", punwrapped.Headers["Dog"]);
+            Assert.AreEqual("Mouse", punwrapped.Headers["Dog"]);
 
-            Assert.Equals(42.25f, punwrapped.Payload.HAHA);
+            Assert.AreEqual(42.25f, punwrapped.Payload.HAHA);
 
-            Assert.Equals("dummyXYZ", punwrapped.Payload.Identifier);
+            Assert.AreEqual("dummyXYZ", punwrapped.Payload.Identifier);
 
             // Test string serialization
 
@@ -71,7 +71,7 @@ namespace R2Core.Tests {
             raw = packageFactory.SerializeMessage(p);
             punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 
-            Assert.Equals("StringValue", punwrapped.Payload);
+            Assert.AreEqual("StringValue", punwrapped.Payload);
 
 
             // Test byte array seralization
@@ -80,10 +80,10 @@ namespace R2Core.Tests {
             p = new TCPMessage { Destination = "path", Payload = byteArray };
             raw = packageFactory.SerializeMessage(p);
             punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
-            Assert.That(punwrapped.Payload is byte[]);
+            Assert.IsTrue(punwrapped.Payload is byte[]);
 
             for (int i = 0; i < byteArray.Length; i++) {
-                Assert.Equals(byteArray[i], punwrapped.Payload[i]);
+                Assert.AreEqual(byteArray[i], punwrapped.Payload[i]);
             }
 
             // Test null-payload
@@ -92,7 +92,7 @@ namespace R2Core.Tests {
             raw = packageFactory.SerializeMessage(p);
             punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 
-            Assert.That((punwrapped.Payload as byte[]).Length == 0);
+            Assert.IsEmpty(punwrapped.Payload);
 
             // Test null package with code:
 
@@ -100,9 +100,9 @@ namespace R2Core.Tests {
             raw = packageFactory.SerializeMessage(p);
             punwrapped = packageFactory.DeserializePackage(new System.IO.MemoryStream(raw));
 
-            Assert.That((punwrapped.Payload as byte[]).Length == 0);
-            Assert.Equals(punwrapped.Destination, "");
-            Assert.Equals(punwrapped.Code, 666);
+            Assert.IsEmpty(punwrapped.Payload);
+            Assert.AreSame(punwrapped.Destination, "");
+            Assert.AreEqual(punwrapped.Code, 666);
 
         }
 
@@ -115,7 +115,7 @@ namespace R2Core.Tests {
             s.WaitFor();
             s.Stop();
             Thread.Sleep(200);
-            Assert.That(s.Ready == false);
+            Assert.IsFalse(s.Ready);
 
             s.Start();
             s.WaitFor();
@@ -123,11 +123,11 @@ namespace R2Core.Tests {
             IMessageClient client = factory.CreateTcpClient("c", "localhost", tcp_port);
 
             client.Start();
-            Assert.That(client.Ready);
+            Assert.IsTrue(client.Ready);
 
             TCPMessage message = new TCPMessage { Destination = "blah", Payload = "bleh" };
             INetworkMessage response = client.Send(message);
-            Assert.Equals(NetworkStatusCode.NotFound.Raw(), response.Code);
+            Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), response.Code);
 
             DummyEndpoint ep = new DummyEndpoint("test");
             s.AddEndpoint(ep);
@@ -136,8 +136,8 @@ namespace R2Core.Tests {
             });
 
             response = s.Interpret(new TCPMessage { Destination = "/test" }, new System.Net.IPEndPoint(0, 0));
-            Assert.Equals("din mamma", response.Payload);
-            Assert.Equals(242, response.Code);
+            Assert.AreEqual("din mamma", response.Payload);
+            Assert.AreEqual(242, response.Code);
 
             client.Stop();
             s.Stop();
@@ -178,22 +178,22 @@ namespace R2Core.Tests {
 
             INetworkMessage response2 = client.Send(message2);
 
-            Assert.Equals(TCPPackageFactory.PayloadType.Dynamic, ((TCPMessage)response2).PayloadType);
-            Assert.Equals(42 * 10, response2.Payload.foo);
+            Assert.AreEqual(TCPPackageFactory.PayloadType.Dynamic, ((TCPMessage)response2).PayloadType);
+            Assert.AreEqual(42 * 10, response2.Payload.foo);
 
             dynamic msg = new R2Dynamic();
             msg.text = "foo";
             TCPMessage message = new TCPMessage { Destination = "/test", Payload = msg };
             INetworkMessage response = client.Send(message);
 
-            Assert.Equals(NetworkStatusCode.Ok.Raw(), response.Code);
-            Assert.Equals("foo", response.Payload);
+            Assert.AreEqual(NetworkStatusCode.Ok.Raw(), response.Code);
+            Assert.AreEqual("foo", response.Payload);
 
             // Now also test the scripts additional_string public property
             script.additional_string = "bar";
             response = client.Send(message);
-            Assert.Equals(NetworkStatusCode.Ok.Raw(), response.Code);
-            Assert.Equals("foobar", response.Payload);
+            Assert.AreEqual(NetworkStatusCode.Ok.Raw(), response.Code);
+            Assert.AreEqual("foobar", response.Payload);
 
             s.Stop();
             client.Stop();
@@ -218,7 +218,7 @@ namespace R2Core.Tests {
             client.Start();
 
             //Client should be connected
-            Assert.That(client.Ready);
+            Assert.IsTrue(client.Ready);
 
             var requestPayload = new DeviceRequest() {
                 Params = new List<object> { "Foo", 42, new Dictionary<string, string> { { "Cat", "Dog" } } }.ToArray(),
@@ -231,15 +231,15 @@ namespace R2Core.Tests {
 
             INetworkMessage response = client.Send(message);
 
-            Assert.Equals(NetworkStatusCode.Ok, (NetworkStatusCode)response.Code);
+            Assert.AreEqual(NetworkStatusCode.Ok, (NetworkStatusCode)response.Code);
             // Make sure the identifiers are the same.
-            Assert.Equals(dummyObject.Identifier, response.Payload.Object.Identifier);
+            Assert.AreEqual(dummyObject.Identifier, response.Payload.Object.Identifier);
 
             // This is what the function should return
-            Assert.Equals(12.34, response.Payload.ActionResponse);
+            Assert.AreEqual(12.34, response.Payload.ActionResponse);
 
             // The dummy object should now have been changed.
-            Assert.Equals("Foo", dummyObject.Bar);
+            Assert.AreEqual("Foo", dummyObject.Bar);
 
             int fortytwo = 42;
             DeviceRequest requestPayload2 = new DeviceRequest() {
@@ -251,11 +251,11 @@ namespace R2Core.Tests {
 
             TCPMessage message2 = new TCPMessage { Destination = Settings.Consts.DeviceDestination(), Payload = requestPayload2 };
             INetworkMessage response2 = client.Send(message2);
-            Assert.Equals(NetworkStatusCode.Ok, (NetworkStatusCode)response2.Code);
+            Assert.AreEqual(NetworkStatusCode.Ok, (NetworkStatusCode)response2.Code);
 
-            Assert.Equals(fortytwo * 10, response2.Payload.ActionResponse);
-            Assert.Equals("dummy_device", response2.Payload.Object.Identifier);
-            Assert.Equals("MultiplyByTen", response2.Payload.Action);
+            Assert.AreEqual(fortytwo * 10, response2.Payload.ActionResponse);
+            Assert.AreEqual("dummy_device", response2.Payload.Object.Identifier);
+            Assert.AreEqual("MultiplyByTen", response2.Payload.Action);
 
             s.Stop();
             client.Stop();
@@ -280,15 +280,15 @@ namespace R2Core.Tests {
             client.Start();
 
             //Client should be connected
-            Assert.That(client.Ready);
+            Assert.IsTrue(client.Ready);
             HostConnection connection = new HostConnection("hc", client);
 
             RemoteDevice remoteDummy = new RemoteDevice("dummy_device", Guid.Empty, connection);
 
             Task getTask = remoteDummy.Async((result, exception) => {
 
-                Assert.That(null == exception);
-                Assert.Equals("XYZ", result);
+                Assert.IsNull(exception);
+                Assert.AreEqual("XYZ", result);
 
             }).GetValue("Bar");
 
@@ -322,8 +322,8 @@ namespace R2Core.Tests {
             observer1.OnCloseAsserter = (c, exception) => {
 
                 client1ReactsOnItsOwnClose = true;
-                Assert.That(false == c.Ready);
-                Assert.That(null == exception);
+                Assert.IsFalse(c.Ready);
+                Assert.IsNull(exception);
 
             };
 
@@ -331,8 +331,8 @@ namespace R2Core.Tests {
             observer2.OnCloseAsserter = (c, exception) => {
 
                 client2ReactsOnServerClose = true;
-                Assert.That(false == c.Ready);
-                Assert.That(null == exception);
+                Assert.IsFalse(c.Ready);
+                Assert.Null(exception);
 
 
             };
@@ -357,7 +357,7 @@ namespace R2Core.Tests {
                 connection.OnDisconnect += (c, ex) => {
 
                     serverReactsOnItsClient1Close = true;
-                    Assert.That(null == ex);
+                    Assert.IsNull(ex);
 
                 };
 
@@ -367,14 +367,14 @@ namespace R2Core.Tests {
             client1.Stop();
             Thread.Sleep(2500);
 
-            Assert.That(client1ReactsOnItsOwnClose);
-            Assert.That(serverReactsOnItsClient1Close);
+            Assert.True(client1ReactsOnItsOwnClose);
+            Assert.True(serverReactsOnItsClient1Close);
 
             Log.d("Closing server");
             s.Stop();
             Thread.Sleep(2500);
 
-            Assert.That(client2ReactsOnServerClose);
+            Assert.True(client2ReactsOnServerClose);
             Log.d("Closing client2");
             client2.Stop();
 
@@ -404,7 +404,7 @@ namespace R2Core.Tests {
 
             observer.Asserter = (msg) => {
 
-                Assert.Equals("bleh", msg.Payload);
+                Assert.AreEqual("bleh", msg.Payload);
 
             };
 
@@ -416,7 +416,7 @@ namespace R2Core.Tests {
             // Check broadcast
             observer.Asserter = (msg) => {
 
-                Assert.Equals(42, msg.Payload.Bar);
+                Assert.AreEqual(42, msg.Payload.Bar);
             };
 
             R2Dynamic tmp = new R2Dynamic {
@@ -425,17 +425,17 @@ namespace R2Core.Tests {
 
             s.Broadcast(new TCPMessage { Destination = "ehh", Payload = tmp }, (response, address, error) => {
 
-                Assert.That(null == error);
+                Assert.Null(error);
 
             });
 
             Thread.Sleep(500);
-            Assert.That(observer.OnRequestCalled);
+            Assert.True(observer.OnRequestCalled);
 
             // For some reason, the value below is false, even if it has been called...
-            Assert.That(observer.OnResponseCalled);
+            Assert.True(observer.OnResponseCalled);
 
-            Assert.That(observer.OnBroadcastReceived);
+            Assert.True(observer.OnBroadcastReceived);
 
             s.Stop();
             client.Stop();
@@ -453,8 +453,8 @@ namespace R2Core.Tests {
                 OnCloseAsserter = (c, exception) => {
 
                     onClientDisconnect = true;
-                    Assert.That(false == c.Ready);
-                    Assert.That(null == exception);
+                    Assert.IsFalse(c.Ready);
+                    Assert.IsNull(exception);
 
                 }
             };
@@ -500,13 +500,13 @@ namespace R2Core.Tests {
             connection.OnDisconnect += (c, ex) => {
 
                 onServerDisconnect = true;
-                Assert.That(null == ex);
+                Assert.IsNull(ex);
 
             };
 
             connection.OnReceive += (request, address) => {
 
-                Assert.Equals(request.Payload, "bleh");
+                Assert.AreEqual(request.Payload, "bleh");
                 onServerReceived = true;
                 return default(TCPMessage);
 
@@ -523,9 +523,9 @@ namespace R2Core.Tests {
             t = null;
 
             Thread.Sleep(2500);
-            Assert.That(onClientDisconnect);
-            Assert.That(onServerReceived);
-            Assert.That(onServerDisconnect);
+            Assert.True(onClientDisconnect);
+            Assert.True(onServerReceived);
+            Assert.True(onServerDisconnect);
             s.Stop();
 
         }
@@ -564,14 +564,14 @@ namespace R2Core.Tests {
 
             client.WaitFor();
 
-            Assert.That(client.Ready);
+            Assert.True(client.Ready);
 
             s.Stop();
 
             Thread.Sleep(600);
 
-            Assert.That(false == s.Ready);
-            Assert.That(false == client.Ready);
+            Assert.False(s.Ready);
+            Assert.False(client.Ready);
             s.Start();
             s.WaitFor();
             m_ClientReconnect_ServerCheck = false;
@@ -581,12 +581,12 @@ namespace R2Core.Tests {
             // After this, the DummyClientObservers OnCloseAsserter should have started the client again.
             client.WaitFor();
 
-            Assert.That(client.Ready);
+            Assert.True(client.Ready);
 
             //test the stop-listen-method
-            Assert.Equals(NetworkStatusCode.NotFound.Raw(), client.Send(new TCPMessage()).Code);
+            Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), client.Send(new TCPMessage()).Code);
             client.StopListening();
-            Assert.Equals(NetworkStatusCode.Ok.Raw(), client.Send(new TCPMessage()).Code);
+            Assert.AreEqual(NetworkStatusCode.Ok.Raw(), client.Send(new TCPMessage()).Code);
 
             s.Stop();
             client.Stop();
@@ -608,7 +608,7 @@ namespace R2Core.Tests {
             IIdentity identity = new DummyIdentity();
             ep.MessingUp = new Func<INetworkMessage, INetworkMessage>(msg => {
 
-                Assert.Equals(identity.Name, msg.Payload.HostName);
+                Assert.AreEqual(identity.Name, msg.Payload.HostName);
                 return new TCPMessage { Code = NetworkStatusCode.Ok.Raw() };
 
             });
@@ -631,7 +631,7 @@ namespace R2Core.Tests {
             // Try reconnection if remote router is down
             s.Stop();
             Thread.Sleep(300);
-            Assert.That(false == clientServer.Ready);
+            Assert.IsFalse(clientServer.Ready);
             Thread.Sleep(5000);
             s.Start();
             s.WaitFor();

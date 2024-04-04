@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\MainFramePi\packages\NUnit.4.1.0\build\NUnit.props" Condition="Exists('..\..\..\MainFramePi\packages\NUnit.4.1.0\build\NUnit.props')" />
+  <Import Project="..\..\..\MainFramePi\packages\NUnit.3.13.1\build\NUnit.props" Condition="Exists('..\..\..\MainFramePi\packages\NUnit.3.13.1\build\NUnit.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -32,9 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\..\MainFramePi\packages\NUnit.4.1.0\lib\net462\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System.Dynamic" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -46,8 +43,8 @@
     <Reference Include="System.Threading.Tasks.Extensions">
       <HintPath>..\..\..\MainFramePi\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework.legacy">
-      <HintPath>..\..\..\MainFramePi\packages\NUnit.4.1.0\lib\net462\nunit.framework.legacy.dll</HintPath>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\MainFramePi\packages\NUnit.3.13.1\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
