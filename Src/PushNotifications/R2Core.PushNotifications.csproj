@@ -7,7 +7,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>R2Core.PushNotifications</RootNamespace>
     <AssemblyName>R2Core.PushNotifications</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
@@ -25,9 +25,11 @@
     <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release</OutputPath>
-    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <RunWithWarnings>true</RunWithWarnings>
+    <NoStdLib>false</NoStdLib>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -38,7 +40,7 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>$(Solutiondir)\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>\home\olga\Dropbox\workspace_dropbox\r2\MainFramePi\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PushSharp.Amazon">
       <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Amazon.dll</HintPath>

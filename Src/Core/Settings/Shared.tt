@@ -177,11 +177,11 @@
 	
 		}
 
-		return "\t\t\t" + (isExtension ? "public static string " : "public string ") + pathNode.Name  + "(" + (isExtension ? "this Settings.PathsClass self, " : "") + "string fileName = null) {\n\n" +
-"				if (fileName == null) {\n" +
+		return "\t\t\t" + (isExtension ? "public static string " : "public string ") + pathNode.Name  + "(" + (isExtension ? "this Settings.PathsClass self, " : "") + "string path = null) {\n\n" +
+"				if (path == null) {\n" +
 "					return " + ( pathNode.Attributes["absolute"] != null ? "" : "Settings.BasePath + " ) + "\"" + directoryPath + "\";\n" +
 "				}\n" +
-"				return " + ( pathNode.Attributes["absolute"] != null ? "" : "Settings.BasePath + " ) + "\"" + directoryPath + "\" + System.IO.Path.DirectorySeparatorChar + fileName;\n" +
+"				return " + ( pathNode.Attributes["absolute"] != null ? "" : "Settings.BasePath + " ) + "\"" + directoryPath + "\" + System.IO.Path.DirectorySeparatorChar + path;\n" +
 "			}\n\n";
 	} 
 

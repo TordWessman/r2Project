@@ -62,64 +62,64 @@ namespace R2Core.Tests {
             // Make sure the table is created
             adapter.SetUp();
 
-            Assert.AreEqual(1, database.Insert(adapter.InsertSQL(new List<dynamic> {
+            Assert.Equals(1, database.Insert(adapter.InsertSQL(new List<dynamic> {
                 42,  "Hej",  DateTime.Now
             })));
 
-            Assert.AreEqual(2, database.Insert(adapter.InsertSQL(new List<dynamic> {
+            Assert.Equals(2, database.Insert(adapter.InsertSQL(new List<dynamic> {
                 43, "Nej",  DateTime.MinValue
             })));
 
-            Assert.AreEqual(2, adapter.Count());
-            Assert.AreEqual(1, adapter.Count("value = 43"));
+            Assert.Equals(2, adapter.Count());
+            Assert.Equals(1, adapter.Count("value = 43"));
 
             DataSet allRows = database.Select(adapter.SelectSQL());
-            Assert.AreEqual(2, allRows.Tables[0].Rows.Count);
+            Assert.Equals(2, allRows.Tables[0].Rows.Count);
 
             DataSet oneRow = database.Select(adapter.SelectSQL("value = 42"));
-            Assert.AreEqual(1, oneRow.Tables[0].Rows.Count);
+            Assert.Equals(1, oneRow.Tables[0].Rows.Count);
 
-            Assert.AreEqual("Hej", oneRow.Tables[0].Rows[0]["text"]);
+            Assert.Equals("Hej", oneRow.Tables[0].Rows[0]["text"]);
 
             // Test parse DateTime
             DateTime timestamp = DateTime.Parse((string)oneRow.Tables[0].Rows[0]["timestamp"]);
-            Assert.Less(DateTime.Now, timestamp.Add(new TimeSpan(1, 0, 0)));
+            Assert.That(DateTime.Now < timestamp.Add(new TimeSpan(1, 0, 0)));
 
             // Test delete
             database.Query(adapter.DeleteSQL("value = 44"));
-            Assert.AreEqual(2, adapter.Count());
+            Assert.Equals(2, adapter.Count());
 
             database.Query(adapter.DeleteSQL("value = 43"));
-            Assert.AreEqual(1, adapter.Count());
+            Assert.Equals(1, adapter.Count());
 
-            Assert.AreEqual(3, database.Insert(adapter.InsertSQL(new List<dynamic> {
+            Assert.Equals(3, database.Insert(adapter.InsertSQL(new List<dynamic> {
                 45, "Hej", DateTime.Now
             })));
 
             // id should have kept increasing
             allRows = database.Select(adapter.SelectSQL());
-            Assert.AreEqual(3, allRows.Tables[0].Rows[1].GetId());
+            Assert.Equals(3, allRows.Tables[0].Rows[1].GetId());
 
             // Clear the table.
             adapter.Truncate();
-            Assert.AreEqual(0, adapter.Count());
+            Assert.Equals(0, adapter.Count());
 
             // Id increment should have reset
-            Assert.AreEqual(1, database.Insert(adapter.InsertSQL(new List<dynamic> {
+            Assert.Equals(1, database.Insert(adapter.InsertSQL(new List<dynamic> {
                 99,  "Yay",  DateTime.Now
             })));
 
-            Assert.AreEqual(2, database.Insert(adapter.InsertSQL(new List<dynamic> {
+            Assert.Equals(2, database.Insert(adapter.InsertSQL(new List<dynamic> {
                 100,  "Yay",  DateTime.Now
             })));
 
-            Assert.AreEqual(3, database.Insert(adapter.InsertSQL(new List<dynamic> {
+            Assert.Equals(3, database.Insert(adapter.InsertSQL(new List<dynamic> {
                 101,  "Yo",  DateTime.Now
             })));
 
             DataSet notUpdated = database.Select(adapter.SelectSQL("value = 42"));
 
-            Assert.AreEqual(0, notUpdated.Tables[0].Rows.Count);
+            Assert.Equals(0, notUpdated.Tables[0].Rows.Count);
 
             // Test update
 
@@ -132,8 +132,8 @@ namespace R2Core.Tests {
 
             DataRow row = updated.Tables[0].Rows[0];
 
-            Assert.AreEqual(2, updated.Tables[0].Rows.Count);
-            Assert.AreEqual(DateTime.MinValue, row.GetDateTime("timestamp"));
+            Assert.Equals(2, updated.Tables[0].Rows.Count);
+            Assert.Equals(DateTime.MinValue, row.GetDateTime("timestamp"));
 
         }
 
@@ -154,13 +154,13 @@ namespace R2Core.Tests {
             };
 
             // not created
-            Assert.AreEqual(0, database.GetColumns("dummy_db").Count());
+            Assert.Equals(0, database.GetColumns("dummy_db").Count());
 
             // Make sure the table is created
             adapter.SetUp();
 
             // 2 values + id
-            Assert.AreEqual(3, database.GetColumns("dummy_db").Count());
+            Assert.Equals(3, database.GetColumns("dummy_db").Count());
 
             for (int i = 0; i < 10; i++) {
                 database.Insert(adapter.InsertSQL(new List<dynamic> {
@@ -178,10 +178,10 @@ namespace R2Core.Tests {
             adapter.SetUp();
 
             // 3 values + id
-            Assert.AreEqual(4, database.GetColumns("dummy_db").Count());
+            Assert.Equals(4, database.GetColumns("dummy_db").Count());
 
             DataSet allRows = database.Select(adapter.SelectSQL());
-            Assert.AreEqual("", allRows.Tables[0].Rows[1]["timestamp"]);
+            Assert.Equals("", allRows.Tables[0].Rows[1]["timestamp"]);
 
         }
 
@@ -209,16 +209,16 @@ namespace R2Core.Tests {
 
             }
 
-            Assert.AreEqual(count, logger.GetEntries(new string[] { "d1" })["d1"].Count());
-            Assert.AreEqual(count, logger.GetEntries(new string[] { "d2" })["d2"].Count());
+            Assert.Equals(count, logger.GetEntries(new string[] { "d1" })["d1"].Count());
+            Assert.Equals(count, logger.GetEntries(new string[] { "d2" })["d2"].Count());
             var everything = logger.GetEntries(new string[] { "d1", "d2" });
-            Assert.AreEqual(count * 2, everything["d1"].Count() + everything["d2"].Count());
+            Assert.Equals(count * 2, everything["d1"].Count() + everything["d2"].Count());
 
             // Ignoring all "past" entries
-            Assert.AreEqual(count / 2 - 1, logger.GetEntries(new string[] { "d1" }, DateTime.Now)["d1"].Count());
+            Assert.Equals(count / 2 - 1, logger.GetEntries(new string[] { "d1" }, DateTime.Now)["d1"].Count());
 
             // Ignoring "past" and 50 % of the future entries.
-            Assert.AreEqual(count / 2 - count / 4, logger.GetEntries(new string[] { "d1" }, DateTime.Now, DateTime.Now.AddHours(count / 4))["d1"].Count());
+            Assert.Equals(count / 2 - count / 4, logger.GetEntries(new string[] { "d1" }, DateTime.Now, DateTime.Now.AddHours(count / 4))["d1"].Count());
 
 
             // Test most recent:
@@ -237,7 +237,7 @@ namespace R2Core.Tests {
 
             var entry = logger.GetMostRecent("d3");
 
-            Assert.AreEqual(42, entry.Value);
+            Assert.Equals(42, entry.Value);
 
         }
 
@@ -273,7 +273,7 @@ namespace R2Core.Tests {
 
             IDictionary<string, IEnumerable<StatLogEntry<double>>> entries = logger.GetEntries(new string[] { "d1" });
 
-            Assert.AreEqual(count, entries["d1"].Count());
+            Assert.Equals(count, entries["d1"].Count());
 
             // -- Try with start time:
 
@@ -303,9 +303,9 @@ namespace R2Core.Tests {
             entries = logger.GetEntries(new string[] { "d1", "d2" });
 
             // d1 should have added ´count´ + 1 for the first recording
-            Assert.AreEqual(count * 2 + 1, entries["d1"].Count());
+            Assert.Equals(count * 2 + 1, entries["d1"].Count());
             // d2 should have started later and only have ´count - 2´ entries.
-            Assert.AreEqual(count - d2_lost_counts + 1, entries["d2"].Count());
+            Assert.Equals(count - d2_lost_counts + 1, entries["d2"].Count());
 
             // -- Test parsing string as start time:
             stopTimer.Dispose();
@@ -331,7 +331,7 @@ namespace R2Core.Tests {
             stopTimer.Dispose();
             // d1 should have added ´count´ - lost_d1_ticks new entries (+1)
             entries = logger.GetEntries(new string[] { "d1" });
-            Assert.AreEqual(d1_count + count - lost_d1_ticks + 1, entries["d1"].Count());
+            Assert.Equals(d1_count + count - lost_d1_ticks + 1, entries["d1"].Count());
 
             // Test logger.Stop()
             stopTimer = new System.Timers.Timer(count * interval);
@@ -352,10 +352,10 @@ namespace R2Core.Tests {
 
             // d1 should have added ´count´ + 1 new entries.
             entries = logger.GetEntries(new string[] { "d1", "d2" });
-            Assert.AreEqual(d1_count + count + 1, entries["d1"].Count());
+            Assert.Equals(d1_count + count + 1, entries["d1"].Count());
 
             // d2 should have added ´count´ + 1 new entries.
-            Assert.AreEqual(d2_count + count + 1, entries["d2"].Count());
+            Assert.Equals(d2_count + count + 1, entries["d2"].Count());
 
             stopTimer.Dispose();
 
@@ -407,7 +407,7 @@ namespace R2Core.Tests {
             // -------- Check entries locally ----------
 
             // Fetch all entries
-            Assert.AreEqual(5 + 4 + 3, logger.GetEntries<double>(new string[] { "d1"})["d1"].Count());
+            Assert.Equals(5 + 4 + 3, logger.GetEntries<double>(new string[] { "d1"})["d1"].Count());
 
             // Fetch entries from today
             // Format "now" to a start date that is parseable. It should include 5 from today and 3 from tomorrow.
@@ -415,7 +415,7 @@ namespace R2Core.Tests {
             string endDate = null;
             IEnumerable<dynamic> entries = (IEnumerable<dynamic>)remoteLogger.GetValues(new string[] { "d1" }, startDate, endDate)["d1"];
 
-            Assert.AreEqual(5 + 3, entries.Count());
+            Assert.Equals(5 + 3, entries.Count());
 
             // Fetch entries until today
             // Format "now" to an end date that is parseable. It should include 5 from today and 4 from yesterday.
@@ -423,7 +423,7 @@ namespace R2Core.Tests {
             endDate = DateTime.Now.Date.AddDays(1).ToString(StatLoggerDateParsingExtensions.GetStatLoggerDateFormat());
             entries = (IEnumerable<dynamic>)remoteLogger.GetValues(new string[] { "d1" }, startDate, endDate)["d1"];
 
-            Assert.AreEqual(5 + 4, entries.Count());
+            Assert.Equals(5 + 4, entries.Count());
 
             // Log 2 entries from tomorrow
             adapter.MockTimestamp = DateTime.Now.Date.AddDays(1);
@@ -434,7 +434,7 @@ namespace R2Core.Tests {
             entries = (IEnumerable<dynamic>)remoteLogger.GetValues(new string[] { "d1" }, startDate, endDate)["d1"];
 
             // 5 from today and 2 from tomorrow.
-            Assert.AreEqual(5 + 2, entries.Count());
+            Assert.Equals(5 + 2, entries.Count());
 
         }
 
@@ -451,7 +451,7 @@ namespace R2Core.Tests {
 
             IEnumerable<StatLogEntry<double>> entries = logger.GetValues(new string[] { "d1" }, null, null)["d1"];
 
-            Assert.AreEqual(0, entries.Count());
+            Assert.Equals(0, entries.Count());
 
             DummyDevice d1 = new DummyDevice("d1");
             d1.Value = 42;
@@ -460,13 +460,13 @@ namespace R2Core.Tests {
 
             entries = logger.GetValues(new string[] { "d1" }, null, null)["d1"];
 
-            Assert.AreEqual(1, entries.Count());
+            Assert.Equals(1, entries.Count());
 
             // Description has not been set
-            Assert.AreEqual("", entries.First().Description);
+            Assert.Equals("", entries.First().Description);
 
             // Name has not been set and should be equal to Identifier
-            Assert.AreEqual(d1.Identifier, entries.First().Name);
+            Assert.Equals(d1.Identifier, entries.First().Name);
 
             logger.SetDescription(d1, "Din mamma");
             logger.DeviceNames[d1.Identifier] = "Pappa"; // Make all "d1" get a Name property
@@ -474,15 +474,15 @@ namespace R2Core.Tests {
             IEnumerable<StatLogEntry<int>> entriesInt = logger.GetEntries<int>(new string[] { "d1" })["d1"];
             IEnumerable<StatLogEntry<float>> entriesFloat = logger.GetEntries<float>(new string[] { "d1" })["d1"];
 
-            Assert.AreEqual("Din mamma", entriesInt.First().Description);
-            Assert.AreEqual("Pappa", entriesInt.First().Name);
+            Assert.Equals("Din mamma", entriesInt.First().Description);
+            Assert.Equals("Pappa", entriesInt.First().Name);
 
-            Assert.AreEqual(1, entriesInt.Count());
-            Assert.AreEqual(1, entriesFloat.Count());
+            Assert.Equals(1, entriesInt.Count());
+            Assert.Equals(1, entriesFloat.Count());
 
-            Assert.AreEqual(42, entries.First().Value);
-            Assert.AreEqual(42, entriesInt.First().Value);
-            Assert.AreEqual(42, entriesFloat.First().Value);
+            Assert.Equals(42, entries.First().Value);
+            Assert.Equals(42, entriesInt.First().Value);
+            Assert.Equals(42, entriesFloat.First().Value);
 
         }
 

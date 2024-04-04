@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>R2Core.Common</RootNamespace>
     <AssemblyName>R2Core.Common</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

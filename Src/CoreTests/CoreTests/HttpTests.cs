@@ -59,8 +59,8 @@ namespace R2Core.Tests
 
 			INetworkMessage output = ep.Interpret(inputObject, null);
 
-			Assert.AreEqual(response.Payload.Foo, output.Payload.Foo);
-			Assert.AreEqual(response.Headers["Baz"], "FooBar");
+			Assert.Equals(response.Payload.Foo, output.Payload.Foo);
+			Assert.Equals(response.Headers["Baz"], "FooBar");
 
 		}
 
@@ -83,20 +83,20 @@ namespace R2Core.Tests
 			byte[] serialized = serialization.Serialize(request);
 			dynamic deserialized = serialization.Deserialize(serialized);
 
-			Assert.AreEqual("dummy_device", deserialized.Identifier);
-			Assert.NotNull(deserialized.Params[2]);
-			Assert.AreEqual("Dog", deserialized.Params[2].Cat);
+			Assert.Equals("dummy_device", deserialized.Identifier);
+			Assert.That(deserialized.Params[2] != null);
+			Assert.Equals("Dog", deserialized.Params[2].Cat);
 
 			INetworkMessage result = rec.OnReceive(new NetworkMessage{Payload = deserialized}, null);
 
 			// Make sure the identifiers are the same.
-			Assert.AreEqual(deserialized.Identifier, result.Payload.Object.Identifier);
+			Assert.Equals(deserialized.Identifier, result.Payload.Object.Identifier);
 
 			// This is what the function should return
-			Assert.AreEqual(12.34f, result.Payload.ActionResponse);
+			Assert.Equals(12.34f, result.Payload.ActionResponse);
 
 			// The dummy object should now have been changed.
-			Assert.AreEqual("Foo", dummyObject.Bar);
+			Assert.Equals("Foo", dummyObject.Bar);
 
 			int fortytwo = 42;
 			DeviceRequest wob = new DeviceRequest() { 
@@ -111,9 +111,9 @@ namespace R2Core.Tests
 			deserialized = serialization.Deserialize(serialized);
 
 			result = rec.OnReceive(new NetworkMessage{Payload = deserialized}, null);
-			Assert.AreEqual(result.Payload.ActionResponse, fortytwo * 10);
-			Assert.AreEqual(result.Payload.Object.Identifier, "dummy_device");
-			Assert.AreEqual(result.Payload.Action, "MultiplyByTen");
+			Assert.Equals(result.Payload.ActionResponse, fortytwo * 10);
+			Assert.Equals(result.Payload.Object.Identifier, "dummy_device");
+			Assert.Equals(result.Payload.Action, "MultiplyByTen");
 
 		}
 
@@ -137,15 +137,15 @@ namespace R2Core.Tests
 
 			byte[] serialized = serialization.Encoding.GetBytes(jsonString);
 			dynamic deserialized = serialization.Deserialize(serialized);
-			Assert.AreEqual("dummy_device", deserialized.Identifier);
+			Assert.Equals("dummy_device", deserialized.Identifier);
 
 			INetworkMessage result = rec.OnReceive(new NetworkMessage{Payload = deserialized}, null);
 
 			// Make sure the identifiers are the same.
-			Assert.AreEqual(deserialized.Identifier, result.Payload.Object.Identifier);
+			Assert.Equals(deserialized.Identifier, result.Payload.Object.Identifier);
 
 			// The dummy object should now have been changed.
-			Assert.AreEqual(42.1d, dummyObject.HAHA);
+			Assert.Equals(42.1d, dummyObject.HAHA);
 
 		}
 
@@ -181,11 +181,11 @@ namespace R2Core.Tests
 			message.Payload.name = Settings.Paths.TestData("test.bin");
 
 			var response = client.Send(message);
-			Assert.AreEqual(200, response.Code);
-			Assert.AreEqual(6, (response.Payload as byte[]).Length);
+			Assert.Equals(200, response.Code);
+			Assert.Equals(6, (response.Payload as byte[]).Length);
 
-			Assert.AreEqual('d', (response.Payload as byte[])[0]);
-			Assert.AreEqual('h', (response.Payload as byte[])[4]);
+			Assert.Equals('d', (response.Payload as byte[])[0]);
+			Assert.Equals('h', (response.Payload as byte[])[4]);
 
 			webServer.Stop();
 
@@ -217,15 +217,15 @@ namespace R2Core.Tests
 
 			dummyEndpoint.MessingUp = new Func<INetworkMessage, INetworkMessage>(msg => {
 
-				Assert.AreEqual("foo", msg.Payload.parameter);
-				Assert.AreEqual("a header value", msg.Headers["TestHeader"]);
+				Assert.Equals("foo", msg.Payload.parameter);
+				Assert.Equals("a header value", msg.Headers["TestHeader"]);
 				return new HttpMessage() {Code = 242, Payload = "din mamma"};
 			});
 
 			INetworkMessage response = client.Send(message);
 
-			Assert.AreEqual("din mamma", response.Payload);
-			Assert.AreEqual(242, response.Code);
+			Assert.Equals("din mamma", response.Payload);
+			Assert.Equals(242, response.Code);
 
 			message = factory.CreateHttpMessage("/test");
 			R2Dynamic payload = new R2Dynamic();
@@ -236,14 +236,14 @@ namespace R2Core.Tests
 			message.Headers["TestHeader"] = "a header value";
 
 			response = webServer.Interpret(message, new System.Net.IPEndPoint(0,0));
-			Assert.AreEqual("din mamma", response.Payload);
-			Assert.AreEqual(242, response.Code);
+			Assert.Equals("din mamma", response.Payload);
+			Assert.Equals(242, response.Code);
 
 			HttpMessage message2 = factory.CreateHttpMessage("/not.found");
 
 			response = webServer.Interpret(message2, new System.Net.IPEndPoint(0,0));
 
-			Assert.AreEqual(NetworkStatusCode.NotFound, (NetworkStatusCode)response.Code);
+			Assert.Equals(NetworkStatusCode.NotFound, (NetworkStatusCode)response.Code);
 
 		}
 
@@ -269,9 +269,9 @@ namespace R2Core.Tests
 			message.Method = "GET";
 			message.ContentType = "application/json";
 			var response = client.Send(message);
-			Assert.AreEqual(200, response.Code);
-			Assert.NotNull(response.Payload);
-			Assert.AreEqual("Bar", response.Payload.Foo);
+			Assert.Equals(200, response.Code);
+			Assert.That(null != response.Payload);
+			Assert.Equals("Bar", response.Payload.Foo);
 
 
 			webServer.Stop();
@@ -315,13 +315,13 @@ namespace R2Core.Tests
 			message.Payload = requestPayload;
 
 			var response = client.Send(message);
-			Assert.AreEqual(200, response.Code);
+			Assert.Equals(200, response.Code);
 
 			// Make sure the identifiers are the same.
-			Assert.AreEqual(dummyObject.Identifier, response.Payload.Object.Identifier);
+			Assert.Equals(dummyObject.Identifier, response.Payload.Object.Identifier);
 
 			// This is what the function should return
-			Assert.AreEqual(12.34,  response.Payload.ActionResponse);
+			Assert.Equals(12.34,  response.Payload.ActionResponse);
 
 			webServer.Stop();
 
@@ -367,7 +367,7 @@ namespace R2Core.Tests
 
             clientServer.WaitFor();
 
-			Assert.IsTrue(clientServer.Ready);
+			Assert.That(clientServer.Ready);
             memoryChecker.Check();
 
             // Allow the router to access the destination http server
@@ -395,8 +395,8 @@ namespace R2Core.Tests
             Thread.Sleep(500);
 			INetworkMessage response = client.Send(message);
 
-			Assert.AreEqual("din mamma: argh", response.Payload);
-			Assert.AreEqual(210, response.Code);
+			Assert.Equals("din mamma: argh", response.Payload);
+			Assert.Equals(210, response.Code);
 
             // Send another message
             ep.MessingUp = new Func<INetworkMessage, INetworkMessage>(msg => {
@@ -405,8 +405,8 @@ namespace R2Core.Tests
 
             response = client.Send(message);
 
-            Assert.AreEqual("din pappa: argh", response.Payload);
-            Assert.AreEqual(220, response.Code);
+            Assert.Equals("din pappa: argh", response.Payload);
+            Assert.Equals(220, response.Code);
 
             IMessageClient httpClient = factory.CreateHttpClient("http_client", identity.Name);
 
@@ -415,14 +415,14 @@ namespace R2Core.Tests
 
 			INetworkMessage httpResponse = httpClient.Send(httpMessage);
 
-			Assert.AreEqual(NetworkStatusCode.NotFound.Raw(), httpResponse.Code);
+			Assert.Equals(NetworkStatusCode.NotFound.Raw(), httpResponse.Code);
 
 			httpMessage = new HttpMessage () { Destination = $"http://127.0.0.1:{httpPort}/test", Payload = "ugh" };
 			httpMessage.ContentType = "text/string";
 			httpResponse = httpClient.Send(httpMessage);
 
-			Assert.AreEqual(220, httpResponse.Code);
-			Assert.AreEqual("din pappa: ugh", httpResponse.Payload);
+			Assert.Equals(220, httpResponse.Code);
+			Assert.Equals("din pappa: ugh", httpResponse.Payload);
 
 			routingServer.Stop();
 			clientServer.Stop();

@@ -30,9 +30,9 @@ namespace R2Core.Tests
 
 		public INetworkMessage OnReceive(INetworkMessage input, IPEndPoint endpoint = null) {
 
-			Assert.AreEqual("Bar", input.Payload.Foo);
-			Assert.AreEqual(42, input.Payload.Bar);
-			Assert.AreEqual("InputFooBar", input.Headers["InputBaz"]);
+			Assert.Equals("Bar", input.Payload.Foo);
+			Assert.Equals(42, input.Payload.Bar);
+			Assert.Equals("InputFooBar", input.Headers["InputBaz"]);
 			Response.AddMetadata("Baz", "FooBar");
 
 			return Response;

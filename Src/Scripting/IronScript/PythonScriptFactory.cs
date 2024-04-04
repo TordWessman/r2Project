@@ -22,13 +22,14 @@ using System.Collections.Generic;
 using R2Core.Device;
 using System.IO;
 
+
 namespace R2Core.Scripting
 {
 
     public class PythonScriptFactory : ScriptFactoryBase<IronScript> {
 
         /// Make sure the IronPython StdLib is included in the compiled binary.
-        private class MakeSureIronPythonModulesAreIncluded : IronPython.Modules.EncodingMap { }
+        private class MakeSureIronPythonModulesAreIncluded : IronPython.Modules.PythonBisectModule { }
 
         private ScriptEngine m_engine;
         private IDeviceManager m_deviceManager;
@@ -54,19 +55,7 @@ namespace R2Core.Scripting
         public void Reload() {
 
             m_engine = Python.CreateEngine();
-            ClearHooks();
             m_engine.SetSearchPaths(ScriptSourcePaths);
-
-        }
-
-        /// <summary>
-        /// Needed in order to bypass the "Not a ZIP file" exception
-        /// </summary>
-        private void ClearHooks() {
-
-            var pc = Microsoft.Scripting.Hosting.Providers.HostingHelpers.GetLanguageContext(m_engine) as IronPython.Runtime.PythonContext;
-            var hooks = pc.SystemState.Get__dict__()["path_hooks"] as IronPython.Runtime.List;
-            hooks.Clear();
 
         }
 

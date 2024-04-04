@@ -135,7 +135,7 @@ namespace R2Core.IntegrationTests
 
 			if (func == 0) {
 			
-				Assert.AreEqual(84, remoteScript.add_42 (42));
+				Assert.Equals(84, remoteScript.add_42 (42));
 
 			} else if (func == 1) {
 
@@ -145,7 +145,7 @@ namespace R2Core.IntegrationTests
 
 				int aValue = 65536;
 
-				Assert.AreEqual(aValue * 2, remoteScript.wait_and_return_value_plus_value(aValue));
+				Assert.Equals(aValue * 2, remoteScript.wait_and_return_value_plus_value(aValue));
 
 				//wait_and_return_value_plus_value
 			} else {
@@ -165,8 +165,8 @@ namespace R2Core.IntegrationTests
 				IDictionary<string,string> dictionary = (IDictionary<string,string>)sendDict;
 				string expectedKey = dictionary.Keys.ElementAt(i) + "Cat";
 				string expectedValue = dictionary.Values.ElementAt(i) + "42";
-				Assert.True(result.ContainsKey(expectedKey));
-				Assert.True(result.Values.Contains(expectedValue));
+				Assert.That(result.ContainsKey(expectedKey));
+				Assert.That(result.Values.Contains(expectedValue));
 
 			}
 

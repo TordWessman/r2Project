@@ -27,8 +27,8 @@ namespace R2Core.Tests {
         public void DateTimeTests() {
 
             DateTime tomorrow = DateTime.Today.Date.AddDays(1);
-            Assert.False(tomorrow.IsToday());
-            Assert.True(DateTime.Now.IsToday());
+            Assert.That(tomorrow.IsToday() == false);
+            Assert.That(DateTime.Now.IsToday());
 
         }
     }

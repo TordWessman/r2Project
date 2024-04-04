@@ -72,23 +72,23 @@ namespace R2Core.Tests
 			client.Start();
 
 			//Client should be connected
-			Assert.IsTrue(client.Ready);
+			Assert.That(client.Ready);
 
 			IClientConnection connection = new HostConnection("hc", client);
 
 			dynamic python = new RemoteDevice("python_test", Guid.Empty, connection);
 
-			Assert.AreEqual(142, python.add_42 (100));
+			Assert.Equals(142, python.add_42 (100));
 
 			python.katt = 99;
 
-			Assert.AreEqual(99, python.katt);
+			Assert.Equals(99, python.katt);
 
-			Assert.AreEqual(99 * 10 , python.return_katt_times_10());
+			Assert.Equals(99 * 10 , python.return_katt_times_10());
 
 			python.dog_becomes_value("foo");
 
-			Assert.AreEqual("foo", python.dog);
+			Assert.Equals("foo", python.dog);
 
 			s.Stop();
 			client.Stop();
@@ -115,22 +115,22 @@ namespace R2Core.Tests
             client.WaitFor();
 
             //Client should be connected
-            Assert.IsTrue(client.Ready);
+            Assert.That(client.Ready);
 
 			IClientConnection connection = new HostConnection("hc", client);
 
 			RemoteDevice remoteDummy = new RemoteDevice("dummy_device", Guid.Empty, connection);
 
             //Remote dummy should be ready after Start()
-            Assert.False(remoteDummy.Ready);
+            Assert.That(false == remoteDummy.Ready);
             dummyObject.Start();
-            Assert.True(remoteDummy.Ready);
+            Assert.That(remoteDummy.Ready);
 
             // Test method with result
             Task invokeTask = remoteDummy.Async((result, ex) => { 
 				
-				Assert.IsNull(ex);
-				Assert.AreEqual(100, result);
+				Assert.That(null == ex);
+				Assert.Equals(100, result);
 
 			}).MultiplyByTen(10);
 
@@ -140,7 +140,7 @@ namespace R2Core.Tests
 			// Test invoking non-returning method
 			Task invokeTask2 = remoteDummy.Async((result, ex) => { 
 
-				Assert.IsNull(ex);
+				Assert.That(null == ex);
 
 			}).NoParamsNoNothing();
 
@@ -148,26 +148,26 @@ namespace R2Core.Tests
 
 			// Test get property:
 			Task retrieveTask = remoteDummy.Async((response, ex) => {
-				Assert.IsNull(ex);
-				Assert.AreEqual(dummyObject.Bar, response);
+				Assert.That(null == ex);
+				Assert.Equals(dummyObject.Bar, response);
 			}).Bar;
 
 			retrieveTask.Wait();
 
 			// Test set property
 			remoteDummy.Async((response, ex) => {
-				Assert.AreEqual(true, response);
-				Assert.IsNull(ex);
+				Assert.Equals(true, response);
+				Assert.That(null == ex);
 
 			}).HAHA = 1111;
 
 			Thread.Sleep(100);
 
-			Assert.AreEqual(dummyObject.HAHA, 1111);
+			Assert.Equals(dummyObject.HAHA, 1111);
 
 			Task failTask = remoteDummy.Async((response, ex) => {
 
-				Assert.NotNull(ex);
+				Assert.That(null != ex);
 
 			}).ThisMethodDoesNotExist();
 		
@@ -179,15 +179,15 @@ namespace R2Core.Tests
 
             dynamic remoteDummyEnum = new RemoteDevice(dummyEnum.Identifier, Guid.Empty, connection);
 
-            Assert.AreEqual(LogLevel.Info, dummyEnum.LogLevel);
+            Assert.Equals(LogLevel.Info, dummyEnum.LogLevel);
             remoteDummyEnum.SetLogLevel(LogLevel.Message);
-            Assert.AreEqual(LogLevel.Message, dummyEnum.LogLevel);
+            Assert.Equals(LogLevel.Message, dummyEnum.LogLevel);
             remoteDummyEnum.SetLogLevel(2);
-            Assert.AreEqual(LogLevel.Warning, dummyEnum.LogLevel);
+            Assert.Equals(LogLevel.Warning, dummyEnum.LogLevel);
             remoteDummyEnum.LogLevel = LogLevel.Error;
-            Assert.AreEqual(LogLevel.Error, dummyEnum.LogLevel);
+            Assert.Equals(LogLevel.Error, dummyEnum.LogLevel);
             remoteDummyEnum.LogLevel = 4;
-            Assert.AreEqual(LogLevel.Temp, dummyEnum.LogLevel);
+            Assert.Equals(LogLevel.Temp, dummyEnum.LogLevel);
 
             /// -- Test struct invocation
             InvokableDummy dummyInvokable = new InvokableDummy();
@@ -195,27 +195,27 @@ namespace R2Core.Tests
 
             dynamic remoteInvokable = new RemoteDevice(dummyInvokable.Identifier, Guid.Empty, connection);
 
-            Assert.AreEqual(0, remoteInvokable.Decodable.AnInt);
-            Assert.IsNull(remoteInvokable.Decodable.SomeStrings);
+            Assert.Equals(0, remoteInvokable.Decodable.AnInt);
+            Assert.That(null == remoteInvokable.Decodable.SomeStrings);
 
             InvokableDecodableDummy decodable = new InvokableDecodableDummy { AnInt = 43, SomeStrings = new string[] { "Katt", "Hund" } };
 
             remoteInvokable.SetDecodable(decodable);
 
-            Assert.AreEqual(43, dummyInvokable.Decodable.AnInt);
-            Assert.AreEqual(2, dummyInvokable.Decodable.SomeStrings.Count());
-            Assert.AreEqual("Hund", dummyInvokable.Decodable.SomeStrings.Last());
+            Assert.Equals(43, dummyInvokable.Decodable.AnInt);
+            Assert.Equals(2, dummyInvokable.Decodable.SomeStrings.Count());
+            Assert.Equals("Hund", dummyInvokable.Decodable.SomeStrings.Last());
 
             remoteInvokable.Decodable = new InvokableDecodableDummy { AnInt = 44, SomeStrings = new string[] { "Din", "Mammas", "Ost" } };
-            Assert.AreEqual(44, dummyInvokable.Decodable.AnInt);
-            Assert.AreEqual(3, dummyInvokable.Decodable.SomeStrings.Count());
-            Assert.AreEqual("Ost", dummyInvokable.Decodable.SomeStrings.Last());
+            Assert.Equals(44, dummyInvokable.Decodable.AnInt);
+            Assert.Equals(3, dummyInvokable.Decodable.SomeStrings.Count());
+            Assert.Equals("Ost", dummyInvokable.Decodable.SomeStrings.Last());
 
             remoteInvokable.Decodable = new InvokableDecodableDummy { Nested = new InvokableNestedStruct { AString = "Foo" } };
 
-            Assert.AreEqual(0, dummyInvokable.Decodable.AnInt);
-            Assert.IsNull(dummyInvokable.Decodable.SomeStrings);
-            Assert.AreEqual("Foo", dummyInvokable.Decodable.Nested.AString);
+            Assert.Equals(0, dummyInvokable.Decodable.AnInt);
+            Assert.That(null == dummyInvokable.Decodable.SomeStrings);
+            Assert.Equals("Foo", dummyInvokable.Decodable.Nested.AString);
 
             // Stop everything
             s.Stop();
@@ -238,15 +238,15 @@ namespace R2Core.Tests
 			invokedDevice.AddObserver(this);
 			invokedDevice.SomeMethod();
 			Thread.Sleep(200);
-			Assert.IsTrue(wasInvoked);
+			Assert.That(wasInvoked);
 
-			Assert.AreEqual(invokedDevice.SomeValue, 43);
+			Assert.Equals(invokedDevice.SomeValue, 43);
 			invokedDevice.RemoveObserver(this);
 			wasInvoked = false;
 			invokedDevice.SomeMethod(44);
 			Thread.Sleep(200);
-			Assert.False(wasInvoked);
-			Assert.AreEqual(invokedDevice.SomeValue, 44);
+			Assert.That(false == wasInvoked);
+			Assert.Equals(invokedDevice.SomeValue, 44);
 
 		}
 
@@ -270,20 +270,20 @@ namespace R2Core.Tests
             dynamic remoteDeviceDynamic = remoteDevice;
 
             // -- Test synchronous request
-            Assert.AreEqual("hund", remoteDeviceDynamic.hund);
+            Assert.Equals("hund", remoteDeviceDynamic.hund);
 
             string hundValue = null;
 
             // -- Test asynchronous
             remoteDevice.Async((response, exception) => {
 
-                Assert.IsNull(exception);
+                Assert.That(null == exception);
                 hundValue = response;
 
             }).din_mamma();
 
             Thread.Sleep(50);
-            Assert.AreEqual("hund", hundValue);
+            Assert.Equals("hund", hundValue);
 
             // Call a fake method 10 times.
             int receiveCount = 0;
@@ -292,8 +292,8 @@ namespace R2Core.Tests
 
                 remoteDevice.Async((response, exception) => {
 
-                    Assert.IsNull(exception);
-                    Assert.AreEqual("hund", response);
+                    Assert.That(null == exception);
+                    Assert.Equals("hund", response);
                     receiveCount++;
 
                 }).din_mamma();
@@ -302,7 +302,7 @@ namespace R2Core.Tests
 
             Thread.Sleep(100); // They should be done by now... (but maybe not)
 
-            Assert.AreEqual(10, receiveCount); // .. and all 3 should have been executed.
+            Assert.Equals(10, receiveCount); // .. and all 3 should have been executed.
 
             // Shoul lose requests before the last one.
             remoteDevice.LossyRequests = true;
@@ -315,7 +315,7 @@ namespace R2Core.Tests
                 remoteDevice.Async((response, exception) => {
 
                     Log.t($" -x- {i}");
-                    Assert.IsNull(exception);
+                    Assert.That(null == exception);
                     receiveCount++;
 
                 }).din_mamma();
@@ -323,14 +323,14 @@ namespace R2Core.Tests
             }
 
             Thread.Sleep(300); // They should be done by now... (but maybe not)
-            Assert.AreEqual(2, receiveCount); // .. only 6 should have been executed
+            Assert.Equals(2, receiveCount); // .. only 6 should have been executed
 
             // Test GetValue
 
             remoteDevice.Async((response, exception) => {
 
-                Assert.IsNull(exception);
-                Assert.AreEqual("hund", response);
+                Assert.That(null == exception);
+                Assert.Equals("hund", response);
 
             }).GetValue("pappa");
 
@@ -345,8 +345,8 @@ namespace R2Core.Tests
 
             remoteDevice.Async((response, exception) => {
 
-                Assert.NotNull(exception);
-                Assert.True(exception.Message.Contains("Argh!"));
+                Assert.That(null != exception);
+                Assert.That(exception.Message.Contains("Argh!"));
 
             });
 
@@ -359,10 +359,10 @@ namespace R2Core.Tests
 
 			InvokerDummyDevice device = m_deviceManager.Get(notification.Identifier);
 
-			Assert.NotNull(device);
-			Assert.AreEqual(notification.NewValue, 42);
-			Assert.AreEqual(notification.NewValue, device.SomeValue);
-			Assert.AreEqual(notification.Action, "SomeMethod");
+			Assert.That(null != device);
+			Assert.Equals(notification.NewValue, 42);
+			Assert.Equals(notification.NewValue, device.SomeValue);
+			Assert.Equals(notification.Action, "SomeMethod");
 
 			device.SomeValue = 43;
 			wasInvoked = true;
@@ -393,15 +393,15 @@ namespace R2Core.Tests
 
             deviceConnectionManager.Add(device);
 
-            Assert.False(device.Ready);
+            Assert.That(false == device.Ready);
             deviceConnectionManager.Start();
-            Assert.False(device.Ready);
+            Assert.That(false == device.Ready);
             Thread.Sleep(500);
-            Assert.True(device.Ready);
+            Assert.That(device.Ready);
             device.Stop();
-            Assert.False(device.Ready);
+            Assert.That(false == device.Ready);
             Thread.Sleep(20);
-            Assert.True(device.Ready);
+            Assert.That(device.Ready);
 
         }
 

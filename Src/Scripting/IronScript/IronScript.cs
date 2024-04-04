@@ -18,6 +18,7 @@
 //
 using System;
 using System.IO;
+using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using System.Linq;

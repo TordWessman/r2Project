@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\MainFramePi\packages\NUnit.3.13.1\build\NUnit.props" Condition="Exists('..\..\..\MainFramePi\packages\NUnit.3.13.1\build\NUnit.props')" />
+  <Import Project="..\..\..\MainFramePi\packages\NUnit.4.1.0\build\NUnit.props" Condition="Exists('..\..\..\MainFramePi\packages\NUnit.4.1.0\build\NUnit.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>R2Core.Tests</RootNamespace>
     <AssemblyName>R2Core.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,12 +33,22 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="nunit.framework">
-      <HintPath>..\..\..\MainFramePi\packages\NUnit.3.13.1\lib\net45\nunit.framework.dll</HintPath>
+      <HintPath>..\..\..\MainFramePi\packages\NUnit.4.1.0\lib\net462\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System.Dynamic" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>..\..\..\MainFramePi\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <HintPath>..\..\..\MainFramePi\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework.legacy">
+      <HintPath>..\..\..\MainFramePi\packages\NUnit.4.1.0\lib\net462\nunit.framework.legacy.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DummyClasses\DummyDevice.cs" />

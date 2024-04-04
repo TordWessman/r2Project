@@ -50,11 +50,11 @@ namespace R2Core.GPIO.Tests
 
 			byte[] serialized = m_packageFactory.SerializeRequest(request);
 
-			Assert.AreEqual((byte)SerialActionType.Create, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION]);
-			Assert.AreEqual(42, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_ID]);
-			Assert.AreEqual(10, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT]);
-			Assert.AreEqual(20, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT + 1]);
-			Assert.AreEqual(99, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_HOST]);
+			Assert.Equals((byte)SerialActionType.Create, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_ACTION]);
+			Assert.Equals(42, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_ID]);
+			Assert.Equals(10, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT]);
+			Assert.Equals(20, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_CONTENT + 1]);
+			Assert.Equals(99, serialized[ArduinoSerialPackageFactory.REQUEST_POSITION_HOST]);
 
 		}
 
@@ -71,7 +71,7 @@ namespace R2Core.GPIO.Tests
 			for (int i = 0; i < 100; i++) {
 
 				int rand = random.Next(0, 65535);
-				remoteMock.IntValues[0] = rand; Assert.AreEqual(rand, sensor.Value);
+				remoteMock.IntValues[0] = rand; Assert.Equals(rand, sensor.Value);
 	
 			}
 
@@ -87,8 +87,8 @@ namespace R2Core.GPIO.Tests
 				remoteMock.IntValues[0] = rand;
 				remoteMock.IntValues[1] = rand2;
 
-				Assert.AreEqual(rand, temp.Value);
-				Assert.AreEqual(rand2, humid.Value);
+				Assert.Equals(rand, temp.Value);
+				Assert.Equals(rand2, humid.Value);
 
 			}
 		}
@@ -102,7 +102,7 @@ namespace R2Core.GPIO.Tests
 			var host = new ArduinoDeviceRouter("h", mock_connection, m_packageFactory);
 
 			// No device added, so host should not be available
-			Assert.IsFalse(host.IsNodeAvailable(3));
+			Assert.That(false == host.IsNodeAvailable(3));
 
 			var factory = new SerialGPIOFactory("f", host);
 
@@ -113,12 +113,12 @@ namespace R2Core.GPIO.Tests
 			var sensor = factory.CreateAnalogInput("inp", 14, 3);
 
 			// The host should have been created at the mock node.
-			Assert.IsTrue(host.IsNodeAvailable(3));
+			Assert.That(host.IsNodeAvailable(3));
 
 			var remoteMock = mock_connection.Devices.Last();
 			remoteMock.IntValues[0] = 42;
 
-			Assert.AreEqual(42, sensor.Value);
+			Assert.Equals(42, sensor.Value);
 
 			// Send node 3 to sleep and start update cycle.
 			factory[3].Sleep = true;
@@ -127,13 +127,13 @@ namespace R2Core.GPIO.Tests
 			remoteMock.IntValues[0] = 543;
 
 			// Now we should use the cached value
-			Assert.AreEqual(42, sensor.Value);
+			Assert.Equals(42, sensor.Value);
 
 			// Wait for the next update cycle
 			Thread.Sleep(2500);
 
 			// Enough time has passed for an update cycle. The value should have been updated
-			Assert.AreEqual(543, sensor.Value);
+			Assert.Equals(543, sensor.Value);
 
 			// The update should now be disabled
 			((SerialNode) factory[3]).ContinousSynchronization = false;
@@ -145,7 +145,7 @@ namespace R2Core.GPIO.Tests
 			Thread.Sleep(2500);
 
 			// The update cycle should not have occured, and the device should still have it's previous value. 
-			Assert.AreEqual(543, sensor.Value);
+			Assert.Equals(543, sensor.Value);
 		
 		}
 
@@ -156,7 +156,7 @@ namespace R2Core.GPIO.Tests
 				Checksum = 11,
 				Id = 42, NodeId = 200, Content = new byte[2]{11, 12}};
 
-			Assert.IsTrue(p.IsChecksumValid);
+			Assert.That(p.IsChecksumValid);
 
 		}
 
@@ -177,22 +177,22 @@ namespace R2Core.GPIO.Tests
             byte[] response = connection.Send(request);
 
             // Send it once...
-            Assert.AreEqual(request, response);
+            Assert.Equals(request, response);
 
             // ... send it again...
             response = connection.Send(request);
-            Assert.AreEqual(request, response);
+            Assert.Equals(request, response);
 
             dummyConnection.Delay = 500;
             // ... and once again with a delay.
             response = connection.Send(request);
-            Assert.AreEqual(request, response);
+            Assert.Equals(request, response);
 
             //Now test Read
             byte[] broadcastResponse = new byte[] { 99, 100, 16 };
             host.Broadcast(broadcastResponse);
             response = connection.Read();
-            Assert.AreEqual(broadcastResponse, response);
+            Assert.Equals(broadcastResponse, response);
 
         }
 

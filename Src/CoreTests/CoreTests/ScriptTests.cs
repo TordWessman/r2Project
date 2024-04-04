@@ -61,8 +61,7 @@ namespace R2Core.Tests
 			PrintName();
 
 			dynamic lua = m_luaScriptFactory.CreateScript("LuaTest1");
-		
-			Assert.AreEqual("fish", lua.str);
+			Assert.Equals("fish", lua.str);
 
 		}
 
@@ -72,17 +71,17 @@ namespace R2Core.Tests
 
 			dynamic python = m_pythonScriptFactory.CreateScript("python_test");
 
-			Assert.AreEqual(142, python.add_42 (100));
+			Assert.Equals(142, python.add_42 (100));
 
 			python.katt = 99;
 
-			Assert.AreEqual(99, python.katt);
+			Assert.Equals(99, python.katt);
 
-			Assert.AreEqual(99 * 10 , python.return_katt_times_10());
+			Assert.Equals(99 * 10 , python.return_katt_times_10());
 
 			python.dog_becomes_value("foo");
 
-			Assert.AreEqual("foo", python.dog);
+			Assert.Equals("foo", python.dog);
 		
 		}
 
@@ -110,8 +109,8 @@ namespace R2Core.Tests
 			dynamic remoteScript = new RemoteDevice("python_test", Guid.Empty, host);
 			remoteScript.katt = 10;
 
-			Assert.AreEqual(2, remoteScript.wait_and_return_value_plus_value(1));
-			Assert.AreEqual(100, remoteScript.return_katt_times_10());
+			Assert.Equals(2, remoteScript.wait_and_return_value_plus_value(1));
+			Assert.Equals(100, remoteScript.return_katt_times_10());
 
 			dynamic device_list = m_pythonScriptFactory.CreateScript("device_list");
 			m_deviceManager.Add(device_list);
@@ -136,10 +135,10 @@ namespace R2Core.Tests
 			Thread.Sleep(200);
 			IEnumerable<dynamic> devices = remoteDeviceList.GetDevices(deviceNames);
 
-			Assert.AreEqual(4, devices.Count());
+			Assert.Equals(4, devices.Count());
 			dynamic lastDevice = devices.Last();
 			// Hmmm.. this used to work... Apparently the properties of DummyDevice is no longer serialized 
-            // Assert.AreEqual("Foo", lastDevice.Bar);
+            // Assert.Equals("Foo", lastDevice.Bar);
 
 			Thread.Sleep(200);
 			client.Stop();
@@ -170,16 +169,16 @@ namespace R2Core.Tests
 			IScriptInterpreter interpreter = new ScriptInterpreter(interpreterScript);
 
 			// Asesrt some stuff
-			Assert.False(interpreter.Interpret("blah"));
-			Assert.True(dummyRunloop.Ready);
-			Assert.True(interpreter.Interpret("exit"));
-			Assert.False(dummyRunloop.Ready);
-			Assert.True(interpreter.Interpret("devices"));
+			Assert.That(interpreter.Interpret("blah") == false);
+			Assert.That(dummyRunloop.Ready);
+			Assert.That(interpreter.Interpret("exit"));
+			Assert.That(dummyRunloop.Ready == false);
+			Assert.That(interpreter.Interpret("devices"));
 
 			// Add the script that will be interpreted
-			Assert.True(interpreter.Interpret("load python_test"));
+			Assert.That(interpreter.Interpret("load python_test"));
 			// Make sure it can be invoked
-			Assert.True(interpreter.Interpret("python_test.add_42(42)"));
+			Assert.That(interpreter.Interpret("python_test.add_42(42)"));
 
 		}
 
@@ -219,20 +218,20 @@ namespace R2Core.Tests
 			dynamic remoteDummyDynamic = (dynamic)remoteDummy;
 
 			// Test the remote script
-			Assert.AreEqual(84, remoteScriptDynamic.add_42(42));
-			Assert.True(interpreter.Interpret("python_test.add_42(42)"));
-			Assert.True(interpreter.Interpret("python_test.katt = 99"));
-			Assert.True(interpreter.Interpret("python_test.katt"));
-			Assert.True(interpreter.Interpret("python_test.Start()"));
-			Assert.True(interpreter.Interpret("python_test.return_katt_times_10()"));
-			Assert.True(interpreter.Interpret("python_test.CamelCaseMethod()"));
+			Assert.Equals(84, remoteScriptDynamic.add_42(42));
+			Assert.That(interpreter.Interpret("python_test.add_42(42)"));
+			Assert.That(interpreter.Interpret("python_test.katt = 99"));
+			Assert.That(interpreter.Interpret("python_test.katt"));
+			Assert.That(interpreter.Interpret("python_test.Start()"));
+			Assert.That(interpreter.Interpret("python_test.return_katt_times_10()"));
+			Assert.That(interpreter.Interpret("python_test.CamelCaseMethod()"));
 
 			//Test the dummy device
-			Assert.AreEqual(100, remoteDummyDynamic.MultiplyByTen(10));
-			Assert.True(interpreter.Interpret("dummy.Start()"));
-			Assert.True(interpreter.Interpret("dummy.MultiplyByTen (10)"));
-			Assert.True(interpreter.Interpret("dummy.Bar = \"Foo\""));
-			Assert.True(interpreter.Interpret("dummy.Value"));
+			Assert.Equals(100, remoteDummyDynamic.MultiplyByTen(10));
+			Assert.That(interpreter.Interpret("dummy.Start()"));
+			Assert.That(interpreter.Interpret("dummy.MultiplyByTen (10)"));
+			Assert.That(interpreter.Interpret("dummy.Bar = \"Foo\""));
+			Assert.That(interpreter.Interpret("dummy.Value"));
 		}
 
 	

@@ -32,7 +32,7 @@ namespace R2Core
         private readonly Stack<ILogMessage> m_history;
         private readonly int m_maxHistory;
 
-        public LogLevel LogLevel { get; set; } = LogLevel.Message;
+        public LogLevel LogLevel { get; set; } = LogLevel.Info;
 
         public const int DefaultMaxHistory = 100;
 

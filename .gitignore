@@ -79,5 +79,8 @@ Shared.cs
 dumpcode.txt
 mono_crash.*
 
+#IronPython source libs:
+Src/Scripting/lib/
+
 # custom folders
 r2I2C_config.h
