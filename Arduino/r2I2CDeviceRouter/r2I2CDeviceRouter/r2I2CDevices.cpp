@@ -367,7 +367,7 @@ r2Int* getValue(Device* device, byte* params) {
 
         R2Moist *sensor = (R2Moist *) device->object;
         Serial.print("Reading value for probe with id: "); Serial.println(params[0]);
-        values[0] = sensor->read(params[0]);
+        values[0] = sensor->Read(params[0]);
      
      }
 
