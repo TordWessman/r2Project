@@ -40,7 +40,7 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Newtonsoft.Json">
-      <HintPath>\home\olga\Dropbox\workspace_dropbox\r2\MainFramePi\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PushSharp.Amazon">
       <HintPath>$(Solutiondir)\packages\PushSharp.4.0.10\lib\net45\PushSharp.Amazon.dll</HintPath>

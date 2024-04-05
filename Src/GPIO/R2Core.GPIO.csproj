@@ -57,12 +57,12 @@
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="I18N.Other" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>..\..\..\MainFramePi\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
     <Reference Include="mscorlib" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>$(Solutiondir)\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
     <Reference Include="System.Threading.Tasks.Extensions">
-      <HintPath>..\..\..\MainFramePi\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

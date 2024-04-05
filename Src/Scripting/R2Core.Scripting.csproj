@@ -32,49 +32,50 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\MainFramePi\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="KeraLua">
-      <HintPath>$(Solutiondir)\packages\KeraLua.1.2.6\lib\net45\KeraLua.dll</HintPath>
-    </Reference>
-    <Reference Include="NLua">
-      <HintPath>$(Solutiondir)\packages\NLua.1.5.1\lib\net45\NLua.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Buffers">
-      <HintPath>..\..\..\MainFramePi\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Numerics.Vectors">
-      <HintPath>..\..\..\MainFramePi\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
-    </Reference>
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe">
-      <HintPath>..\..\..\MainFramePi\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Memory">
-      <HintPath>..\..\..\MainFramePi\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
-    </Reference>
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\..\MainFramePi\packages\DynamicLanguageRuntime.1.3.4\lib\net452\Microsoft.Dynamic.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\DynamicLanguageRuntime.1.3.4\lib\net452\Microsoft.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting">
-      <HintPath>..\..\..\MainFramePi\packages\DynamicLanguageRuntime.1.3.4\lib\net452\Microsoft.Scripting.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\DynamicLanguageRuntime.1.3.4\lib\net452\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>..\..\..\MainFramePi\packages\DynamicLanguageRuntime.1.3.4\lib\net452\Microsoft.Scripting.Metadata.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\DynamicLanguageRuntime.1.3.4\lib\net452\Microsoft.Scripting.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers">
+      <HintPath>$(Solutiondir)\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.Numerics.Vectors">
+      <HintPath>$(Solutiondir)\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <HintPath>$(Solutiondir)\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory">
+      <HintPath>$(Solutiondir)\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="IronPython">
-      <HintPath>..\..\..\MainFramePi\packages\IronPython.3.4.1\lib\net462\IronPython.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\IronPython.3.4.1\lib\net462\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Modules">
-      <HintPath>..\..\..\MainFramePi\packages\IronPython.3.4.1\lib\net462\IronPython.Modules.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\IronPython.3.4.1\lib\net462\IronPython.Modules.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.SQLite">
-      <HintPath>..\..\..\MainFramePi\packages\IronPython.3.4.1\lib\net462\IronPython.SQLite.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\IronPython.3.4.1\lib\net462\IronPython.SQLite.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Wpf">
-      <HintPath>..\..\..\MainFramePi\packages\IronPython.3.4.1\lib\net462\IronPython.Wpf.dll</HintPath>
+      <HintPath>$(Solutiondir)\packages\IronPython.3.4.1\lib\net462\IronPython.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(Solutiondir)\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="KeraLua">
+      <HintPath>$(Solutiondir)\packages\KeraLua.1.4.1\lib\net46\KeraLua.dll</HintPath>
+    </Reference>
+    <Reference Include="NLua">
+      <HintPath>$(Solutiondir)\packages\NLua.1.7.2\lib\net46\NLua.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -124,11 +125,12 @@
   <ItemGroup>
     <None Include="Lib\ensurepip\_bundled\setuptools-20.10.1-py2.py3-none-any.whl" />
     <None Include="Lib\ensurepip\_bundled\pip-8.1.1-py2.py3-none-any.whl" />
-    <None Include="packages.config" />
     <None Include="ScriptingConfigurationTemplate.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ScriptingConfigurationTemplate.cs</LastGenOutput>
     </None>
+    <None Include="Scripting.config" />
+    <None Include="packages.config" />
     <None Include="lib\__phello__.foo.py" />
     <None Include="lib\__future__.py" />
     <None Include="lib\_weakrefset.py" />
@@ -769,9 +771,9 @@
     <None Include="lib\antigravity.py" />
     <None Include="lib\aifc.py" />
     <None Include="lib\abc.py" />
-    <None Include="Scripting.config" />
   </ItemGroup>
-  <Import Project="..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\build\net45\KeraLua.targets" Condition="Exists('..\..\..\Implementations\MainFramePi\packages\KeraLua.1.0.29\build\net45\KeraLua.targets')" />
+  <Import Project="$(Solutiondir)\packages\KeraLua.1.0.29\build\net45\KeraLua.targets" Condition="Exists('$(Solutiondir)\packages\KeraLua.1.0.29\build\net45\KeraLua.targets')" />
   <Import Project="$(Solutiondir)\packages\KeraLua.1.2.6\build\net45\KeraLua.targets" Condition="Exists('$(Solutiondir)\packages\KeraLua.1.2.6\build\net45\KeraLua.targets')" />
-  <Import Project="..\..\..\MainFramePi\packages\KeraLua.1.2.6\build\net45\KeraLua.targets" Condition="Exists('..\..\..\MainFramePi\packages\KeraLua.1.2.6\build\net45\KeraLua.targets')" />
+  <Import Project="$(Solutiondir)\packages\KeraLua.1.2.6\build\net45\KeraLua.targets" Condition="Exists('$(Solutiondir)\packages\KeraLua.1.2.6\build\net45\KeraLua.targets')" />
+  <Import Project="$(Solutiondir)\packages\KeraLua.1.4.1\build\net46\KeraLua.targets" Condition="Exists('$(Solutiondir)\packages\KeraLua.1.4.1\build\net46\KeraLua.targets')" />
 </Project>
