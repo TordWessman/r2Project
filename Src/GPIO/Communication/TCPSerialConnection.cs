@@ -120,6 +120,12 @@ namespace R2Core.GPIO
                 } catch (Exception ex) {
 
                     Log.d(ex.Message);
+                    if (ex is SocketException &&
+                        ((SocketException) ex).SocketErrorCode == SocketError.WouldBlock ) {
+
+                        Log.w("Is there a connection that should have been closed?");
+
+                    }
 
                     throw ex;
 
