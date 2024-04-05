@@ -21,7 +21,7 @@ using Microsoft.Scripting.Hosting;
 using System.Collections.Generic;
 using R2Core.Device;
 using System.IO;
-
+using System.Linq;
 
 namespace R2Core.Scripting
 {
@@ -46,7 +46,19 @@ namespace R2Core.Scripting
 
             m_deviceManager = deviceManager;
 
-            foreach (string path in paths) { AddSourcePath(path); }
+            foreach (string path in paths.Where((arg) => arg.Trim().Length > 0)) {
+
+                if (path.StartsWith($"{Path.DirectorySeparatorChar}", System.StringComparison.Ordinal)) {
+
+                    AddSourcePath(path);
+
+                } else {
+
+                    AddSourcePath($"{Settings.BasePath}{Path.DirectorySeparatorChar}{path}");
+
+                }
+
+            }
 
             Reload();
         
