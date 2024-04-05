@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{1698EAF2-8FAA-4ED7-8146-7AB921DBD56B}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>r2Boilerplate</RootNamespace>
+    <AssemblyName>r2Boilerplate</AssemblyName>
+    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ExternalConsole>true</ExternalConsole>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\r2Project\Src\Core\R2Core.csproj">
+      <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
+      <Name>R2Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\r2Project\Src\Common\R2Core.Common.csproj">
+      <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
+      <Name>R2Core.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\r2Project\Src\GPIO\R2Core.GPIO.csproj">
+      <Project>{D7921788-D9E8-44C5-8BC7-A1B0D4FD68E3}</Project>
+      <Name>R2Core.GPIO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\r2Project\Src\Scripting\R2Core.Scripting.csproj">
+      <Project>{2E07EACB-D0FB-415F-A497-8D57DE3D2D5C}</Project>
+      <Name>R2Core.Scripting</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
