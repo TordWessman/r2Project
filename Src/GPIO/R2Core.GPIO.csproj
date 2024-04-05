@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\MainFramePi\packages\NUnit.3.13.1\build\NUnit.props" Condition="Exists('..\..\..\MainFramePi\packages\NUnit.3.13.1\build\NUnit.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -65,9 +64,6 @@
     <Reference Include="System.Threading.Tasks.Extensions">
       <HintPath>..\..\..\MainFramePi\packages\System.Threading.Tasks.Extensions.4.5.4\lib\net461\System.Threading.Tasks.Extensions.dll</HintPath>
     </Reference>
-    <Reference Include="nunit.framework">
-      <HintPath>..\..\..\MainFramePi\packages\NUnit.3.13.1\lib\net45\nunit.framework.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
@@ -111,8 +107,6 @@
     <Compile Include="Input\SerialSonar.cs" />
     <Compile Include="Communication\SerialGPIOFactory.cs" />
     <Compile Include="Input\SerialDHT11.cs" />
-    <Compile Include="Test\GPIOTests.cs" />
-    <Compile Include="Test\MockSerialConnection.cs" />
     <Compile Include="Communication\SerialDeviceManager.cs" />
     <Compile Include="Communication\ISerialNode.cs" />
     <Compile Include="Communication\ISerialDevice.cs" />
@@ -120,11 +114,9 @@
     <Compile Include="Communication\SerialConnectionException.cs" />
     <Compile Include="Communication\ArduinoDeviceRouter.cs" />
     <Compile Include="Communication\IArduinoDeviceRouter.cs" />
-    <Compile Include="Test\GPIOTestExtensions.cs" />
     <Compile Include="Output\SerialAnalogOutput.cs" />
     <Compile Include="Input\SerialHCSR04Sonar.cs" />
     <Compile Include="Communication\TCPSerialConnection.cs" />
-    <Compile Include="Test\DummyTCPHost.cs" />
     <Compile Include="Output\SerialMultipleDigitalOutput.cs" />
     <Compile Include="Input\SerialMultiplexMoist.cs" />
     <Compile Include="Input\SerialMultiplexerInput.cs" />
@@ -148,10 +140,6 @@
     <ProjectReference Include="..\Core\R2Core.csproj">
       <Project>{20F7565B-91DE-40F9-80BE-C83D1B93C537}</Project>
       <Name>R2Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CoreTests\R2Core.Tests.csproj">
-      <Project>{B6397024-E95C-43D8-8CDF-0EB826804949}</Project>
-      <Name>R2Core.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common\R2Core.Common.csproj">
       <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>

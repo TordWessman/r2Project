@@ -26,7 +26,7 @@ namespace R2Core.GPIO
 	/// <summary>
 	/// Default ISerialNode implementation. Capable of synchronizing devices on associated node.
 	/// </summary>
-	internal class SerialNode : DeviceBase, ISerialNode {
+	public class SerialNode : DeviceBase, ISerialNode {
 
 		// Devices connected to this node
 		private List<ISerialDevice> m_devices;

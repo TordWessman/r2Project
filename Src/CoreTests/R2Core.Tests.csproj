@@ -79,6 +79,10 @@
     <Compile Include="MemoryChecker.cs" />
     <Compile Include="DummyClasses\DummyDeviceContainer.cs" />
     <Compile Include="CoreTests\ExtensionTests.cs" />
+    <Compile Include="GPIOTests\DummyTCPHost.cs" />
+    <Compile Include="GPIOTests\GPIOTestExtensions.cs" />
+    <Compile Include="GPIOTests\GPIOTests.cs" />
+    <Compile Include="GPIOTests\MockSerialConnection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -86,6 +90,7 @@
     <Folder Include="CoreTests\" />
     <Folder Include="Integration\" />
     <Folder Include="Extensions\" />
+    <Folder Include="GPIOTests\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\R2Core.csproj">
@@ -99,6 +104,10 @@
     <ProjectReference Include="..\Common\R2Core.Common.csproj">
       <Project>{2CF390FB-F117-41C7-BF35-1D7CA8446C7C}</Project>
       <Name>R2Core.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GPIO\R2Core.GPIO.csproj">
+      <Project>{D7921788-D9E8-44C5-8BC7-A1B0D4FD68E3}</Project>
+      <Name>R2Core.GPIO</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
