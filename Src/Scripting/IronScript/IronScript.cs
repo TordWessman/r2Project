@@ -77,7 +77,7 @@ namespace R2Core.Scripting
 
 		public override void Reload() {
 
-			if (IsRunning) { Stop(); }
+			Stop();
 
 			if (!File.Exists(m_fileName)) {
 
@@ -190,7 +190,6 @@ namespace R2Core.Scripting
                     throw ex;
                         
                 }
-
 
 			}
 
