@@ -56,8 +56,9 @@ namespace R2Core.Device
 				if (existingDevice != null && existingDevice.IsLocal()) {
 
 					Log.w($"Replacing device duplicated device with id `{device.Identifier}`");
+					existingDevice.Stop();
 					m_devices.Remove(existingDevice.Guid);
-				
+					
 				}
 
 				m_devices.Add(device.Guid, device);
