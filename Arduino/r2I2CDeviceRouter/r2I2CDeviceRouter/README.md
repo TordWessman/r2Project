@@ -1,33 +1,48 @@
 This project is the bridge between r2Project and Arduino hardware.
 
-### Fix dependencies
+# Fix dependencies
 * Find your Arduino library folder (i.e. _~/Arduino/libraries/_).
 * Add _../../r2I2C_ to your Arduino library folder. (i.e. `ln -s <path>/r2Project/Arduino/r2I2C ~/Arduino/libraries`)
 * Add _../../r2Moist_ to your Arduino library folder (as with r2I2C).
+
+## For Arduino
 * Add the RF24 libraries _(../../3rdParty/RF24-Libraries/*)_ to your Arduino library folder.
 * Add the DHT11 library _(../../3rdParty/DHT11)_ to your Arduino library folder.
 * restart Arduino Studio.
 
-### Create your local configuration file
+## For ESP
+* Install the DHT11 library for ESPx using Library Manager
+
+# Create your local configuration file
 `$ cp r2I2C_config.h.template r2I2C_config.h`
 
 An Arduino running `r2I2CDeviceRouter` acts as a bridge to the `R2Core.GPIO.SerialGPIOFactory`
 via an `IArduinoDeviceRouter`. There are two ways to accomplish this:
 
-#### Connect the arduino using the serial port
+# Connection
+There are various connection interfaces to the device router
+
+## Connect the arduino using the serial port
 * Compile the `r2I2C_config.h` with `#define USE_SERIAL`
 * Make sure `r2I2C_config.h` has `//#define R2_PRINT_DEBUG` commented out
 
-#### Connect using the I2C port
+## Connect using the I2C port
 * Compile the `r2I2C_config.h` with `#define USE_I2C` 
 
-#### Set the node id:
+## Connect using the RF24 library
+* Uncomment the `#define USE_RH24` declaration
+## Connect using WiFi
+* Uncomment the `USE_ESP8266_WIFI` declaration and set the WiFi credentials in the section below
+
+# Other configuration considerations
+
+## Set the node id:
 This is necessary for RF24 networks.
 * Uncomment `saveNodeId(n)` in the `r2I2CDeviceRouter.ino` and burn. `n` is the requested id for the node (0-6)
 * Make sure to _comment out_ `saveNodeId(n)`. Burn again. The node id is stored in the EEPROM
 * There are other ways to handle this, but I dont't remember how.
 
-#### Use the RF24 interface
+## Use the RF24 interface
 An Arduino can be used as a standalone RF24 node in a mesh network. This allows a _r2I2CDeviceRouter_ connection to be extended by up to 6 remote Arduinos.
 * This requires a _master node_ to be configured with node id _0_ and `#define USE_RH24` _and_ to be configured either as serial _or_ i2c as described above.
 * Each _slave_ node needs to be configured with `#define USE_RH24` and a _node id_ that is 1-6.
@@ -35,7 +50,8 @@ An Arduino can be used as a standalone RF24 node in a mesh network. This allows 
 
 See the detailed examples on how to use an array of the RF24 network (there are none).
 
-#### Here's a dummy example of how the configuration for RF24 setup could look like in Python
+# Example code 
+Here's a dummy example of how the configuration for RF24 setup could look like in Python
 It will require a Raspberry Pi and an I2C connection, but it could as well have been any computer using a serial connection.
 
 ```
@@ -59,7 +75,7 @@ It will require a Raspberry Pi and an I2C connection, but it could as well have 
 
 ```
 
-#### RPi Power controll
+# RPi Power controll
 This is a drastic measure to detect if _host_ (namely a Raspberry Pi) has been shut down and to consequently turn off power to it using a micro _controller_. It's a fairly idiosyncratic way of handling the lack of hyberation logic and should probably never be used.
 
 It's done by letting the logic output port `RPI_POWER_CONTROLLER_PORT` controll the power connection to the _host_ and turn it off once `RPI_POWER_DETECTION_PORT` has fallen bellow a specific treshold.

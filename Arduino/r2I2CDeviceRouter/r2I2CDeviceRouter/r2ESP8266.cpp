@@ -6,7 +6,7 @@
   #endif
 #include <ESP8266WiFi.h>
   #if defined(USE_ESP8266_WIFI_AP) && defined(USE_ESP8266_WIFI)
-    #error Can't combine USE_ESP8266_WIFI_AP and USE_ESP8266_WIFI
+    #error Invalid combination of USE_ESP8266_WIFI_AP and USE_ESP8266_WIFI
   #endif
 
 #include "r2I2C_config.h"
