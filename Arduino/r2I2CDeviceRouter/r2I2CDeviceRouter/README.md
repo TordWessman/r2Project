@@ -10,9 +10,15 @@ This project is the bridge between r2Project and Arduino hardware.
 * Add the DHT11 library _(../../3rdParty/DHT11)_ to your Arduino library folder.
 * restart Arduino Studio.
 
-## For ESP
+## For ESPx
 * Install the DHT11 library for ESPx using Library Manager
 
+## For ESP8266
+Ultra sonic sensor library
+```
+$ cd ~/Arduino/libraries
+$ git clone https://github.com/jshaw/NewPingESP8266
+```
 # Create your local configuration file
 `$ cp r2I2C_config.h.template r2I2C_config.h`
 
