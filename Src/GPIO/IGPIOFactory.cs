@@ -16,9 +16,7 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-using System;
 using R2Core.Device;
-
 
 namespace R2Core.GPIO
 {
@@ -31,7 +29,6 @@ namespace R2Core.GPIO
 		/// </summary>
 		/// <returns>The input meter.</returns>
 		/// <param name="id">Identifier.</param>
-		/// <param name="type">Type.</param>
 		/// <param name="adcPort">Adc port.</param>
 		IInputMeter<double> CreateAnalogInput(string id, int adcPort);
 

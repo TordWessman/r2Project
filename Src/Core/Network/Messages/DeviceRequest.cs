@@ -16,9 +16,6 @@
 // along with r2Project. If not, see <http://www.gnu.org/licenses/>.
 // 
 
-﻿using System;
-using System.Dynamic;
-
 namespace R2Core.Network {
 
 	/// <summary>
