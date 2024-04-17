@@ -251,6 +251,8 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         
         device.IOPorts[SONAR_TRIG_PORT] = input[SONAR_TRIG_PORT];
         device.IOPorts[SONAR_ECHO_PORT] = input[SONAR_ECHO_PORT];
+        pinMode(input[SONAR_TRIG_PORT], OUTPUT);
+        pinMode(input[SONAR_ECHO_PORT], INPUT);
    
       } break;
       
@@ -352,14 +354,17 @@ r2Int* getValue(Device* device, byte* params) {
      
    }
    
-   case DEVICE_TYPE_HCSR04_SONAR:
+   case DEVICE_TYPE_HCSR04_SONAR: {
    
+     digitalWrite(device->IOPorts[SONAR_TRIG_PORT], LOW);
+     delayMicroseconds(2);
      digitalWrite(device->IOPorts[SONAR_TRIG_PORT], HIGH); //Trigger ultrasonic detection 
      delayMicroseconds(10); 
-     digitalWrite(device->IOPorts[SONAR_TRIG_PORT], LOW); 
-     values[0] = pulseIn(device->IOPorts[SONAR_ECHO_PORT], HIGH) / HCSR04_SONAR_DISTANCE_DENOMIATOR; //Read ultrasonic reflection
+     digitalWrite(device->IOPorts[SONAR_TRIG_PORT], LOW);
+     long duration = pulseIn(device->IOPorts[SONAR_ECHO_PORT], HIGH); //Read ultrasonic reflection
+     values[0] = duration / HCSR04_SONAR_DISTANCE_DENOMIATOR;
      break;
-
+   }
    case DEVICE_TYPE_MULTIPLEX_MOIST: {
 
      if (params == NULL) { values[0] = 0; }
