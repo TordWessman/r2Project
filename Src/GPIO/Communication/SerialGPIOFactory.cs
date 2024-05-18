@@ -100,6 +100,12 @@ namespace R2Core.GPIO
 
         }
 
+        public IOutputPort<int> CreateMultiplexer(string id, int[] ports, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
+
+            return InstantiateDevice(new SerialMultiplexer(id, m_devices.GetNode(nodeId), m_connection, ports));
+
+        }
+
         public IServo CreateServo(string id, int port, int nodeId = ArduinoSerialPackageFactory.DEVICE_NODE_LOCAL) {
 
 			return InstantiateDevice(new SerialServo(id, m_devices.GetNode(nodeId), m_connection, port));

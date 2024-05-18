@@ -37,7 +37,8 @@ namespace R2Core.GPIO
         AnalogOutput = 0x8,             // PWM output with 8 bit resolution
         Sonar= 0x9,                     // Generic Sonar implementation
         MultipleDigitalOutput = 0xA,    // As with DigitalOutput, but with multiple ports reserved and set simultaneously
-        MultiplexMoist = 0xB            // Using a multiplexer to measure soil moisture. See the Arduino/R2Moist project for details.
+        MultiplexMoist = 0xB,           // Using a multiplexer to measure soil moisture. See the Arduino/R2Moist project for details.
+		Multiplex= 0xC            		// R2Multiplexer.
     }
 
     /// <summary>

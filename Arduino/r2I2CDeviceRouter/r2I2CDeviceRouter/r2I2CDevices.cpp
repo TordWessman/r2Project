@@ -162,7 +162,38 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
         pinMode(device.IOPorts[0], OUTPUT);
       
       } break;
-      
+
+  case DEVICE_TYPE_MULTIPLEX: {
+
+        byte portCount = (byte) input[MULTIPLE_DIGITAL_OUTPUT_PORT_COUNT_POSITION];
+
+        if (portCount > DEVICE_MAX_PORTS) {
+
+          err("Too many ports", ERROR_TOO_MANY_MULTIPLE_PORTS, portCount);
+          return false;
+
+        }
+
+        for(int i = 0; i < portCount; i++) {
+
+           int port = input[1 + MULTIPLE_DIGITAL_OUTPUT_PORT_COUNT_POSITION + i];
+
+           if (reservePort(port)) {
+
+              device.IOPorts[i] = port;
+              pinMode(device.IOPorts[i], OUTPUT);
+              Serial.print("*** Creating multiplex port using: ");
+              Serial.print(" "); Serial.println(device.IOPorts[i]);
+
+           } else { return false; }
+  
+        }
+
+        R2Multiplexer *multiplexer = new R2Multiplexer(device.IOPorts, portCount);
+        device.object = (void *)multiplexer;
+
+    } break;
+ 
   case DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT: {
   
         byte portCount = (byte) input[MULTIPLE_DIGITAL_OUTPUT_PORT_COUNT_POSITION];
@@ -187,8 +218,6 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
               
               device.IOPorts[i] = port;
               pinMode(device.IOPorts[i], OUTPUT);
-              Serial.print("*** Creating multiport using: ");
-              Serial.print(" "); Serial.println(device.IOPorts[i]);
             
            }
            
@@ -494,7 +523,12 @@ void setValue(Device* device, r2Int value) {
     
         analogWrite(device->IOPorts[0], value > 1023 ? 1023 : value);
         break;
-        
+
+    case DEVICE_TYPE_MULTIPLEX:
+
+        ((R2Multiplexer *) device->object)->Open(value);
+        break;
+
     default:
     
       err("Unable to set setDevice.", ERROR_CODE_DEVICE_TYPE_NOT_FOUND_SET_DEVICE);

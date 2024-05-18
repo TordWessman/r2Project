@@ -106,6 +106,8 @@ typedef struct RequestPackage RequestPackage;
 #define DEVICE_TYPE_SONAR 9
 #define DEVICE_TYPE_MULTIPLE_DIGITAL_OUTPUT 0xA
 #define DEVICE_TYPE_MULTIPLEX_MOIST 0xB
+#define DEVICE_TYPE_MULTIPLEX 0xC
+
 // -- Error codes --
 
 // No device with the specified id was found.

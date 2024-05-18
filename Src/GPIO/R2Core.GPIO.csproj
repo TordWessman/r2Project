@@ -120,6 +120,7 @@
     <Compile Include="Output\SerialMultipleDigitalOutput.cs" />
     <Compile Include="Input\SerialMultiplexMoist.cs" />
     <Compile Include="Input\SerialMultiplexerInput.cs" />
+    <Compile Include="Output\SerialMultiplexer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

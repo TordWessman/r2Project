@@ -17,7 +17,6 @@
 // 
 using System;
 using System.Linq;
-using R2Core.Device;
 
 namespace R2Core.GPIO {
 
