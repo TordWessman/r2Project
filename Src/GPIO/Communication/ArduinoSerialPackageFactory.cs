@@ -25,13 +25,19 @@ namespace R2Core.GPIO
 	/// </summary>
 	public class ArduinoSerialPackageFactory : ISerialPackageFactory {
 		
-		// Default local nodeId value. This is the default nodeId used. Data sent to other nodeIds requires a RH24 enabled node(configured as RH24 master).
+		/// <summary>
+		/// Default local nodeId value. This is the default nodeId used. Data sent to other nodeIds requires a RH24 enabled node(configured as RH24 master). 
+		/// </summary>
 		public const byte DEVICE_NODE_LOCAL = 0x0;
 
-		// Max size for content in packages
+		/// <summary>
+		/// Max size for content in packages
+		/// </summary>
 		const int MAX_CONTENT_SIZE = 10;
 
+		/// <summary>
 		/// Keeps track of the devcie number for each host. This values does not correspond to the id's of the host.
+		/// </summary>
 		private byte[] m_deviceCount;
 
 		/// <summary>
@@ -39,10 +45,14 @@ namespace R2Core.GPIO
 		/// </summary>
 		private const byte MAXIMUM_NUMBER_OF_DEVICES_PER_HOST = 5;
 
-		// During SendToSleep, this amount of cycles forces the node to sleep until woken up by tranciever
+		/// <summary>
+		/// During SendToSleep, this amount of cycles forces the node to sleep until woken up by tranciever.
+		/// </summary>
 		public const int RH24_SLEEP_UNTIL_MESSAGE_RECEIVED = 0xFF;
 
-		// The maximum interval allowed for the PauseSleep action.
+		/// <summary>
+		/// The maximum interval allowed for the PauseSleep action.
+		/// </summary>
 		public const int RH24_MAXIMUM_PAUSE_SLEEP_INTERVAL = 60;
 
 		// Below are the positions for Response messages. Request messages do no have the message id, and is thus 1 byte `lower`.
@@ -62,15 +72,24 @@ namespace R2Core.GPIO
 		public const int REQUEST_POSITION_CONTENT_LENGTH = 0x4;
 		public const int REQUEST_POSITION_CONTENT = 0x5;
 
-		// In the content part of the(create) message, here be the Type
+		/// <summary>
+		/// In the content part of the(create) message, here be the Type
+		/// </summary>
 		public const int POSITION_CONTENT_DEVICE_TYPE = 0x0;
 
-		// Where the the error code resides in the response content
+		/// <summary>
+		/// Where the the error code resides in the response content
+		/// </summary>
 		public const int POSITION_CONTENT_POSITION_ERROR_TYPE = 0x0;
-		// Where(potentional) additional error information resides int response content.
+
+		/// <summary>
+		/// Where(potentional) additional error information resides int response content.
+		/// </summary>
 		public const int POSITION_CONTENT_POSITION_ERROR_INFO = 0x1;
 
-		// Content positions for Sleep data
+		/// <summary>
+		/// Content positions for Sleep data
+		/// </summary>
 		public const int POSITION_CONTENT_SLEEP_TOGGLE = 0x0;
 		public const int POSITION_CONTENT_SLEEP_CYCLES = 0x1;
 
