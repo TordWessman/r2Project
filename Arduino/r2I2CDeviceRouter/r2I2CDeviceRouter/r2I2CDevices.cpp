@@ -182,8 +182,6 @@ bool createDevice(byte id, DEVICE_TYPE type, byte* input) {
 
               device.IOPorts[i] = port;
               pinMode(device.IOPorts[i], OUTPUT);
-              Serial.print("*** Creating multiplex port using: ");
-              Serial.print(" "); Serial.println(device.IOPorts[i]);
 
            } else { return false; }
   
@@ -400,7 +398,6 @@ r2Int* getValue(Device* device, byte* params) {
      else {
 
         R2Moist *sensor = (R2Moist *) device->object;
-        Serial.print("Reading value for probe with id: "); Serial.println(params[0]);
         values[0] = sensor->Read(params[0]);
      
      }

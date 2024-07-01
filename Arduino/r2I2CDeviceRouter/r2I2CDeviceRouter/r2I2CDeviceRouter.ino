@@ -30,8 +30,17 @@ byte messageId = 0;
 void setup() {
 
   //saveNodeId(0);
-
+#ifdef R2_PRINT_DEBUG
   Serial.begin(SERIAL_BAUD_RATE);
+  #ifdef USE_SRIAL
+    #error "R2_PRINT_DEBUG and USE_SRIAL cant be defined simultaneously"
+  #endif
+#else
+  #ifdef USE_SERIAL
+    Serial.begin(SERIAL_BAUD_RATE);
+  #endif
+#endif
+
   clearError();
 
   #ifdef RPI_POWER_DETECTION_PORT
